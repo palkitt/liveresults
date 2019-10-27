@@ -117,7 +117,8 @@
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(82, 13);
             this.label15.TabIndex = 10;
-            this.label15.Text = "ver 08.08.2019";
+            this.label15.Text = "ver 27.10.2019";
+            this.label15.Click += new System.EventHandler(this.label15_Click);
             // 
             // panel1
             // 

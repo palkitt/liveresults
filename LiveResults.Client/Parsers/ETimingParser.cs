@@ -347,7 +347,7 @@ namespace LiveResults.Client
                                     }
 
 
-                                        if (RadioPosts.ContainsKey(cource))
+                                    if (RadioPosts.ContainsKey(cource))
                                     {   // Add radio controls to course
                                         Dictionary<int, int> radioCnt = new Dictionary<int, int>();
                                         foreach (var radioControl in RadioPosts[cource])
@@ -359,9 +359,12 @@ namespace LiveResults.Client
                                             int nStep = 1;      // Multiplicator used in relay order      
                                             if (numLegs == 0 && (Code == 999 || Code == 0))
                                                 continue;       // Skip if not relay and finish or start code
+
+                                            if (numLegs > 0 || chaseStart) // Make ready for pass times
+                                                nStep = 2;
+
                                             if (numLegs > 0)    // Relay
                                             {
-                                                nStep = 2;
                                                 classN = " " + classN;
                                                 if (!classN.EndsWith("-"))
                                                     classN += "-";
@@ -369,6 +372,7 @@ namespace LiveResults.Client
                                                 AddforLeg = 10000 * radioControl.Leg;
                                             }
                                             
+
                                             if (Code < 999 && radioControl.RadioType != 10) // Not 999 and not exchange)
                                             {
                                                 CodeforCnt = Code + AddforLeg;
