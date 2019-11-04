@@ -163,7 +163,7 @@ var LiveResults;
 								leg += 1;
 								// var relayLeg = className.replace(classNameClean,'Etappe');
 								if (className.replace(classNameClean,'') == "-All")
-									legText = "<font size=\"+1\">&#" + (9398) +"</font>"
+									legText = "<font size=\"+0\">&#" + (9398) +"</font>"
 								else
 								    legText = "<font size=\"+1\">&#" + (10111+leg) +"</font>"; 
 								str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\" style=\"text-decoration: none\"> " + legText + "</a>";
@@ -247,7 +247,7 @@ var LiveResults;
 					var numSplits = 0;
 					
 					var haveSplitControls = (this.curClassSplits != null) && (this.curClassSplits.length > 0);
-                    var relay = (haveSplitControls && (this.curClassSplits[0].code == "0"));
+                    var relay = (haveSplitControls && this.curClassSplits[0].code == "0");
 					var unranked = false;
                 
                     for (var sp = this.curClassSplits.length - 1; sp >= 0; sp--) {
@@ -277,6 +277,7 @@ var LiveResults;
 
                     for (var i = 0; i < data.length; i++) 
 					{
+						// *** Highlight new results ***
 						// Single-result classes. Highlight whole line
 						if (numSplits==0 || (unranked && numSplits==1) )
 						{
@@ -344,16 +345,20 @@ var LiveResults;
 							}
 						}
 						
-						// Update predicted times
+						// *** Update predicted times ***
 						if ((data[i].status == 10 || data[i].status == 9) && data[i].place == "" && data[i].start != "") {
 							var elapsedTime = time - data[i].start;
-							var elapsedTimeStr = "";
-							var rankStr = "";
-							var rank;
-							if (relay && !this.compactView)
-							   elapsedTimeStr += "<br/>";
-							elapsedTimeStr += "<i>(" + this.formatTime(elapsedTime, 0, false) + ")</i>";
-                            if (elapsedTime>=0) {
+							if (elapsedTime>=0) 
+							{
+								$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(0)").html("<span class=\"pulsing\">&#8226;</span>");
+								var elapsedTimeStr = "";
+								var timeDiffStr = "";
+								var rank;
+								
+								if (relay && !this.compactView)
+									elapsedTimeStr += "<br/>";
+								
+								elapsedTimeStr += "<i>" + this.formatTime(elapsedTime, 0, false) + "</i>";
                                 if (this.curClassSplits == null || this.curClassSplits.length == 0) // No split controls
 								{
 									if (!unranked)
@@ -362,20 +367,20 @@ var LiveResults;
 										{
 											rank = this.findRank(this.curClassSplitsBests[0],elapsedTime);
 											if (rank > 1)
-												rankStr = "<i> (" + rank + ")</i>";
+												elapsedTimeStr += "<i> (" + rank + ")</i>";
 											timeDiff = elapsedTime - this.curClassSplitsBests[0][0]; 
-											timeDiffStr = "<i>(" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + ")</i>";
+											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
 										}
 										else
 											timeDiffStr = "<i>(...)<\i>";
 										$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + 5 + ")").html(timeDiffStr);
 									}
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + 4 + ")").html((elapsedTimeStr + rankStr));
+									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + 4 + ")").html(elapsedTimeStr);
                                 }
-                                else 
+                                else // Have split controls
 								{
 									//Find next split to reach
-                                    var nextSplit = 0;
+									var nextSplit = 0;
                                     var nextSplitRef = 0;
                                     for (var sp = this.curClassSplits.length - 1; sp >= 0; sp--) {
                                         if (data[i].splits[this.curClassSplits[sp].code] != "") {
@@ -395,13 +400,14 @@ var LiveResults;
                                             }
                                         }
                                     }
-									if (!unranked)
+									if (unranked)
 									{
-										timeDiffCol = 3 + nextSplit + extraCol;
-										if (nextSplit==numSplits) // Approach finish
-											timeDiffCol += 1;
+										$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + nextSplit + extraCol) + ")").html(elapsedTimeStr);
+									}
+									else
+									{
 										if (this.curClassSplitsBests[nextSplitRef][0]==0)
-										   $("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + timeDiffCol + ")").html("<i>(...)<\i>");
+										   timeDiffStr = "<i>(...)<\i>";
 										else
 										{
 											if (relay)
@@ -414,19 +420,27 @@ var LiveResults;
 												timeDiff = elapsedTime - this.curClassSplitsBests[nextSplitRef][0];
 												rank = this.findRank(this.curClassSplitsBests[nextSplitRef],elapsedTime);
 											}
+											var rankStr = "";
 											if (rank > 1)
 												rankStr = "<i> (" + rank + ")</i>";											
-											timeDiffStr = "<i>(" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + ")</i>";
+											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
 											if (nextSplit==numSplits)
 												elapsedTimeStr += rankStr;
 											else
 												timeDiffStr += rankStr; 
-											$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + timeDiffCol + ")").html(timeDiffStr);
 										}
+										
+										timeDiffCol = 3 + nextSplit + extraCol;
+										if (nextSplit==numSplits) // Approach finish
+											timeDiffCol += 1;
+										// Display elapsed time
+										if (!this.compactView && !relay && nextSplit==numSplits)
+											elapsedTimeStr += "<br/>" + timeDiffStr;
 										$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + numSplits + extraCol) + ")").html(elapsedTimeStr);
+										// Display time diff
+										if (this.compactView || relay || nextSplit!=numSplits)
+											$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + timeDiffCol + ")").html(timeDiffStr);
 									}
-									else // unranked
-										$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + nextSplit + extraCol) + ")").html(elapsedTimeStr);
                                 }
                             }
                         }
@@ -596,6 +610,8 @@ var LiveResults;
 						var res = "";
 						if (o.aData.timeDiff >= 0)
 							res += "+" + _this.formatTime(o.aData.timeDiff, 0, _this.showTenthOfSecond);
+						else if (o.aData.timeDiff != -1)
+							res += "<span class=\"besttime\">-" + _this.formatTime(-o.aData.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
 						return res;
 					}});
 			}
@@ -862,7 +878,7 @@ var LiveResults;
                                 var txt = "";
                                 if (o.aData.splits != undefined && o.aData.splits["0_place"] >= 1)
 								{
-									if (o.aData.splits["0_place"] == 1)
+									if (o.aData.splits["0_place"] == 1)									
 										txt += "<span class=\"besttime\">" +_this.formatTime(o.aData.start, 0, false, true)+ " (1)<\span>";
 									else if (o.aData.splits["0_place"] > 1)
 										txt += _this.formatTime(o.aData.start, 0, false, true) + " (" + o.aData.splits["0_place"] + ")";
@@ -1175,13 +1191,12 @@ var LiveResults;
                     padZeros = true;
                 }
             }
-            else if (arguments.length == 4) {
-                if (this.language == 'fi' || this.language == 'no') {
+            else if (arguments.length == 4) 
+			{
+                if (this.language == 'fi' || this.language == 'no')
                     padZeros = false;
-                }
-                else {
+                else
                     padZeros = true;
-                }
             }
             if (status != 0) {
                 return this.runnerStatus[status];
@@ -1192,6 +1207,7 @@ var LiveResults;
                 var minutes;
                 var seconds;
                 var tenth;
+								
                 if (showHours) {
                     var hours = Math.floor(time / 360000);
                     minutes = Math.floor((time - hours * 360000) / 6000);

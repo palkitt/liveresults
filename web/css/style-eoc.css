@@ -50,13 +50,15 @@ tr.red_row td i { color: white;}
 
 /* Red cell for singel cell marking of new result */
 .red_cell {color: white; background-color: #F1592A !important;  border-bottom-right-radius: 10px}
-.red_cell .plustime { color: white}
-.red_cell .legtime  { color: white}
-.red_cell .besttime { color: white}
+.red_cell .plustime { color: white;}
+.red_cell .legtime  { color: white;}
+.red_cell .besttime { color: white;}
+.red_cell i { color: white;}
 .red_cell_sqr {color: white; background-color: #F1592A !important;  border-bottom-right-radius: 0px}
-.red_cell_sqr .plustime { color: white}
-.red_cell_sqr .legtime  { color: white}
-.red_cell_sqr .besttime { color: white}
+.red_cell_sqr .plustime { color: white;}
+.red_cell_sqr .legtime  { color: white;}
+.red_cell_sqr .besttime { color: white;}
+.red_cell_sqr i { color: white;}
 
 /* New first nonqualifier */
 tr.new_fnq {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: 3px dashed grey;} /* font-weight: bold; */
@@ -78,12 +80,24 @@ tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-rig
 
 table.dataTable td {vertical-align: top;}
 
-.plustime {color: grey;}
-.legtime {color: grey;}
+.pulsing {
+  animation: blinker 1s ease-in-out infinite;
+  font-size: 2em;
+  color: #F1592A;
+}
+
+@keyframes blinker { 
+  0% { opacity: 1; } 
+  50% { opacity: 0; } 
+  100% { opacity: 1; }
+}
+
+.plustime {color: dimgrey;}
+.legtime {color: dimgrey;}
 .besttime {color: red;}
 
-/*predicted times*/
-td i { color: gray;}
+/*predicted times  */
+td i { color: grey;}
 
 
 #langchooser { vertical-align: middle; line-height:21px;}
@@ -118,7 +132,6 @@ width: 21px;
 .green {color: #2e8d03;}
 .darkblue {color: #3A5C9C;}
 .grey {	color: #666666;	}
-
 
 /*-------------------------------*/
 /*--- HEADER & FOOTER CLASSES ---*/

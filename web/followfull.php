@@ -183,12 +183,12 @@ $(document).ready(function()
 	<?php }?>
 	
 	// Set full view
-	<?php if ($setFullView || in_array($currentCompNo, array(16284))){?>
+	<?php if ($setFullView || in_array($currentCompNo, array(16284,16699))){?>
 		res.setCompactView(false);
 	<?php }?>
 	
 	// Mass start race
-	<?php if(in_array($currentCompNo, array(14872, 15233,15952, 16197, 16284, 16544))){?>
+	<?php if(in_array($currentCompNo, array(14872, 15233,15952, 16197, 16284, 16544, 16699))){?>
 		res.curClassIsMassStart = true;
 	<?php }?>
 	
@@ -305,9 +305,9 @@ function changeFontSize(val)
 			<?php } elseif(in_array($_GET['comp'], array("16235","16241","16284"))){?>
 			    <td width="60">
 			    <img src="images/SB-O.png" height="60" /></td>
-			<?php } elseif(in_array($_GET['comp'], array("16432"))){?>
-			    <td width="210">
-			    <img src="images/u-lop.png" height="60" /></td>
+			<?php } elseif(in_array($_GET['comp'], array("16699"))){?>
+			    <td width="70">
+			    <img src="images/MOTTV.png" height="60" /></td>
 			<?php } elseif($orgainzer=="Freidig"){?>
 			    <td width="60">
 			    <img src="images/Freidig60.png" height="60" /></td>
