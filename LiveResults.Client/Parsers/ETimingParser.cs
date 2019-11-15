@@ -22,12 +22,13 @@ namespace LiveResults.Client
         private bool m_continue;
         private int  m_sleepTime;
         private bool m_oneLineRelayRes;
+        private bool m_lapTimes;
         private bool m_MSSQL;
         private bool m_twoEcards;
         private int day;
 
         public ETimingParser(IDbConnection conn, int sleepTime, bool recreateRadioControls = true, bool oneLineRelayRes = false, 
-            bool MSSQL = false, bool twoEcards = false)
+            bool MSSQL = false, bool twoEcards = false, bool lapTimes = false)
         {
             m_connection = conn;
             m_createRadioControls = recreateRadioControls;
@@ -35,6 +36,7 @@ namespace LiveResults.Client
             m_oneLineRelayRes = oneLineRelayRes;
             m_MSSQL = MSSQL;
             m_twoEcards = twoEcards;
+            m_lapTimes = lapTimes;
         }
         
         private void FireOnResult(Result newResult)
@@ -305,6 +307,17 @@ namespace LiveResults.Client
                                             Order = 999
                                         });
                                     }
+
+                                    // Add lap time for last lap
+                                    if (m_lapTimes)
+                                        intermediates.Add(new IntermediateTime
+                                        {
+                                            ClassName = className,
+                                            IntermediateName = "Leg",
+                                            Position = 999,
+                                            Order = 999
+                                        });
+
                                     // Add exchange and leg times for legs 2 and up
                                     for (int i = 2; i <= numLegs; i++) 
                                     {
@@ -360,7 +373,7 @@ namespace LiveResults.Client
                                             if (numLegs == 0 && (Code == 999 || Code == 0))
                                                 continue;       // Skip if not relay and finish or start code
 
-                                            if (numLegs > 0 || chaseStart) // Make ready for pass times
+                                            if (numLegs > 0 || chaseStart || m_lapTimes) // Make ready for pass times
                                                 nStep = 2;
 
                                             if (numLegs > 0)    // Relay
@@ -371,7 +384,6 @@ namespace LiveResults.Client
                                                 classN += Convert.ToString(radioControl.Leg);
                                                 AddforLeg = 10000 * radioControl.Leg;
                                             }
-                                            
 
                                             if (Code < 999 && radioControl.RadioType != 10) // Not 999 and not exchange)
                                             {
@@ -390,8 +402,8 @@ namespace LiveResults.Client
                                                     Order = nStep*radioControl.Order
                                                 });
 
-                                                // Add leg passing time for relay and chase start
-                                                if (((numLegs > 0) && (radioControl.Leg > 1)) || chaseStart) 
+                                                // Add leg passing time for relay, chase start and lap times
+                                                if (((numLegs > 0) && (radioControl.Leg > 1)) || chaseStart || m_lapTimes) 
                                                 {
                                                     intermediates.Add(new IntermediateTime
                                                     {
@@ -838,6 +850,8 @@ namespace LiveResults.Client
                         int calcStartTime = -2;
                         int iSplitcode = 0;
                         int lastSplitTime = -1;
+                        int lastSplitCode = -999;
+                        int passTime = -2;
                         foreach (var split in splits)
                         {
                             if (split.controlCode == 0)
@@ -849,12 +863,12 @@ namespace LiveResults.Client
                                 continue;         
                             }
                                 
-                            if (split.passTime < iStartTime)
-                                continue;         // Neglect passing before starttime
-                            if (split.passTime - lastSplitTime < 3000)
-                                continue;         // Neglect passing less than 3 s from last
-
-                            int passTime = -2;    // Total time at passing
+                            if (split.passTime < iStartTime || (split.passTime - lastSplitTime < 3000 && split.controlCode == lastSplitCode))
+                                continue;         // Neglect passing before starttime, passing less than 3 s from last when the same splitCode
+                            if (m_lapTimes && split.controlCode < 0) 
+                                continue;         // Do not accept negative control codes in cases where lap times are to be calculated
+                    
+                            passTime = -2;        // Total time at passing
                             int passLegTime = -2; // Time used on leg at passing
                             if (freeStart)
                                 passTime = split.netTime;
@@ -873,10 +887,19 @@ namespace LiveResults.Client
                                 passTime = split.passTime - iStartTime;
                             if (passTime < 3000)  // Neglect pass times less than 3 s from start
                                 continue;
-                            lastSplitTime = split.passTime;
-
+                            if (m_lapTimes)
+                            {
+                                if (lastSplitTime < 0) // First pass
+                                    passLegTime = passTime;
+                                else
+                                    passLegTime = split.passTime - lastSplitTime;
+                            }
 
                             // Add split code to list
+
+                            lastSplitTime = split.passTime;
+                            lastSplitCode = split.controlCode;
+
                             if (split.controlCode > 0)
                                 iSplitcode = sign * (split.controlCode + 1000);
                             else
@@ -906,7 +929,7 @@ namespace LiveResults.Client
                                     ControlCode = iSplitcode + 10000 * leg + 100000,
                                     Time = passLegTime
                                 };
-                                if (leg > 1 || chaseStart)
+                                if (leg > 1 || chaseStart || m_lapTimes)
                                     SplitTimes.Add(passLegTimeStruct);
                                 if (isRelay)
                                     RelayTeams[teambib].SplitTimes.Add(passLegTimeStruct);
@@ -915,6 +938,18 @@ namespace LiveResults.Client
                             if (freeStart && calcStartTime<0)
                                 calcStartTime = split.changedTime - split.netTime;
                         }
+
+                        if (time > 0 && m_lapTimes) // Add lap time for last lap
+                        {
+                            var LegTime = new ResultStruct
+                            {
+                                ControlCode = 999,
+                                Time = time - passTime
+                            };
+                            SplitTimes.Add(LegTime);
+                        }
+                        
+
                         if (m_twoEcards && numEcards < 2 && (status == "S"))
                             status = "I"; // Set status to "Entered" if only one eCard at start when 2 required 
 

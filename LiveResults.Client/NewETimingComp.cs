@@ -30,6 +30,7 @@ namespace LiveResults.Client
             txtSleepTime.Text = "10";
             chkOneLineRelayRes.Checked = false;
             chkTwoEcards.Checked = false;
+            chkLapTimes.Checked = false;
             RetreiveSettings();
             chkDeleteEmmaIDs.Checked = false;
             
@@ -337,7 +338,7 @@ namespace LiveResults.Client
             if (comboBox1.SelectedIndex == 1) MSSQL = true;
             
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
-                    (Convert.ToInt32(txtSleepTime.Text)), chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked);
+                    (Convert.ToInt32(txtSleepTime.Text)), chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, chkLapTimes.Checked);
 
             monForm.SetParser(pars as IExternalSystemResultParser);
             monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);

@@ -66,6 +66,7 @@
             this.wizardPage2 = new Gui.Wizard.WizardPage();
             this.lstDB = new System.Windows.Forms.ListBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.chkLapTimes = new System.Windows.Forms.CheckBox();
             this.wizard1.SuspendLayout();
             this.wizardPage1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -75,9 +76,9 @@
             // 
             // wizard1
             // 
-            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage2);
+            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
@@ -244,6 +245,7 @@
             // 
             // wizardPage5
             // 
+            this.wizardPage5.Controls.Add(this.chkLapTimes);
             this.wizardPage5.Controls.Add(this.txtSleepTime);
             this.wizardPage5.Controls.Add(this.label8);
             this.wizardPage5.Controls.Add(this.chkTwoEcards);
@@ -290,7 +292,7 @@
             // chkTwoEcards
             // 
             this.chkTwoEcards.AutoSize = true;
-            this.chkTwoEcards.Location = new System.Drawing.Point(12, 172);
+            this.chkTwoEcards.Location = new System.Drawing.Point(12, 187);
             this.chkTwoEcards.Name = "chkTwoEcards";
             this.chkTwoEcards.Size = new System.Drawing.Size(222, 17);
             this.chkTwoEcards.TabIndex = 14;
@@ -301,7 +303,7 @@
             // chkOneLineRelayRes
             // 
             this.chkOneLineRelayRes.AutoSize = true;
-            this.chkOneLineRelayRes.Location = new System.Drawing.Point(12, 126);
+            this.chkOneLineRelayRes.Location = new System.Drawing.Point(12, 124);
             this.chkOneLineRelayRes.Name = "chkOneLineRelayRes";
             this.chkOneLineRelayRes.Size = new System.Drawing.Size(208, 17);
             this.chkOneLineRelayRes.TabIndex = 13;
@@ -358,7 +360,7 @@
             // chkDeleteEmmaIDs
             // 
             this.chkDeleteEmmaIDs.AutoSize = true;
-            this.chkDeleteEmmaIDs.Location = new System.Drawing.Point(12, 149);
+            this.chkDeleteEmmaIDs.Location = new System.Drawing.Point(12, 166);
             this.chkDeleteEmmaIDs.Name = "chkDeleteEmmaIDs";
             this.chkDeleteEmmaIDs.Size = new System.Drawing.Size(194, 17);
             this.chkDeleteEmmaIDs.TabIndex = 7;
@@ -452,6 +454,16 @@
             this.label6.TabIndex = 0;
             this.label6.Text = "Database";
             // 
+            // chkLapTimes
+            // 
+            this.chkLapTimes.AutoSize = true;
+            this.chkLapTimes.Location = new System.Drawing.Point(12, 145);
+            this.chkLapTimes.Name = "chkLapTimes";
+            this.chkLapTimes.Size = new System.Drawing.Size(184, 17);
+            this.chkLapTimes.TabIndex = 16;
+            this.chkLapTimes.Text = "Make lap times for individual race";
+            this.chkLapTimes.UseVisualStyleBackColor = true;
+            // 
             // NewETimingComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -513,5 +525,6 @@
         public System.Windows.Forms.CheckBox chkTwoEcards;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label15;
+        public System.Windows.Forms.CheckBox chkLapTimes;
     }
 }
