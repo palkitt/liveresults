@@ -173,3 +173,8 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+testfiles/iof_xml_notcompeting.xml
+.vs/LiveResults.Client/v15/Server/sqlite3/storage.ide
+.vs/LiveResults.Client/v15/Server/sqlite3/storage.ide-shm
+.vs/LiveResults.Client/v15/Server/sqlite3/storage.ide-wal
+testfiles/oe_speaker_result_0.1sec.xml

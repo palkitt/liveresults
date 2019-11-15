@@ -316,37 +316,21 @@ public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff)
 
 	function Classes()
 	{
-
 		$ret = Array();
-
 		$q = "SELECT Class From runners where TavId = ". $this->m_CompId ."
 		      AND Class NOT LIKE 'NOCLAS'
 		      Group By Class";
-
 		if ($result = mysqli_query($this->m_Conn, $q))
-
 		{
-
 			while ($row = mysqli_fetch_array($result))
-
 			{
-
 				$ret[] = $row;
-
 			}
-
 			mysqli_free_result($result);
-
 		}
-
 		else
-
 			die(mysqli_error($this->m_Conn));
-
 		return $ret;
-
-
-
 	}
 
 function getAllSplitControls()
@@ -407,21 +391,14 @@ function getAllSplitControls()
   }
 
 	function getResultsForClass($className)
-
   {
-
    return $this->getSplitsForClass($className,1000);
-
   }
 
 
-
   function getLastPassings($num)
-
   {
-
     $ret = Array();
-
 	$q = "SELECT runners.Name, runners.class, runners.Club, results.Time,results.Status, results.Changed, 
 	      results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
 		  left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
@@ -433,31 +410,20 @@ function getAllSplitControls()
 		  ORDER BY results.changed desc limit 3";
 
 		if ($result = mysqli_query($this->m_Conn, $q))
-
 		{
-
 			while ($row = mysqli_fetch_array($result))
-
 			{
-
 				$ret[] = $row;
 				if ($this->m_TimeDiff != 0)
 				{
 					$ret[sizeof($ret)-1]["Changed"] = date("Y-m-d H:i:s",strtotime($ret[sizeof($ret)-1]["Changed"])+$this->m_TimeDiff);
 				}
-
 			}
-
 			mysqli_free_result($result);
-
 		}
-
 		else
-
 			die(mysqli_error($this->m_Conn));
-
 		return $ret;
-
   }
 
    function getRadioPassings($code,$calltime,$lastUpdate,$maxNum)
@@ -479,26 +445,22 @@ function getAllSplitControls()
 		       OR (results.control = 100 AND results.status = 10 
 		       AND ((results.time-".$currTime.") < ".$preTime .") AND ((".$currTime."-results.time) < ".$postTime.")))			  
 			   ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END,
-			            CASE WHEN results.status = 10 THEN results.time ELSE results.changed END DESC 
+			            CASE WHEN results.status = 10 THEN results.time ELSE results.changed END DESC,
+						runners.name
 			   limit 50";		   
 	}
 	elseif ($code == 1000) // Finish
-	{
 		$q .= "AND results.Time <> -1 AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND results.control = 1000 
                AND runners.class NOT LIKE '%-All'  
-			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum."";
-    }
+			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;
 	elseif ($code < 0 ) // All radio controls (not including start and finish)
 		$q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
                AND results.control < 100000 AND ABS(results.control)%1000 > 0  AND ABS(results.control)%1000 < 999 AND runners.class NOT LIKE '%-All' 
-			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum."";
-	
+			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;	
 	else // Other controls
-	{
-		$q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
+	    $q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
                AND results.control < 100000 AND ABS(results.control)%1000 = ".$code." AND runners.class NOT LIKE '%-All' 
-			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum."";
-    }
+			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;
 
 	if ($result = mysqli_query($this->m_Conn, $q))
 	{
@@ -530,27 +492,16 @@ function getAllSplitControls()
 		$ret = Array();
 
 		$q = "SELECT runners.Name, runners.Club, results.Time, results.Status, results.Changed From runners,results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '".$className."' and results.Status <> -1 AND (results.Time <> -1 or (results.Time = -1 and (results.Status = 2 or results.Status=3))) AND results.Control = $split ORDER BY results.Status, results.Time";
-
 		if ($result = mysqli_query($this->m_Conn, $q))
-
 		{
-
 			while ($row = mysqli_fetch_array($result))
-
 			{
-
 				$ret[] = $row;
-
 			}
-
 			mysqli_free_result($result);
-
 		}
-
 		else
-
 			die(mysqli_error($this->m_Conn));
-
 		return $ret;
 	}
 	
@@ -567,8 +518,25 @@ function getAllSplitControls()
 			die(mysqli_error($this->m_Conn));
 		return $ret;
 	}
+	
+	function getSecondBestSplitInClass($className,$code)
+	{
+		$ret = Array();
+		
+		$q = "SELECT results.Time FROM runners, results 
+		      WHERE results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '".$className."' AND (results.Status = 0 OR results.Status = 9 OR results.Status = 10) AND results.Time > 0 AND results.Control = $code ORDER BY results.Time limit 2";
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
 
-		function getClubResults($compId, $club)
+	function getClubResults($compId, $club)
 
 		{
 

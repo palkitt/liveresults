@@ -56,8 +56,6 @@ if ($_GET['method'] == 'getcompetitions')
                                 {
                                     echo(", \"multidaystage\": ".$comp["multidaystage"].", \"multidayfirstday\": ".$comp["multidayparent"]);
                                 }
-
-
                                 echo("}$br");
 				$first = false;
 			}

@@ -74,7 +74,7 @@ if ($_GET['method'] == 'getradiopassings')
 					\"controlName\" : \"".$pass['pname']."\",
 					\"time\": \"" .formatTime($time,$status,$RunnerStatus)."\", 
 					\"compName\": \"".$pass['compName']."\"";
-			// eller 0 for status? Funker ikke påa start, code =0 
+			
 			if ($pass['Control']==100)	
 			{
 				if ($pass['class']=="NOCLAS")
@@ -106,8 +106,15 @@ if ($_GET['method'] == 'getradiopassings')
 					$rank = $rankTime['rank']+1;
 					if ($rank>1)
 						$timeDiff = $time-$rankTime['bestTime'];
-					else
-						$timeDiff = 0;
+					else if ($rank==1)
+					{
+						// Query for second best time
+						$secondBest = $currentComp->getSecondBestSplitInClass($pass['class'],$pass['Control']);
+						if (count($secondBest)<2)
+							$timeDiff = -1;
+						else
+							$timeDiff = $time-$secondBest[1]['Time'];
+					}	
 				}
 				else
 				{

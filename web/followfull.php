@@ -193,7 +193,7 @@ $(document).ready(function()
 	<?php }?>
 	
 	// Show tenth of seconds
-	<?php if(in_array($currentCompNo, array(15232,15233,15068,15070,15162))){?>
+	<?php if(in_array($currentCompNo, array(15232,15233,15068,15070))){?>
 		res.setShowTenth(true);
 	<?php }?>
 		

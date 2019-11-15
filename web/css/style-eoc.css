@@ -82,8 +82,8 @@ table.dataTable td {vertical-align: top;}
 
 .pulsing {
   animation: blinker 1s ease-in-out infinite;
-  font-size: 2em;
   color: #F1592A;
+  font-size: 1.35em;
 }
 
 @keyframes blinker { 
