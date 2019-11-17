@@ -124,9 +124,9 @@ $(document).ready(function()
 	<tr><td><td align="right"><b><span id="clock"></span></b></tr>
 	<?php }?>
 <tr><td valign="top"><b>Meldepost med kode: <?= $_GET['code']?></b><br>
-<td valign="top" align="right"><b>Generell medling: <a href="https://freidig.idrett.no/o/liveres_helpers/meld.php?lopid=(<?=$_GET['comp']?>) <?=$currentComp->CompName()?>&amp;Navn=Generell melding">Send</a>&nbsp;</b></td>
+<td valign="top" align="right">
+<button onclick="res.popupDialog('Generell melding','lopid=(<?=$_GET['comp']?>) <?=$currentComp->CompName()?>',false)">Generell melding</button></td>
 <table id="divRadioPassings"></table>
-
 <?php if (isset($_GET['code2'])) { ?>
 
 <td valign=top>
@@ -138,7 +138,8 @@ $(document).ready(function()
 	<tr><td><td align="right"><b><span id="clock"></span></b></tr>
 	<?php }?>
 <tr><td valign="top"><b>Meldepost med kode: <?= $_GET['code2']?></b><br>
-<td valign="top" align="right"><b>Generell medling: <a href="https://freidig.idrett.no/o/liveres_helpers/meld.php?lopid=(<?=$_GET['comp']?>) <?=$currentComp->CompName()?>&amp;Navn=Generell melding">Send</a>&nbsp;</b></td>
+<td valign="top" align="right">
+<button onclick="res.popupDialog('Generell melding','lopid=(<?=$_GET['comp']?>) <?=$currentComp->CompName()?>',false)">Generell melding</button></td>
 <table id="divRadioPassings2"></table>
 
 <?php } ?>

@@ -541,22 +541,26 @@ var LiveResults;
         AjaxViewer.prototype.handleUpdateRadioPassings = function (data) {
 			const maxLines = 30;
             var _this = this;
+			var radioStart = false; // Radiotimes from start
             // Insert data from query
 			if (data != null && data.status == "OK") {
-                if (data.passings != null) {
+                if (data.passings != null) 
+				{				
 					if (this.radioData == null || data.passings[0].control == 100)
 						this.radioData = data.passings;
 					else
 						Array.prototype.unshift.apply(this.radioData, data.passings);
-					while (this.radioData.length > maxLines)
-					{
+					
+				    while (this.radioData.length > maxLines)
 						this.radioData.pop();
-					}
 				}
 				this.lastRadioPassingsUpdateHash = data.hash;
-			}			
+			}
+			if (this.radioData != null && this.radioData[0].control == 100)
+				radioStart = true;	
+			
 			// Modify data-table
-			if (this.radioData != null && this.radioData[0].control != 100)
+			if (this.radioData != null && !radioStart)
 			{
 				var dt = new Date();
 				var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
@@ -571,11 +575,11 @@ var LiveResults;
 							passing.DT_RowClass = "red_row";
 					else
 						passing.DT_RowClass = "";
-            });
+				});
 			}
 			
-			
-			if (this.currentTable != null) {
+			if (this.currentTable != null) 
+			{
 				this.currentTable.fnClearTable();
 				this.currentTable.fnAddData(this.radioData, true);
 			}
@@ -583,20 +587,40 @@ var LiveResults;
 			{
 			var columns = Array();
 			var col = 0;
-			columns.push({ "sTitle": "Post", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"}); 
+			if (radioStart)
+				columns.push({ "sTitle": "DNS", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
+					"fnRender": function (o) 
+					{
+						var link = "<button onclick=\"res.popupDialog('" +
+						o.aData.runnerName +
+						"','lopid="  + "(" + _this.competitionId +") " + o.aData.compName +
+						"&Tidsp=" + o.aData.passtime + 
+						"&T0="    + o.aData.club + 
+						"&T1="    + o.aData.class +
+						"&T2="    + o.aData.controlName + 
+						"&T3="    + o.aData.time +
+						"',true);\">DNS</button>";
+						return link;
+					}
+					})
+			else
+				columns.push({ "sTitle": "Post", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
 			columns.push({ "sTitle": "Tidsp." , "sClass": "right" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
 			columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName", 
 					"fnRender": function (o) 
 					{
-						var link = "<a style=\"color:inherit; text-decoration:none\" href=\"https://freidig.idrett.no/o/liveres_helpers/meld.php?" +
-						"lopid="  + "(" + _this.competitionId +") " + o.aData.compName +
+						var controlName = o.aData.controlName;
+						if (radioStart)
+							controlName = "Start";
+						var link = "<a style=\"color:inherit; text-decoration:none\" href=\"#\" onclick=\"res.popupDialog('" +
+						o.aData.runnerName +
+						"','lopid="  + "(" + _this.competitionId +") " + o.aData.compName +
 						"&Tidsp=" + o.aData.passtime + 
-						"&Navn="  + o.aData.runnerName + 
 						"&T0="    + o.aData.club + 
 						"&T1="    + o.aData.class +
-						"&T2="    + o.aData.controlName + 
-						"&T3="    + o.aData.time + "\">" + 
-						o.aData.runnerName + "</a>";
+						"&T2="    + controlName + 
+						"&T3="    + o.aData.time +
+						"',false);return false;\">" + o.aData.runnerName + "</a>";
 						return link;
 					}
 					 });
@@ -639,6 +663,24 @@ var LiveResults;
 				});
 			}
         };
+		
+	   //Popup window for messages to message center
+	    AjaxViewer.prototype.popupDialog = function (runnerName,idText,DNS) {
+		    var promptText = runnerName + ":";
+			var defaultText ="";
+			if (DNS)
+				defaultText = "ikke startet";
+			var message = prompt(promptText, defaultText);
+			if (message != null && message != "")
+			{
+				var dataString	= idText + "&Navn=" + runnerName + "&Melding=" + message;
+				$.ajax({
+                    url: "./liveres_helpers/log.php",
+                    data: dataString
+                    }
+                );
+			}
+	    }
 
        //Check for updating of class results 
         AjaxViewer.prototype.checkForClassUpdate = function () {

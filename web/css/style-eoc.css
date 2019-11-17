@@ -8,6 +8,7 @@ body {background-color: #ffffff; margin: 0; font-size:68.75%; font-family: arial
 /* html documents within iframes */
 body.iframed {margin-left:0px; margin-right:0px; font-size:68.75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
 
+button {font-size:0.85em;}
 table {font-size:1em;}
 td{font-family: arial, helvetica, verdana, geneva, sans-serif; font-size:1em; line-height: 1.4em; white-space: nowrap;}
 th{white-space: normal;}
