@@ -46,6 +46,7 @@ var LiveResults;
             this.serverTimeDiff = 1;
             this.eventTimeZoneDiff = 0;
 			this.radioData = null;
+			this.compName = "";
             this.apiURL = "//api.freidig.idrett.no/api.php";
             this.radioURL = "//api.freidig.idrett.no/radioapi.php";
             LiveResults.Instance = this;
@@ -587,47 +588,13 @@ var LiveResults;
 			{
 			var columns = Array();
 			var col = 0;
-			if (radioStart)
-				columns.push({ "sTitle": "DNS", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
-					"fnRender": function (o) 
-					{
-						var link = "<button onclick=\"res.popupDialog('" +
-						o.aData.runnerName +
-						"','lopid="  + "(" + _this.competitionId +") " + o.aData.compName +
-						"&Tidsp=" + o.aData.passtime + 
-						"&T0="    + o.aData.club + 
-						"&T1="    + o.aData.class +
-						"&T2="    + o.aData.controlName + 
-						"&T3="    + o.aData.time +
-						"',true);\">DNS</button>";
-						return link;
-					}
-					})
-			else
+			if (!radioStart)
 				columns.push({ "sTitle": "Post", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
-			columns.push({ "sTitle": "Tidsp." , "sClass": "right" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
-			columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName", 
-					"fnRender": function (o) 
-					{
-						var controlName = o.aData.controlName;
-						if (radioStart)
-							controlName = "Start";
-						var link = "<a style=\"color:inherit; text-decoration:none\" href=\"#\" onclick=\"res.popupDialog('" +
-						o.aData.runnerName +
-						"','lopid="  + "(" + _this.competitionId +") " + o.aData.compName +
-						"&Tidsp=" + o.aData.passtime + 
-						"&T0="    + o.aData.club + 
-						"&T1="    + o.aData.class +
-						"&T2="    + controlName + 
-						"&T3="    + o.aData.time +
-						"',false);return false;\">" + o.aData.runnerName + "</a>";
-						return link;
-					}
-					 });
+			columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
+			columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName"});
 			columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club" });
 			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class" });
 			if (this.radioData[0].rank != null)
-			{
 				columns.push({ "sTitle": "Pl.", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
 					"fnRender": function (o) {
 						var res = "";
@@ -635,10 +602,11 @@ var LiveResults;
 							res += o.aData.rank;
 						return res;
 					}});
-			}
-			columns.push({ "sTitle": "Tid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time"});
+			var timeTitle = "Tid";
+			if (radioStart)
+				timeTitle = "Starttid";
+			columns.push({ "sTitle": timeTitle, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time"});
 			if (this.radioData[0].timeDiff != null)
-			{
 				columns.push({ "sTitle": "Diff", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeDiff",
 					"fnRender": function (o) {
 						var res = "";
@@ -648,6 +616,26 @@ var LiveResults;
 							res += "<span class=\"besttime\">-" + _this.formatTime(-o.aData.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
 						return res;
 					}});
+		    if (radioStart)
+			{				
+				var message = "<button onclick=\"res.popupDialog('Generell melding','&Tidsp=0&lopid=" +
+				              "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";
+				columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
+					"fnRender": function (o) 
+					{
+						var DNStext = "true";
+							if (!isNaN(o.aData.runnerName.charAt(0)))
+						DNStext = "false";
+						var link = "<button onclick=\"res.popupDialog('" + o.aData.runnerName +
+						"','lopid="  + "(" + _this.competitionId +") " + _this.compName +
+						"&Tidsp=" + o.aData.passtime + 
+						"&T0="    + o.aData.club + 
+						"&T1="    + o.aData.class +
+						"&T2="    + o.aData.controlName + 
+						"&T3="    + o.aData.time + "',"
+						+ DNStext + ");\">&#128172;</button>";
+						return link;
+					}})
 			}
 			this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
 				"bPaginate": false,
@@ -666,7 +654,7 @@ var LiveResults;
 		
 	   //Popup window for messages to message center
 	    AjaxViewer.prototype.popupDialog = function (runnerName,idText,DNS) {
-		    var promptText = runnerName + ":";
+		    var promptText = runnerName;
 			var defaultText ="";
 			if (DNS)
 				defaultText = "ikke startet";

@@ -84,7 +84,7 @@ $(document).ready(function()
 		{
 			var currTime = new Date();
 			var preTime = new Date(currTime.valueOf()+calltime*60*1000);
-			var HTMLstring = " Opprop: " + preTime.toLocaleTimeString('en-GB') + "&nbsp;"
+			var HTMLstring = preTime.toLocaleTimeString('en-GB');
 			clock.innerHTML = HTMLstring;
 		}
 		setInterval(function () {updateClock( clockElement );}, 1000);
@@ -92,59 +92,57 @@ $(document).ready(function()
 	
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",Resources,"false","true","setAutomaticUpdateText","setCompactViewText", runnerStatus, "true","divRadioPassings");
     res.updateRadioPassings(<?= $_GET['code']?>,calltime);
+	res.compName = '<?=$currentComp->CompName()?>';
 	
 	if (!('<?= $_GET['code2']?>'==''))
 	{
 		res2 = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",Resources,"false","true","setAutomaticUpdateText","setCompactViewText", runnerStatus, "true","divRadioPassings2");
 		res2.updateRadioPassings(<?php if (isset($_GET['code2'])) echo $_GET['code2'] ,',', $_GET['calltime'] ?>);
+		res2.compName = '<?=$currentComp->CompName()?>';
 	}
 });
 
-
 </script>
 </head>
-
 <body>
 
 	<?php if (!isset($_GET['comp']) || !isset($_GET['code'])) 
 	{
 	?>
-		<h1 class="categoriesheader">Feil. Har du satt compID og postkode? Eks: radio.php?comp=15109&code=100 </h1>
+		<h1 class="categoriesheader">Feil. Har du satt compID og postkode? Eks: radio.php?comp=15109&code=120</h1>
 	<?php 
 	}
 	else
 	{
 	?>
-<table border="0" cellpadding="0" cellspacing="0"><td valign=top> 
+<table border="0" cellpadding="0" cellspacing="0">
+<td valign=top> 
 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px;border-radius: 5px">
-<tr><td valign="top"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b><td align="right"><b>GPS tid: </b><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" frameborder="0" width="47" height="11" allowTransparency="true"></iframe>
-</b><br></tr>
-<?php if ($_GET['code']==0) {
-	?>
-	<tr><td><td align="right"><b><span id="clock"></span></b></tr>
-	<?php }?>
-<tr><td valign="top"><b>Meldepost med kode: <?= $_GET['code']?></b><br>
-<td valign="top" align="right">
-<button onclick="res.popupDialog('Generell melding','lopid=(<?=$_GET['comp']?>) <?=$currentComp->CompName()?>',false)">Generell melding</button></td>
+<tr><td><b>
+   <?php if ($_GET['code']==0){?> START <?php }
+	  else if ($_GET['code']==1000){?> MÅL <?php }
+	  else {?> Meldepost: <?= $_GET['code']?> <?php } ?>
+	</b>
+	<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b>	
+	<?php if ($_GET['code']==0){?><td align="right"> <b>(<span id="clock"></span></b>)&nbsp&nbsp<?php }?>
+	<td align="right">
+	<iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" frameborder="0" width="60" height="14" allowTransparency="true"></iframe></tr>
 <table id="divRadioPassings"></table>
+
 <?php if (isset($_GET['code2'])) { ?>
-
+<td valign=top>&nbsp;&nbsp;
 <td valign=top>
-
 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px;border-radius: 5px">
-<tr><td valign="top"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b><td align="right"><b>GPS tid: </b><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" frameborder="0" width="47" height="11" allowTransparency="true"></iframe>
-</b><br></tr>
-<?php if ($_GET['code2']==0) { ?>
-	<tr><td><td align="right"><b><span id="clock"></span></b></tr>
-	<?php }?>
-<tr><td valign="top"><b>Meldepost med kode: <?= $_GET['code2']?></b><br>
-<td valign="top" align="right">
-<button onclick="res.popupDialog('Generell melding','lopid=(<?=$_GET['comp']?>) <?=$currentComp->CompName()?>',false)">Generell melding</button></td>
+<tr><td valign="top"><b>
+<?php if ($_GET['code2']==0){?> START <?php }
+	  else if ($_GET['code2']==1000){?> MÅL <?php }
+	  else {?> Meldepost: <?= $_GET['code2']?> <?php } ?>
+	</b>
+	<td align="center" valign="top"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b>	
+    <td align="right" valign="top"><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" frameborder="0" width="60" height="14" allowTransparency="true"></iframe></tr>
 <table id="divRadioPassings2"></table>
-
-<?php } ?>
-
-<?php }?>
+</table>
+<?php } ?> <?php }?>
 </body>
 </html>
 

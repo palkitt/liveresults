@@ -188,13 +188,18 @@ $(document).ready(function()
 	<?php }?>
 	
 	// Mass start race
-	<?php if(in_array($currentCompNo, array(14872, 15233,15952, 16197, 16284, 16544, 16699))){?>
+	<?php if(in_array($currentCompNo, array(14872, 15233,15952, 16197, 16284, 16544, 16699, 16847))){?>
 		res.curClassIsMassStart = true;
 	<?php }?>
 	
 	// Show tenth of seconds
 	<?php if(in_array($currentCompNo, array(15232,15233,15068,15070))){?>
 		res.setShowTenth(true);
+	<?php }?>
+	
+	// Show different high time 
+	<?php if(in_array($currentCompNo, array(16847))){?>
+		res.highTime = 30;
 	<?php }?>
 		
 });
