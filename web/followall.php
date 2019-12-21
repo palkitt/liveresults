@@ -135,6 +135,7 @@ runnerStatus[9]  = "";
 runnerStatus[10] = "";
 runnerStatus[11] = "<?=$_STATUSWO?>";
 runnerStatus[12] = "<?=$_STATUSMOVEDUP?>";
+runnerStatus[13] = "<?=$_STATUSFINISHED?>";
 
  // Handle allClass
  function handleGetClasses(data,compID,first,last) {
@@ -155,7 +156,8 @@ runnerStatus[12] = "<?=$_STATUSMOVEDUP?>";
                             var className = param;
                             var resultsHeader = resH.concat(j);
                             var divResults = resD.concat(j);
-                            res[j] = new LiveResults.AjaxViewer(compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults, "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", runnerStatus);
+                            res[j] = new LiveResults.AjaxViewer(compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults, "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus);
+							
 							res[j].updateInterval = 30000;
 							res[j].chooseClass(className);
                             j++;
@@ -180,7 +182,7 @@ runnerStatus[12] = "<?=$_STATUSMOVEDUP?>";
 $(document).ready(function()
 {
 
-	$.ajax({url: "api.freidig.idrett.no/api.php",
+	$.ajax({url: "//api.freidig.idrett.no/api.php",
 			data: "comp=" + <?= $_GET['comp']?> + "&method=getclasses",
             success: function (data) {
 						handleGetClasses(data,<?= $_GET['comp']?>,<?= $_GET['first']?>,<?= $_GET['last']?>); 
