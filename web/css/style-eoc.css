@@ -64,17 +64,20 @@ tr.red_row td i { color: white;}
 /* New first nonqualifier */
 tr.new_fnq {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: 3px dashed grey;} /* font-weight: bold; */
 tr.new_fnq a {color: white;}
-tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white; }
+tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
 tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
 tr.new_fnq td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.new_fnq .plustime {color: white;}
 
 /* Green row for OK at start */
-tr.green_row { color: black; background-color: #00FF00 !important;  font-weight: bold; border-bottom: 1px solid white; }
+tr.green_row { color: black; background-color: #00FF00 !important;  font-weight: bold; border-bottom: 1px solid white; border-top: none}
 tr.green_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+tr.green_row_new { color: black; background-color: #00FF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+
 
 /* Yellow row for OK at start */
-tr.yellow_row { color: black; background-color: #FFFF00 !important; font-weight: bold; border-bottom: 1px solid white; }
+tr.yellow_row { color: black; background-color: #FFFF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: none}
 tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.yellow_row_new { color: black; background-color: #FFFF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: 3px dashed grey;}
 tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}

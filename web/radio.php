@@ -121,6 +121,8 @@ $(document).ready(function()
 <tr><td><b>
    <?php if ($_GET['code']==0){?> START <?php }
 	  else if ($_GET['code']==1000){?> MÅL <?php }
+	  else if ($_GET['code']==-1){?> Alle meldeposter <?php }
+	  else if ($_GET['code']==-2){?> Igjen i skogen <?php }
 	  else {?> Meldepost: <?= $_GET['code']?> <?php } ?>
 	</b>
 	<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b>	
@@ -136,6 +138,8 @@ $(document).ready(function()
 <tr><td valign="top"><b>
 <?php if ($_GET['code2']==0){?> START <?php }
 	  else if ($_GET['code2']==1000){?> MÅL <?php }
+	  else if ($_GET['code2']==-1){?> Alle meldeposter <?php }
+	  else if ($_GET['code2']==-2){?> Igjen i skogen <?php }
 	  else {?> Meldepost: <?= $_GET['code2']?> <?php } ?>
 	</b>
 	<td align="center" valign="top"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b>	

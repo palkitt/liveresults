@@ -157,9 +157,10 @@ runnerStatus[13] = "<?=$_STATUSFINISHED?>";
                             var resultsHeader = resH.concat(j);
                             var divResults = resD.concat(j);
                             res[j] = new LiveResults.AjaxViewer(compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults, "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus);
-							
 							res[j].updateInterval = 30000;
+							res[j].noSplits=true;
 							res[j].chooseClass(className);
+							res[j].startPredictionUpdate();
                             j++;
                         }
                     });

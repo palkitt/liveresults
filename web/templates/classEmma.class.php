@@ -2,12 +2,10 @@
 $CHARSET = 'utf-8';
 class Emma
 {
-
-	//public static $db_server = "127.0.0.1";
-	public static $db_server = "52.16.131.75";
-	public static $db_database = "liveresultat";
-	public static $db_user = "liveresultat";
-	public static $db_pw= "web";
+	public static $db_server = "x";
+	public static $db_database = "x";
+	public static $db_user = "x";
+	public static $db_pw= "x";
 	public static $MYSQL_CHARSET = "utf8";
 	var $m_CompId;
 
@@ -405,9 +403,9 @@ function getAllSplitControls()
 		  and runners.class = splitcontrols.classname) where results.TavId =".$this->m_CompId." 
 		  AND runners.TavId = results.TavId and results.Status <> -1 AND results.Time <> -1 AND results.Status <> 9 
 		  and results.Status <> 10  and results.Status <> 6 and results.control <> 100 and (results.control = 1000 or splitcontrols.tavid is not null)
-		  AND results.control <> 999 AND results.control <> 0 AND results.control < 100000
+		  AND results.control <> 999 AND results.control <> -999 AND results.control <> 0 AND results.control < 100000
 		  AND runners.class NOT LIKE '%-All' 
-		  ORDER BY results.changed desc limit 3";
+		  ORDER BY results.changed desc, runners.name limit 3";
 
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
@@ -439,24 +437,44 @@ function getAllSplitControls()
 	if ($code == 0) // Start
 	{
 		$currTime = (date('H')*3600 + date('i')*60 + date('s') + $this->m_TimeDiff)*100;
-		$preTime  = ($calltime+0.25)*60*100;
-		$postTime = 0.25*60*100;
-		$q .= "AND ((results.control = 100 AND results.status = 9)
-		       OR (results.control = 100 AND results.status = 10 
-		       AND ((results.time-".$currTime.") < ".$preTime .") AND ((".$currTime."-results.time) < ".$postTime.")))			  
-			   ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END,
-			            CASE WHEN results.status = 10 THEN results.time ELSE results.changed END DESC,
-						runners.name
-			   limit 50";		   
+		$preTime  = ($calltime+1)*60*100;
+		$postTime = 5*60*100;
+		$postTimeAbs = time()-5*60;
+		$postTimeText = date("Y-m-d H:i:s", $postTimeAbs);
+		
+		$q = "SELECT runners.Name, runners.class, runners.Club, results.Time, results2.Status, results2.Changed, 
+	      results.Control, splitcontrols.name as pname 
+		  FROM results 
+		  INNER JOIN runners ON results.DbId = runners.DbId 
+		  LEFT JOIN splitcontrols ON (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." and runners.class = splitcontrols.classname) 
+          LEFT JOIN results AS results2 ON results.DbID=results2.DbID		  
+		  WHERE results.TavId =".$this->m_CompId." AND results2.TavId = results.TavId AND runners.TavId = results.TavId
+		  AND results.control = 100 AND results2.control = 1000 
+		  AND (results2.Status = 9 OR results2.status = 1 OR results2.status = 10) 
+		  AND ( ((results.Time-".$currTime.") < ".$preTime .") AND ((".$currTime."-results.Time) < ".$postTime.") 
+		        OR results2.Changed > '".$postTimeText."') 			  
+		  ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.Name
+		  limit 100";		   
 	}
 	elseif ($code == 1000) // Finish
-		$q .= "AND results.Time <> -1 AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND results.control = 1000 
+		$q .= "AND results.Time <> -1 AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 1
+		       AND results.Status <> 10 AND results.control = 1000 
                AND runners.class NOT LIKE '%-All'  
 			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;
-	elseif ($code < 0 ) // All radio controls (not including start and finish)
+	elseif ($code == -1) // All radio controls (not including start and finish)
 		$q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
                AND results.control < 100000 AND ABS(results.control)%1000 > 0  AND ABS(results.control)%1000 < 999 AND runners.class NOT LIKE '%-All' 
-			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;	
+			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;			   
+	elseif ($code == -2) // Left in forest
+		$q = "SELECT runners.Name, runners.class, runners.Club, results2.Time, results.Status, results.Changed, results.Control, splitcontrols.name AS pname 
+		  FROM results 
+		  INNER JOIN runners ON results.DbId = runners.DbId 
+		  LEFT JOIN splitcontrols ON (splitcontrols.code = results.Control AND splitcontrols.tavid=".$this->m_CompId." AND runners.class = splitcontrols.classname) 
+		  LEFT JOIN results AS results2 ON results.DbID=results2.DbID
+		  WHERE results.TavId =".$this->m_CompId."  AND results2.TavId = results.TavId
+		  AND runners.TavId = results.TavId AND (results.Status = 9 OR results.Status = 10) AND results.control = 1000 AND results2.Control = 100 AND runners.class NOT LIKE '%-All' 
+		  ORDER BY runners.Club, results2.Time, runners.Name";
+		  
 	else // Other controls
 	    $q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
                AND results.control < 100000 AND ABS(results.control)%1000 = ".$code." AND runners.class NOT LIKE '%-All' 
@@ -472,7 +490,9 @@ function getAllSplitControls()
 			{
 				$ret[sizeof($ret)-1]["Changed"] = date("Y-m-d H:i:s",strtotime($ret[sizeof($ret)-1]["Changed"])+$this->m_TimeDiff);
 			}
-			if ($code == 0) // Start
+	        if ($code == -2)    // Left in forest
+				$ret[sizeof($ret)-1]["pname"] = "I skogen";
+			if ($code == 0)    // Start
 				$ret[sizeof($ret)-1]["pname"] = "Start";
 			if ($code == 1000) // Finish
 				$ret[sizeof($ret)-1]["pname"] = "Mål";

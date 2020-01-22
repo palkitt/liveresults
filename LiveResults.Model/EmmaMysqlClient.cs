@@ -996,7 +996,6 @@ namespace LiveResults.Model
                                         }
                                     }
                                 }
-
                                 m_itemsToUpdate.RemoveAt(0);
                             }
                         }

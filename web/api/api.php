@@ -2,23 +2,11 @@
 date_default_timezone_set("Europe/Stockholm");
 $compid   = $_GET['comp'];
 $hightime = 60;
-$refreshTime = 10;
+$refreshTime = 7;
 
 $lang = "no";
 if (isset($_GET['lang']))
 	$lang = $_GET['lang'];
-
-$qualLim  = 0;
-if (in_array($compid, array(15232,15070)))
-{
-	$qualLim  = 6;
-	if ($_GET['class'] == "Menn senior")
-		$qualLim = 7;
-	if ($_GET['class'] == "Menn junior")
-		$qualLim = 10;
-	if ($_GET['class'] == "Kvinner junior" )
-		$qualLim = 9;
-}
 	
 include_once("../templates/emmalang_en.php");
 include_once("../templates/emmalang_$lang.php");
@@ -293,7 +281,10 @@ elseif ($_GET['method'] == 'getclassresults')
 		$class = $_GET['class'];
 		$currentComp = new Emma($_GET['comp']);
 		$results = $currentComp->getAllSplitsForClass($class);
-		$splits = $currentComp->getSplitControlsForClass($class);
+		if (isset($_GET['nosplits']) && $_GET['nosplits'] == "true")
+			$splits = null;
+		else
+			$splits = $currentComp->getSplitControlsForClass($class);
 
 		$total = null;
 		$retTotal = false;
@@ -536,9 +527,6 @@ elseif ($_GET['method'] == 'getclassresults')
 							else
 								$changed = "0";
 							$ret .= "\"".$split['code']."\": ".$res[$split['code']."_time"].",\"".$split['code']."_status\": ".$splitStatus.",\"".$split['code']."_place\": ".$res[$split['code']."_place"].",\"".$split['code']."_timeplus\": ".$res[$split['code']."_timeplus"].",\"".$split['code']."_changed\": $changed";
-							$spage = time()-strtotime($res[$split['code'].'_changed']);
-							if ($spage < $hightime)
-								$modified = true;
 						}
 						else
 						{
@@ -560,21 +548,6 @@ elseif ($_GET['method'] == 'getclassresults')
 					$ret .= ",$br \"start\": \"\"";
 				}
 				
-				// Qualification limit and new results
-				if ($place>$qualLim && $firstNonQualifierSet == false && $qualLim>0)
-				{	
-					$firstNonQualifierSet = true;
-					if ($modified)
-						$ret .= ",$br \"DT_RowClass\": \"new_fnq\"";
-					else
-						$ret .= ",$br \"DT_RowClass\": \"firstnonqualifier\"";
-				}
-				else if ($modified)
-				{
-					$ret .= "";
-					// $ret .= ",$br \"DT_RowClass\": \"red_row\"";
-				}
-
 				$ret .= "$br}";
 			}
 			$first = false;

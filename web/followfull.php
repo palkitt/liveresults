@@ -197,13 +197,17 @@ $(document).ready(function()
 		res.setShowTenth(true);
 	<?php }?>
 	
-	// Show different high time 
+	// Modify high time 
 	<?php if(in_array($currentCompNo, array(16847))){?>
 		res.highTime = 30;
 	<?php }?>
-		
+	
+	// Qualification limits and classes (last limit is default)
+	<?php if(in_array($currentCompNo, array(10002))){?>
+		res.qualLimits = [3, 4, 5, 6];
+	    res.qualClasses = ["D21-", "H21-", "D70"];
+	<?php }?>
 });
-
 
 
 function changeFontSize(val)
@@ -230,7 +234,7 @@ function changeFontSize(val)
              <tr>
                <td><a href="index.php?lang=<?=$lang?>&amp;"><?=$_CHOOSECMP?></a> >> <?=$currentComp->CompName()?>, <?=$currentComp->Organizer()?> [<?=$currentComp->CompDate()?>]</td>
                <td>|</td>
-				<td><a href="https://liveol.larsendahl.se/" target="_blank">LiveOL result app</a></td>
+				<td><span id="setCompactViewText"><b>Compact view:</b> <?=$_ON?> | <a href="javascript:LiveResults.Instance.setCompactView(false);"><?=$_OFF?></a></span></td>
                </tr>
        </table>
      </td>
@@ -319,16 +323,12 @@ function changeFontSize(val)
 			<?php } elseif($orgainzer=="Byåsen IL"){?>
 			    <td width="60">
 			    <img src="images/BIL.png" height="60" /></td>
+		     <?php } elseif($orgainzer=="Byaasen Skiklub"){?>
+			    <td width="60">
+			    <img src="images/BSK.png" height="60" /></td>
 			<?php }?>
 			<td valign="top"><b><?=$_LASTPASSINGS?></b><br>
 <div id="divLastPassings"></div></td>
-
-<td valign="top" style="padding-left: 5px; width: 200px; text-align:right">
-<span id="setAutomaticUpdateText"><b><?=$_AUTOUPDATE?>:</b> <?=$_ON?> | <a href="javascript:LiveResults.Instance.setAutomaticUpdate(false);"><?=$_OFF?></a></span><br>
-<span id="setCompactViewText"><b>Compact view:</b> <?=$_ON?> | <a href="javascript:LiveResults.Instance.setCompactView(false);"><?=$_OFF?></a></span><br>
-<b><?=$_TEXTSIZE?>:</b> <a href="javascript:changeFontSize(1);"><?=$_LARGER?></a> | <a href="javascript:changeFontSize(-1);"><?=$_SMALLER?></a><br>
-<a href="dok/help.php?lang=<?=$lang?>" target="_blank"><?=$_INSTRUCTIONSHELP?></a>
-</td>
 </tr></table><br>
 <?php }?>
 </td>

@@ -22,13 +22,10 @@ header('cache-control: max-age='+($refreshTime-1));
 header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($refreshTime-1)));
 
 if (!isset($_GET['method']))
-{
     $_GET['method'] = null;
-}
 
 $pretty = isset($_GET['pretty']);
 $br = $pretty ? "\n" : "";
-///Method returns all competitions available
 
 if ($_GET['method'] == 'getradiopassings')
 {
@@ -40,7 +37,7 @@ if ($_GET['method'] == 'getradiopassings')
 			$lastUpdate = $_GET['last_hash']; // Use last hash to contain last update time
 		else
 			$lastUpdate = "";
-		if ($lastUpdate == "")
+		if ($code != 0 && $code !=-2 && $lastUpdate == "")
 			$maxNum = 10; 
 		else
 			$maxNum = 30; 
@@ -50,7 +47,7 @@ if ($_GET['method'] == 'getradiopassings')
 		$first = true;
 		$num = 0;
 		$ret = "";
-		$laststatus = 0;
+		$firstStarted = false;
 		$lasttime = 0;
 		$changedTime = "";
 		foreach ($lastPassings as $pass)
@@ -61,42 +58,71 @@ if ($_GET['method'] == 'getradiopassings')
 			
 			$status = $pass['Status'];
 			$time   = $pass['Time'];
+			$control = $pass['Control'];
 			
 			if($first)
 				$changedTime = $pass['changedRaw'];
 			else
 				$ret .=",$br";
+			
+			if ($status==1 && $control=100)
+			{
+				$pre = "<del>";
+			    $post = "</del>";
+			}
+			else
+			{
+				$pre = "";
+			    $post = "";
+			}
+			
 			$ret .= "{\"passtime\": \"".date("H:i:s",strtotime($pass['Changed']))."\",
-					\"runnerName\": \"".$pass['Name']."\",
-					\"club\": \"".$pass['Club']."\",
-					\"class\": \"".$pass['class']."\",
+					\"runnerName\": \"".$pre.$pass['Name'].$post."\",
+					\"club\": \"".$pre.$pass['Club'].$post."\",
+					\"class\": \"".$pre.$pass['class'].$post."\",
 					\"control\": ".$pass['Control'].",
 					\"controlName\" : \"".$pass['pname']."\",
-					\"time\": \"" .formatTime($time,$status,$RunnerStatus)."\", 
+					\"time\": \"".$pre.formatTime($time,$status,$code,$RunnerStatus).$post."\", 
 					\"compName\": \"".$pass['compName']."\"";
 			
-			if ($pass['Control']==100)	
+			if ($code==0) // Start	
 			{
-				if ($pass['class']=="NOCLAS")
-				{
+				$currTime = (date('H')*3600 + date('i')*60 + date('s'))*100;
+				$timeToStart = $time - $currTime;
+				
+				if ($pass['class']=="NOCLAS") // Unknown ecard
 					$ret .= ",$br \"DT_RowClass\": \"red_row\"";
-				}
-				elseif (($lasttime - $time > 5900) && ($status == 10)) 
+				elseif ($status == 9)        // Registered at start 
 				{
-					$ret .= ",$br \"DT_RowClass\": \"yellow_row_new\"";
+					if ($timeToStart >= 0 && ($lasttime - $time > 5900))
+						$ret .= ",$br \"DT_RowClass\": \"green_row_new\"";
+					elseif ($timeToStart < 0 && $firstStarted == false)
+					{
+						$firstStarted = true; 
+						$ret .= ",$br \"DT_RowClass\": \"green_row_new\"";
+					}
+					else
+						$ret .= ",$br \"DT_RowClass\": \"green_row\"";
 				}
-				elseif ($status == 10)
+				elseif ($timeToStart >= 0)   // In call zone, code 1 or 10
 				{
-					$ret .= ",$br \"DT_RowClass\": \"yellow_row\"";
+					if ($lasttime - $time > 5900)
+						$ret .= ",$br \"DT_RowClass\": \"yellow_row_new\"";
+					else
+						$ret .= ",$br \"DT_RowClass\": \"yellow_row\"";
 				}
-				elseif ($modified)
+				elseif ($timeToStart < 0 && $firstStarted == false) 
 				{
-					$ret .= ",$br \"DT_RowClass\": \"green_row\"";
-				}
-				elseif ($laststatus == 10) 
-				{
+					$firstStarted = true;
 					$ret .= ",$br \"DT_RowClass\": \"firstnonqualifier\"";
 				}
+			    $lasttime = $time;
+			}
+			elseif ($code == -2) // Left in forest	
+			{
+				$timeDiff = -2;
+				$rank = -1;
+				$ret .= ",\"rank\": ".$rank.",\"timeDiff\": ".$timeDiff;
 			}
 			else // New result, all but start. Use hash as last updated time
 			{	
@@ -123,20 +149,17 @@ if ($_GET['method'] == 'getradiopassings')
 				}
 				$ret .= ",\"rank\": ".$rank.",\"timeDiff\": ".$timeDiff;
 			}
-			
 			$ret .= "$br}";
 			$first = false;
-			$laststatus = $status;
-			$lasttime = $time;
 		}
 				
-		if ($code == 0)
+		if ($code == 0 || $code == -2)
 		{
 			$hash = MD5($ret);
 			if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
 				echo("{ \"status\": \"NOT MODIFIED\"}");
 			else
-			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$hash\"}");
+			    echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$hash\"}");
 		}
 		else
 		{
@@ -150,51 +173,38 @@ else
 {
     $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
     header($protocol . ' ' . 400 . ' Bad Request');
-
 	echo("{ \"status\": \"ERR\", \"message\": \"No method given\"}");
 }
 
-function formatTime($time,$status,& $RunnerStatus)
-
+function formatTime($time,$status,$code,& $RunnerStatus)
 {
   global $lang;
-
-  if (($status != "0") && ($status != "9") && ($status != "10"))
-  {
+  if ( ($code != 0) && ($status != "0") && ($status != "9") && ($status != "10"))
     return $RunnerStatus[$status]; //$status;
-  }
 
   if ($time < 0)
   	return "*";
-  else {
-   if ($lang == "no" or $lang == "fi")
-{
 
-  $hours = floor($time/360000);
-  $minutes = floor(($time-$hours*360000)/6000);
-  $seconds = floor(($time-$hours*360000 - $minutes*6000)/100);
-
-  if ($hours > 0)
+  else 
   {
-  	return $hours .":" .str_pad("".$minutes,2,"0",STR_PAD_LEFT) .":".str_pad("".$seconds,2,"0",STR_PAD_LEFT);
-  }
-  else
-  {
-  	return $minutes.":".str_pad("".$seconds,2,"0",STR_PAD_LEFT);
-  }
+     if ($lang == "no" or $lang == "fi")
+     {
+        $hours = floor($time/360000);
+        $minutes = floor(($time-$hours*360000)/6000);
+        $seconds = floor(($time-$hours*360000 - $minutes*6000)/100);
 
-}
-
-else
-{
-
-  $minutes = floor($time/6000);
-  $seconds = floor(($time-$minutes*6000)/100);
-
-  return str_pad("".$minutes,2,"0",STR_PAD_LEFT) .":".str_pad("".$seconds,2,"0",STR_PAD_LEFT);
-
-}
-}
+        if ($hours > 0)
+  	       return $hours .":" .str_pad("".$minutes,2,"0",STR_PAD_LEFT) .":".str_pad("".$seconds,2,"0",STR_PAD_LEFT);
+        else
+  	       return $minutes.":".str_pad("".$seconds,2,"0",STR_PAD_LEFT);
+     }
+	 else
+     {
+         $minutes = floor($time/6000);
+         $seconds = floor(($time-$minutes*6000)/100);
+         return str_pad("".$minutes,2,"0",STR_PAD_LEFT) .":".str_pad("".$seconds,2,"0",STR_PAD_LEFT);
+     }
+   }
 }
 
 function urlRawDecode($raw_url_encoded)
