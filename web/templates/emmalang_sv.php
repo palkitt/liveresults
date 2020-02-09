@@ -32,6 +32,7 @@ $_STATUSOK = "godkänd";
 $_STATUSMP = "felst.";
 $_STATUSDSQ= "diskv.";
 $_STATUSOT="ö. maxtid";
+$_STATUSNC="NC";
 
 $_FIRSTPAGECHOOSE = "Välj tävling att följa";
 $_FIRSTPAGEARCHIVE = "Arkiv";

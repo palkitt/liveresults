@@ -1,14 +1,16 @@
 <?php
 $CHARSET = 'utf-8';
+
 class Emma
 {
+
 	public static $db_server = "x";
 	public static $db_database = "x";
 	public static $db_user = "x";
 	public static $db_pw= "x";
-	public static $MYSQL_CHARSET = "utf8";
-	var $m_CompId;
-
+	
+   public static $MYSQL_CHARSET = "utf8";
+   var $m_CompId;
    var $m_CompName;
 
    var $m_CompDate;
@@ -21,7 +23,7 @@ class Emma
    var $m_VideoUrl = "";
    var $m_TwitterFeed = "";
    
-	var $m_Conn;
+   var $m_Conn;
 
 	private static function openConnection() {
 		$conn = mysqli_connect(self::$db_server, self::$db_user, self::$db_pw, self::$db_database);
@@ -442,7 +444,7 @@ function getAllSplitControls()
 		$postTimeAbs = time()-5*60;
 		$postTimeText = date("Y-m-d H:i:s", $postTimeAbs);
 		
-		$q = "SELECT runners.Name, runners.class, runners.Club, results.Time, results2.Status, results2.Changed, 
+		$q = "SELECT runners.Name, runners.class, runners.Club, runners.ecard1, runners.ecard2, results.Time, results2.Status, results2.Changed, 
 	      results.Control, splitcontrols.name as pname 
 		  FROM results 
 		  INNER JOIN runners ON results.DbId = runners.DbId 
@@ -451,8 +453,8 @@ function getAllSplitControls()
 		  WHERE results.TavId =".$this->m_CompId." AND results2.TavId = results.TavId AND runners.TavId = results.TavId
 		  AND results.control = 100 AND results2.control = 1000 
 		  AND (results2.Status = 9 OR results2.status = 1 OR results2.status = 10) 
-		  AND ( ((results.Time-".$currTime.") < ".$preTime .") AND ((".$currTime."-results.Time) < ".$postTime.") 
-		        OR results2.Changed > '".$postTimeText."') 			  
+		  AND ( ((results.Time-".$currTime.") < ".$preTime ." AND (".$currTime."-results.Time) < ".$postTime." )   
+		        OR (results2.Status = 9 AND results2.Changed > '".$postTimeText."' ) ) 			  
 		  ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.Name
 		  limit 100";		   
 	}
@@ -555,6 +557,42 @@ function getAllSplitControls()
 			die(mysqli_error($this->m_Conn));
 		return $ret;
 	}
+	
+    function getRunners()
+    {
+       $ret = Array();
+       $q = "SELECT runners.name, runners.club, runners.class, runners.ecard1, runners.ecard2, runners.bib, results.time, results.dbid, results.control 
+	   FROM runners, results  
+	   WHERE results.dbid = runners.dbid AND runners.tavid = ". $this->m_CompId ." AND results.tavid = ". $this->m_CompId . " AND (results.control=100) 
+	   ORDER BY bib, dbid";
+    
+	   if ($result = mysqli_query($this->m_Conn, $q))
+       {
+	      while($row = mysqli_fetch_array($result))
+	      {   
+		     $dbId = $row['dbid'];
+		     if (!isset($ret[$dbId]))
+		     {
+		        $ret[$dbId] = Array();
+			    $ret[$dbId]["dbid"] = $dbId;
+			    $ret[$dbId]["name"] = $row['name'];
+			    $ret[$dbId]["club"] = $row['club'];
+			    $ret[$dbId]["class"] = $row['class'];
+	 		    $ret[$dbId]["ecard1"] = $row['ecard1'];
+			    $ret[$dbId]["ecard2"] = $row['ecard2'];
+                $ret[$dbId]["bib"] = $row['bib'];
+			    $ret[$dbId]["start"] = "0";
+		     }
+		     if ($row['control']=100)
+			    $ret[$dbId]["start"] = $row['time'];
+	      }
+	      mysqli_free_result($result);
+       } 
+	   else
+          die(mysqli_error($this->m_Conn));
+   
+       return $ret;
+    }
 
 	function getClubResults($compId, $club)
 

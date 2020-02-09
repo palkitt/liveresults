@@ -566,6 +566,29 @@ elseif ($_GET['method'] == 'getclassresults')
 			echo(",$br \"hash\": \"". $hash."\"}");
 		}
 }
+   elseif ($_GET['method'] == 'getrunners')
+   {
+	$currentComp = new Emma($_GET['comp']);
+	$runners = $currentComp->getRunners();
+	$ret = "";
+	$first = true;
+	foreach ($runners as $runner)
+	{
+		if (!$first)
+			$ret .=",$br";
+		$ret .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".formatTime($runner['start'],0,$RunnerStatus)."\", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
+		$first = false;
+	}
+	$hash = MD5($ret);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+	{
+		echo("{ \"status\": \"NOT MODIFIED\"}");
+	}
+	else
+	{
+		echo("{ \"status\": \"OK\",$br \"runners\": [$br$ret$br],$br \"hash\": \"". $hash."\"}");
+	}
+}
 else
 {
     $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');

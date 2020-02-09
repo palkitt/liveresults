@@ -26,7 +26,7 @@ var LiveResults;
             this.updateInterval = 7000;
             this.radioUpdateInterval = 5000;
             this.classUpdateInterval = 60000;
-            this.radioHighTime = 60;
+            this.radioHighTime = 15;
             this.highTime = 60;
             this.classUpdateTimer = null;
             this.passingsUpdateTimer = null;
@@ -47,9 +47,11 @@ var LiveResults;
             this.eventTimeZoneDiff = 0;
             this.radioData = null;
             this.compName = "";
+			this.compDate = "";
             this.qualLimits = null;
 			this.qualClasses = null;
 			this.noSplits = false;
+			this.radioStart = false;
             this.apiURL = "//api.freidig.idrett.no/api.php";
             this.radioURL = "//api.freidig.idrett.no/radioapi.php";
 			//this.apiURL = "api/api.php";
@@ -265,8 +267,11 @@ var LiveResults;
 		AjaxViewer.prototype.updatePredictedTimes = function () {
             if (this.currentTable != null && this.curClassName != null && this.serverTimeDiff && this.updateAutomatically) {
                 try {
-                    var data = this.currentTable.fnGetData();
                     var dt = new Date();
+					var compDay = new Date(this.compDate);
+					if (dt.getDate() != compDay.getDate())
+                       return;			
+					var data = this.currentTable.fnGetData();
                     var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
                     var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
                     var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
@@ -575,9 +580,8 @@ var LiveResults;
         };
         //Handle response for updating the last radio passings..
         AjaxViewer.prototype.handleUpdateRadioPassings = function (data) {
-			const maxLines = 30;
+			const maxLines = 40;
             var _this = this;
-			var radioStart = false; // Radiotimes from start
 			var leftInForest = false;
             // Insert data from query
 			if (data != null && data.status == "OK") {
@@ -586,20 +590,19 @@ var LiveResults;
 					if (this.radioData == null || data.passings.length == 0 || data.passings[0].control == 100 || data.passings[0].timeDiff == -2)
 						this.radioData = data.passings;
 					else
+					{
 						Array.prototype.unshift.apply(this.radioData, data.passings);
-					
-				    while (this.radioData.length > maxLines)
-						this.radioData.pop();
+						while (this.radioData.length > maxLines)
+							this.radioData.pop();
+					}
 				}
 				this.lastRadioPassingsUpdateHash = data.hash;
 			}
-			if (this.radioData != null && this.radioData.length > 0 && this.radioData[0].control == 100)
-				radioStart = true;
 			if (this.radioData != null && this.radioData.length > 0 && this.radioData[0].timeDiff == -2)
 				leftInForest = true;			
 			
 			// Modify data-table
-			if (this.radioData != null && !radioStart)
+			if (this.radioData != null && !this.radioStart)
 			{
 				var dt = new Date();
 				var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
@@ -627,9 +630,11 @@ var LiveResults;
 			var columns = Array();
 			var col = 0;
 			var className = "";
-			if (!radioStart && !leftInForest)
+			if (!this.radioStart && !leftInForest)
+			{
 				columns.push({ "sTitle": "Post", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
-			columns.push({ "sTitle": "Endret" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
+			    columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
+			}
 			columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName"});
 			columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club" });
 			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
@@ -638,7 +643,19 @@ var LiveResults;
                         var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(o.aData.class);
 						link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + o.aData.class + "</a>";
 						return link;
-					}});	
+					}});
+            if (this.radioStart)
+			{				
+				columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
+				   "fnRender": function (o) {
+					var ecardstr = "";
+					if (o.aData.ecard1>0) {
+						ecardstr = o.aData.ecard1;
+						if (o.aData.ecard2>0) ecardstr += " / " + o.aData.ecard2;}
+					else
+						if (o.aData.ecard2>0) ecardstr = o.aData.ecard2;
+					return ecardstr;}});
+			}				
 			if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
 				columns.push({ "sTitle": "Pl.", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
 					"fnRender": function (o) {
@@ -648,7 +665,7 @@ var LiveResults;
 						return res;
 					}});
 			var timeTitle = "Tid";
-			if (radioStart || leftInForest)
+			if (this.radioStart || leftInForest)
 				timeTitle = "Starttid";
 			columns.push({ "sTitle": timeTitle, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time"});
 			if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
@@ -661,7 +678,7 @@ var LiveResults;
 							res += "<span class=\"besttime\">-" + _this.formatTime(-o.aData.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
 						return res;
 					}});
-		    if (radioStart)
+		    if (this.radioStart)
 			{				
 				var message = "<button onclick=\"res.popupDialog('Generell melding','&Tidsp=0&lopid=" +
 				              "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";

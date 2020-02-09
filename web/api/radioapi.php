@@ -87,6 +87,7 @@ if ($_GET['method'] == 'getradiopassings')
 			
 			if ($code==0) // Start	
 			{
+				$ret .= ", \"ecard1\": ".$pass['ecard1'].", \"ecard2\": ".$pass['ecard2'];
 				$currTime = (date('H')*3600 + date('i')*60 + date('s'))*100;
 				$timeToStart = $time - $currTime;
 				
@@ -106,7 +107,7 @@ if ($_GET['method'] == 'getradiopassings')
 				}
 				elseif ($timeToStart >= 0)   // In call zone, code 1 or 10
 				{
-					if ($lasttime - $time > 5900)
+					if ($lasttime - $time > 2900)
 						$ret .= ",$br \"DT_RowClass\": \"yellow_row_new\"";
 					else
 						$ret .= ",$br \"DT_RowClass\": \"yellow_row\"";

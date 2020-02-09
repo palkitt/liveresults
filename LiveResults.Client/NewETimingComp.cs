@@ -27,7 +27,7 @@ namespace LiveResults.Client
             txtPw.Text   = "time";
             txtPort.Text = "1433";
             txtETimingDb.Text = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-            txtSleepTime.Text = "10";
+            txtSleepTime.Text = "3";
             chkOneLineRelayRes.Checked = false;
             chkTwoEcards.Checked = false;
             chkLapTimes.Checked = false;

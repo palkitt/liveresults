@@ -65,6 +65,7 @@ $_STATUSOT="ot";
 
 $_STATUSFINISHED ="finished";
 
+$_STATUSNC=  "NC";
 
 
 $_FIRSTPAGECHOOSE = "Choose competition to follow";

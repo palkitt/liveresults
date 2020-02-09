@@ -13,3 +13,9 @@ alter table LOGIN add column videotype varchar(255);
 -- Fixes issue https://github.com/petlof/liveresults/issues/11
 alter table login modify column organizer varchar(50) CHARACTER SET utf8 DEFAULT NULL;
 alter table login modify column name varchar(50) CHARACTER SET utf8 DEFAULT NULL;
+
+-- addition 2020-01-22
+alter table runners add column ecard1 int(11) DEFAULT NULL;
+alter table runners add column ecard1 int(11) DEFAULT NULL;
+alter table runners add column bib int(11) DEFAULT NULL;
+

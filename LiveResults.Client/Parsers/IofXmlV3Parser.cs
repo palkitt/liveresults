@@ -58,7 +58,7 @@ namespace LiveResults.Client.Parsers
                                         continue;
                                     string starttime = startTimeNode.InnerText;
 
-                                    var runner = new Runner(-1, name, teamName, className + "-" + leg);
+                                    var runner = new Runner(-1, name, teamName, className + "-" + leg, 0, 0, 0);
 
                                     if (!string.IsNullOrEmpty(starttime))
                                     {
@@ -92,7 +92,7 @@ namespace LiveResults.Client.Parsers
                             continue;
                         string starttime = startTimeNode.InnerText;
 
-                        var runner = new Runner(-1, givenname + " " + familyname, club, className);
+                        var runner = new Runner(-1, givenname + " " + familyname, club, className, 0, 0, 0);
 
                         if (!string.IsNullOrEmpty(starttime))
                         {

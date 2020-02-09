@@ -559,6 +559,7 @@ namespace LiveResults.Client
                 while (reader.Read())
                 {
                     int time = 0, runnerID = 0, iStartTime = 0, iStartClass = 0, totalTime = 0, bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1;
+                    int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
                     string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", bibstr = "", name = "", shortName = "-";
                     bool chaseStart = false, freeStart = false;
                     var SplitTimes = new List<ResultStruct>();
@@ -804,7 +805,6 @@ namespace LiveResults.Client
                         }
 
                         // Add split times
-                        int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
                         if (reader["ecard"] != null && reader["ecard"] != DBNull.Value)
                             ecard1 = Convert.ToInt32(reader["ecard"].ToString());
                         if (reader["ecard2"] != null && reader["ecard2"] != DBNull.Value)
@@ -995,6 +995,9 @@ namespace LiveResults.Client
                             StartTime = iStartTime,
                             Time = time,
                             Status = rstatus,
+                            Ecard1 = ecard1,
+                            Ecard2 = ecard2,
+                            Bib = bib,
                             SplitTimes = SplitTimes
                         };
 

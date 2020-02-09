@@ -310,17 +310,20 @@ namespace LiveResults.Model
                 compDate = Convert.ToDateTime(reader[("compDate")]);
                 reader.Close();
 
-                cmd.CommandText = "select runners.dbid,control,time,name,club,class,status from runners, results where results.dbid = runners.dbid and results.tavid = " + m_compID + " and runners.tavid = " + m_compID;
+                cmd.CommandText = "select runners.dbid,control,time,name,club,class,ecard1,ecard2,bib,status from runners, results where results.dbid = runners.dbid and results.tavid = " + m_compID + " and runners.tavid = " + m_compID;
                 reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     var dbid = Convert.ToInt32(reader["dbid"]);
                     var control = Convert.ToInt32(reader["control"]);
                     var time = Convert.ToInt32(reader["time"]);
+                    var ecard1 = Convert.ToInt32(reader["ecard1"]);
+                    var ecard2 = Convert.ToInt32(reader["ecard2"]);
+                    var bib = Convert.ToInt32(reader["bib"]);
                     var sourceId = idToAliasDictionary.ContainsKey(dbid) ? idToAliasDictionary[dbid] : null;
                     if (!IsRunnerAdded(dbid))
                     {
-                        var r = new Runner(dbid, reader["name"] as string, reader["club"] as string, reader["class"] as string, sourceId);
+                        var r = new Runner(dbid, reader["name"] as string, reader["club"] as string, reader["class"] as string, ecard1, ecard2, bib, sourceId);
                         AddRunner(r);
                         numRunners++;
                     }
@@ -370,13 +373,14 @@ namespace LiveResults.Model
             }
         }
 
-        public void UpdateRunnerInfo(int id, string name, string club, string Class, string sourceId)
+        public void UpdateRunnerInfo(int id, string name, string club, string Class, int ecard1, int ecard2, int bib, string sourceId)
         {
             if (m_runners.ContainsKey(id))
             {
                 var cur = m_runners[id];
                 if (cur == null)
                     return;
+
                 bool isUpdated = false;
                 if (cur.Name != name)
                 {
@@ -391,6 +395,21 @@ namespace LiveResults.Model
                 if (cur.Club != club)
                 {
                     cur.Club = club;
+                    isUpdated = true;
+                }
+                if (cur.Ecard1 != ecard1)
+                {
+                    cur.Ecard1 = ecard1;
+                    isUpdated = true;
+                }
+                if (cur.Ecard2 != ecard2)
+                {
+                    cur.Ecard2 = ecard2;
+                    isUpdated = true;
+                }
+                if (cur.Bib != bib)
+                {
+                    cur.Bib = bib;
                     isUpdated = true;
                 }
                 if (string.IsNullOrEmpty(sourceId))
@@ -634,11 +653,11 @@ namespace LiveResults.Model
             {
                 if (!IsRunnerAdded(r.ID))
                 {
-                    AddRunner(new Runner(r.ID, r.Name, r.Club, r.Class, r.SourceId));
+                    AddRunner(new Runner(r.ID, r.Name, r.Club, r.Class, r.Ecard1, r.Ecard2, r.Bib, r.SourceId));
                 }
                 else
                 {
-                    UpdateRunnerInfo(r.ID, r.Name, r.Club, r.Class, r.SourceId);
+                    UpdateRunnerInfo(r.ID, r.Name, r.Club, r.Class, r.Ecard1, r.Ecard2, r.Bib, r.SourceId);
                 }
 
 
@@ -688,13 +707,13 @@ namespace LiveResults.Model
                         if (currentRunner != null)
                         {
                             runner.ID = currentRunner.ID;
-                            UpdateRunnerInfo(runner.ID, runner.Name, runner.Club, runner.Class, runner.SourceId);
+                            UpdateRunnerInfo(runner.ID, runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId);
                         }
                         else
                         {
                             //New runner
                             runner.ID = m_nextInternalId++;
-                            var newRunner = new Runner(runner.ID, runner.Name, runner.Club, runner.Class, runner.SourceId);
+                            var newRunner = new Runner(runner.ID, runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId);
                             AddRunner(newRunner);
                         }
                         UpdateRunnerTimes(runner);
@@ -706,7 +725,7 @@ namespace LiveResults.Model
                     foreach (var runner in classGroup)
                     {
                         runner.ID = m_nextInternalId++;
-                        var newRunner = new Runner(runner.ID,runner.Name, runner.Club, runner.Class, runner.SourceId);
+                        var newRunner = new Runner(runner.ID,runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId);
                         AddRunner(newRunner);
                         UpdateRunnerTimes(runner);
                     }
@@ -884,9 +903,11 @@ namespace LiveResults.Model
                                         cmd.Parameters.AddWithValue("?name", Encoding.UTF8.GetBytes(r.Name));
                                         cmd.Parameters.AddWithValue("?club", Encoding.UTF8.GetBytes(r.Club ?? ""));
                                         cmd.Parameters.AddWithValue("?class", Encoding.UTF8.GetBytes(r.Class));
-
+                                        cmd.Parameters.AddWithValue("?ecard1", r.Ecard1);
+                                        cmd.Parameters.AddWithValue("?ecard2", r.Ecard2);
+                                        cmd.Parameters.AddWithValue("?bib", r.Bib);
                                         cmd.Parameters.AddWithValue("?id", r.ID);
-                                        cmd.CommandText = "REPLACE INTO runners (tavid,name,club,class,brick,dbid) VALUES (?compid,?name,?club,?class,0,?id)";
+                                        cmd.CommandText = "REPLACE INTO runners (tavid,name,club,class,brick,dbid,ecard1,ecard2,bib) VALUES (?compid,?name,?club,?class,0,?id,?ecard1,?ecard2,?bib)";
 
                                         try
                                         {

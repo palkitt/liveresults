@@ -76,6 +76,10 @@ $(document).ready(function()
 		if (isset($_GET['calltime']))
 			echo 'calltime = ', $_GET['calltime'] ,';'
 	?>
+		
+	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",Resources,"false","true","setAutomaticUpdateText","setCompactViewText", runnerStatus, "true","divRadioPassings");
+    res.updateRadioPassings(<?= $_GET['code']?>,calltime);
+	res.compName = '<?=$currentComp->CompName()?>';
 	
 	if (<?= $_GET['code']?>==0)
 	{ 
@@ -88,11 +92,10 @@ $(document).ready(function()
 			clock.innerHTML = HTMLstring;
 		}
 		setInterval(function () {updateClock( clockElement );}, 1000);
+		res.radioStart = true;
 	}
+
 	
-	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",Resources,"false","true","setAutomaticUpdateText","setCompactViewText", runnerStatus, "true","divRadioPassings");
-    res.updateRadioPassings(<?= $_GET['code']?>,calltime);
-	res.compName = '<?=$currentComp->CompName()?>';
 	
 	if (!('<?= $_GET['code2']?>'==''))
 	{

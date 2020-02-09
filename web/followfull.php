@@ -178,27 +178,28 @@ $(document).ready(function()
 	<?php }?>
 
 	<?php if ($showTimePrediction){ ?>
+	    res.compDate = "<?=$currentComp->CompDate();?>";
 		res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
 		res.startPredictionUpdate();
 	<?php }?>
 	
 	// Set full view
-	<?php if ($setFullView || in_array($currentCompNo, array(16284,16699))){?>
+	<?php if ($setFullView || in_array($currentCompNo, array(0))){?>
 		res.setCompactView(false);
 	<?php }?>
 	
 	// Mass start race
-	<?php if(in_array($currentCompNo, array(14872, 15233,15952, 16197, 16284, 16544, 16699, 16847))){?>
+	<?php if(in_array($currentCompNo, array(0))){?>
 		res.curClassIsMassStart = true;
 	<?php }?>
 	
 	// Show tenth of seconds
-	<?php if(in_array($currentCompNo, array(15232,15233,15068,15070))){?>
+	<?php if(in_array($currentCompNo, array(0))){?>
 		res.setShowTenth(true);
 	<?php }?>
 	
 	// Modify high time 
-	<?php if(in_array($currentCompNo, array(16847))){?>
+	<?php if(in_array($currentCompNo, array(10010))){?>
 		res.highTime = 30;
 	<?php }?>
 	

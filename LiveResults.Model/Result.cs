@@ -15,6 +15,9 @@ namespace LiveResults.Model
         public int StartTime { get; set; }
         public int Time { get; set; }
         public int Status { get; set; }
+        public int Ecard1 { get; set; }
+        public int Ecard2 { get; set; }
+        public int Bib { get; set; }
         public List<ResultStruct> SplitTimes { get; set; }
     }
 
