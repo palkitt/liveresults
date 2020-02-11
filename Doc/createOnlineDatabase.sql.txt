@@ -12,7 +12,7 @@
   videourl varchar(255),
   videotype varchar(255),
   twitter varchar(255),
- `timezone` varchar(10) DEFAULT NULL,
+  `timezone` varchar(10) DEFAULT NULL,
   `country` varchar(2) DEFAULT NULL,
   `massstartsort` tinyint(1) DEFAULT NULL;
   `tenthofseconds` tinyint(1) DEFAULT NULL;
