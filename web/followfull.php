@@ -182,26 +182,22 @@ $(document).ready(function()
 		res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
 		res.startPredictionUpdate();
 	<?php }?>
-	
+
+
 	// Set full view
-	<?php if ($setFullView || in_array($currentCompNo, array(0))){?>
-		res.setCompactView(false);
-	<?php }?>
+	<?php if ($setFullView || $currentComp->FullView() ){?>
+		res.setCompactView(false); <?php }?>
 	
 	// Mass start race
-	<?php if(in_array($currentCompNo, array(0))){?>
-		res.curClassIsMassStart = true;
-	<?php }?>
+	<?php if($currentComp->MassStartSorting() ){?>
+		res.curClassIsMassStart = true; <?php }?>
 	
 	// Show tenth of seconds
-	<?php if(in_array($currentCompNo, array(0))){?>
-		res.setShowTenth(true);
-	<?php }?>
-	
+	<?php if($currentComp->ShowTenthOfSeconds() ){?>
+		res.setShowTenth(true); <?php }?>
+
 	// Modify high time 
-	<?php if(in_array($currentCompNo, array(10010))){?>
-		res.highTime = 30;
-	<?php }?>
+	res.highTime = <?=$currentComp->HighTime();?>;
 	
 	// Qualification limits and classes (last limit is default)
 	<?php if(in_array($currentCompNo, array(10002))){?>

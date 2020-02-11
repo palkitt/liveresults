@@ -4,6 +4,7 @@ $CHARSET = 'utf-8';
 class Emma
 {
 
+
 	public static $db_server = "x";
 	public static $db_database = "x";
 	public static $db_user = "x";
@@ -15,7 +16,11 @@ class Emma
 
    var $m_CompDate;
    var $m_TimeDiff = 0;
+   var $m_HighTime = 60;
    var $m_IsMultiDayEvent = false;
+   var $m_UseMassStartSort = false;
+   var $m_ShowTenthOfSeconds = false;
+   var $m_ShowFullView = false;
    var $m_MultiDayStage = -1;
    var $m_MultiDayParent = -1;
    
@@ -130,9 +135,10 @@ public static function DelRadioControl($compid,$code,$classname)
 		$id = 10000;
 
 
-	 mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public) values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0)") or die(mysqli_error($conn));
+	 mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,hightime) values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0,0,0,0,60)") or die(mysqli_error($conn));
 
 	}
+
 
 	public static function CreateCompetitionFull($name,$org,$date, $email, $password, $country)
     	{
@@ -159,11 +165,14 @@ public static function DelRadioControl($compid,$code,$classname)
 
 	}
 
-public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff)
+public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,$hightime)
 
         {
         $conn = self::openConnection();
-	 $sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, public=". (!isset($public) ? "0":"1") ." where tavid=$id";
+	 $sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, public=". (!isset($public) ? "0":"1") ."
+	         , massstartsort=". (!isset($massstartsort) ? "0":"1") .", tenthofseconds=". (!isset($tenthofseconds) ? "0":"1") ."
+			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", hightime=$hightime where tavid=$id";
+	 
 
 	 mysqli_query($conn, $sql) or die(mysqli_error($conn));
 
@@ -197,7 +206,7 @@ public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff)
         {
         $conn = self::openConnection();
 
-	 $result = mysqli_query($conn, "select compName, compDate,tavid,organizer,public,timediff, timezone, videourl, videotype,multidaystage,multidayparent from login where tavid=$compid");
+	 $result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, fullviewdefault, hightime, timezone, videourl, videotype,multidaystage,multidayparent from login where tavid=$compid");
 
          $ret = null;
 
@@ -233,12 +242,13 @@ public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff)
 		  {
 
 		    $this->m_CompName = $tmp["compName"];
-			
 			$this->m_Organizer = $tmp["organizer"];
-
 		    $this->m_CompDate = date("Y-m-d",strtotime($tmp["compDate"]));
-
 		    $this->m_TimeDiff = $tmp["timediff"]*3600;
+			$this->m_HighTime = $tmp["hightime"];
+			$this->m_UseMassStartSort = $tmp["massstartsort"];
+            $this->m_ShowTenthOfSeconds = $tmp["tenthofseconds"];
+			$this->m_ShowFullView = $tmp["fullviewdefault"];
 
 		    if (isset($tmp["videourl"]))
 		    	$this->m_VideoUrl = $tmp["videourl"];
@@ -292,29 +302,47 @@ public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff)
     return $this->m_TwitterFeed;
   }
 
+  function CompName()
+  {
+     return $this->m_CompName;
+  }
 
-	function CompName()
-	{
-	  return $this->m_CompName;
-	}
-
-	function CompDate()
-	{
-	  return $this->m_CompDate;
-	}
+  function CompDate()
+  {
+     return $this->m_CompDate;
+  }
 	
-	function Organizer()
-	{
-	  return $this->m_Organizer;
-	}
+  function Organizer()
+  {
+    return $this->m_Organizer;
+  }
   
   function TimeZoneDiff()
   {
     return $this->m_TimeDiff/3600;
   }
   
+  function HighTime()
+  {
+    return $this->m_HighTime;
+  }
+  
+  function MassStartSorting()
+  {
+    return $this->m_UseMassStartSort;
+  }
+  
+  function FullView()
+  {
+    return $this->m_ShowFullView;
+  }
+  
+  function ShowTenthOfSeconds()
+  {
+    return $this->m_ShowTenthOfSeconds;
+  }
 
-	function Classes()
+  function Classes()
 	{
 		$ret = Array();
 		$q = "SELECT Class From runners where TavId = ". $this->m_CompId ."
