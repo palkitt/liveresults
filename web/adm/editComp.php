@@ -4,7 +4,7 @@ include_once("../templates/classEmma.class.php");
 if (isset($_POST['btnSave']))
 {
 	Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
-	      $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['hightime']);
+	      $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['hightime'],$_POST['quallimits'],$_POST['qualclasses']);
 }
 else if (isset($_POST['btnAdd']))
 {
@@ -46,7 +46,7 @@ header('Content-Type: text/html; charset='.$CHARSET);
 
 <head><title><?=$_TITLE?></title>
 
-<link rel="stylesheet" type="text/css" href="../css/style.css">
+<link rel="stylesheet" type="text/css" href="../css/style-eoc.css">
 <meta name="robots" content="noindex">
 <meta http-equiv="Content-Type" content="text/html;charset=<?=$CHARSET?>">
 <script language="javascript">
@@ -191,21 +191,27 @@ function confirmDelete(msg,url)
                <td>
 <?php
 	$comp = Emma::GetCompetition($_GET['compid']);
+	$qualclasses = htmlspecialchars($comp['qualclasses']);
+
 ?>
 <form name="form1" action="editComp.php?what=comp&compid=<?=$comp['tavid']?>" method="post">
 <h1 class="categoriesheader">Edit competition</h1>
 <b>CompetitionID</b><br/>
-<input type="text" name="id" size="35" disabled="true" value="<?=$comp['tavid']?>"/><br/>
+<input type="text" name="id" size="50" disabled="true" value="<?=$comp['tavid']?>"/><br/>
 <b>Competition Name</b><br/>
-<input type="text" name="name" size="35" value="<?=$comp['compName']?>"/><br/>
+<input type="text" name="name" size="50" value="<?=$comp['compName']?>"/><br/>
 <b>Organizer</b><br/>
-<input type="text" name="org" size="35" value="<?=$comp['organizer']?>"/><br/>
+<input type="text" name="org" size="50" value="<?=$comp['organizer']?>"/><br/>
 <b>Date (format yyyy-mm-dd)</b><br/>
-<input type="text" name="date" size="35" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/><br/>
+<input type="text" name="date" size="50" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/><br/>
 <b>Timezonediff (+1 for Finland, 0 for Norway, -1 for GBR)</b><br/>
-<input type="text" name="timediff" size="35" value="<?=$comp['timediff']?>"/><br/>
+<input type="text" name="timediff" size="50" value="<?=$comp['timediff']?>"/><br/>
 <b>Highlight time</b><br/>
-<input type="text" name="hightime" size="35" value="<?=$comp['hightime']?>"/><br/>
+<input type="text" name="hightime" size="50" value="<?=$comp['hightime']?>"/><br/>
+<b>Qual. classes. Empty = same limit for all (Format: "D21-", "H21-", "D70")</b><br/>
+<input type="text" name="qualclasses" size="50" value="<?=$qualclasses?>"/><br/>
+<b>Qual. limits. Last = all classes not in list above (Format: 3, 4, 5, 6)</b><br/>
+<input type="text" name="quallimits" size="50" value="<?=$comp['quallimits']?>"/><br/>
 <br/>
 <input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/><b>Use mass start sorting</b><br/>
 <input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/><b>Show tenth of seconds</b><br/>

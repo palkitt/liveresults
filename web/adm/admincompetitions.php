@@ -28,7 +28,7 @@ header('Content-Type: text/html; charset='.$CHARSET);
 <meta name="robots" content="noindex">
 
 
-<link rel="stylesheet" type="text/css" href="../css/style.css">
+<link rel="stylesheet" type="text/css" href="../css/style-eoc.css">
 
 <script language="javascript">
 
@@ -139,9 +139,9 @@ el.style.backgroundColor = "";
 
 <h1 class="categoriesheader">Existing competitions</h1>
 
-			<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<table border="0" cellpadding="0" cellspacing="2" width="100%">
 <tr>
-<td>Date</td><td>Name</td><td>Organizer</td><td>Public</td><td></td>
+<td><b>Date</b></td><td><b>Name</b></td><td><b>Organizer</b></td><td><b>Public</b></td><td><b>Radio</b></td><td></td>
 </tr>
 
 <?php
@@ -158,7 +158,7 @@ el.style.backgroundColor = "";
 
 	?>
 
-		<tr id="row<?=$comp["tavid"]?>"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td><td><?=$comp["compName"]?></td><td><?=$comp["organizer"]?></td><td><?=$comp["public"] == "1" ? "yes" : "false"?></td><td><a href="editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></tr>
+		<tr id="row<?=$comp["tavid"]?>"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td><td><?=$comp["compName"]?></td><td><?=$comp["organizer"]?></td><td><?=$comp["public"] == "1" ? "yes" : "false"?></td><td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td><td><a href="editComp.php?comp=<?=$comp["tavid"]?>">Edit</a></tr>
 
 	<?php
 

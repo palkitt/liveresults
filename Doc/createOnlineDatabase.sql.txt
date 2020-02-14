@@ -14,10 +14,12 @@
   twitter varchar(255),
   `timezone` varchar(10) DEFAULT NULL,
   `country` varchar(2) DEFAULT NULL,
-  `massstartsort` tinyint(1) DEFAULT NULL;
-  `tenthofseconds` tinyint(1) DEFAULT NULL;
-  `fullviewdefault` tinyint(1) DEFAULT NULL;
-  `hightime` int(11) DEFAULT NULL;
+  `massstartsort` tinyint(1) DEFAULT NULL,
+  `tenthofseconds` tinyint(1) DEFAULT NULL,
+  `fullviewdefault` tinyint(1) DEFAULT NULL,
+  `hightime` int(11) DEFAULT NULL,
+  `quallimits` varchar(50) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `qualclasses` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
   PRIMARY KEY (`user`)
 ) DEFAULT CHARSET=utf8;
 

@@ -50,6 +50,7 @@ var LiveResults;
 			this.compDate = "";
             this.qualLimits = null;
 			this.qualClasses = null;
+			this.messageBibs = [];
 			this.noSplits = false;
 			this.radioStart = false;
             this.apiURL = "//api.freidig.idrett.no/api.php";
@@ -686,21 +687,24 @@ var LiveResults;
 					"fnRender": function (o) 
 					{
 						var DNStext = "true";
-							if (!isNaN(o.aData.runnerName.charAt(0)))
-						DNStext = "false";
+						if (!isNaN(o.aData.runnerName.charAt(0)))
+						   DNStext = "false";
 					    var runnerName = o.aData.runnerName;
 						runnerName = runnerName.replace("<del>","");
 						runnerName = runnerName.replace("</del>","");
-						var link = "<button onclick=\"res.popupDialog('" + runnerName +
-						"','lopid="  + "(" + _this.competitionId +") " + _this.compName +
+						var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + o.aData.dbid + "," +
+						"'lopid=" + "(" + _this.competitionId +") " + _this.compName +
 						"&Tidsp=" + o.aData.passtime + 
 						"&T0="    + o.aData.club + 
 						"&T1="    + className +
 						"&T2="    + o.aData.controlName + 
 						"&T3="    + o.aData.time + "',"
-						+ DNStext + ");\">&#128172;</button>";
+						+ DNStext + ");\">&#128172;</button>";						
+						if ( _this.messageBibs.indexOf(o.aData.dbid) > -1)
+							link += " &#9679;";
 						return link;
-					}})
+					}});
+
 			}
 			this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
 				"bPaginate": false,
@@ -715,10 +719,10 @@ var LiveResults;
 				"bDestroy": true
 				});
 			}
-        };
+	    };
 		
 	   //Popup window for messages to message center
-	    AjaxViewer.prototype.popupDialog = function (runnerName,idText,DNS) {
+	    AjaxViewer.prototype.popupDialog = function (runnerName,dbid,idText,DNS) {
 		    var promptText = runnerName;
 			var defaultText ="";
 			if (DNS)
@@ -732,6 +736,7 @@ var LiveResults;
                     data: dataString
                     }
                 );
+				this.messageBibs.push(dbid);
 			}
 	    }
 
@@ -1683,11 +1688,13 @@ var LiveResults;
     }());
     LiveResults.AjaxViewer = AjaxViewer;
 })(LiveResults || (LiveResults = {}));
+
 Date.prototype.stdTimezoneOffset = function () {
     var jan = new Date(this.getFullYear(), 0, 1);
     var jul = new Date(this.getFullYear(), 6, 1);
     return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
 };
+
 Date.prototype.dst = function () {
     return this.getTimezoneOffset() < this.stdTimezoneOffset();
 };

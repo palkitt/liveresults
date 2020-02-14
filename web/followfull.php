@@ -200,10 +200,9 @@ $(document).ready(function()
 	res.highTime = <?=$currentComp->HighTime();?>;
 	
 	// Qualification limits and classes (last limit is default)
-	<?php if(in_array($currentCompNo, array(10002))){?>
-		res.qualLimits = [3, 4, 5, 6];
-	    res.qualClasses = ["D21-", "H21-", "D70"];
-	<?php }?>
+	res.qualLimits = [<?=$currentComp->QualLimits();?>];
+	res.qualClasses = [<?=$currentComp->QualClasses();?>];
+
 });
 
 

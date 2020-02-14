@@ -24,3 +24,7 @@ alter table login add column massstartsort tinyint(1) DEFAULT NULL;
 alter table login add column tenthofseconds tinyint(1) DEFAULT NULL;
 alter table login add column fullviewdefault tinyint(1) DEFAULT NULL;
 alter table login add column hightime int(11) DEFAULT NULL;
+
+-- addition 2020-02-13
+alter table login add column quallimits varchar(50) CHARACTER SET utf8 NOT NULL DEFAULT '';
+alter table login add column qualclasses varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '';

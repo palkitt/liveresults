@@ -5,10 +5,11 @@ class Emma
 {
 
 
-	public static $db_server = "x";
-	public static $db_database = "x";
-	public static $db_user = "x";
-	public static $db_pw= "x";
+	public static $db_server = "127.0.0.1";
+    public static $db_database = "liveres";
+	public static $db_user = "root";
+	public static $db_pw= "";
+
 	
    public static $MYSQL_CHARSET = "utf8";
    var $m_CompId;
@@ -27,6 +28,8 @@ class Emma
    var $m_VideoFormat = "";
    var $m_VideoUrl = "";
    var $m_TwitterFeed = "";
+   var $m_QualLimits = "";
+   var $m_QualClasses = "";
    
    var $m_Conn;
 
@@ -135,7 +138,7 @@ public static function DelRadioControl($compid,$code,$classname)
 		$id = 10000;
 
 
-	 mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,hightime) values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0,0,0,0,60)") or die(mysqli_error($conn));
+	 mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,hightime,quallimits,qualclasses) values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0,0,0,0,60,'','')") or die(mysqli_error($conn));
 
 	}
 
@@ -165,13 +168,13 @@ public static function DelRadioControl($compid,$code,$classname)
 
 	}
 
-public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,$hightime)
+public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,$hightime,$quallimits,$qualclasses)
 
         {
         $conn = self::openConnection();
 	 $sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, public=". (!isset($public) ? "0":"1") ."
 	         , massstartsort=". (!isset($massstartsort) ? "0":"1") .", tenthofseconds=". (!isset($tenthofseconds) ? "0":"1") ."
-			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", hightime=$hightime where tavid=$id";
+			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses' where tavid=$id";
 	 
 
 	 mysqli_query($conn, $sql) or die(mysqli_error($conn));
@@ -206,7 +209,7 @@ public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,
         {
         $conn = self::openConnection();
 
-	 $result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, fullviewdefault, hightime, timezone, videourl, videotype,multidaystage,multidayparent from login where tavid=$compid");
+	 $result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, fullviewdefault, hightime, quallimits, qualclasses, timezone, videourl, videotype,multidaystage,multidayparent from login where tavid=$compid");
 
          $ret = null;
 
@@ -249,6 +252,8 @@ public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,
 			$this->m_UseMassStartSort = $tmp["massstartsort"];
             $this->m_ShowTenthOfSeconds = $tmp["tenthofseconds"];
 			$this->m_ShowFullView = $tmp["fullviewdefault"];
+			$this->m_QualLimits = $tmp["quallimits"];
+            $this->m_QualClasses = $tmp["qualclasses"];
 
 		    if (isset($tmp["videourl"]))
 		    	$this->m_VideoUrl = $tmp["videourl"];
@@ -341,6 +346,18 @@ public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,
   {
     return $this->m_ShowTenthOfSeconds;
   }
+  
+  function QualLimits()
+  {
+    return $this->m_QualLimits;
+  }
+  
+  function QualClasses()
+  {
+    return $this->m_QualClasses;
+  }
+  
+  
 
   function Classes()
 	{
@@ -457,12 +474,6 @@ function getAllSplitControls()
    function getRadioPassings($code,$calltime,$lastUpdate,$maxNum)
   {
 	$ret = Array();
-	$q = "SELECT runners.Name, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
-	      results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
-		  left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
-		  and runners.class = splitcontrols.classname) 
-		  WHERE results.TavId =".$this->m_CompId." 
-		  AND runners.TavId = results.TavId ";
     
 	if ($code == 0) // Start
 	{
@@ -472,8 +483,8 @@ function getAllSplitControls()
 		$postTimeAbs = time()-5*60;
 		$postTimeText = date("Y-m-d H:i:s", $postTimeAbs);
 		
-		$q = "SELECT runners.Name, runners.class, runners.Club, runners.ecard1, runners.ecard2, results.Time, results2.Status, results2.Changed, 
-	      results.Control, splitcontrols.name as pname 
+		$q = "SELECT runners.Name, runners.class, runners.Club, runners.ecard1, runners.ecard2, runners.bib, runners.dbid, 
+		  results.Time, results2.Status, results2.Changed, results.Control, splitcontrols.name as pname 
 		  FROM results 
 		  INNER JOIN runners ON results.DbId = runners.DbId 
 		  LEFT JOIN splitcontrols ON (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." and runners.class = splitcontrols.classname) 
@@ -486,15 +497,6 @@ function getAllSplitControls()
 		  ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.Name
 		  limit 100";		   
 	}
-	elseif ($code == 1000) // Finish
-		$q .= "AND results.Time <> -1 AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 1
-		       AND results.Status <> 10 AND results.control = 1000 
-               AND runners.class NOT LIKE '%-All'  
-			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;
-	elseif ($code == -1) // All radio controls (not including start and finish)
-		$q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
-               AND results.control < 100000 AND ABS(results.control)%1000 > 0  AND ABS(results.control)%1000 < 999 AND runners.class NOT LIKE '%-All' 
-			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;			   
 	elseif ($code == -2) // Left in forest
 		$q = "SELECT runners.Name, runners.class, runners.Club, results2.Time, results.Status, results.Changed, results.Control, splitcontrols.name AS pname 
 		  FROM results 
@@ -504,11 +506,29 @@ function getAllSplitControls()
 		  WHERE results.TavId =".$this->m_CompId."  AND results2.TavId = results.TavId
 		  AND runners.TavId = results.TavId AND (results.Status = 9 OR results.Status = 10) AND results.control = 1000 AND results2.Control = 100 AND runners.class NOT LIKE '%-All' 
 		  ORDER BY runners.Club, results2.Time, runners.Name";
-		  
-	else // Other controls
-	    $q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
+    else
+	{
+		$q = "SELECT runners.Name, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
+	      results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
+		  left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
+		  and runners.class = splitcontrols.classname) 
+		  WHERE results.TavId =".$this->m_CompId." 
+		  AND runners.TavId = results.TavId ";
+	    
+		if ($code == 1000) // Finish
+		   $q .= "AND results.Time <> -1 AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 1
+		       AND results.Status <> 10 AND results.control = 1000 
+               AND runners.class NOT LIKE '%-All'  
+			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;
+	    elseif ($code == -1) // All radio controls (not including start and finish)
+		    $q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
+               AND results.control < 100000 AND ABS(results.control)%1000 > 0  AND ABS(results.control)%1000 < 999 AND runners.class NOT LIKE '%-All' 
+			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;			   
+	    else // Other controls
+	        $q .= "AND results.Time <> -1  AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 10 AND splitcontrols.tavid is not null 
                AND results.control < 100000 AND ABS(results.control)%1000 = ".$code." AND runners.class NOT LIKE '%-All' 
 			   AND (results.changed > '".$lastUpdate."') ORDER BY results.changed desc limit ".$maxNum;
+	}
 
 	if ($result = mysqli_query($this->m_Conn, $q))
 	{
@@ -892,8 +912,8 @@ function getAllSplitControls()
 	}
 
 
-}
 
+}
 
 
 ?>

@@ -87,10 +87,9 @@ if ($_GET['method'] == 'getradiopassings')
 			
 			if ($code==0) // Start	
 			{
-				$ret .= ", \"ecard1\": ".$pass['ecard1'].", \"ecard2\": ".$pass['ecard2'];
+				$ret .= ", \"ecard1\": ".$pass['ecard1'].", \"ecard2\": ".$pass['ecard2'].", \"bib\": ".$pass['bib'].", \"dbid\": ".$pass['dbid'];
 				$currTime = (date('H')*3600 + date('i')*60 + date('s'))*100;
 				$timeToStart = $time - $currTime;
-				
 				if ($pass['class']=="NOCLAS") // Unknown ecard
 					$ret .= ",$br \"DT_RowClass\": \"red_row\"";
 				elseif ($status == 9)        // Registered at start 
@@ -125,7 +124,7 @@ if ($_GET['method'] == 'getradiopassings')
 				$rank = -1;
 				$ret .= ",\"rank\": ".$rank.",\"timeDiff\": ".$timeDiff;
 			}
-			else // New result, all but start. Use hash as last updated time
+			else // New result, all but start and left in forest. Use hash as last updated time
 			{	
 				if (($status == 0) || ($status == 9) || ($status == 10))
 				{
