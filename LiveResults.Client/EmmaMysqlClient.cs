@@ -633,13 +633,14 @@ namespace LiveResults.Client
             {
                 try
                 {
-                    m_connection = new MySqlConnection(m_connStr);
-                    m_connection.Open();
-                    SetCodePage(m_connection);
+                    m_connection = null;
                     while (m_continue)
                     {
                         if (m_itemsToUpdate.Count > 0)
                         {
+                            m_connection = new MySqlConnection(m_connStr);
+                            m_connection.Open();
+                            SetCodePage(m_connection);
                             using (MySqlCommand cmd = m_connection.CreateCommand())
                             {
                                 var item = m_itemsToUpdate[0];
