@@ -10,7 +10,6 @@ class Emma
 	public static $db_user = "root";
 	public static $db_pw= "";
 
-	
    public static $MYSQL_CHARSET = "utf8";
    var $m_CompId;
    var $m_CompName;
@@ -209,7 +208,7 @@ public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,
         {
         $conn = self::openConnection();
 
-	 $result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, fullviewdefault, hightime, quallimits, qualclasses, timezone, videourl, videotype,multidaystage,multidayparent from login where tavid=$compid");
+	 $result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, fullviewdefault, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, multidayparent from login where tavid=$compid");
 
          $ret = null;
 
@@ -561,7 +560,7 @@ function getAllSplitControls()
 
 		$ret = Array();
 
-		$q = "SELECT runners.Name, runners.Club, results.Time, results.Status, results.Changed From runners,results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '".$className."' and results.Status <> -1 AND (results.Time <> -1 or (results.Time = -1 and (results.Status = 2 or results.Status=3))) AND results.Control = $split ORDER BY results.Status, results.Time";
+		$q = "SELECT runners.Name, runners.Club, results.Time, results.Status, results.Changed From runners, results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '".$className."' and results.Status <> -1 AND (results.Time <> -1 or (results.Time = -1 and (results.Status = 2 or results.Status=3))) AND results.Control = $split ORDER BY results.Status, results.Time";
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			while ($row = mysqli_fetch_array($result))

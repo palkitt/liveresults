@@ -23,6 +23,7 @@ var LiveResults;
             this.showTenthOfSecond = false;
             this.updateAutomatically = true;
             this.compactView = true;
+			this.scrollView = true;
             this.updateInterval = 7000;
             this.radioUpdateInterval = 5000;
             this.classUpdateInterval = 60000;
@@ -58,7 +59,8 @@ var LiveResults;
 			//this.apiURL = "api/api.php";
 			//this.radioURL = "api/radioapi.php";
             LiveResults.Instance = this;
-            $(window).hashchange(function () {
+            
+			$(window).hashchange(function () {
                 if (window.location.hash) {
                     var hash = window.location.hash.substring(1);
                     var cl;
@@ -71,24 +73,29 @@ var LiveResults;
                     else {
                         cl = decodeURIComponent(hash);
                         if (cl != _this.curClassName) {
-                            _this.chooseClass(hash);
+                            _this.chooseClass(cl);
                         }
                     }
                 }
             });
             $(window).hashchange();
+			$(window).on('resize', function () {_this.currentTable.fnAdjustColumnSizing();} );
         }
         AjaxViewer.prototype.startPredictionUpdate = function () {
             var _this = this;
             this.updatePredictedTimeTimer = setInterval(function () { _this.updatePredictedTimes(); }, 1000);
         };
         //Detect if the browser is a mobile phone
-        AjaxViewer.prototype.mobilecheck = function () {
-            var check = false;
-            (function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4)))
-                check = true; })(navigator.userAgent || navigator.vendor || window.opera);
-            return check;
-        };
+        AjaxViewer.prototype.isMobile = function () {
+            if (navigator.userAgent.match(/Mobi/))
+               return true;
+            if ('screen' in window && window.screen.width < 1366)
+               return true;
+            var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection && connection.type === 'cellular')
+               return true;
+            return false;
+		}
         
         // Update the classlist
         AjaxViewer.prototype.updateClassList = function () {
@@ -136,7 +143,7 @@ var LiveResults;
 						if (x[0] > x[1]) {return 1;}
 						return 0;
 					});
-					var str = "<nowrap>";
+					var str = "";
 					var nClass = classes.length;
 					
 					var relayNext = false;
@@ -181,7 +188,7 @@ var LiveResults;
 									str += "<br/>";
 							}	
 							else	
-								str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + className + "</a><br/>";
+								str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + className + "</a><br/>";							
 						}
                     };
                     str += "</nowrap>";
@@ -278,27 +285,28 @@ var LiveResults;
                     var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
                     var time = 100*Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
 					var timeServer = (dt - this.serverTimeDiff)/1000 + timeZoneDiff*60;
-                    var i;
-                    var extraCol = 0;
-					var numSplits = 0;
-					
 					var haveSplitControls = (this.curClassSplits != null) && (this.curClassSplits.length > 0);
                     var relay = (haveSplitControls && this.curClassSplits[0].code == "0");
 					var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
-					var unranked = false;
-                
-                    for (var sp = this.curClassSplits.length - 1; sp >= 0; sp--) {
+					var unranked = false;          
+                    var timeDiff = 0;
+					var timeDiffCol = 0;
+					var timeDiffStr = "";
+					var highlight = false;
+					var age = 0;
+					var table = this.currentTable.api();
+					
+					var extraCol = 0;
+					for (var sp = this.curClassSplits.length - 1; sp >= 0; sp--) {
                         if (this.curClassSplits[sp].code == "-999") { // If not sorted
-                            {
                                 extraCol = 1;
 								unranked = true;
                                 break;
-                            }
                         }
-                    }
-					if (this.compactView && !lapTimes)
-						extraCol = 1;
-					
+                    };
+					if (this.compactView && !lapTimes) extraCol = 1;
+										
+					var numSplits;
 					if (this.curClassSplits == null)
 						numSplits = 0;
 					else if (relay)
@@ -308,110 +316,92 @@ var LiveResults;
 					else
 						numSplits = this.curClassSplits.length;
 					
-					var timeDiff = 0;
-					var timeDiffCol = 0;
-					var timeDiffStr = "";
-					var highlight = false;
-					var age = 0;
-
-                    for (var i = 0; i < data.length; i++) 
-					{
-						// *** Highlight new results ***
-						// Single-result classes. Highlight whole line
-						if (numSplits==0 || (unranked && numSplits==1) )
+                    for (var i = 0; i < data.length; i++) {
+                        // *** Highlight new results ***
+                        
+                        // Single-result classes. Highlight whole line
+						if (numSplits==0 || (unranked && numSplits==1) ) 
 						{
+							var row = table.row(i).node();
 							highlight = false;
-							if (data[i].changed != "")
-							{ 
+							if (data[i].changed != ""){ 
 								age = timeServer - data[i].changed;
 								highlight = (age < this.highTime);
 							}
 							if (highlight)
 								if (data[i].DT_RowClass != undefined && (data[i].DT_RowClass == "firstnonqualifier" || data[i].DT_RowClass == "new_fnq"))
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ")").addClass('new_fnq');
+									$(row).addClass('new_fnq');
 								else
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ")").addClass('red_row');
-							else
-							{    
-								$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ")").removeClass('red_row');
-								$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ")").removeClass('new_fnq');
+									$(row).addClass('red_row');
+							else{    
+								$(row).removeClass('red_row');
+								$(row).removeClass('new_fnq');
 							}
-
-						}
-						else // Classes with split times
-						{
+                        }
+                        // Classes with split times
+						else{
 							var splitRef = 0;
 							var colNum = 0;
 							// Highlight split times
-							for (var sp = 0; sp < numSplits; sp++)
-							{
+							for (var sp = 0; sp < numSplits; sp++){
 								if (relay)
 									splitRef = sp*2+1;
 								else if (lapTimes)
 									splitRef = sp*2;
 								else
 									splitRef = sp;
-								colNum = 3 + extraCol + sp;
+								colNum = 3 + extraCol + 2*sp;
 								highlight = false;
-								if (data[i].splits[this.curClassSplits[splitRef].code + "_changed"] != "")
-								{
+								if (data[i].splits[this.curClassSplits[splitRef].code + "_changed"] != ""){
 									age = timeServer - data[i].splits[this.curClassSplits[splitRef].code + "_changed"];
 									highlight = (age < this.highTime);
 								}
 								if (highlight)
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + colNum + ")").addClass('red_cell');
+									$( table.cell(i,colNum).node() ).addClass('red_cell');
 								else
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + colNum  + ")").removeClass('red_cell');		
+									$( table.cell(i,colNum).node() ).removeClass('red_cell');
 							}
 							// Highlight finish-time
 							highlight = false;
-							if (data[i].changed != "" && data[i].progress==100)
-							{ 
+							if (data[i].changed != "" && data[i].progress==100){ 
 								age = timeServer - data[i].changed;
 								highlight = (age < this.highTime);
 							}
-							if (highlight)
-							{
-								if (this.compactView || relay || lapTimes)
-								{
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + numSplits + extraCol) + ")").addClass('red_cell_sqr');
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (4 + numSplits + extraCol) + ")").addClass('red_cell');
+							if (highlight){
+								if (this.compactView || relay || lapTimes){
+									$( table.cell(i,(3 + extraCol + numSplits*2)).node() ).addClass('red_cell_sqr');
+									$( table.cell(i,(4 + extraCol + numSplits*2)).node() ).addClass('red_cell');
 								}
 								else
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + numSplits + extraCol) + ")").addClass('red_cell');
+									$( table.cell(i,(3 + extraCol + numSplits*2)).node() ).addClass('red_cell');
 							}
 							else
 							{	
-								if (this.compactView || relay || lapTimes)
-								{
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + numSplits + extraCol) + ")").removeClass('red_cell_sqr');
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (4 + numSplits + extraCol) + ")").removeClass('red_cell');
+								if (this.compactView || relay || lapTimes){
+									$( table.cell(i,(3 + extraCol + numSplits*2)).node() ).removeClass('red_cell_sqr');
+									$( table.cell(i,(4 + extraCol + numSplits*2)).node() ).removeClass('red_cell');
 								}
 								else
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + numSplits + extraCol) + ")").removeClass('red_cell');
+									$( table.cell(i,(3 + extraCol + numSplits*2)).node() ).removeClass('red_cell');
 							}
 						}
 						
 						// *** Update predicted times ***
-						if ((data[i].status == 10 || data[i].status == 9) && data[i].place == "" && data[i].start != "") {
+						if ((data[i].status == 10 || data[i].status == 9) && data[i].start != "") { 
 							var elapsedTime = time - data[i].start;
 							if (elapsedTime>=0) 
 							{
-								$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(0)").html("<span class=\"pulsing\">&#9679;</span>");
+								table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
 								var elapsedTimeStr = "";
 								var timeDiffStr = "";
 								var rank;
-								
 								if (relay && !this.compactView)
 									elapsedTimeStr += "<br/>";
-								
 								elapsedTimeStr += "<i>" + this.formatTime(elapsedTime, 0, false) + "</i>";
-                                if (this.curClassSplits == null || this.curClassSplits.length == 0) // No split controls
-								{
-									if (!unranked)
-									{
-										if (this.curClassSplitsBests[0][0]>0)
-										{
+                                if (this.curClassSplits == null || this.curClassSplits.length == 0){
+                                // No split controls
+									if (!unranked){
+										if (this.curClassSplitsBests[0][0]>0){
 											rank = this.findRank(this.curClassSplitsBests[0],elapsedTime);
 											if (rank > 1)
 												elapsedTimeStr += "<i> (" + rank + ")</i>";
@@ -420,55 +410,45 @@ var LiveResults;
 										}
 										else
 											timeDiffStr = "<i>(...)<\i>";
-										$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + 5 + ")").html(timeDiffStr);
+										table.cell( i, 6 ).data(timeDiffStr);
 									}
-									$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + 4 + ")").html(elapsedTimeStr);
+									table.cell( i, 4 ).data(elapsedTimeStr);
                                 }
-                                else // Have split controls
-								{
+                                else{ 
+                                // Have split controls
 									//Find next split to reach
 									var nextSplit = 0;
                                     var nextSplitRef = 0;
                                     for (var sp = this.curClassSplits.length - 1; sp >= 0; sp--) {
-                                        if (data[i].splits[this.curClassSplits[sp].code] != "") {
-                                            {
-												if (relay)
-												{
-													nextSplit = sp/2;
-													nextSplitRef = sp + 2;
-												}
-												else if (lapTimes)
-												{
-													nextSplit = (sp+1)/2;
-													nextSplitRef = sp + 2;
-												}	
-												else
-												{
-													nextSplit = sp + 1;
-													nextSplitRef = sp + 1;
-												}
-                                                break;
-                                            }
+                                        if (!isNaN(parseInt(data[i].splits[this.curClassSplits[sp].code]))) {
+											if (relay){
+												nextSplit = sp/2;
+												nextSplitRef = sp + 2;
+											}
+											else if (lapTimes){
+												nextSplit = (sp+1)/2;
+												nextSplitRef = sp + 2;
+											}	
+											else{
+												nextSplit = sp + 1;
+												nextSplitRef = sp + 1;
+											}
+                                            break;
                                         }
                                     }
-									if (unranked)
-									{
-										$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + nextSplit + extraCol) + ")").html(elapsedTimeStr);
-										$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + numSplits + extraCol) + ")").html("<i>(...)<\i>");
+									if (unranked){
+										table.cell( i, 3 + nextSplit*2 + extraCol ).data(elapsedTimeStr);
+										table.cell( i, 3 + numSplits*2 + extraCol ).data("<i>(...)<\i>");
 									}
-									else
-									{
+									else{
 										if (this.curClassSplitsBests[nextSplitRef][0]==0)
 										   timeDiffStr = "<i>(...)<\i>";
-										else
-										{
-											if (relay)
-											{
+										else{
+											if (relay){
 												timeDiff = time - this.curClassSplitsBests[nextSplitRef][0];
 												rank = this.findRank(this.curClassSplitsBests[nextSplitRef],time);
 											}
-											else
-											{
+											else{
 												timeDiff = elapsedTime - this.curClassSplitsBests[nextSplitRef][0];
 												rank = this.findRank(this.curClassSplitsBests[nextSplitRef],elapsedTime);
 											}
@@ -482,21 +462,24 @@ var LiveResults;
 												timeDiffStr += rankStr; 
 										}
 										
-										timeDiffCol = 3 + nextSplit + extraCol;
+										timeDiffCol = 3 + nextSplit*2 + extraCol;
 										if (nextSplit==numSplits) // Approach finish
-											timeDiffCol += 1;
-										// Display elapsed time
+											timeDiffCol += 2;
+                                        
+                                            // Display elapsed time
 										if (!this.compactView && !relay && !lapTimes && nextSplit==numSplits)
 											elapsedTimeStr += "<br/>" + timeDiffStr;
-										$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + (3 + numSplits + extraCol) + ")").html(elapsedTimeStr);
-										// Display time diff
+										table.cell( i, 3 + numSplits*2 + extraCol ).data(elapsedTimeStr);
+                                        
+                                        // Display time diff
 										if (this.compactView || relay || nextSplit!=numSplits || lapTimes)
-											$("#" + this.resultsDiv + " tr:eq(" + (data[i].curDrawIndex + 1) + ") td:eq(" + timeDiffCol + ")").html(timeDiffStr);
+											table.cell( i, timeDiffCol ).data(timeDiffStr);
 									}
                                 }
                             }
                         }
                     }
+					table.draw();
                 } 
                 catch (e) {
                 }
@@ -528,9 +511,7 @@ var LiveResults;
                     data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language + "&last_hash=" + this.lastPassingsUpdateHash,
                     success: function (data) { _this.handleUpdateLastPassings(data); },
                     error: function () {
-                        _this.passingsUpdateTimer = setTimeout(function () {
-                            _this.updateLastPassings();
-                        }, _this.updateInterval);
+                        _this.passingsUpdateTimer = setTimeout(function () {_this.updateLastPassings();}, _this.updateInterval);
                     },
                     dataType: "json"
                 });
@@ -639,72 +620,69 @@ var LiveResults;
 			columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName"});
 			columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club" });
 			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
-			     "fnRender": function (o) {
-					    className = o.aData.class;
-                        var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(o.aData.class);
-						link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + o.aData.class + "</a>";
+			     "render": function (data,type,row) {
+					    className = row.class;
+                        var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
+						link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
 						return link;
 					}});
             if (this.radioStart)
 			{				
 				columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
-				   "fnRender": function (o) {
+				   "render": function (data,type,row) {
 					var ecardstr = "";
-					if (o.aData.ecard1>0) {
-						ecardstr = o.aData.ecard1;
-						if (o.aData.ecard2>0) ecardstr += " / " + o.aData.ecard2;}
+					if (row.ecard1>0) {
+						ecardstr = row.ecard1;
+						if (row.ecard2>0) ecardstr += " / " + row.ecard2;}
 					else
-						if (o.aData.ecard2>0) ecardstr = o.aData.ecard2;
+						if (row.ecard2>0) ecardstr = row.ecard2;
 					return ecardstr;}});
 			}				
 			if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
 				columns.push({ "sTitle": "Pl.", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
-					"fnRender": function (o) {
+					"render": function (data,type,row) {
 						var res = "";
-						if (o.aData.rank >= 0)
-							res += o.aData.rank;
+						if (row.rank >= 0) res += row.rank;
 						return res;
 					}});
 			var timeTitle = "Tid";
-			if (this.radioStart || leftInForest)
-				timeTitle = "Starttid";
+            if (this.radioStart || leftInForest) 
+                timeTitle = "Starttid";
 			columns.push({ "sTitle": timeTitle, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time"});
 			if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
 				columns.push({ "sTitle": "Diff", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeDiff",
-					"fnRender": function (o) {
+					"render": function (data,type,row) {
 						var res = "";
-						if (o.aData.timeDiff >= 0)
-							res += "+" + _this.formatTime(o.aData.timeDiff, 0, _this.showTenthOfSecond);
-						else if (o.aData.timeDiff != -1)
-							res += "<span class=\"besttime\">-" + _this.formatTime(-o.aData.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
+						if (row.timeDiff >= 0)
+							res += "+" + _this.formatTime(row.timeDiff, 0, _this.showTenthOfSecond);
+						else if (row.timeDiff != -1)
+							res += "<span class=\"besttime\">-" + _this.formatTime(-row.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
 						return res;
 					}});
-		    if (this.radioStart)
-			{				
+		    if (this.radioStart){				
 				var message = "<button onclick=\"res.popupDialog('Generell melding','&Tidsp=0&lopid=" +
 				              "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";
 				columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
-					"fnRender": function (o) 
+					"render": function (data,type,row) 
 					{
 						var DNStext = "true";
-						if (!isNaN(o.aData.runnerName.charAt(0)))
+						if (!isNaN(row.runnerName.charAt(0)))
 						   DNStext = "false";
-					    var runnerName = o.aData.runnerName;
+					    var runnerName = row.runnerName;
 						runnerName = runnerName.replace("<del>","");
 						runnerName = runnerName.replace("</del>","");
-						var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + o.aData.dbid + "," +
+						var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
 						"'lopid=" + "(" + _this.competitionId +") " + _this.compName +
-						"&Tidsp=" + o.aData.passtime + 
-						"&T0="    + o.aData.club + 
+						"&Tidsp=" + row.passtime + 
+						"&T0="    + row.club + 
 						"&T1="    + className +
-						"&T2="    + o.aData.controlName + 
-						"&T3="    + o.aData.time + "',"
+						"&T2="    + row.controlName + 
+						"&T3="    + row.time + "',"
 						+ DNStext + ");\">&#128172;</button>";						
-						if ( _this.messageBibs.indexOf(o.aData.dbid) > -1)
+						if ( _this.messageBibs.indexOf(row.dbid) > -1)
 							link += " &#9679;";
 						return link;
 					}});
-
 			}
 			this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
 				"bPaginate": false,
@@ -753,8 +731,6 @@ var LiveResults;
                             try {
                                 var reqTime = resp.getResponseHeader("date");
                                 if (reqTime) {
-                                    // var d = new Date(reqTime);
-                                    // d.setTime(d.getTime() + (120 + d.getTimezoneOffset()) * 60 * 1000);
                                     _this.serverTimeDiff = new Date().getTime() - new Date(reqTime).getTime();
                                 }
                             }
@@ -769,28 +745,39 @@ var LiveResults;
                         },
                         dataType: "json"
                     });
-                    if (typeof (ga) == "function") {
-                        ga('send', 'pageview', {
-                            page: '/' + this.competitionId + '/' + this.curClassName
-                        });
-                    }
                 }
             }
         };
         //handle response from class-results-update
-        AjaxViewer.prototype.handleUpdateClassResults = function (data) {
+        AjaxViewer.prototype.handleUpdateClassResults = function (newData) {
             var _this = this;
-            if (data.status == "OK") {
+            if (newData.status == "OK") {
                 if (this.currentTable != null)
 				{	
+					var table = this.currentTable.api();
+					var oldData = this.currentTable.fnGetData();
+					var shownId = [];
+					
+					var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
+                    for (var i = 0; i < oldData.length; i++) 
+					{
+						if( table.row(i).child.isShown() )
+							shownId.push(oldData[i].dbid);
+					}
 					if (this.qualLimits != null)
-						this.updateQualLimMarks(data); 
-					this.updateClassSplitsBest(data);
-                    this.updateResultVirtualPosition(data.results);
-                    this.currentTable.fnClearTable();
-                    this.currentTable.fnAddData(data.results, true);
+						this.updateQualLimMarks(newData); 
+                    this.updateResultVirtualPosition(newData.results);
+					this.currentTable.fnClearTable();
+					this.currentTable.fnAddData(newData.results, true);
+					for (var i = 0; i < shownId.length; i++) 
+					{
+						let j = newData.results.findIndex(s => s.dbid == shownId[i]);
+						if (j > -1)
+							table.row(j).nodes().to$().find('td:first-child').trigger('click');
+					}
+					$(table.settings()[0].nScrollBody).scrollLeft( posLeft );
 					this.updatePredictedTimes();
-                    this.lastClassHash = data.hash;
+                    this.lastClassHash = newData.hash;
 
                 }
             }
@@ -816,11 +803,6 @@ var LiveResults;
                         },
                         dataType: "json"
                     });
-                    if (typeof (ga) == "function") {
-                        ga('send', 'pageview', {
-                            page: '/' + this.competitionId + '/' + this.curClubName
-                        });
-                    }
                 }
             }
         };
@@ -830,6 +812,7 @@ var LiveResults;
 			clearTimeout(this.resUpdateTimeout);
             if (data.status == "OK") {
                 if (this.currentTable != null) {
+					var posLeft = $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft();
                     this.currentTable.fnClearTable();
                     if (data && data.results) {
                         $.each(data.results, function (idx, res) {
@@ -843,26 +826,25 @@ var LiveResults;
                         });
                     }
                     this.currentTable.fnAddData(data.results, true);
+					$(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( posLeft );
                     this.lastClubHash = data.hash;
                 }
             }
             this.resUpdateTimeout = setTimeout(function () {
                 _this.checkForClubUpdate();
             }, this.updateInterval);
-        };
-        AjaxViewer.prototype.chooseClass = function (className) {
-             if (className.length == 0)
+        };	
+		
+		AjaxViewer.prototype.chooseClass = function (className) {
+            if (className.length == 0)
 				return;
 			var _this = this;
-            if (this.currentTable != null) {
-                try {
-                    this.currentTable.fnDestroy();
-                }
-                catch (e) {
-                }
-            }
             clearTimeout(this.resUpdateTimeout);
-            $('#divResults').html('');
+            if (this.currentTable != null) {
+                try {this.currentTable.api().destroy();}
+                catch (e) { }
+            }
+			$('#divResults').html('');
             this.curClassName = className;
             this.curClubName = null; 
             $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
@@ -873,30 +855,21 @@ var LiveResults;
                     try {
                         var reqTime = resp.getResponseHeader("date");
                         if (reqTime) {
-                            //var d = new Date(reqTime);
-                            //d.setTime(d.getTime() + (120 + d.getTimezoneOffset()) * 60 * 1000);
                             _this.serverTimeDiff = new Date().getTime() - new Date(reqTime).getTime();
                         }
                     }
-                    catch (e) {
-                    }
-                    _this.updateClassResults(data);
-					_this.updatePredictedTimes();
+                    catch (e) { }
+					_this.updateClassResults(data);
                 },
                 dataType: "json"
             });
-            if (typeof (ga) == "function") {
-                ga('send', 'pageview', {
-                    page: '/' + this.competitionId + '/' + this.curClassName
-                });
-            }
+
             if (!this.isSingleClass) {
                 window.location.hash = className;
             }
-            this.resUpdateTimeout = setTimeout(function () {
-                _this.checkForClassUpdate();
-            }, this.updateInterval);
+            this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate();}, this.updateInterval);
         };
+		
         AjaxViewer.prototype.updateClassResults = function (data) {
             var _this = this;
             if (data != null && data.status == "OK") {
@@ -906,8 +879,6 @@ var LiveResults;
                 }
                 $('#' + this.txtResetSorting).html("");
                 if (data.results != null) {
-                    //if (data.ShowTenthOfSecond)
-                    //    this.showTenthOfSecond = data.ShowTenthOfSecond
 				    if (this.qualLimits != null)
 						this.updateQualLimMarks(data);
 				    this.updateClassSplitsBest(data);
@@ -928,9 +899,11 @@ var LiveResults;
                     var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
                     var relay = (haveSplitControls && (this.curClassSplits[0].code == "0" || data.className.slice(-4) == "-All"));
 					var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
-					
+                    this.updateResultVirtualPosition(data.results);
+
                     columns.push({
                         "sTitle": "#",
+						"responsivePriority": 1,
 						"sClass": "right",
                         "bSortable": false,
                         "aTargets": [col++],
@@ -939,22 +912,23 @@ var LiveResults;
                     if (!haveSplitControls || unranked || (!fullView && !lapTimes))
                         columns.push({
                             "sTitle": this.resources["_NAME"],
+						    "responsivePriority": 1,
                             "sClass": "left",
                             "bSortable": false,
                             "aTargets": [col++],
                             "mDataProp": "name"
                         });
-						
 					
 					columns.push({
                         "sTitle": (haveSplitControls && !unranked && fullView || lapTimes) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
                         "sClass": "left",
+						"responsivePriority": (haveSplitControls && !unranked && fullView || lapTimes) ? 1 : 10000,
                         "bSortable": false,
                         "aTargets": [col++],
                         "mDataProp": "club",
-                        "fnRender": function (o) {
-                            var param = o.aData.club;
-							var clubShort = o.aData.club;
+                        "render": function (data,type,row) {
+                            var param = row.club;
+							var clubShort = row.club;
                             if (param && param.length > 0){
                                 param = param.replace('\'', '\\\'');
 								clubShort = clubShort.replace('Orienterings', 'O.');
@@ -971,51 +945,53 @@ var LiveResults;
                     
                             var link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                             if ((haveSplitControls && !unranked && (fullView || lapTimes)))
-                                return o.aData.name + "<br/>" + link;
+                                return row.name + "<br/>" + link;
                             else
                                 return link;
                         }
                     });
-                    
-                    this.updateResultVirtualPosition(data.results);
-                    
+                                        
 					columns.push({
                         "sTitle": this.resources["_START"],
+						"responsivePriority": 4,
                         "sClass": "right",
                         "sType": "numeric",
                         "aDataSort": [col],
                         "aTargets": [col],
                         "bUseRendered": false,
                         "mDataProp": "start",
-                        "fnRender": function (o) {
-                            if (o.aData.start == "")
+                        "render": function (data,type,row) {
+                            if (row.start == "")
                                 return "";
+							else if (type=="sort")
+								return data;
                             else
                             {
                                 var txt = "";
-                                if (o.aData.splits != undefined && o.aData.splits["0_place"] >= 1)
+                                if (row.splits != undefined && row.splits["0_place"] >= 1)
 								{
-									if (o.aData.splits["0_place"] == 1)									
-										txt += "<span class=\"besttime\">" +_this.formatTime(o.aData.start, 0, false, true, true)+ " (1)<\span>";
-									else if (o.aData.splits["0_place"] > 1)
-										txt += _this.formatTime(o.aData.start, 0, false, true, true) + " (" + o.aData.splits["0_place"] + ")";
+									if (row.splits["0_place"] == 1)									
+										txt += "<span class=\"besttime\">" +_this.formatTime(row.start, 0, false, true, true)+ " (1)<\span>";
+									else if (row.splits["0_place"] > 1)
+										txt += _this.formatTime(row.start, 0, false, true, true) + " (" + row.splits["0_place"] + ")";
 									else
-										txt += _this.formatTime(o.aData.start, 0, false, true, true); 
+										txt += _this.formatTime(row.start, 0, false, true, true); 
                                     if (fullView)
                                     {
-                                        if (o.aData.splits["0_place"] == 1)
+                                        if (row.splits["0_place"] == 1)
                                             txt += "<br /><span class=\"besttime\">+";
                                         else
                                             txt += "<br /><span>+";
-                                        txt += _this.formatTime(o.aData.splits["0_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                        txt += _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                     }
 								}
 								else
-									txt += _this.formatTime(o.aData.start, 0, false, true, true) 
+									txt += _this.formatTime(row.start, 0, false, true, true) 
                                 return txt;
                             }
                         }
                     });
+
                     col++;
                     if (data.splitcontrols != null)
                     {
@@ -1026,6 +1002,7 @@ var LiveResults;
                                 columns.push(
                                     {
                                         "sTitle": value.name,
+										"responsivePriority": 100,
                                         "sClass": "right",
 										"bSortable": !unranked,
                                         "sType": "numeric",
@@ -1033,54 +1010,60 @@ var LiveResults;
                                         "aTargets": [col],
                                         "bUseRendered": false,
                                         "mDataProp": "splits." + value.code,
-                                        "fnRender": function (o)
+                                        "render": function (data,type,row)
                                         {
-                                            if (!o.aData.splits[value.code + "_place"])
+                                            if (isNaN(parseInt(data)))
+												return data;
+											else if (type=="sort")
+												return parseInt(data);
+											else
+											{
+											if (!row.splits[value.code + "_place"])
                                                 return "";
                                             else
                                             {
                                                 var txt = "";
 												// First line
-                                                if ((!fullView || relay) && (o.aData.splits[value.code + "_place"] != 1) && !unranked && !lapTimes && (value.code > 0)) 
+                                                if ((!fullView || relay) && (row.splits[value.code + "_place"] != 1) && !unranked && !lapTimes && (value.code > 0)) 
 											    // Compact view or relay view, all but first place
                                                 {
-                                                    txt += "<div class=\"tooltip\">+" + _this.formatTime(o.aData.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond) + " (" + o.aData.splits[value.code + "_place"] + ")<span class=\"tooltiptext\">" + _this.formatTime(o.aData.splits[value.code], 0, _this.showTenthOfSecond) + "</span></div>";
+                                                    txt += "<div class=\"tooltip\">+" + _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond) + " (" + row.splits[value.code + "_place"] + ")<span class=\"tooltiptext\">" + _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond) + "</span></div>";
                                                 }
                                                 else 
 											    // Ordinary passing or first place at passing for relay (drop place if code is negative - unranked)
                                                 {
-													if (o.aData.splits[value.code + "_place"] == 1)
+													if (row.splits[value.code + "_place"] == 1)
 														txt += "<span class=\"besttime\">";
 													else
 														txt += "<span>";
-                                                    txt += _this.formatTime(o.aData.splits[value.code], 0, _this.showTenthOfSecond);
+                                                    txt += _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond);
                                                     if (value.code > 0) 
-                                                        txt += " (" + o.aData.splits[value.code + "_place"] + ")</span>";
+                                                        txt += " (" + row.splits[value.code + "_place"] + ")</span>";
                                                 }
 												// Second line
-                                                if ((fullView && relay || lapTimes) && (o.aData.splits[(value.code + 100000) + "_timeplus"] != undefined))
+                                                if ((fullView && relay || lapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
                                                 // Relay control second line with leg time to passing 
                                                 {
                                                     txt += "<br/><span class="
-                                                    if (o.aData.splits[(value.code + 100000) + "_place"] == 1)
+                                                    if (row.splits[(value.code + 100000) + "_place"] == 1)
                                                         txt += "\"besttime\">";
                                                     else
                                                         txt += "\"legtime\">";
-                                                    txt += _this.formatTime(o.aData.splits[(value.code + 100000)], 0, _this.showTenthOfSecond)
-                                                        + " (" + o.aData.splits[(value.code + 100000) + "_place"] + ")</span>";
+                                                    txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond)
+                                                        + " (" + row.splits[(value.code + 100000) + "_place"] + ")</span>";
                                                 }
-                                                else if ((o.aData.splits[value.code + "_timeplus"] != undefined) && fullView && !relay && (value.code > 0))
+                                                else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !relay && (value.code > 0))
 												// Second line for ordinary passing (drop if code is negative - unranked)
                                                 {
-                                                    if (o.aData.splits[value.code + "_timeplus"] == 0)
+                                                    if (row.splits[value.code + "_timeplus"] == 0)
                                                         txt += "<br/><span class=\"besttime\">+";
                                                     else
                                                         txt += "<br/><span class=\"plustime\">+"
-                                                    txt += _this.formatTime(o.aData.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                                    txt += _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                                 }
                                             }
                                             return txt;
-                                            
+                                            }
                                         }
                                     });
                                 col++;
@@ -1088,70 +1071,80 @@ var LiveResults;
 							columns.push({ "sTitle": value.name + "_Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "splits." + value.code + "_status" });
                         });
                     }
+
                     var timecol = col;
                     columns.push({
                         "sTitle": this.resources["_CONTROLFINISH"],
+						"responsivePriority": 2,
                         "sClass": "right",
                         "sType": "numeric",
                         "aDataSort": [col + 1, col, 0],
                         "aTargets": [col],
                         "bUseRendered": false,
                         "mDataProp": "result",
-                        "fnRender": function (o) {
+                        "render": function (data,type,row) {
+							if (isNaN(parseInt(data)))
+								return data;
+							else if (type=="sort")
+								return parseInt(data);
                             var res = "";
-                            if (o.aData.place == "-" || o.aData.place == "" || o.aData.place == "F")
-                                res += _this.formatTime(o.aData.result, o.aData.status, _this.showTenthOfSecond);
+                            if (row.place == "-" || row.place == "" || row.place == "F")
+                                res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
                             else 
 							{
-                                if (haveSplitControls && (o.aData.place == 1))
+                                if (haveSplitControls && (row.place == 1))
                                     res += "<span class=\"besttime\">";
 								else
 									res += "<span>";
-                                res += _this.formatTime(o.aData.result, o.aData.status, _this.showTenthOfSecond) + " (" + o.aData.place + ")<\span>";
+                                res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond) + " (" + row.place + ")<\span>";
                                 
-                                if (haveSplitControls && fullView && !(relay) && !(lapTimes) && (o.aData.status == 0))
+                                if (haveSplitControls && fullView && !(relay) && !(lapTimes) && (row.status == 0))
 								{
-                                    if (o.aData.timeplus == 0)
+                                    if (row.timeplus == 0)
                                         res += "<br/><span class=\"besttime\">+";
                                     else
                                         res += "<br/><span class=\"plustime\">+";
-                                    res += _this.formatTime(o.aData.timeplus, o.aData.status, _this.showTenthOfSecond) + "</span>";
+                                    res += _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
 								}
 							}
-							if (haveSplitControls && (fullView && relay || lapTimes) && (o.aData.splits["999_place"] != undefined))
+							if (haveSplitControls && (fullView && relay || lapTimes) && (row.splits["999_place"] != undefined))
 							{
-								if (o.aData.splits[(999)]>0)
+								if (row.splits[(999)]>0)
 								{
 								res += "<br/><span class=";
-								if (o.aData.splits["999_place"] == 1)
+								if (row.splits["999_place"] == 1)
 									res += "\"besttime\">";
 								else
 									res += "\"legtime\">";
-								res += _this.formatTime(o.aData.splits[(999)], 0, _this.showTenthOfSecond)
-                                    + " (" + o.aData.splits["999_place"] + ")";
+								res += _this.formatTime(row.splits[(999)], 0, _this.showTenthOfSecond)
+                                    + " (" + row.splits["999_place"] + ")";
 								}
 							}
                             return res;
 						}
-					});
+                    });
+                    
                     col++;
                     columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
                     if (!haveSplitControls || !fullView || lapTimes) {
                         columns.push({
-                            "sTitle": "",
+                            "sTitle": "<span class=\"plustime\">Diff</span>",
+						    "responsivePriority": 2000,
                             "sClass": "right",
                             "bSortable": false,
                             "aTargets": [col++],
                             "mDataProp": "timeplus",
-                            "fnRender": function (o) {
-                                var res = "";
-                                if (o.aData.status == 0)
+                            "render": function (data,type,row) {
+                                if (isNaN(parseInt(data)))
+									return data;
+								var res = "";
+                                if (row.status == 0)
                                 {
-                                    if (haveSplitControls && (o.aData.timeplus == 0))
+                                    if (haveSplitControls && (row.timeplus == 0))
                                         res += "<span class=\"besttime\">+";
                                     else
                                         res += "<span class=\"plustime\">+";
-                                    res += _this.formatTime(o.aData.timeplus, o.aData.status, _this.showTenthOfSecond) + "</span>";
+                                    res += _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                                 }
                                 return res;
                             }
@@ -1161,24 +1154,27 @@ var LiveResults;
 						if (relay && fullView){
 							columns.push({
                             "sTitle": "Tot<br/><span class=\"legtime\">Etp</span>",
+						    "responsivePriority": 2000,
                             "sClass": "right",
                             "bSortable": false,
                             "aTargets": [col++],
                             "mDataProp": "timeplus",
-                            "fnRender": function (o) {
+                            "render": function (data,type,row) {
+								if (isNaN(parseInt(data)))
+									return data;
                                 var res = "";
-                                if (o.aData.status == 0)
+                                if (row.status == 0)
                                 {
-                                    if (o.aData.timeplus == 0)
+                                    if (row.timeplus == 0)
                                         res += "<span class=\"besttime\">+";
                                     else
                                         res += "<span>+";
-                                    res += _this.formatTime(o.aData.timeplus, o.aData.status, _this.showTenthOfSecond) + "</span><br />";
-                                    if (o.aData.splits["999_timeplus"] == 0)
+                                    res += _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span><br />";
+                                    if (row.splits["999_timeplus"] == 0)
                                         res += "<span class=\"besttime\">+";
                                     else
                                         res += "<span class=\"legtime\">+";
-                                    res += _this.formatTime(o.aData.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                    res += _this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
 
                                 }
                                 return res;
@@ -1195,24 +1191,27 @@ var LiveResults;
                             "aTargets": [col],
                             "bUseRendered": false,
                             "mDataProp": "totalresult",
-                            "fnRender": function (o) {
-                                if (o.aData.totalplace == "-" || o.aData.totalplace == "") {
-                                    return _this.formatTime(o.aData.totalresult, o.aData.totalstatus);
+                            "render": function (data,type,row) {
+								if (isNaN(parseInt(data)))
+									return data;
+                                if (row.totalplace == "-" || row.totalplace == "") {
+                                    return _this.formatTime(row.totalresult, row.totalstatus);
                                 }
                                 else {
-                                    var txt = _this.formatTime(o.aData.totalresult, o.aData.totalstatus) +
+                                    var txt = _this.formatTime(row.totalresult, row.totalstatus) +
                                         " (" +
-                                        o.aData.totalplace +
+                                        row.totalplace +
                                         ")";
                                     if (haveSplitControls) {
                                         txt += "<br/><span class=\"plustime\">+" +
-                                            _this.formatTime(o.aData.totalplus, o.aData.totalstatus) +
+                                            _this.formatTime(row.totalplus, row.totalstatus) +
                                             "</span>";
                                     }
                                     return txt;
                                 }
                             }
                         });
+
                         col++;
                         columns.push({ "sTitle": "TotalStatus", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "totalstatus" });
                         if (!haveSplitControls) {
@@ -1222,17 +1221,24 @@ var LiveResults;
                                 "bSortable": false,
                                 "aTargets": [col++],
                                 "mDataProp": "totalplus",
-                                "fnRender": function (o) {
-                                    if (o.aData.totalstatus != 0)
+                                "render": function (data,type,row) {
+									if (isNaN(parseInt(data)))
+										return data;
+                                    if (row.totalstatus != 0)
                                         return "";
                                     else
-                                        return "+" + _this.formatTime(o.aData.totalplus, o.aData.totalstatus);
+                                        return "+" + _this.formatTime(row.totalplus, row.totalstatus);
                                 }
                             });
                         }
                     }
                     columns.push({ "sTitle": "VP", "bVisible": false, "aTargets": [col++], "mDataProp": "virtual_position" });
-                    this.currentTable = $('#' + this.resultsDiv).dataTable({
+					
+                   this.currentTable = $('#' + this.resultsDiv).dataTable({
+					    "scrollX": this.scrollView,
+						"fixedColumns": {leftColumns: 2 },
+						"responsive": !(this.scrollView),
+						"stateSave": true,
                         "bPaginate": false,
                         "bLengthChange": false,
                         "bFilter": false,
@@ -1247,21 +1253,18 @@ var LiveResults;
                                 $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\"><img class=\"eR\" style=\"vertical-align: middle\" src=\"images/cleardot.gif\" border=\"0\"/> " + _this.resources["_RESETTODEFAULT"] + "</a>");
                             }
                         },
-                        "fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) {
-                            if (aData)
-                                aData.curDrawIndex = iDisplayIndex;
-                        },
                         "bDestroy": true
                     });
-                    this.lastClassHash = data.hash;
+										
+					this.lastClassHash = data.hash;
                 }
             }
         };
+
         AjaxViewer.prototype.setAutomaticUpdate = function (val) {
             this.updateAutomatically = val;
             if (this.updateAutomatically) {
                 $("#" + this.setAutomaticUpdateText).html("<b>" + this.resources["_AUTOUPDATE"] + ":</b> " + this.resources["_ON"] + " | <a href=\"javascript:LiveResults.Instance.setAutomaticUpdate(false);\">" + this.resources["_OFF"] + "</a>");
-                this.checkForClassUpdate();
                 this.updateLastPassings();
                 this.checkForClassUpdate();
             }
@@ -1283,18 +1286,36 @@ var LiveResults;
                 }
             }
         };
+
 		AjaxViewer.prototype.setCompactView = function (val) {
             this.compactView = val;
             if (this.compactView) {
-                $("#" + this.setCompactViewText).html("<b>Compact view:</b> " + this.resources["_ON"] + " | <a href=\"javascript:LiveResults.Instance.setCompactView(false);\">" + this.resources["_OFF"] + "</a>");
+                $("#" + this.setCompactViewText).html("<a href=\"javascript:LiveResults.Instance.setCompactView(false);\">&#9868;</a>");
             }
             else {
-                $("#" + this.setCompactViewText).html("<b>Compact view:</b> <a href=\"javascript:LiveResults.Instance.setCompactView(true);\">" + this.resources["_ON"] + "</a> | " + this.resources["_OFF"] + "");
+                $("#" + this.setCompactViewText).html("<a href=\"javascript:LiveResults.Instance.setCompactView(true);\">&#9866;</a>");
             }
 			if (this.curClassName!=null)
 			{
-				clearTimeout(this.resUpdateTimeout);
 				this.chooseClass(this.curClassName);
+			}
+        };
+		
+		AjaxViewer.prototype.setScrollView = function (val) {
+            this.scrollView = val;
+            if (this.scrollView) {
+                $("#scrollView").html("<a href=\"javascript:LiveResults.Instance.setScrollView(false);\">&#8853;</a>");
+				$("#" + this.resultsDiv).removeClass('dtr-inline collapsed');
+            }
+            else {
+                $("#scrollView").html("<a href=\"javascript:LiveResults.Instance.setScrollView(true);\">&harr;</a>");
+            }
+			if (this.curClassName!=null)
+			{				
+				this.chooseClass(this.curClassName);
+			}
+			else if (this.curClubName!=null){
+				this.viewClubResults(this.curClubName);
 			}
         };
 
@@ -1355,6 +1376,7 @@ var LiveResults;
                 }
             }
         };
+
         AjaxViewer.prototype.strPad = function (num, length) {
             var str = '' + num;
             while (str.length < length) {
@@ -1362,6 +1384,7 @@ var LiveResults;
             }
             return str;
         };
+
         AjaxViewer.prototype.updateResultVirtualPosition = function (data) {
             var _this = this;
             var i;
@@ -1402,10 +1425,12 @@ var LiveResults;
                 data[i].virtual_position = i;
             }
         };
+        
         //Sorts results by the one that have run longest on the course
         AjaxViewer.prototype.sortByDist = function (a, b) {
             return b.progress - a.progress;
         };
+        
         //Sorts results by the one that have run longest on the course, and if they are on the same split, place on that split
         //"MassStart-Sorting"
         AjaxViewer.prototype.sortByDistAndSplitPlace = function (a, b) {
@@ -1448,6 +1473,7 @@ var LiveResults;
             }
             return b.progress - a.progress;
         };
+        
         //Inserts a result in the array of results.
         //The result to be inserted is assumed to have same or worse progress than all other results already in the array
         AjaxViewer.prototype.insertIntoResults = function (result, data) {
@@ -1494,6 +1520,7 @@ var LiveResults;
             }
             data.push(result);
         };
+        
         AjaxViewer.prototype.resultSorter = function (a, b) {
             var aStatus = a.status;
 			var bStatus = b.status;
@@ -1538,17 +1565,21 @@ var LiveResults;
                 return 0;
             }
         };
+        
         AjaxViewer.prototype.newWin = function () {
             var url = 'followfull.php?comp=' + this.competitionId + '&lang=' + this.language;
             if (this.curClassName != null) {
                 url += '&class=' + encodeURIComponent(this.curClassName);
 				if (!this.compactView)
-					url += '&fullView';
-				}
+					url += '&fullview';
+				if (!this.scrollView)
+					url += '&notscroll';
+			}
             else
                 url += '&club=' + encodeURIComponent(this.curClubName);
-            window.open(url, '', 'status=0,toolbar=0,location=0,menubar=0,directories=0,scrollbars=1,resizable=1,width=900,height=600');
+            window.open(url, '', 'status=0,toolbar=0,location=0,menubar=0,directories=0,scrollbars=1,resizable=1');
         };
+        
         AjaxViewer.prototype.viewClubResults = function (clubName) {
             var _this = this;
             if (this.currentTable != null) {
@@ -1572,11 +1603,6 @@ var LiveResults;
                 },
                 dataType: "json"
             });
-            if (typeof (ga) == "function") {
-                ga('send', 'pageview', {
-                    page: '/' + this.competitionId + '/' + this.curClubName
-                });
-            }
             if (!this.isSingleClass) {
                 window.location.hash = "club::" + clubName;
             }
@@ -1584,6 +1610,7 @@ var LiveResults;
                 _this.checkForClubUpdate();
             }, this.updateInterval);
         };
+        
         AjaxViewer.prototype.updateClubResults = function (data) {
             var _this = this;
             if (data != null && data.status == "OK") {
@@ -1602,28 +1629,33 @@ var LiveResults;
                             res.placeSortable = 0;
                     });
                     var columns = Array();
-                    columns.push({ "sTitle": "#", "sClass": "right", "aTargets": [0], "mDataProp": "place" });
-                    columns.push({ "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [1] });
-                    columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [2], "mDataProp": "name" });
-                    columns.push({ "sTitle": this.resources["_CLUB"], "sClass": "left", "bSortable": false, "aTargets": [3], "mDataProp": "club" });
+                    columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [0], "mDataProp": "place"});
+                    columns.push({ "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [1], "render": function (data,type,row) {
+							if (type=="sort") 
+								return row.placeSortable; 
+					        else
+								return data; }});
+					columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [2], "mDataProp": "name" });
+                    columns.push({ "sTitle": this.resources["_CLUB"],
+						"responsivePriority": 99999, "sClass": "left", "bSortable": false, "aTargets": [3], "mDataProp": "club" });
                     columns.push({
                         "sTitle": this.resources["_CLASS"], "aTargets": [4], "mDataProp": "class",
-                        "fnRender": function (o) {
-                            var param = o.aData["class"];
+                        "render": function (data,type,row) {
+                            var param = row["class"];
                             if (param && param.length > 0)
                                 param = param.replace('\'', '\\\'');
-                            return "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + o.aData["class"] + "</a>";
+                            return "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + row["class"] + "</a>";
                         }
                     });
                     var col = 5;
                     columns.push({
                         "sTitle": this.resources["_START"], "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
-                        "fnRender": function (o) {
-                            if (o.aData.start == "") {
+                        "render": function (data,type,row) {
+                            if (row.start == "") {
                                 return "";
                             }
                             else {
-                                return _this.formatTime(o.aData.start, 0, false, true);
+                                return _this.formatTime(row.start, 0, false, true);
                             }
                         }
                     });
@@ -1631,12 +1663,12 @@ var LiveResults;
                     var timecol = col;
                     columns.push({
                         "sTitle": this.resources["_CONTROLFINISH"], "sClass": "right", "sType": "numeric", "aDataSort": [col + 1, col, 0], "aTargets": [col], "bUseRendered": false, "mDataProp": "result",
-                        "fnRender": function (o) {
-                            if (o.aData.place == "-" || o.aData.place == "" || o.aData.place == "F") {
-                                return _this.formatTime(o.aData.result, o.aData.status);
+                        "render": function (data,type,row) {
+                            if (row.place == "-" || row.place == "" || row.place == "F") {
+                                return _this.formatTime(row.result, row.status);
                             }
                             else {
-                                return _this.formatTime(o.aData.result, o.aData.status) + " (" + o.aData.place + ")";
+                                return _this.formatTime(row.result, row.status) + " (" + row.place + ")";
                             }
                         }
                     });
@@ -1644,15 +1676,19 @@ var LiveResults;
                     columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
                     columns.push({
                         "sTitle": "", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeplus",
-                        "fnRender": function (o) {
-                            if (o.aData.status != 0)
+                        "render": function (data,type,row) {
+                            if (row.status != 0)
                                 return "";
                             else
-                                return "+" + _this.formatTime(o.aData.timeplus, o.aData.status);
+                                return "+" + _this.formatTime(row.timeplus, row.status);
                         }
                     });
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
-                        "bPaginate": false,
+						"scrollX": this.scrollView,
+						"fixedColumns": {leftColumns: 3},
+						"responsive": !(this.scrollView),
+						"stateSave": true,
+						"bPaginate": false,
                         "bLengthChange": false,
                         "bFilter": false,
                         "bSort": true,
@@ -1668,12 +1704,14 @@ var LiveResults;
                         },
                         "bDestroy": true
                     });
+					
                     this.lastClubHash = data.hash;
                 }
             }
         };
+        
         AjaxViewer.prototype.resetSorting = function () {
-            var idxCol = 0;
+            var idxCol = 1;
             $.each(this.currentTable.fnSettings().aoColumns, function (idx, val) {
                 if (val.sTitle == "VP") {
                     idxCol = idx;
@@ -1682,10 +1720,12 @@ var LiveResults;
             this.currentTable.fnSort([[idxCol, 'asc']]);
             $("#" + this.txtResetSorting).html("");
         };
+        
         // ReSharper disable once InconsistentNaming
         AjaxViewer.VERSION = "2016-08-06-01";
         return AjaxViewer;
     }());
+    
     LiveResults.AjaxViewer = AjaxViewer;
 })(LiveResults || (LiveResults = {}));
 
@@ -1698,5 +1738,4 @@ Date.prototype.stdTimezoneOffset = function () {
 Date.prototype.dst = function () {
     return this.getTimezoneOffset() < this.stdTimezoneOffset();
 };
-//GA tracker-object
-var ga;
+

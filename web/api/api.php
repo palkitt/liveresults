@@ -506,7 +506,7 @@ elseif ($_GET['method'] == 'getclassresults')
 				else
 					$changed = "0";
 				
-				$ret .= "{\"place\": \"$cp\",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
+				$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
 
 				if (count($splits) > 0)
 				{

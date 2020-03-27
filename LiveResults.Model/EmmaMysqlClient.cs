@@ -819,6 +819,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not add radiocontrol " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
+                                    FireLogMsg("Radiocontrol " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " added in DB");
                                 }
                                 else if (item is DelRadioControl)
                                 {
@@ -844,6 +845,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete radiocontrol " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
+                                    FireLogMsg("Radiocontrol " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " deleted in DB");
                                 }
                                 else if (item is DelRunner)
                                 {
@@ -869,6 +871,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete runner " + r + " on server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
+                                    FireLogMsg("Runner " + r + " deleted in DB");
                                 }
                                 else if (item is DelSplitTime)
                                 {
@@ -892,6 +895,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete split from runner " + r + " on server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
+                                    FireLogMsg("Split time from runner " + r + " deleted in DB");
                                 }
                                 else if (item is Runner)
                                 {
@@ -938,7 +942,7 @@ namespace LiveResults.Model
                                                 FireLogMsg("Could not add alias for runner " + r.Name + " in DB [" + ee.Message + "]");
                                             }
                                         }
-
+                                        cmd.Parameters.Clear();
                                         FireLogMsg("Runner " + r.Name + " updated in DB");
                                         r.RunnerUpdated = false;
                                     }
@@ -962,6 +966,8 @@ namespace LiveResults.Model
                                             throw new ApplicationException(
                                                 "Could not update result for runner " + r.Name + ", " + r.Club + ", " + r.Class + " to server due to: " + ee.Message, ee);
                                         }
+                                        cmd.Parameters.Clear();
+                                        FireLogMsg("Runner " + r.Name + "s result updated in DB");
                                         r.ResultUpdated = false;
                                     }
                                     if (r.StartTimeUpdated)
@@ -984,6 +990,8 @@ namespace LiveResults.Model
                                             throw new ApplicationException(
                                                 "Could not update starttime for runner " + r.Name + ", " + r.Club + ", " + r.Class + " to server due to: " + ee.Message, ee);
                                         }
+                                        cmd.Parameters.Clear();
+                                        FireLogMsg("Runner " + r.Name + "s starttime updated in DB");
                                         r.StartTimeUpdated = false;
                                     }
                                     if (r.HasUpdatedSplitTimes())
@@ -1013,8 +1021,10 @@ namespace LiveResults.Model
                                                 throw new ApplicationException(
                                                     "Could not update split time for runner " + r.Name + " splittime{" + t.Control + "} to server due to: " + ee.Message, ee);
                                             }
+                                            FireLogMsg("Runner " + r.Name + " splittime{" + t.Control + "} updated in DB");
                                             t.Updated = false;
                                         }
+                                        cmd.Parameters.Clear();
                                     }
                                 }
                                 m_itemsToUpdate.RemoveAt(0);

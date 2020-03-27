@@ -321,7 +321,7 @@ namespace LiveResults.Client
                                     // Add exchange and leg times for legs 2 and up
                                     for (int i = 2; i <= numLegs; i++) 
                                     {
-                                        string classN = " " + className;
+                                        string classN = className;
                                         if (!classN.EndsWith("-"))
                                                 classN += "-";
                                         classN += Convert.ToString(i);
@@ -343,7 +343,7 @@ namespace LiveResults.Client
                                         });
                                     }
 
-                                    string classAll = " " + className;
+                                    string classAll = className;
                                     if (!classAll.EndsWith("-"))
                                         classAll += "-";
                                     classAll += "All";
@@ -378,7 +378,6 @@ namespace LiveResults.Client
 
                                             if (numLegs > 0)    // Relay
                                             {
-                                                classN = " " + classN;
                                                 if (!classN.EndsWith("-"))
                                                     classN += "-";
                                                 classN += Convert.ToString(radioControl.Leg);
@@ -625,7 +624,6 @@ namespace LiveResults.Client
 
                         if (isRelay)
                         {   //RelayTeams
-                            classN = " " + classN;
                             leg = bib % 100;   // Leg number
 
                             if (!RelayTeams.ContainsKey(teambib))

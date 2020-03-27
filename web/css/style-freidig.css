@@ -1,0 +1,243 @@
+
+/*------------------------------*/
+/* --- GENERAL TAGS CLASSES --- */
+/*------------------------------*/
+
+body {background-color: #ffffff; margin: 0; font-size:68.75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
+
+/* html documents within iframes */
+body.iframed {margin-left:0px; margin-right:0px; font-size:68.75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
+
+button {font-size:0.8em; padding-top: 0px; padding-bottom: 0px}
+table {font-size:1em;}
+td{font-family: arial, helvetica, verdana, geneva, sans-serif; font-size:1em; line-height: 1.4em; white-space: nowrap;}
+th{white-space: normal;}
+tr{border-top: hidden;}
+
+a:link {font-size:1em; color:#F1592A;}
+a:visited {font-size:1em; color:#F1592A;}
+a:hover{color:#FFA02B; text-decoration:underline;}
+
+textarea{font-size: 1.1em; font-family: arial, helvetica, verdana, geneva, sans-serif;}
+select{font-size: 1em;}
+input{font-size: 1em;}
+
+h1{font-size:1em; font-weight:normal; margin-bottom: 0px;}
+h2{font-size:1em; font-weight:normal; margin-bottom: 0px;}
+h3{font-size:1em; font-weight:normal; margin-bottom: 0px;}
+
+#divClasses {font-size: 1.1em; line-height: 1.4em;}
+
+.firstnonqualifier {border-top: 3px dashed grey;}
+
+/* Submenu classes */
+/*td.submenu{background: #3A5C9C; border-left:1px solid #ABC9EF; border-right:1px solid #ABC9EF;}*/
+td.submenu{background: #555556;}
+td.submenu table tr td {color:#DDDDDD; padding:3px 9px 3px 9px; font-weight:bold;}
+td.submenu table tr td a:link, td.submenu table tr td a:visited {color: #FFF; text-decoration: none;}
+td.submenu table tr td a:hover {text-decoration: underline; color: #F1592A;}
+
+td.searchmenu { padding-left: 5px;}
+
+tr.red_row {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none} /* font-weight: bold; */
+tr.red_row a {color: white;}
+tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.red_row td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+tr.red_row .plustime { color: white;}
+tr.red_row .besttime { color: white;}
+tr.red_row .legtime {color: white;}
+tr.red_row td i { color: white;}
+
+/* Red cell for singel cell marking of new result */
+.red_cell {color: white; background-color: #F1592A !important;  border-bottom-right-radius: 10px}
+.red_cell .plustime { color: white;}
+.red_cell .legtime  { color: white;}
+.red_cell .besttime { color: white;}
+.red_cell i { color: white;}
+.red_cell_sqr {color: white; background-color: #F1592A !important;  border-bottom-right-radius: 0px}
+.red_cell_sqr .plustime { color: white;}
+.red_cell_sqr .legtime  { color: white;}
+.red_cell_sqr .besttime { color: white;}
+.red_cell_sqr i { color: white;}
+
+/* New first nonqualifier */
+tr.new_fnq {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: 3px dashed grey;} /* font-weight: bold; */
+tr.new_fnq a {color: white;}
+tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.new_fnq td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+tr.new_fnq .plustime {color: white;}
+
+/* Green row for OK at start */
+tr.green_row { color: black; background-color: #00FF00 !important;  font-weight: bold; border-bottom: 1px solid white; border-top: none}
+tr.green_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+tr.green_row_new { color: black; background-color: #00FF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+
+
+/* Yellow row for OK at start */
+tr.yellow_row { color: black; background-color: #FFFF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: none}
+tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+tr.yellow_row_new { color: black; background-color: #FFFF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+
+table.dataTable td {vertical-align: top;}
+
+.pulsing {
+  animation: blinker 1s ease-in-out infinite;
+  color: #F1592A;
+  font-size: 1.35em;
+}
+
+@keyframes blinker { 
+  0% { opacity: 1; } 
+  50% { opacity: 0; } 
+  100% { opacity: 1; }
+}
+
+.plustime {color: dimgrey;}
+.legtime {color: dimgrey;}
+.besttime {color: red;}
+
+/*predicted times  */
+td i { color: grey;}
+
+
+#langchooser { vertical-align: middle; line-height:21px;}
+#langchooser img {  border: 1px solid #AAAAAA; vertical-align: middle; height: 10px}
+
+#divClasses { white-space: nowrap;}
+
+.eI {
+background: url('../images/sprite_black2.png') no-repeat -63px -63px;
+height: 21px;
+width: 21px;
+}
+
+.eR {
+background: url('../images/sprite_black2.png') no-repeat -21px -63px;
+height: 21px;
+width: 21px;
+}
+
+
+/*-------------------------*/
+/*--- SITE WIDE CLASSES ---*/
+/*-------------------------*/
+
+/* Container for entire conent area */
+.maindiv{width:100%; display:block;}
+
+.small {font-size: 0.8em;}
+.large {font-size: 1.167em;}
+.bold{font-weight: bold;}
+.red {color: #be0101;}
+.green {color: #2e8d03;}
+.darkblue {color: #3A5C9C;}
+.grey {	color: #666666;	}
+
+/*-------------------------------*/
+/*--- HEADER & FOOTER CLASSES ---*/
+/*-------------------------------*/
+
+/* Main menu tabs */
+.mttop{display:block; background: #FFF; height: 1px; background: #ABC9EF; margin: 0px 1px 0px 1px;}
+td.menuchosen, td.menu{padding:2px 9px 4px 9px; color:#FFFFFF; font-weight:bold; font-size:1em; border-left:1px solid #ABC9EF; border-right:1px solid #0B5280;}
+td.menuchosen{background: #3A5C9C;}
+td.menu{background: #6C95CD;}
+td.menu a:link, td.menu a:visited, td.menuchosen a:link, td.menuchosen a:visited {color: #FFFFFF; text-decoration: none;}
+td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
+
+
+/* Category tree (used on spash and tree pages as well) */
+.categories{background: #F4F8FD; border:1px solid #ABC9EF;}
+.categoriesheader{color:#FFA02B; font-size:1.27em; font-weight:bold;}
+
+
+/*-------------------------------*/
+/*---       Tooltip           ---*/
+/*-------------------------------*/
+
+
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 50px;
+  background-color: #555555;
+  color: white;
+  text-align: center;
+  border-radius: 5px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 120%;
+  left: -5%;
+}
+
+.tooltip .tooltiptext::after {
+  content: " ";
+  position: absolute;
+  top: 100%;
+  left: 50%; /* To the left of the tooltip */
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 0.9;
+}
+
+/*-------------------------------*/
+/*---       SideNav           ---*/
+/*-------------------------------*/
+
+
+.sideBar {
+  height: 100%;
+  width: 100px;
+  position: fixed;
+  z-index: 0;
+  top: 0;
+  left: 0;
+}
+
+.sideBar a {
+  padding: 3px;
+  font-size: 1em;
+  display: block;
+}
+	
+.mainCol {
+  margin-left: 100px;
+  width:100%;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
+@media screen and (max-height: 450px) {
+  .sidebar {padding-top: 15px;}
+  .sidebar a {font-size: 18px;}
+}
+
+/* Fixed columns*/
+table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_Blocker{background-color:white}div.DTFC_LeftWrapper table.dataTable,div.DTFC_RightWrapper table.dataTable{margin-bottom:0;z-index:2}div.DTFC_LeftWrapper table.dataTable.no-footer,div.DTFC_RightWrapper table.dataTable.no-footer{border-bottom:none};
+.DTFC_LeftBodyWrapper {
+    z-index: 999999999 !important;
+}
+
+/* Scroll and full view toggle */
+.noUnderline a{ 
+   text-decoration: none;
+   color: white;
+   font-size: 1.3em;
+}
+
+
+
