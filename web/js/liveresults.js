@@ -56,8 +56,8 @@ var LiveResults;
 			this.radioStart = false;
             this.apiURL = "//api.freidig.idrett.no/api.php";
             this.radioURL = "//api.freidig.idrett.no/radioapi.php";
-			//this.apiURL = "api/api.php";
-			//this.radioURL = "api/radioapi.php";
+//			this.apiURL = "api/api.php";
+//			this.radioURL = "api/radioapi.php";
             LiveResults.Instance = this;
             
 			$(window).hashchange(function () {
@@ -841,9 +841,12 @@ var LiveResults;
 			var _this = this;
             clearTimeout(this.resUpdateTimeout);
             if (this.currentTable != null) {
-                try {this.currentTable.api().destroy();}
+                try {
+                    this.currentTable.api().destroy();
+                }
                 catch (e) { }
             }
+
 			$('#divResults').html('');
             this.curClassName = className;
             this.curClubName = null; 
@@ -1238,7 +1241,6 @@ var LiveResults;
 					    "scrollX": this.scrollView,
 						"fixedColumns": {leftColumns: 2 },
 						"responsive": !(this.scrollView),
-						"stateSave": true,
                         "bPaginate": false,
                         "bLengthChange": false,
                         "bFilter": false,
@@ -1584,10 +1586,9 @@ var LiveResults;
             var _this = this;
             if (this.currentTable != null) {
                 try {
-                    this.currentTable.fnDestroy();
+                    this.currentTable.api().destroy();
                 }
-                catch (e) {
-                }
+                catch (e) { }
             }
             clearTimeout(this.resUpdateTimeout);
             $('#divResults').html('');
@@ -1687,7 +1688,6 @@ var LiveResults;
 						"scrollX": this.scrollView,
 						"fixedColumns": {leftColumns: 3},
 						"responsive": !(this.scrollView),
-						"stateSave": true,
 						"bPaginate": false,
                         "bLengthChange": false,
                         "bFilter": false,
