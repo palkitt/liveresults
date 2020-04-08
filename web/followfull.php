@@ -195,9 +195,12 @@ $(document).ready(function()
 	if (isMobile)
 		closeTop();
 	else
+	{
 		openTop();
-	
-	
+		document.getElementById("switchTopClick").classList.toggle("change");
+	}
+	document.getElementById("switchNavClick").classList.toggle("change");
+
 });
 
 function changeFontSize(val)
@@ -207,14 +210,16 @@ function changeFontSize(val)
 	$("td").css("font-size",newSize + "px");
 }
 
-function switchNav() {
+function switchNav(x) {
+  x.classList.toggle("change");
   if (sideBar)
 	  closeNav();
   else
 	  openNav();
 }
 
-function switchTop() {
+function switchTop(x) {
+  x.classList.toggle("change");
   if (topBar)
 	  closeTop();
   else
@@ -226,10 +231,12 @@ function openNav() {
   $('#classBar').show();
   $('#classHead').show();
   $('#firstCol').show();
-  $('#divResults').DataTable()
+  if(res.curTable != null)
+  {
+  	$('#divResults').DataTable()
      .columns.adjust()
 	 .responsive.recalc();
-  $('#switchNavClick').html("&#x274C; <?=$_CHOOSECLASS?>");
+  }
   sideBar = true;
 }
 
@@ -237,22 +244,22 @@ function closeNav() {
   $('#classBar').hide();
   $('#classHead').hide();
   $('#firstCol').hide();
-  $('#divResults').DataTable()
+  if(res.curTable != null)
+  {
+  	$('#divResults').DataTable()
      .columns.adjust()
 	 .responsive.recalc();
-  $('#switchNavClick').html("&#9776; <?=$_CHOOSECLASS?>");
+  }
   sideBar = false;
 }
 
 function openTop() {
   $('#topBar').show();
-  $('#switchTopClick').html("&#x274C; <?=$_LASTPASSINGS?>");
   topBar = true;
 }
 
 function closeTop() {
   $('#topBar').hide();
-  $('#switchTopClick').html("&#9776; <?=$_LASTPASSINGS?>");
   topBar = false;
 }
 
@@ -305,9 +312,16 @@ function closeTop() {
   <td width="100%">
   <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
 	<tr>
-  	<td align="left" width="28%"><span id="switchNavClick" style="cursor:pointer; color:#FFF" onclick="switchNav()">&#x274C; <?=$_CHOOSECLASS?></span></td>
-  	<td align="center" width="28%"><span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop()">&#9776; <?=$_LASTPASSINGS?></span></td>
-  	<td align="right"width="28%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF">&#9776; <?=$_CHOOSECMP?></a></span></td>
+  	<td align="left" width="28%">
+	<span id="switchNavClick" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
+		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
+
+	<td align="center" width="28%">
+	<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
+		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_LASTPASSINGS?></span></td>
+	  
+  	<td align="right"width="28%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
+		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
   	<td align="right" width="16%"><span id="scrollView" class="noUnderline"><a href="javascript:LiveResults.Instance.setScrollView(false);">&#8853;</a></span>&nbsp;&nbsp;
   	<span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
 	</tr>
