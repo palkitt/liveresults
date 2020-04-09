@@ -196,8 +196,9 @@ $(document).ready(function()
 		closeTop();
 	else
 	{
-		openTop();
 		document.getElementById("switchTopClick").classList.toggle("change");
+		$("#topBar").height('auto');
+		topBar = true;
 	}
 	document.getElementById("switchNavClick").classList.toggle("change");
 
@@ -228,44 +229,47 @@ function switchTop(x) {
 
 
 function openNav() {
-  $('#classBar').show();
-  $('#classHead').show();
-  $('#firstCol').show();
-  if(res.curTable != null)
+  if(res.currentTable != null)
   {
+	$(".firstCol").width("70px");  
   	$('#divResults').DataTable()
      .columns.adjust()
 	 .responsive.recalc();
+	 $(".firstCol").width("0px");  
   }
+  $(".firstCol").animate({'width':'70px'},"1s");
   sideBar = true;
 }
 
 function closeNav() {
-  $('#classBar').hide();
-  $('#classHead').hide();
-  $('#firstCol').hide();
-  if(res.curTable != null)
+  if(res.currentTable != null)
   {
+	$(".firstCol").width("0px");  
   	$('#divResults').DataTable()
      .columns.adjust()
 	 .responsive.recalc();
+    $(".firstCol").width("70px");  
   }
+
+  $(".firstCol").animate({'width':'0px'},"1s");  
   sideBar = false;
 }
 
 function openTop() {
-  $('#topBar').show();
+	$("#topBar").height('auto');
+	var height = $("#topBar").height();
+	$("#topBar").height(0);
+	$("#topBar").animate({'height': height},"1s");  
   topBar = true;
 }
 
 function closeTop() {
-  $('#topBar').hide();
+  $("#topBar").animate({'height':'0px'},"1s");  
   topBar = false;
 }
 
 </script>
 </head>
-
 <body>
 
 
@@ -274,12 +278,11 @@ function closeTop() {
 <?php if (!$isSingleClass && !$isSingleClub) {?>
 
   <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0" >
-  <tr><td id="firstCol" width="70px"></td><td width="100%"></td></tr>
-  <tr id="topBar" valign="top">
-  <td id="topBarTD" colspan="2">
-	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px;">
+  <tr><td class="firstCol"></td><td width="100%"></td></tr>
+  <tr valign="top">
+  <td colspan="2"><div id="topBar" style="overflow: hidden">
+	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		<tr>
-			<!--Customized logo -->
 			<?php if(in_array($_GET['comp'], array("15821","15822","15823"))){?>
 			    <td width="60">
 			    <img src="images/SG19.PNG" height="60" /></td>
@@ -304,11 +307,11 @@ function closeTop() {
 			<?php }?>
 <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
 </tr>
-</table>
+</table></div>
 </td></tr>
 
 <tr valign="top" style="background-color:#555555; color:#FFF">
-  <td id="classHead" width="70px">&nbsp;Klasser</td>
+  <td class="firstCol">&nbsp;Klasser</td>
   <td width="100%">
   <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
 	<tr>
@@ -329,7 +332,7 @@ function closeTop() {
 </tr>
  
  <tr>
-  <td id="classBar" valign="top" style="background-color:#FFF; color:#000" width="70px"><div id="divClasses"></div></td>
+  <td class="firstCol" valign="top" style="background-color:#FFF; color:#000"><div id="divClasses"></div></td>
 
   <td valign="top" width="100%">  
  

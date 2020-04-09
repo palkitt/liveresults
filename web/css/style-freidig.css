@@ -200,24 +200,9 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 /*-------------------------------*/
 
 
-.sideBar {
-  height: 100%;
-  width: 100px;
-  position: fixed;
-  z-index: 0;
-  top: 0;
-  left: 0;
-}
-
-.sideBar a {
-  padding: 3px;
-  font-size: 1em;
-  display: block;
-}
-	
-.mainCol {
-  margin-left: 100px;
-  width:100%;
+.firstCol{
+  overflow: hidden;
+  width: 70px;
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
