@@ -296,7 +296,9 @@ var LiveResults;
 					var age = 0;
 					var table = this.currentTable.api();
 					
-					var extraCol = 0;
+                    var extraCol = 0;
+                    var offset = 3;
+
 					for (var sp = this.curClassSplits.length - 1; sp >= 0; sp--) {
                         if (this.curClassSplits[sp].code == "-999") { // If not sorted
                                 extraCol = 1;
@@ -304,7 +306,8 @@ var LiveResults;
                                 break;
                         }
                     };
-					if (this.compactView && !lapTimes) extraCol = 1;
+                    if (this.compactView && !lapTimes) 
+                        extraCol = 1;
 										
 					var numSplits;
 					if (this.curClassSplits == null)
@@ -369,20 +372,20 @@ var LiveResults;
 							}
 							if (highlight){
 								if (this.compactView || relay || lapTimes){
-									$( table.cell(i,(3 + extraCol + numSplits*2)).node() ).addClass('red_cell_sqr');
-									$( table.cell(i,(4 + extraCol + numSplits*2)).node() ).addClass('red_cell');
+									$( table.cell(i,(offset + extraCol + numSplits*2)).node() ).addClass('red_cell_sqr');
+									$( table.cell(i,(2 + offset + extraCol + numSplits*2)).node() ).addClass('red_cell');
 								}
 								else
-									$( table.cell(i,(3 + extraCol + numSplits*2)).node() ).addClass('red_cell');
+									$( table.cell(i,(offset + extraCol + numSplits*2)).node() ).addClass('red_cell');
 							}
 							else
 							{	
 								if (this.compactView || relay || lapTimes){
-									$( table.cell(i,(3 + extraCol + numSplits*2)).node() ).removeClass('red_cell_sqr');
-									$( table.cell(i,(4 + extraCol + numSplits*2)).node() ).removeClass('red_cell');
+									$( table.cell(i,(offset + extraCol + numSplits*2)).node() ).removeClass('red_cell_sqr');
+									$( table.cell(i,(2 + offset + extraCol + numSplits*2)).node() ).removeClass('red_cell');
 								}
 								else
-									$( table.cell(i,(3 + extraCol + numSplits*2)).node() ).removeClass('red_cell');
+									$( table.cell(i,(offset + extraCol + numSplits*2)).node() ).removeClass('red_cell');
 							}
 						}
 						
@@ -437,8 +440,8 @@ var LiveResults;
                                         }
                                     }
 									if (unranked){
-										table.cell( i, 3 + nextSplit*2 + extraCol ).data(elapsedTimeStr);
-										table.cell( i, 3 + numSplits*2 + extraCol ).data("<i>(...)<\i>");
+										table.cell( i, offset + nextSplit*2 + extraCol ).data(elapsedTimeStr);
+										table.cell( i, offset + numSplits*2 + extraCol ).data("<i>(...)<\i>");
 									}
 									else{
 										if (this.curClassSplitsBests[nextSplitRef][0]==0)
@@ -462,14 +465,14 @@ var LiveResults;
 												timeDiffStr += rankStr; 
 										}
 										
-										timeDiffCol = 3 + nextSplit*2 + extraCol;
+										timeDiffCol = offset + nextSplit*2 + extraCol;
 										if (nextSplit==numSplits) // Approach finish
 											timeDiffCol += 2;
                                         
                                             // Display elapsed time
 										if (!this.compactView && !relay && !lapTimes && nextSplit==numSplits)
 											elapsedTimeStr += "<br/>" + timeDiffStr;
-										table.cell( i, 3 + numSplits*2 + extraCol ).data(elapsedTimeStr);
+										table.cell( i, offset + numSplits*2 + extraCol ).data(elapsedTimeStr);
                                         
                                         // Display time diff
 										if (this.compactView || relay || nextSplit!=numSplits || lapTimes)
@@ -1070,8 +1073,8 @@ var LiveResults;
                                         }
                                     });
                                 col++;
-                            }
-							columns.push({ "sTitle": value.name + "_Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "splits." + value.code + "_status" });
+                                columns.push({ "sTitle": value.name + "_Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "splits." + value.code + "_status" });
+                            }							
                         });
                     }
 
@@ -1238,7 +1241,8 @@ var LiveResults;
                     columns.push({ "sTitle": "VP", "bVisible": false, "aTargets": [col++], "mDataProp": "virtual_position" });
 					
                    this.currentTable = $('#' + this.resultsDiv).dataTable({
-					    "scrollX": this.scrollView,
+                        "scrollX": this.scrollView,
+//                        "scrollY": ($(window).height()-250),
 						"fixedColumns": {leftColumns: 2 },
 						"responsive": !(this.scrollView),
                         "bPaginate": false,
