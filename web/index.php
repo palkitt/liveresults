@@ -106,5 +106,6 @@ el.style.backgroundColor = "";
 	</table>
 	<p align="left"><font color="#AAA" size="0.7em">&copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
 </div>
+<a href='emma/index.php'>Emma server results</a>
 </body>
 </html>

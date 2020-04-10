@@ -10,12 +10,7 @@ class Emma
 	public static $db_user = "root";
 	public static $db_pw= "";
 
-/*
-	public static $db_server = "freidigidrettn08.mysql.domeneshop.no";
-	public static $db_database = "freidigidrettn08";
-	public static $db_user = "freidigidrettn08";
-	public static $db_pw= "uutlufta-Varast-kartager-0reke";
-*/	
+
    public static $MYSQL_CHARSET = "utf8";
    var $m_CompId;
    var $m_CompName;

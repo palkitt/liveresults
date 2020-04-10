@@ -183,8 +183,9 @@ $(document).ready(function()
 	<?php if($currentComp->ShowTenthOfSeconds() ){?>
 		res.setShowTenth(true); <?php }?>
 
-	// Modify high time 
-	res.highTime = <?=$currentComp->HighTime();?>;
+	// Modify high time
+	<?php if($currentComp->HighTime() ){?> 
+	    res.highTime = <?=$currentComp->HighTime(); ?> <?php }?>;
 	
 	// Qualification limits and classes (last limit is default)
 	res.qualLimits = [<?=$currentComp->QualLimits();?>];
