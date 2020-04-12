@@ -288,28 +288,17 @@ var LiveResults;
 					var haveSplitControls = (this.curClassSplits != null) && (this.curClassSplits.length > 0);
                     var relay = (haveSplitControls && this.curClassSplits[0].code == "0");
 					var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
-					var unranked = false;          
                     var timeDiff = 0;
 					var timeDiffCol = 0;
 					var timeDiffStr = "";
 					var highlight = false;
 					var age = 0;
-					var table = this.currentTable.api();
-					
-                    var extraCol = 0;
+					var table = this.currentTable.api();					
                     var offset = 3;
-
-					for (var sp = this.curClassSplits.length - 1; sp >= 0; sp--) {
-                        if (this.curClassSplits[sp].code == "-999") { // If not sorted
-                                extraCol = 1;
-								unranked = true;
-                                break;
-                        }
-                    };
-                    if (this.compactView && !lapTimes) 
-                        extraCol = 1;
-										
-					var numSplits;
+                    var unranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})); 
+                    var extraCol = ( (unranked || (this.compactView && !lapTimes)) ? 1 : 0);										
+                    
+                    var numSplits;
 					if (this.curClassSplits == null)
 						numSplits = 0;
 					else if (relay)
@@ -318,10 +307,10 @@ var LiveResults;
 						numSplits = (this.curClassSplits.length-1)/2;
 					else
 						numSplits = this.curClassSplits.length;
-					
-                    for (var i = 0; i < data.length; i++) {
-                        // *** Highlight new results ***
-                        
+                     
+                    // *** Highlight new results ***
+                    for (var i = 0; i < data.length; i++) 
+                    {
                         // Single-result classes. Highlight whole line
 						if (numSplits==0 || (unranked && numSplits==1) ) 
 						{
@@ -893,16 +882,9 @@ var LiveResults;
                     var i;
                     this.curClassSplits = data.splitcontrols;
 					fullView = !this.compactView;
-					var unranked = false;
-                    for (var sp = this.curClassSplits.length - 1; sp >= 0; sp--) {
-                        if (this.curClassSplits[sp].code == "-999") {// Indication of unranked class
-                            {
-                                unranked = true;
-                                break;
-                            }
-                        }
-                    }
                     var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
+                    var unranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})) || 
+                                   !(data.results.every(function check(el) {return el.status != 13;}));
                     var relay = (haveSplitControls && (this.curClassSplits[0].code == "0" || data.className.slice(-4) == "-All"));
 					var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
                     this.updateResultVirtualPosition(data.results);
@@ -985,10 +967,9 @@ var LiveResults;
                                     if (fullView)
                                     {
                                         if (row.splits["0_place"] == 1)
-                                            txt += "<br /><span class=\"besttime\">+";
+                                            txt += "<br /><span class=\"besttime\">-" + _this.formatTime(-row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                         else
-                                            txt += "<br /><span>+";
-                                        txt += _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                            txt += "<br /><span>+" + _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                     }
 								}
 								else
@@ -1048,7 +1029,7 @@ var LiveResults;
                                                 }
 												// Second line
                                                 if ((fullView && relay || lapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
-                                                // Relay control second line with leg time to passing 
+                                                // Relay passing, second line with leg time to passing 
                                                 {
                                                     txt += "<br/><span class="
                                                     if (row.splits[(value.code + 100000) + "_place"] == 1)
@@ -1061,11 +1042,12 @@ var LiveResults;
                                                 else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !relay && (value.code > 0))
 												// Second line for ordinary passing (drop if code is negative - unranked)
                                                 {
-                                                    if (row.splits[value.code + "_timeplus"] == 0)
-                                                        txt += "<br/><span class=\"besttime\">+";
+                                                    if (row.splits[value.code + "_place"] == 1)
+                                                       txt += "<br/><span class=\"besttime\">-" 
+                                                           + _this.formatTime(-row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                                     else
-                                                        txt += "<br/><span class=\"plustime\">+"
-                                                    txt += _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                                       txt += "<br/><span class=\"plustime\">+" 
+                                                           + _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                                 }
                                             }
                                             return txt;
@@ -1106,11 +1088,12 @@ var LiveResults;
                                 
                                 if (haveSplitControls && fullView && !(relay) && !(lapTimes) && (row.status == 0))
 								{
-                                    if (row.timeplus == 0)
-                                        res += "<br/><span class=\"besttime\">+";
+                                    if (row.place==1)
+                                        res += "<br/><span class=\"besttime\">-" 
+                                            + _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                                     else
-                                        res += "<br/><span class=\"plustime\">+";
-                                    res += _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
+                                        res += "<br/><span class=\"plustime\">+" 
+                                            + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
 								}
 							}
 							if (haveSplitControls && (fullView && relay || lapTimes) && (row.splits["999_place"] != undefined))
@@ -1122,8 +1105,7 @@ var LiveResults;
 									res += "\"besttime\">";
 								else
 									res += "\"legtime\">";
-								res += _this.formatTime(row.splits[(999)], 0, _this.showTenthOfSecond)
-                                    + " (" + row.splits["999_place"] + ")";
+								res += _this.formatTime(row.splits[(999)], 0, _this.showTenthOfSecond) + " (" + row.splits["999_place"] + ")";
 								}
 							}
                             return res;
@@ -1135,6 +1117,7 @@ var LiveResults;
                     if (!haveSplitControls || !fullView || lapTimes) {
                         columns.push({
                             "sTitle": "<span class=\"plustime\">Diff</span>",
+                            "bVisible": !unranked,
 						    "responsivePriority": 2000,
                             "sClass": "right",
                             "bSortable": false,
@@ -1146,11 +1129,12 @@ var LiveResults;
 								var res = "";
                                 if (row.status == 0)
                                 {
-                                    if (haveSplitControls && (row.timeplus == 0))
-                                        res += "<span class=\"besttime\">+";
+                                    if (haveSplitControls && (row.timeplus <= 0))
+                                        res += "<span class=\"besttime\">-" 
+                                            + _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                                     else
-                                        res += "<span class=\"plustime\">+";
-                                    res += _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
+                                        res += "<span class=\"plustime\">+" 
+                                            + _this.formatTime(Math.max(0,row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
                                 }
                                 return res;
                             }
@@ -1171,17 +1155,17 @@ var LiveResults;
                                 var res = "";
                                 if (row.status == 0)
                                 {
-                                    if (row.timeplus == 0)
-                                        res += "<span class=\"besttime\">+";
+                                    if (row.place == 1)
+                                        res += "<span class=\"besttime\">-"
+                                            + _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span><br />";
                                     else
-                                        res += "<span>+";
-                                    res += _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span><br />";
-                                    if (row.splits["999_timeplus"] == 0)
-                                        res += "<span class=\"besttime\">+";
+                                        res += "<span>+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span><br />";
+                                    if (row.splits["999_place"] == 1)
+                                        res += "<span class=\"besttime\">-"
+                                            + _this.formatTime(-row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                     else
-                                        res += "<span class=\"legtime\">+";
-                                    res += _this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
-
+                                        res += "<span class=\"legtime\">+"
+                                            +_this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                 }
                                 return res;
                             }

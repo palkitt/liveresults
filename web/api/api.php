@@ -330,88 +330,82 @@ elseif ($_GET['method'] == 'getclassresults')
 				$splitJSON .=",$br";
 			$splitJSON .= "{ \"code\": ".$split['code'] .", \"name\": \"".$split['name']."\"}";
 			$first = false;
-      usort($results, function ($a,$b) use($split) {
-        if (!isset($a[$split['code']."_time"]) && isset($b[$split['code']."_time"]))
-        {
-          return 1;
-        }
-        if (isset($a[$split['code']."_time"]) && !isset($b[$split['code']."_time"]))
-        {
-          return -1;
-        }
-        if (!isset($a[$split['code']."_time"]) && !isset($b[$split['code']."_time"]))
-        {
-          return 0;
-        }
-        if (isset($a[$split['code']."_time"]) && isset($b[$split['code']."_time"]))
-        {
-          if ($b[$split['code']."_time"] == $a[$split['code']."_time"])
-            return 0;
-          else
-            return $a[$split['code']."_time"] < $b[$split['code']."_time"] ? -1 : 1;
-        }
-      }
-      );
+	  
+			usort($results, function ($a,$b) use($split) 
+			{
+				if (!isset($a[$split['code']."_time"]) && isset($b[$split['code']."_time"]))
+					return 1;
+				if (isset($a[$split['code']."_time"]) && !isset($b[$split['code']."_time"]))
+					return -1;
+				if (!isset($a[$split['code']."_time"]) && !isset($b[$split['code']."_time"]))
+					return 0;
+        		if (isset($a[$split['code']."_time"]) && isset($b[$split['code']."_time"]))
+        		{
+          			if ($b[$split['code']."_time"] == $a[$split['code']."_time"])
+            			return 0;
+          			else
+						return $a[$split['code']."_time"] < $b[$split['code']."_time"] ? -1 : 1;
+				}
+			});
+      		$splitplace = 1;
+      		$cursplitplace = 1;
+      		$cursplittime = "";
+			$bestsplittime = -1;
+			$bestsplitkey = -1;
+			$secondbest = false;  
 
-      $splitplace = 1;
-      $cursplitplace = 1;
-      $cursplittime = "";
-      $bestsplittime = -1;
+      		foreach ($results as $key => $res)
+      		{
+        		$sp_time = "";
+        		$raceTime = $res['Time'];
+        		$raceStatus = $res['Status'];
+        		if ($raceTime == "")
+					$raceStatus = 9;
 
-      foreach ($results as $key => $res)
-      {
-        $sp_time = "";
-        $raceTime = $res['Time'];
-        $raceStatus = $res['Status'];
-        if ($raceTime == "")
-				  $raceStatus = 9;
+				if (isset($res[$split['code']."_time"]))
+          		{
+            		$sp_time = $res[$split['code']."_time"];
+					if ($bestsplittime < 0 && ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10))
+					{
+						$bestsplittime = $sp_time;
+						$bestsplitkey = $key;
+					}
+          		}
+				if ($sp_time != "")
+				{
+					$results[$key][$split['code']."_timeplus"] = $sp_time - $bestsplittime;
+					if (!$secondbest && $bestsplitkey>-1 && $key != $bestsplitkey && ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10))
+					{
+						$results[$bestsplitkey][$split['code']."_timeplus"] = $bestsplittime - $sp_time;
+						$secondbest = true;
+					}
+				}
+          		else
+            		$results[$key][$split['code']."_timeplus"] = -1;
 
-
-          if (isset($res[$split['code']."_time"]))
-          {
-            $sp_time = $res[$split['code']."_time"];
-		    if ($bestsplittime < 0 && ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10))
-		    {
-              $bestsplittime = $sp_time;
+          		if ($cursplittime != $sp_time)
+					$cursplitplace = $splitplace;
+					
+          		if ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10)
+          		{
+            		$results[$key][$split['code']."_place"] = $cursplitplace;
+            		$splitplace++;
+            		if (isset($res[$split['code']."_time"]))
+              			$cursplittime = $res[$split['code']."_time"];
+          		}
+          		elseif ($raceStatus == 13)
+            		$results[$key][$split['code']."_place"] = "\"F\"";
+		  		else
+            		$results[$key][$split['code']."_place"] = "\"-\"";
             }
-          }
-
-          if ($sp_time != "")
-          {
-            $results[$key][$split['code']."_timeplus"] =$sp_time - $bestsplittime;
-          }
-          else
-          {
-            $results[$key][$split['code']."_timeplus"] = -1;
-          }
-
-          if ($cursplittime != $sp_time)
-          {
-            $cursplitplace = $splitplace;
-          }
-          if ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10)
-          {
-            $results[$key][$split['code']."_place"] = $cursplitplace;
-            $splitplace++;
-            if (isset($res[$split['code']."_time"]))
-              $cursplittime = $res[$split['code']."_time"];
-          }
-          elseif ($raceStatus == 13)
-		  {
-            $results[$key][$split['code']."_place"] = "\"F\"";
-          }
-		  else
-          {
-            $results[$key][$split['code']."_place"] = "\"-\"";
-          }
-      }
 		}
+	
 
-    usort($results,"sortByResult");
+	usort($results,"sortByResult");
+	
 		$splitJSON .= "$br]";
-
 		$first = true;
-
+		$keys = array_keys($results);
 		foreach ($results as $res)
 		{
 			if (!$first)
@@ -469,12 +463,14 @@ elseif ($_GET['method'] == 'getclassresults')
 				$cp = $place;
 			}
 
-
 			$timeplus = "";
 
 			if ($time > 0 && $status == 0)
 			{
-				$timeplus = $time-$winnerTime;
+				if ( $first && sizeof($keys)>1 && $results[$keys[1]]['Time'] > 0 && $results[$keys[1]]['Status'] == 0 ) 
+					$timeplus = $time - $results[$keys[1]]['Time'];
+				else
+					$timeplus = $time-$winnerTime;
 				$progress = 100;
 			}
 
