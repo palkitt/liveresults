@@ -158,7 +158,7 @@ el.style.backgroundColor = "";
 
 	?>
 
-		<tr id="row<?=$comp["tavid"]?>"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td><td><?=$comp["compName"]?></td><td><?=$comp["organizer"]?></td><td><?=$comp["public"] == "1" ? "yes" : "false"?></td><td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td><td><a href="editComp.php?comp=<?=$comp["tavid"]?>">Edit</a></tr>
+		<tr id="row<?=$comp["tavid"]?>"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td><td><?=$comp["compName"]?></td><td><?=$comp["organizer"]?></td><td><?=$comp["public"] == "1" ? "yes" : "false"?></td><td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td><td><a href="editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></tr>
 
 	<?php
 
