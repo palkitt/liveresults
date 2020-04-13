@@ -53,10 +53,12 @@ el.style.backgroundColor = "";
 <!-- MAIN DIV -->
 <div style="font-size: 20px; font-weight: bold; height: 50px; width:100%; background-color: #555555; padding-left: 20px; 
             vertical-align: middle; line-height:45px; color: white;">
-        <img src="images/Freidig60.png" height="40px" style="vertical-align: middle" />&nbsp  LiveRes Freidig orientering
+        <img src="images/Freidig60.png" height="40px" style="vertical-align: middle" />&nbsp LiveRes Freidig orientering
 </div>
-
 <div class="maindiv" style="padding-left: 5px;">
+<br>
+Results from liveresultat.orientering.se can be found <a href='emma/index.php'>here</a>.<br>
+<br>
 <b>Choose language</b><br>
 <a href=index.php?lang=no style='text-decoration: none'><img src='images/no.png?a' border='0' alt='Norsk'></a>&nbsp
 <a href=index.php?lang=sv style='text-decoration: none'><img src='images/se.png?a' border='0' alt='Svenska'></a>&nbsp
@@ -106,6 +108,5 @@ el.style.backgroundColor = "";
 	</table>
 	<p align="left"><font color="#AAA" size="0.7em">&copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
 </div>
-<a href='emma/index.php'>Emma server results</a>
 </body>
 </html>
