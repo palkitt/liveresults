@@ -757,7 +757,8 @@ var LiveResults;
 							shownId.push(oldData[i].dbid);
 					}
 					if (this.qualLimits != null)
-						this.updateQualLimMarks(newData); 
+                        this.updateQualLimMarks(newData); 
+                    this.updateClassSplitsBest(newData);
                     this.updateResultVirtualPosition(newData.results);
 					this.currentTable.fnClearTable();
 					this.currentTable.fnAddData(newData.results, true);
