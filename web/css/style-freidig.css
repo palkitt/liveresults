@@ -39,6 +39,18 @@ td.submenu table tr td a:hover {text-decoration: underline; color: #F1592A;}
 
 td.searchmenu { padding-left: 5px;}
 
+/* For compatibility with Emma server */
+tr.new_result {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none} /* font-weight: bold; */
+tr.new_result a {color: white;}
+tr.new_result td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.new_result td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.new_result td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+tr.new_result .plustime { color: white;}
+tr.new_result .besttime { color: white;}
+tr.new_result .legtime {color: white;}
+tr.new_result td i { color: white;}
+
+/* Red row marking */
 tr.red_row {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none} /* font-weight: bold; */
 tr.red_row a {color: white;}
 tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
@@ -75,7 +87,6 @@ tr.green_row td:last-child {border-top-right-radius: 0px; border-bottom-right-ra
 tr.green_row_new { color: black; background-color: #00FF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: 3px dashed grey;}
 tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
-
 /* Yellow row for OK at start */
 tr.yellow_row { color: black; background-color: #FFFF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: none}
 tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
@@ -84,6 +95,7 @@ tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-rig
 
 table.dataTable td {vertical-align: top;}
 
+/* Pulsing dot for live runner */
 .pulsing {
   animation: blinker 1s ease-in-out infinite;
   color: #F1592A;

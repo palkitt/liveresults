@@ -51,7 +51,7 @@ el.style.backgroundColor = "";
 </head>
 <body>
 <!-- MAIN DIV -->
-<div style="font-size: 20px; font-weight: bold; height: 50px; width:100%; background-color: #555555; padding-left: 20px; 
+<div style="font-size: 20px; font-weight: bold; height: 50px; width:100%; background-color: #555555; padding-left: 5px; 
             vertical-align: middle; line-height:45px; color: white;">
         <img src="images/Freidig60.png" height="40px" style="vertical-align: middle" />&nbsp LiveRes Freidig orientering
 </div>

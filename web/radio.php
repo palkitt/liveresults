@@ -77,7 +77,8 @@ $(document).ready(function()
 			echo 'calltime = ', $_GET['calltime'] ,';'
 	?>
 		
-	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",Resources,"false","true","setAutomaticUpdateText","setCompactViewText", runnerStatus, "true","divRadioPassings");
+	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
+		Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false);
     res.updateRadioPassings(<?= $_GET['code']?>,calltime);
 	res.compName = '<?=$currentComp->CompName()?>';
 	

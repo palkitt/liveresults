@@ -3,7 +3,7 @@ var LiveResults;
     // ReSharper disable once InconsistentNaming
     LiveResults.Instance = null;
     var AjaxViewer = /** @class */ (function () {
-        function AjaxViewer(competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsControlsDiv, resultsDiv, txtResetSorting, resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv) {
+        function AjaxViewer(competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsControlsDiv, resultsDiv, txtResetSorting, resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, EmmaServer=false) {
             var _this = this;
             this.competitionId = competitionId;
             this.language = language;
@@ -20,11 +20,12 @@ var LiveResults;
             this.setAutomaticUpdateText = setAutomaticUpdateText;
 			this.setCompactViewText = setCompactViewText;
             this.runnerStatus = runnerStatus;
+            this.EmmaServer = EmmaServer;
             this.showTenthOfSecond = false;
             this.updateAutomatically = true;
             this.compactView = true;
 			this.scrollView = true;
-            this.updateInterval = 7000;
+            this.updateInterval = (EmmaServer ? 15000 : 7000);
             this.radioUpdateInterval = 5000;
             this.classUpdateInterval = 60000;
             this.radioHighTime = 15;
@@ -54,7 +55,7 @@ var LiveResults;
 			this.messageBibs = [];
 			this.noSplits = false;
 			this.radioStart = false;
-            this.apiURL = "//api.freidig.idrett.no/api.php";
+            this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php");
             this.radioURL = "//api.freidig.idrett.no/radioapi.php";
 //			this.apiURL = "api/api.php";
 //			this.radioURL = "api/radioapi.php";
@@ -308,75 +309,77 @@ var LiveResults;
 					else
 						numSplits = this.curClassSplits.length;
                      
-                    // *** Highlight new results ***
+                    // *** Highlight new results and write running times***
                     for (var i = 0; i < data.length; i++) 
                     {
                         // Single-result classes. Highlight whole line
-						if (numSplits==0 || (unranked && numSplits==1) ) 
-						{
-							var row = table.row(i).node();
-							highlight = false;
-							if (data[i].changed != ""){ 
-								age = timeServer - data[i].changed;
-								highlight = (age < this.highTime);
-							}
-							if (highlight)
-								if (data[i].DT_RowClass != undefined && (data[i].DT_RowClass == "firstnonqualifier" || data[i].DT_RowClass == "new_fnq"))
-									$(row).addClass('new_fnq');
-								else
-									$(row).addClass('red_row');
-							else{    
-								$(row).removeClass('red_row');
-								$(row).removeClass('new_fnq');
-							}
+                        if (!this.EmmaServer){ 
+                            if (numSplits==0 || (unranked && numSplits==1) ) 
+                            {
+                                var row = table.row(i).node();
+                                highlight = false;
+                                if (data[i].changed != ""){ 
+                                    age = timeServer - data[i].changed;
+                                    highlight = (age < this.highTime);
+                                }
+                                if (highlight)
+                                    if (data[i].DT_RowClass != undefined && (data[i].DT_RowClass == "firstnonqualifier" || data[i].DT_RowClass == "new_fnq"))
+                                        $(row).addClass('new_fnq');
+                                    else
+                                        $(row).addClass('red_row');
+                                else{    
+                                    $(row).removeClass('red_row');
+                                    $(row).removeClass('new_fnq');
+                                }
+                            }
+                            // Classes with split times
+                            else{
+                                var splitRef = 0;
+                                var colNum = 0;
+                                // Highlight split times
+                                for (var sp = 0; sp < numSplits; sp++){
+                                    if (relay)
+                                        splitRef = sp*2+1;
+                                    else if (lapTimes)
+                                        splitRef = sp*2;
+                                    else
+                                        splitRef = sp;
+                                    colNum = 3 + extraCol + 2*sp;
+                                    highlight = false;
+                                    if (data[i].splits[this.curClassSplits[splitRef].code + "_changed"] != ""){
+                                        age = timeServer - data[i].splits[this.curClassSplits[splitRef].code + "_changed"];
+                                        highlight = (age < this.highTime);
+                                    }
+                                    if (highlight)
+                                        $( table.cell(i,colNum).node() ).addClass('red_cell');
+                                    else
+                                        $( table.cell(i,colNum).node() ).removeClass('red_cell');
+                                }
+                                // Highlight finish-time
+                                highlight = false;
+                                if (data[i].changed != "" && data[i].progress==100){ 
+                                    age = timeServer - data[i].changed;
+                                    highlight = (age < this.highTime);
+                                }
+                                if (highlight){
+                                    if (this.compactView || relay || lapTimes){
+                                        $( table.cell(i,(offset + extraCol + numSplits*2)).node() ).addClass('red_cell_sqr');
+                                        $( table.cell(i,(2 + offset + extraCol + numSplits*2)).node() ).addClass('red_cell');
+                                    }
+                                    else
+                                        $( table.cell(i,(offset + extraCol + numSplits*2)).node() ).addClass('red_cell');
+                                }
+                                else
+                                {	
+                                    if (this.compactView || relay || lapTimes){
+                                        $( table.cell(i,(offset + extraCol + numSplits*2)).node() ).removeClass('red_cell_sqr');
+                                        $( table.cell(i,(2 + offset + extraCol + numSplits*2)).node() ).removeClass('red_cell');
+                                    }
+                                    else
+                                        $( table.cell(i,(offset + extraCol + numSplits*2)).node() ).removeClass('red_cell');
+                                }
+                            }
                         }
-                        // Classes with split times
-						else{
-							var splitRef = 0;
-							var colNum = 0;
-							// Highlight split times
-							for (var sp = 0; sp < numSplits; sp++){
-								if (relay)
-									splitRef = sp*2+1;
-								else if (lapTimes)
-									splitRef = sp*2;
-								else
-									splitRef = sp;
-								colNum = 3 + extraCol + 2*sp;
-								highlight = false;
-								if (data[i].splits[this.curClassSplits[splitRef].code + "_changed"] != ""){
-									age = timeServer - data[i].splits[this.curClassSplits[splitRef].code + "_changed"];
-									highlight = (age < this.highTime);
-								}
-								if (highlight)
-									$( table.cell(i,colNum).node() ).addClass('red_cell');
-								else
-									$( table.cell(i,colNum).node() ).removeClass('red_cell');
-							}
-							// Highlight finish-time
-							highlight = false;
-							if (data[i].changed != "" && data[i].progress==100){ 
-								age = timeServer - data[i].changed;
-								highlight = (age < this.highTime);
-							}
-							if (highlight){
-								if (this.compactView || relay || lapTimes){
-									$( table.cell(i,(offset + extraCol + numSplits*2)).node() ).addClass('red_cell_sqr');
-									$( table.cell(i,(2 + offset + extraCol + numSplits*2)).node() ).addClass('red_cell');
-								}
-								else
-									$( table.cell(i,(offset + extraCol + numSplits*2)).node() ).addClass('red_cell');
-							}
-							else
-							{	
-								if (this.compactView || relay || lapTimes){
-									$( table.cell(i,(offset + extraCol + numSplits*2)).node() ).removeClass('red_cell_sqr');
-									$( table.cell(i,(2 + offset + extraCol + numSplits*2)).node() ).removeClass('red_cell');
-								}
-								else
-									$( table.cell(i,(offset + extraCol + numSplits*2)).node() ).removeClass('red_cell');
-							}
-						}
 						
 						// *** Update predicted times ***
 						if ((data[i].status == 10 || data[i].status == 9) && data[i].start != "") { 
