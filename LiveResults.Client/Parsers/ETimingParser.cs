@@ -559,7 +559,7 @@ namespace LiveResults.Client
                 {
                     int time = 0, runnerID = 0, iStartTime = 0, iStartClass = 0, totalTime = 0, bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1;
                     int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
-                    string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", bibstr = "", name = "", shortName = "-";
+                    string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", name = "", shortName = "-";
                     bool chaseStart = false, freeStart = false;
                     var SplitTimes = new List<ResultStruct>();
 
@@ -588,6 +588,9 @@ namespace LiveResults.Client
                         if (!string.IsNullOrEmpty(famName))
                             givName = givName.Trim();
 
+                        name = givName + " " + famName;
+                        lastRunner = name;
+
                         bibread = (reader["startno"].ToString()).Trim();
                         bib = string.IsNullOrEmpty(bibread) ? 0 : Convert.ToInt32(bibread);
 
@@ -612,15 +615,7 @@ namespace LiveResults.Client
                             iStartTime = ConvertFromDay2cs(Convert.ToDouble(reader["starttime"]));
 
                         if (isRelay)
-                        {
                             teambib = bib / 100; // Team bib no
-                            bibstr = Convert.ToString(teambib);
-                        }
-                        else
-                            bibstr = bibread;
-
-                        name = ((bib > 0) ? "(" + bibstr + ") " : "") + givName + " " + famName;
-                        lastRunner = name;
 
                         if (isRelay)
                         {   //RelayTeams
@@ -651,7 +646,6 @@ namespace LiveResults.Client
                             if (!classN.EndsWith("-"))
                                 classN += "-";
                             classN += Convert.ToString(leg);
-                            bibstr = Convert.ToString(teambib);
 
                             if (reader["teamno"] != null && reader["teamno"] != DBNull.Value)
                                 club += "-" + Convert.ToString(reader["teamno"]);
@@ -995,7 +989,7 @@ namespace LiveResults.Client
                             Status = rstatus,
                             Ecard1 = ecard1,
                             Ecard2 = ecard2,
-                            Bib = bib,
+                            Bib = (isRelay? -bib : bib),
                             SplitTimes = SplitTimes
                         };
 
@@ -1021,7 +1015,7 @@ namespace LiveResults.Client
                         {
                             int numChars = Math.Min(Runner.Value.LegName.Length, legLength);
                             if (Runner.Key == 1)
-                                name = "(" + Convert.ToString(Team.Value.TeamBib) + ") " + Runner.Value.LegName.Substring(0,numChars);
+                                name = Runner.Value.LegName.Substring(0,numChars);
                             else
                                 name += ", " + Runner.Value.LegName.Substring(0, numChars);
                         }
@@ -1036,6 +1030,7 @@ namespace LiveResults.Client
                             ID = 100000 + Team.Value.TeamBib,
                             RunnerName = name,
                             RunnerClub = Team.Value.TeamName,
+                            Bib = Team.Value.TeamBib,
                             Class = classAll,
                             StartTime = Team.Value.StartTime,
                             Time = Team.Value.TotalTime,

@@ -76,9 +76,9 @@
             // 
             // wizard1
             // 
+            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage2);
-            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
@@ -118,7 +118,7 @@
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(267, 13);
             this.label15.TabIndex = 10;
-            this.label15.Text = "Ver 10.04.2020 - https://github.com/palkitt/liveresults";
+            this.label15.Text = "Ver 03.05.2020 - https://github.com/palkitt/liveresults";
             this.label15.Click += new System.EventHandler(this.label15_Click);
             // 
             // panel1
