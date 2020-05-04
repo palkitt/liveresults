@@ -57,8 +57,8 @@ var LiveResults;
 			this.radioStart = false;
             this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php");
             this.radioURL = "//api.freidig.idrett.no/radioapi.php";
-//			this.apiURL = "api/api.php";
-//			this.radioURL = "api/radioapi.php";
+			//this.apiURL = "api/api.php";
+			//this.radioURL = "api/radioapi.php";
             LiveResults.Instance = this;
             
 			$(window).hashchange(function () {
@@ -288,16 +288,16 @@ var LiveResults;
 					var timeServer = (dt - this.serverTimeDiff)/1000 + timeZoneDiff*60;
 					var haveSplitControls = (this.curClassSplits != null) && (this.curClassSplits.length > 0);
                     var relay = (haveSplitControls && this.curClassSplits[0].code == "0");
-					var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
+                    var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
+                    var hasBibs = (data[0].bib != undefined && data[0].bib != 0);
                     var timeDiff = 0;
 					var timeDiffCol = 0;
 					var timeDiffStr = "";
 					var highlight = false;
 					var age = 0;
 					var table = this.currentTable.api();					
-                    var offset = 3;
                     var unranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})); 
-                    var extraCol = ( (unranked || (this.compactView && !lapTimes)) ? 1 : 0);										
+                    var offset = 3 + (hasBibs? 1 : 0) + ((unranked || (this.compactView && !lapTimes)) ? 1 : 0);										
                     
                     var numSplits;
 					if (this.curClassSplits == null)
@@ -344,7 +344,7 @@ var LiveResults;
                                         splitRef = sp*2;
                                     else
                                         splitRef = sp;
-                                    colNum = 3 + extraCol + 2*sp;
+                                    colNum = offset + 2*sp;
                                     highlight = false;
                                     if (data[i].splits[this.curClassSplits[splitRef].code + "_changed"] != ""){
                                         age = timeServer - data[i].splits[this.curClassSplits[splitRef].code + "_changed"];
@@ -363,20 +363,20 @@ var LiveResults;
                                 }
                                 if (highlight){
                                     if (this.compactView || relay || lapTimes){
-                                        $( table.cell(i,(offset + extraCol + numSplits*2)).node() ).addClass('red_cell_sqr');
-                                        $( table.cell(i,(2 + offset + extraCol + numSplits*2)).node() ).addClass('red_cell');
+                                        $( table.cell(i,(offset + numSplits*2)).node() ).addClass('red_cell_sqr');
+                                        $( table.cell(i,(offset + numSplits*2 + 2)).node() ).addClass('red_cell');
                                     }
                                     else
-                                        $( table.cell(i,(offset + extraCol + numSplits*2)).node() ).addClass('red_cell');
+                                        $( table.cell(i,(offset + numSplits*2)).node() ).addClass('red_cell');
                                 }
                                 else
                                 {	
                                     if (this.compactView || relay || lapTimes){
-                                        $( table.cell(i,(offset + extraCol + numSplits*2)).node() ).removeClass('red_cell_sqr');
-                                        $( table.cell(i,(2 + offset + extraCol + numSplits*2)).node() ).removeClass('red_cell');
+                                        $( table.cell(i,(offset + numSplits*2)).node() ).removeClass('red_cell_sqr');
+                                        $( table.cell(i,(offset + numSplits*2 + 2)).node() ).removeClass('red_cell');
                                     }
                                     else
-                                        $( table.cell(i,(offset + extraCol + numSplits*2)).node() ).removeClass('red_cell');
+                                        $( table.cell(i,(offset + numSplits*2)).node() ).removeClass('red_cell');
                                 }
                             }
                         }
@@ -405,9 +405,9 @@ var LiveResults;
 										}
 										else
 											timeDiffStr = "<i>(...)<\i>";
-										table.cell( i, 6 ).data(timeDiffStr);
+										table.cell( i, 6 + (hasBibs? 1 : 0)).data(timeDiffStr);
 									}
-									table.cell( i, 4 ).data(elapsedTimeStr);
+									table.cell( i, 4 + (hasBibs? 1 : 0)).data(elapsedTimeStr);
                                 }
                                 else{ 
                                 // Have split controls
@@ -432,8 +432,8 @@ var LiveResults;
                                         }
                                     }
 									if (unranked){
-										table.cell( i, offset + nextSplit*2 + extraCol ).data(elapsedTimeStr);
-										table.cell( i, offset + numSplits*2 + extraCol ).data("<i>(...)<\i>");
+										table.cell( i, offset + nextSplit*2 ).data(elapsedTimeStr);
+										table.cell( i, offset + numSplits*2 ).data("<i>(...)<\i>");
 									}
 									else{
 										if (this.curClassSplitsBests[nextSplitRef][0]==0)
@@ -457,14 +457,14 @@ var LiveResults;
 												timeDiffStr += rankStr; 
 										}
 										
-										timeDiffCol = offset + nextSplit*2 + extraCol;
+										timeDiffCol = offset + nextSplit*2;
 										if (nextSplit==numSplits) // Approach finish
 											timeDiffCol += 2;
                                         
                                             // Display elapsed time
 										if (!this.compactView && !relay && !lapTimes && nextSplit==numSplits)
 											elapsedTimeStr += "<br/>" + timeDiffStr;
-										table.cell( i, offset + numSplits*2 + extraCol ).data(elapsedTimeStr);
+										table.cell( i, offset + numSplits*2 ).data(elapsedTimeStr);
                                         
                                         // Display time diff
 										if (this.compactView || relay || nextSplit!=numSplits || lapTimes)
@@ -612,7 +612,8 @@ var LiveResults;
 				columns.push({ "sTitle": "Post", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
 			    columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
 			}
-			columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName"});
+            columns.push({ "sTitle": "No", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib"});
+            columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName"});
 			columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club" });
 			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
 			     "render": function (data,type,row) {
@@ -660,23 +661,22 @@ var LiveResults;
 				columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
 					"render": function (data,type,row) 
 					{
-						var DNStext = "true";
-						if (!isNaN(row.runnerName.charAt(0)))
-						   DNStext = "false";
-					    var runnerName = row.runnerName;
-						runnerName = runnerName.replace("<del>","");
-						runnerName = runnerName.replace("</del>","");
-						var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
-						"'lopid=" + "(" + _this.competitionId +") " + _this.compName +
-						"&Tidsp=" + row.passtime + 
-						"&T0="    + row.club + 
-						"&T1="    + className +
-						"&T2="    + row.controlName + 
-						"&T3="    + row.time + "',"
-						+ DNStext + ");\">&#128172;</button>";						
-						if ( _this.messageBibs.indexOf(row.dbid) > -1)
-							link += " &#9679;";
-						return link;
+                            var DNStext = "true";
+						    if (row.runnerName!=undefined && !isNaN(row.runnerName.charAt(0)))
+						        DNStext = "false";
+					        var runnerName = "(" + row.bib + ") " + row.runnerName;
+						    runnerName = runnerName.replace("<del>","");
+						    runnerName = runnerName.replace("</del>","");
+						    var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
+						    "'lopid=" + "(" + _this.competitionId +") " + _this.compName +
+						    "&Tidsp=" + row.passtime + 
+						    "&T0="    + row.club + 
+						    "&T1="    + className +
+						    "&T2="    + row.controlName + 
+						    "&T3="    + row.time + "'," + DNStext + ");\">&#128172;</button>";						
+						    if ( _this.messageBibs.indexOf(row.dbid) > -1)
+							    link += " &#9679;";
+                            return link;
 					}});
 			}
 			this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
@@ -890,7 +890,8 @@ var LiveResults;
                     var unranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})) || 
                                    !(data.results.every(function check(el) {return el.status != 13;}));
                     var relay = (haveSplitControls && (this.curClassSplits[0].code == "0" || data.className.slice(-4) == "-All"));
-					var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
+                    var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
+                    var hasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
                     this.updateResultVirtualPosition(data.results);
 
                     columns.push({
@@ -901,6 +902,29 @@ var LiveResults;
                         "aTargets": [col++],
                         "mDataProp": "place"
                     });
+                    if (hasBibs)
+                    {
+                        columns.push({
+                            "sTitle": "No",
+						    "responsivePriority": 1,
+						    "sClass": "right",
+                            "bSortable": true,
+                            "aTargets": [col++],
+                            "mDataProp": "bib",
+                            "render": function (data,type,row) {
+                                if (type === 'display')
+                                {
+                                    if (data>0) // Relay
+                                        return "(" + data + ")";
+                                    else // Ordinary bib
+                                        return "(" + (-data/100|0) +  ")"; 
+                                }
+                                else
+                                    return Math.abs(data);
+                            }
+                        });
+                    }
+
                     if (!haveSplitControls || unranked || (!fullView && !lapTimes))
                         columns.push({
                             "sTitle": this.resources["_NAME"],
@@ -1231,7 +1255,7 @@ var LiveResults;
                    this.currentTable = $('#' + this.resultsDiv).dataTable({
                         "scrollX": this.scrollView,
 //                        "scrollY": ($(window).height()-250),
-						"fixedColumns": {leftColumns: 2 },
+						"fixedColumns": {leftColumns: 2 + (hasBibs? 1 : 0) },
 						"responsive": !(this.scrollView),
                         "bPaginate": false,
                         "bLengthChange": false,
@@ -1421,8 +1445,23 @@ var LiveResults;
         };
         
         //Sorts results by the one that have run longest on the course
-        AjaxViewer.prototype.sortByDist = function (a, b) {
-            return b.progress - a.progress;
+        AjaxViewer.prototype.sortByDist = function (a, b) {            
+            if (a.progress == 0 && b.progress == 0) 
+            {
+                if (a.start && !b.start)
+                    return -1;
+                if (!a.start && b.start)
+                    return 1;
+                if (a.start == b.start)
+                    if (a.bib != undefined && b.bib != undefined)
+                        return Math.abs(a.bib) - Math.abs(b.bib); 
+                    else
+                        return 0;
+                else
+                    return a.start - b.start;
+            }
+            else
+                return b.progress - a.progress;
         };
         
         //Sorts results by the one that have run longest on the course, and if they are on the same split, place on that split
@@ -1449,8 +1488,11 @@ var LiveResults;
                     return -1;
                 if (!a.start && b.start)
                     return 1;
-				if (a.start == b.start)
-					return parseInt(a.name.replace("(",""),10) - parseInt(b.name.replace("(",""),10); 
+                if (a.start == b.start)
+                    if (a.bib != undefined && b.bib != undefined)
+                        return Math.abs(a.bib) - Math.abs(b.bib); 
+                    else
+                        return 0;
                 else
                     return a.start - b.start;
             }
@@ -1621,18 +1663,32 @@ var LiveResults;
 						if (res.place == "F")
                             res.placeSortable = 0;
                     });
+                    var hasBibs = (data.results[0].bib != undefined);
                     var columns = Array();
-                    columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [0], "mDataProp": "place"});
-                    columns.push({ "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [1], "render": function (data,type,row) {
+                    var col = 0;
+                    columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place"});
+                    columns.push({ "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data,type,row) {
 							if (type=="sort") 
 								return row.placeSortable; 
 					        else
-								return data; }});
-					columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [2], "mDataProp": "name" });
-                    columns.push({ "sTitle": this.resources["_CLUB"],
-						"responsivePriority": 99999, "sClass": "left", "bSortable": false, "aTargets": [3], "mDataProp": "club" });
+                                return data; }});  
+                    if (hasBibs)
+                        columns.push({ "sTitle": "No", "sClass": "right", "aTargets": [col++], "mDataProp": "bib",
+                            "render": function (data,type,row) {
+                                if (type === 'display')
+                                {
+                                    if (data>0) // Relay
+                                        return "(" + data + ")";
+                                    else // Ordinary bib
+                                        return "(" + (-data/100|0) +  ")"; 
+                                }
+                                else
+                                    return data;
+                        }
+                    });
+					columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [col++], "mDataProp": "name" });
                     columns.push({
-                        "sTitle": this.resources["_CLASS"], "aTargets": [4], "mDataProp": "class",
+                        "sTitle": this.resources["_CLASS"], "aTargets": [col++], "mDataProp": "class",
                         "render": function (data,type,row) {
                             var param = row["class"];
                             if (param && param.length > 0)
@@ -1640,7 +1696,6 @@ var LiveResults;
                             return "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + row["class"] + "</a>";
                         }
                     });
-                    var col = 5;
                     columns.push({
                         "sTitle": this.resources["_START"], "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
                         "render": function (data,type,row) {
@@ -1678,7 +1733,7 @@ var LiveResults;
                     });
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
 						"scrollX": this.scrollView,
-						"fixedColumns": {leftColumns: 3},
+						"fixedColumns": {leftColumns: 3 + (hasBibs? 1 : 0 )},
 						"responsive": !(this.scrollView),
 						"bPaginate": false,
                         "bLengthChange": false,

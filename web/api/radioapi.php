@@ -78,6 +78,7 @@ if ($_GET['method'] == 'getradiopassings')
 			
 			$ret .= "{\"passtime\": \"".date("H:i:s",strtotime($pass['Changed']))."\",
 					\"runnerName\": \"".$pre.$pass['Name'].$post."\",
+					\"bib\": \"".$pre.$pass['bib'].$post."\",
 					\"club\": \"".$pre.$pass['Club'].$post."\",
 					\"class\": \"".$pre.$pass['class'].$post."\",
 					\"control\": ".$pass['Control'].",

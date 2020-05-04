@@ -498,7 +498,7 @@ function getAllSplitControls()
 		  limit 100";		   
 	}
 	elseif ($code == -2) // Left in forest
-		$q = "SELECT runners.Name, runners.class, runners.Club, results2.Time, results.Status, results.Changed, results.Control, splitcontrols.name AS pname 
+		$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results2.Time, results.Status, results.Changed, results.Control, splitcontrols.name AS pname 
 		  FROM results 
 		  INNER JOIN runners ON results.DbId = runners.DbId 
 		  LEFT JOIN splitcontrols ON (splitcontrols.code = results.Control AND splitcontrols.tavid=".$this->m_CompId." AND runners.class = splitcontrols.classname) 
@@ -508,7 +508,7 @@ function getAllSplitControls()
 		  ORDER BY runners.Club, results2.Time, runners.Name";
     else
 	{
-		$q = "SELECT runners.Name, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
+		$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
 	      results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
 		  left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
 		  and runners.class = splitcontrols.classname) 
@@ -649,7 +649,7 @@ function getAllSplitControls()
 			$ret = Array();
 
 
-			$q = "SELECT runners.Name, runners.Club, results.Time, runners.Class ,results.Status, results.Changed, results.DbID, results.Control ";
+			$q = "SELECT runners.Name, runners.Bib, runners.Club, results.Time, runners.Class ,results.Status, results.Changed, results.DbID, results.Control ";
 			$q .= ", (select count(*)+1 from results sr, runners sru where sr.tavid=sru.tavid and sr.dbid=sru.dbid and sr.tavid=results.TavId and sru.class = runners.class and sr.status = 0 and sr.time < results.time and sr.Control=1000) as place ";
 			$q .= ", results.Time - (select min(time) from results sr, runners sru where sr.tavid=sru.tavid and sr.dbid=sru.dbid and sr.tavid=results.TavId and sru.class = runners.class and sr.status = 0 and sr.Control=1000) as timeplus ";
 			$q .= "From runners,results where ";
@@ -669,6 +669,7 @@ function getAllSplitControls()
 						$ret[$dbId] = Array();
 						$ret[$dbId]["DbId"] = $dbId;
 						$ret[$dbId]["Name"] = $row['Name'];
+						$ret[$dbId]["Bib"] = $row['Bib'];
 						$ret[$dbId]["Club"] = $row['Club'];
 						$ret[$dbId]["Class"] = $row['Class'];
 						$ret[$dbId]["Time"] = "";
@@ -713,7 +714,7 @@ function getAllSplitControls()
 			$ret = Array();
 
 
-			$q = "SELECT runners.Name, runners.Club, results.Time ,results.Status, results.Changed, results.DbID, results.Control From runners,results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  ORDER BY results.Dbid";
+			$q = "SELECT runners.Name, runners.Bib, runners.Club, results.Time ,results.Status, results.Changed, results.DbID, results.Control From runners,results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  ORDER BY results.Dbid";
 
 			if ($result = mysqli_query($this->m_Conn, $q))
 
@@ -729,6 +730,7 @@ function getAllSplitControls()
 						$ret[$dbId] = Array();
 						$ret[$dbId]["DbId"] = $dbId;
 						$ret[$dbId]["Name"] = $row['Name'];
+						$ret[$dbId]["Bib"] = $row['Bib'];
 						$ret[$dbId]["Club"] = $row['Club'];
 						$ret[$dbId]["Time"] = "";
 						$ret[$dbId]["Status"] = "9";

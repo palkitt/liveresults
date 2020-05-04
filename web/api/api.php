@@ -218,7 +218,7 @@ elseif ($_GET['method'] == 'getclubresults')
 			if (!$first)
 				$ret .= ",$br";
 
-			$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"club\": \"".$res['Club']."\",\"class\": \"".$res['Class']."\", \"result\": \"".$time."\",\"status\" : ".$status.", \"timeplus\": \"$timeplus\"";
+			$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"bib\": \"".$res['Bib']."\", \"club\": \"".$res['Club']."\",\"class\": \"".$res['Class']."\", \"result\": \"".$time."\",\"status\" : ".$status.", \"timeplus\": \"$timeplus\"";
 
 
 			if (isset($res["start"]))
@@ -502,7 +502,7 @@ elseif ($_GET['method'] == 'getclassresults')
 				else
 					$changed = "0";
 				
-				$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
+				$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"bib\": ".$res['Bib'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
 
 				if (count($splits) > 0)
 				{
