@@ -18,11 +18,11 @@ table.dataTable thead th {
 }
 
 table.dataTable tfoot th {
-	padding: 3px 3px;
+	padding: 3px 5px;
 }
 
 table.dataTable td {
-	padding: 3px 3px;
+	padding: 3px 5px;
 }
 
 table.dataTable td.center,

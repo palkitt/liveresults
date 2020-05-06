@@ -54,11 +54,10 @@ var LiveResults;
 			this.qualClasses = null;
 			this.messageBibs = [];
 			this.noSplits = false;
-			this.radioStart = false;
-            this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php");
-            this.radioURL = "//api.freidig.idrett.no/radioapi.php";
-			//this.apiURL = "api/api.php";
-			//this.radioURL = "api/radioapi.php";
+            this.radioStart = false;
+            this.debug = false;
+            this.apiURL = (this.debug ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
+            this.radioURL = (this.debug ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
             
 			$(window).hashchange(function () {
@@ -1144,7 +1143,7 @@ var LiveResults;
                     columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
                     if (!haveSplitControls || !fullView || lapTimes) {
                         columns.push({
-                            "sTitle": "<span class=\"plustime\">Diff</span>",
+                            "sTitle": "",
                             "bVisible": !unranked,
 						    "responsivePriority": 2000,
                             "sClass": "right",
@@ -1688,7 +1687,7 @@ var LiveResults;
                     });
 					columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [col++], "mDataProp": "name" });
                     columns.push({
-                        "sTitle": this.resources["_CLASS"], "aTargets": [col++], "mDataProp": "class",
+                        "sTitle": this.resources["_CLASS"], "sClass": "left", "aTargets": [col++], "mDataProp": "class",
                         "render": function (data,type,row) {
                             var param = row["class"];
                             if (param && param.length > 0)
@@ -1722,13 +1721,12 @@ var LiveResults;
                     });
                     col++;
                     columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
-                    columns.push({
-                        "sTitle": "", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeplus",
+                    columns.push({ "sTitle": "", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeplus",
                         "render": function (data,type,row) {
                             if (row.status != 0)
                                 return "";
                             else
-                                return "+" + _this.formatTime(row.timeplus, row.status);
+                                return "<span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status) + "</span>";
                         }
                     });
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
