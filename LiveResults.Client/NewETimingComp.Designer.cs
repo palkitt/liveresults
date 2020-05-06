@@ -67,6 +67,8 @@
             this.wizardPage2 = new Gui.Wizard.WizardPage();
             this.lstDB = new System.Windows.Forms.ListBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.txtIdOffset = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
             this.wizard1.SuspendLayout();
             this.wizardPage1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -76,9 +78,9 @@
             // 
             // wizard1
             // 
-            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage2);
+            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
@@ -245,6 +247,8 @@
             // 
             // wizardPage5
             // 
+            this.wizardPage5.Controls.Add(this.txtIdOffset);
+            this.wizardPage5.Controls.Add(this.label16);
             this.wizardPage5.Controls.Add(this.chkLapTimes);
             this.wizardPage5.Controls.Add(this.txtSleepTime);
             this.wizardPage5.Controls.Add(this.label8);
@@ -274,7 +278,7 @@
             // chkLapTimes
             // 
             this.chkLapTimes.AutoSize = true;
-            this.chkLapTimes.Location = new System.Drawing.Point(12, 145);
+            this.chkLapTimes.Location = new System.Drawing.Point(12, 168);
             this.chkLapTimes.Name = "chkLapTimes";
             this.chkLapTimes.Size = new System.Drawing.Size(184, 17);
             this.chkLapTimes.TabIndex = 16;
@@ -302,7 +306,7 @@
             // chkTwoEcards
             // 
             this.chkTwoEcards.AutoSize = true;
-            this.chkTwoEcards.Location = new System.Drawing.Point(12, 187);
+            this.chkTwoEcards.Location = new System.Drawing.Point(12, 210);
             this.chkTwoEcards.Name = "chkTwoEcards";
             this.chkTwoEcards.Size = new System.Drawing.Size(222, 17);
             this.chkTwoEcards.TabIndex = 14;
@@ -313,7 +317,7 @@
             // chkOneLineRelayRes
             // 
             this.chkOneLineRelayRes.AutoSize = true;
-            this.chkOneLineRelayRes.Location = new System.Drawing.Point(12, 124);
+            this.chkOneLineRelayRes.Location = new System.Drawing.Point(12, 147);
             this.chkOneLineRelayRes.Name = "chkOneLineRelayRes";
             this.chkOneLineRelayRes.Size = new System.Drawing.Size(208, 17);
             this.chkOneLineRelayRes.TabIndex = 13;
@@ -370,7 +374,7 @@
             // chkDeleteEmmaIDs
             // 
             this.chkDeleteEmmaIDs.AutoSize = true;
-            this.chkDeleteEmmaIDs.Location = new System.Drawing.Point(12, 166);
+            this.chkDeleteEmmaIDs.Location = new System.Drawing.Point(12, 189);
             this.chkDeleteEmmaIDs.Name = "chkDeleteEmmaIDs";
             this.chkDeleteEmmaIDs.Size = new System.Drawing.Size(194, 17);
             this.chkDeleteEmmaIDs.TabIndex = 7;
@@ -392,7 +396,7 @@
             this.chkCreateRadioControls.AutoSize = true;
             this.chkCreateRadioControls.Checked = true;
             this.chkCreateRadioControls.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkCreateRadioControls.Location = new System.Drawing.Point(12, 103);
+            this.chkCreateRadioControls.Location = new System.Drawing.Point(12, 126);
             this.chkCreateRadioControls.Name = "chkCreateRadioControls";
             this.chkCreateRadioControls.Size = new System.Drawing.Size(124, 17);
             this.chkCreateRadioControls.TabIndex = 4;
@@ -464,6 +468,23 @@
             this.label6.TabIndex = 0;
             this.label6.Text = "Database";
             // 
+            // txtIdOffset
+            // 
+            this.txtIdOffset.Location = new System.Drawing.Point(160, 83);
+            this.txtIdOffset.Name = "txtIdOffset";
+            this.txtIdOffset.Size = new System.Drawing.Size(81, 21);
+            this.txtIdOffset.TabIndex = 17;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(12, 86);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(99, 13);
+            this.label16.TabIndex = 18;
+            this.label16.Text = "Database ID offset";
+            this.label16.Click += new System.EventHandler(this.label16_Click);
+            // 
             // NewETimingComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -526,5 +547,7 @@
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.Label label15;
         public System.Windows.Forms.CheckBox chkLapTimes;
+        private System.Windows.Forms.TextBox txtIdOffset;
+        private System.Windows.Forms.Label label16;
     }
 }

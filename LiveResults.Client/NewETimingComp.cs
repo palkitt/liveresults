@@ -28,6 +28,7 @@ namespace LiveResults.Client
             txtPort.Text = "1433";
             txtETimingDb.Text = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             txtSleepTime.Text = "3";
+            txtIdOffset.Text = "0";
             chkOneLineRelayRes.Checked = false;
             chkTwoEcards.Checked = false;
             chkLapTimes.Checked = false;
@@ -336,9 +337,11 @@ namespace LiveResults.Client
 
             bool MSSQL = false;
             if (comboBox1.SelectedIndex == 1) MSSQL = true;
-            
+
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
-                    (Convert.ToInt32(txtSleepTime.Text)), chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, chkLapTimes.Checked);
+                    Convert.ToInt32(txtSleepTime.Text), 
+                    chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, chkLapTimes.Checked,
+                    Convert.ToInt32(txtIdOffset.Text));
 
             monForm.SetParser(pars as IExternalSystemResultParser);
             monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
@@ -346,6 +349,7 @@ namespace LiveResults.Client
             monForm.CompDate  = cmp.CompDate;
             monForm.eTimingId = cmp.eTimingId;
             monForm.deleteEmmaIDs = chkDeleteEmmaIDs.Checked;
+            monForm.IdOffset = Convert.ToInt32(txtIdOffset.Text);
             monForm.ShowDialog(this);
               
         }
@@ -396,6 +400,11 @@ namespace LiveResults.Client
         }
 
         private void label15_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label16_Click(object sender, EventArgs e)
         {
 
         }

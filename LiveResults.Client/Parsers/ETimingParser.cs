@@ -25,10 +25,11 @@ namespace LiveResults.Client
         private bool m_lapTimes;
         private bool m_MSSQL;
         private bool m_twoEcards;
+        private int m_IdOffset;
         private int day;
 
         public ETimingParser(IDbConnection conn, int sleepTime, bool recreateRadioControls = true, bool oneLineRelayRes = false, 
-            bool MSSQL = false, bool twoEcards = false, bool lapTimes = false)
+            bool MSSQL = false, bool twoEcards = false, bool lapTimes = false, int IdOffset = 0)
         {
             m_connection = conn;
             m_createRadioControls = recreateRadioControls;
@@ -37,6 +38,7 @@ namespace LiveResults.Client
             m_MSSQL = MSSQL;
             m_twoEcards = twoEcards;
             m_lapTimes = lapTimes;
+            m_IdOffset = IdOffset;
         }
         
         private void FireOnResult(Result newResult)
@@ -565,7 +567,7 @@ namespace LiveResults.Client
 
                     try
                     {
-                        runnerID = Convert.ToInt32(reader["id"].ToString());
+                        runnerID = Convert.ToInt32(reader["id"].ToString()) + m_IdOffset;
 
                         status = reader["status"] as string;
                         if ((status == "V") || (status == "C")) // Skip if free or not entered  

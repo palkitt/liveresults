@@ -33,6 +33,7 @@ namespace LiveResults.Client
         public List<int> eTimingId;
         public bool deleteEmmaIDs;
         public bool OneLineRelayRes;
+        public int IdOffset;
         
         public void SetParser(IExternalSystemResultParser parser)
         {
@@ -123,19 +124,24 @@ namespace LiveResults.Client
                     if (!( String.Equals(stringCliCompDate, stringCompDate) && String.Equals(cli.organizer, Organizer)))
                     {
                         listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Parser aborts!");
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  eTiming:\t" + Organizer + " - " + stringCompDate);
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  Emma:\t" + cli.organizer + " - " + stringCliCompDate);
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Organizer or date does NOT match!");
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  eTiming: \t\t" + Organizer + " - " + stringCompDate);
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  Database:\t" + cli.organizer + " - " + stringCliCompDate);
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " eTiming and datebase do NOT match!");
                         dateOrganizerOK = false;
                         break;
                     }
                     else
                     {
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "   eTiming:\t" + Organizer + " - " + stringCompDate);
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "   Emma:\t" + cli.organizer + " - " + stringCliCompDate);
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  Organizer and date match.");
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  eTiming: \t\t" + Organizer + " - " + stringCompDate);
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  Database:\t" + cli.organizer + " - " + stringCliCompDate);
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " eTiming and database matches");
                         if (deleteEmmaIDs)
+                        {
+                            if (IdOffset != 0)
+                                for (var i=0; i < eTimingId.Count; i++)
+                                    eTimingId[i] += IdOffset;
                             cli.DeleteUnusedRunners(eTimingId);
+                        }
                     }
                 }
                 if (dateOrganizerOK)
