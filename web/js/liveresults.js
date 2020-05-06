@@ -611,7 +611,19 @@ var LiveResults;
 				columns.push({ "sTitle": "Post", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
 			    columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
 			}
-            columns.push({ "sTitle": "No", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib"});
+            columns.push({ "sTitle": "No", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+                            "render": function (data,type,row) {
+                                if (type === 'display')
+                                {
+                                    if (data>0) // Ordniary
+                                        return data;
+                                    else        // Relay
+                                        return  (-data/100|0) + "-" + (-data%100); 
+                                }
+                                else
+                                    return Math.abs(data);
+                            }
+        });
             columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName"});
 			columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club" });
 			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
@@ -913,9 +925,9 @@ var LiveResults;
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
-                                    if (data>0) // Relay
+                                    if (data>0) // Ordinary
                                         return "(" + data + ")";
-                                    else // Ordinary bib
+                                    else        // Realy
                                         return "(" + (-data/100|0) +  ")"; 
                                 }
                                 else
@@ -1676,10 +1688,10 @@ var LiveResults;
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
-                                    if (data>0) // Relay
+                                    if (data>0) // Ordinary
                                         return "(" + data + ")";
-                                    else // Ordinary bib
-                                        return "(" + (-data/100|0) +  ")"; 
+                                    else        // Relay
+                                        return "(" + (-data/100|0) + ")"; 
                                 }
                                 else
                                     return data;
