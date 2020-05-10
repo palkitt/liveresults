@@ -55,7 +55,7 @@ var LiveResults;
 			this.messageBibs = [];
 			this.noSplits = false;
             this.radioStart = false;
-            this.local = true;
+            this.local = false;
             this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
@@ -541,13 +541,16 @@ var LiveResults;
                     data: "comp=" + this.competitionId + "&method=getradiopassings&code=" + code + "&calltime=" + calltime +
                           "&minbib=" + minBib + "&maxbib=" + maxBib + 
                           "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash,
-                    success: function (data) { _this.handleUpdateRadioPassings(data); },
+                    success: function (data,status,resp) {
+                        var reqTime = new Date();
+                        reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.radioUpdateInterval);
+                        _this.handleUpdateRadioPassings(data,reqTime); },
                     error: function () {
                         _this.radioPassingsUpdateTimer = setTimeout(function () {
                             _this.updateRadioPassings();
                         }, _this.radioUpdateInterval);
                     },
-                    dataType: "json"
+                    dataType: "json"                   
                 });
                 this.radioPassingsUpdateTimer = setTimeout(function () {
                     _this.updateRadioPassings(code,calltime,minBib,maxBib);
@@ -556,8 +559,9 @@ var LiveResults;
 
         };
         //Handle response for updating the last radio passings..
-        AjaxViewer.prototype.handleUpdateRadioPassings = function (data) {
-			const maxLines = 40;
+        AjaxViewer.prototype.handleUpdateRadioPassings = function (data,reqTime) {
+            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+            const maxLines = 40;
             var _this = this;
 			var leftInForest = false;
             // Insert data from query
@@ -738,14 +742,12 @@ var LiveResults;
 						"&last_hash=" + this.lastClassHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                         success: function (data, status, resp) {
                             try {
-                                var reqTime = resp.getResponseHeader("date");
-                                if (reqTime) {
-                                    _this.serverTimeDiff = new Date().getTime() - new Date(reqTime).getTime();
-                                }
+                                var reqTime = new Date();
+                                reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.updateInterval);
                             }
                             catch (e) {
                             }
-                            _this.handleUpdateClassResults(data);
+                            _this.handleUpdateClassResults(data,reqTime);
                         },
                         error: function () {
                             _this.resUpdateTimeout = setTimeout(function () {
@@ -758,7 +760,8 @@ var LiveResults;
             }
         };
         //handle response from class-results-update
-        AjaxViewer.prototype.handleUpdateClassResults = function (newData) {
+        AjaxViewer.prototype.handleUpdateClassResults = function (newData,reqTime) {
+            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             var _this = this;
             if (newData.status == "OK") {
                 if (this.currentTable != null)
@@ -865,14 +868,12 @@ var LiveResults;
                 url: this.apiURL,
                 data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                 success: function (data, status, resp) {
-                    try {
-                        var reqTime = resp.getResponseHeader("date");
-                        if (reqTime) {
-                            _this.serverTimeDiff = new Date().getTime() - new Date(reqTime).getTime();
-                        }
+                    try { 
+                        var reqTime = new Date();
+                        reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.updateInterval);
                     }
                     catch (e) { }
-					_this.updateClassResults(data);
+					_this.updateClassResults(data,reqTime);
                 },
                 dataType: "json"
             });
@@ -883,7 +884,8 @@ var LiveResults;
             this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate();}, this.updateInterval);
         };
 		
-        AjaxViewer.prototype.updateClassResults = function (data) {
+        AjaxViewer.prototype.updateClassResults = function (data,reqTime) {
+            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             var _this = this;
             if (data != null && data.status == "OK") {
                 if (data.className != null) {

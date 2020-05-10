@@ -156,7 +156,9 @@ $(document).ready(function()
     <td align="right" valign="top"><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" frameborder="0" width="60" height="14" allowTransparency="true"></iframe></tr>
 <table id="divRadioPassings2"></table>
 </table>
-<?php } ?> <?php }?> 
+<?php } ?> <?php }?>
+<p align="left"><font color="#AAA" size="0.7em">
+Last update: <span id="lastupdate"></span><br> 
 </body>
 </html>
 
