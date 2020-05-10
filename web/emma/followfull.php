@@ -353,7 +353,6 @@ function closeTop() {
 
   <?php if (!$isSingleClass && !$isSingleClub) {?>  
 	<p align="left"><font color="#AAA" size="0.7em">
-Last update: <span id="lastupdate"></span><br>
   * <?=$_HELPREDRESULTS?><br>
   &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
   
