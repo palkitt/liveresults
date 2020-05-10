@@ -30,23 +30,9 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewETimingComp));
             this.wizard1 = new Gui.Wizard.Wizard();
-            this.wizardPage1 = new Gui.Wizard.WizardPage();
-            this.label15 = new System.Windows.Forms.Label();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
-            this.txtETimingDb = new System.Windows.Forms.TextBox();
-            this.label11 = new System.Windows.Forms.Label();
-            this.txtPw = new System.Windows.Forms.TextBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.txtUser = new System.Windows.Forms.TextBox();
-            this.txtPort = new System.Windows.Forms.TextBox();
-            this.txtHost = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
-            this.label1 = new System.Windows.Forms.Label();
             this.wizardPage5 = new Gui.Wizard.WizardPage();
+            this.txtIdOffset = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
             this.chkLapTimes = new System.Windows.Forms.CheckBox();
             this.txtSleepTime = new System.Windows.Forms.TextBox();
             this.label8 = new System.Windows.Forms.Label();
@@ -67,20 +53,34 @@
             this.wizardPage2 = new Gui.Wizard.WizardPage();
             this.lstDB = new System.Windows.Forms.ListBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.txtIdOffset = new System.Windows.Forms.TextBox();
-            this.label16 = new System.Windows.Forms.Label();
+            this.wizardPage1 = new Gui.Wizard.WizardPage();
+            this.label15 = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
+            this.txtETimingDb = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.txtPw = new System.Windows.Forms.TextBox();
+            this.label5 = new System.Windows.Forms.Label();
+            this.txtUser = new System.Windows.Forms.TextBox();
+            this.txtPort = new System.Windows.Forms.TextBox();
+            this.txtHost = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.wizard1.SuspendLayout();
-            this.wizardPage1.SuspendLayout();
-            this.panel1.SuspendLayout();
             this.wizardPage5.SuspendLayout();
             this.wizardPage2.SuspendLayout();
+            this.wizardPage1.SuspendLayout();
+            this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // wizard1
             // 
+            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage2);
-            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
@@ -91,159 +91,6 @@
             this.wizardPage5});
             this.wizard1.Size = new System.Drawing.Size(506, 277);
             this.wizard1.TabIndex = 0;
-            // 
-            // wizardPage1
-            // 
-            this.wizardPage1.Controls.Add(this.label15);
-            this.wizardPage1.Controls.Add(this.panel1);
-            this.wizardPage1.Controls.Add(this.txtPw);
-            this.wizardPage1.Controls.Add(this.label5);
-            this.wizardPage1.Controls.Add(this.txtUser);
-            this.wizardPage1.Controls.Add(this.txtPort);
-            this.wizardPage1.Controls.Add(this.txtHost);
-            this.wizardPage1.Controls.Add(this.label4);
-            this.wizardPage1.Controls.Add(this.label3);
-            this.wizardPage1.Controls.Add(this.label2);
-            this.wizardPage1.Controls.Add(this.comboBox1);
-            this.wizardPage1.Controls.Add(this.label1);
-            this.wizardPage1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wizardPage1.IsFinishPage = false;
-            this.wizardPage1.Location = new System.Drawing.Point(0, 0);
-            this.wizardPage1.Name = "wizardPage1";
-            this.wizardPage1.Size = new System.Drawing.Size(506, 229);
-            this.wizardPage1.TabIndex = 1;
-            // 
-            // label15
-            // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(12, 216);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(267, 13);
-            this.label15.TabIndex = 10;
-            this.label15.Text = "Ver 03.05.2020 - https://github.com/palkitt/liveresults";
-            this.label15.Click += new System.EventHandler(this.label15_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.button1);
-            this.panel1.Controls.Add(this.txtETimingDb);
-            this.panel1.Controls.Add(this.label11);
-            this.panel1.Location = new System.Drawing.Point(13, 117);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(481, 84);
-            this.panel1.TabIndex = 2;
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(441, 30);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(37, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "...";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // txtETimingDb
-            // 
-            this.txtETimingDb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtETimingDb.Location = new System.Drawing.Point(6, 30);
-            this.txtETimingDb.Name = "txtETimingDb";
-            this.txtETimingDb.Size = new System.Drawing.Size(429, 21);
-            this.txtETimingDb.TabIndex = 1;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 1);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(233, 13);
-            this.label11.TabIndex = 0;
-            this.label11.Text = "Select the database file from the server-share.";
-            // 
-            // txtPw
-            // 
-            this.txtPw.Location = new System.Drawing.Point(322, 90);
-            this.txtPw.Name = "txtPw";
-            this.txtPw.Size = new System.Drawing.Size(171, 21);
-            this.txtPw.TabIndex = 9;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(261, 93);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(53, 13);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "Password";
-            // 
-            // txtUser
-            // 
-            this.txtUser.Location = new System.Drawing.Point(322, 63);
-            this.txtUser.Name = "txtUser";
-            this.txtUser.Size = new System.Drawing.Size(171, 21);
-            this.txtUser.TabIndex = 7;
-            // 
-            // txtPort
-            // 
-            this.txtPort.Location = new System.Drawing.Point(322, 36);
-            this.txtPort.Name = "txtPort";
-            this.txtPort.Size = new System.Drawing.Size(171, 21);
-            this.txtPort.TabIndex = 6;
-            // 
-            // txtHost
-            // 
-            this.txtHost.Location = new System.Drawing.Point(323, 9);
-            this.txtHost.Name = "txtHost";
-            this.txtHost.Size = new System.Drawing.Size(170, 21);
-            this.txtHost.TabIndex = 5;
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(261, 66);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(55, 13);
-            this.label4.TabIndex = 4;
-            this.label4.Text = "Username";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(289, 39);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(27, 13);
-            this.label3.TabIndex = 3;
-            this.label3.Text = "Port";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(287, 12);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 13);
-            this.label2.TabIndex = 2;
-            this.label2.Text = "Host";
-            // 
-            // comboBox1
-            // 
-            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(15, 25);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(175, 21);
-            this.comboBox1.TabIndex = 1;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(117, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Type of eTiming server";
             // 
             // wizardPage5
             // 
@@ -274,6 +121,23 @@
             this.wizardPage5.TabIndex = 5;
             this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
             this.wizardPage5.ShowFromNext += new System.EventHandler(this.wizardPage5_ShowFromNext);
+            // 
+            // txtIdOffset
+            // 
+            this.txtIdOffset.Location = new System.Drawing.Point(160, 83);
+            this.txtIdOffset.Name = "txtIdOffset";
+            this.txtIdOffset.Size = new System.Drawing.Size(81, 21);
+            this.txtIdOffset.TabIndex = 17;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(12, 86);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(99, 13);
+            this.label16.TabIndex = 18;
+            this.label16.Text = "Database ID offset";
+            this.label16.Click += new System.EventHandler(this.label16_Click);
             // 
             // chkLapTimes
             // 
@@ -468,22 +332,158 @@
             this.label6.TabIndex = 0;
             this.label6.Text = "Database";
             // 
-            // txtIdOffset
+            // wizardPage1
             // 
-            this.txtIdOffset.Location = new System.Drawing.Point(160, 83);
-            this.txtIdOffset.Name = "txtIdOffset";
-            this.txtIdOffset.Size = new System.Drawing.Size(81, 21);
-            this.txtIdOffset.TabIndex = 17;
+            this.wizardPage1.Controls.Add(this.label15);
+            this.wizardPage1.Controls.Add(this.panel1);
+            this.wizardPage1.Controls.Add(this.txtPw);
+            this.wizardPage1.Controls.Add(this.label5);
+            this.wizardPage1.Controls.Add(this.txtUser);
+            this.wizardPage1.Controls.Add(this.txtPort);
+            this.wizardPage1.Controls.Add(this.txtHost);
+            this.wizardPage1.Controls.Add(this.label4);
+            this.wizardPage1.Controls.Add(this.label3);
+            this.wizardPage1.Controls.Add(this.label2);
+            this.wizardPage1.Controls.Add(this.comboBox1);
+            this.wizardPage1.Controls.Add(this.label1);
+            this.wizardPage1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wizardPage1.IsFinishPage = false;
+            this.wizardPage1.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage1.Name = "wizardPage1";
+            this.wizardPage1.Size = new System.Drawing.Size(506, 229);
+            this.wizardPage1.TabIndex = 1;
             // 
-            // label16
+            // label15
             // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(12, 86);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(99, 13);
-            this.label16.TabIndex = 18;
-            this.label16.Text = "Database ID offset";
-            this.label16.Click += new System.EventHandler(this.label16_Click);
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(12, 216);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(267, 13);
+            this.label15.TabIndex = 10;
+            this.label15.Text = "Ver 06.05.2020 - https://github.com/palkitt/liveresults";
+            this.label15.Click += new System.EventHandler(this.label15_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.button1);
+            this.panel1.Controls.Add(this.txtETimingDb);
+            this.panel1.Controls.Add(this.label11);
+            this.panel1.Location = new System.Drawing.Point(13, 117);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(481, 84);
+            this.panel1.TabIndex = 2;
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Location = new System.Drawing.Point(441, 30);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(37, 23);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "...";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // txtETimingDb
+            // 
+            this.txtETimingDb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtETimingDb.Location = new System.Drawing.Point(6, 30);
+            this.txtETimingDb.Name = "txtETimingDb";
+            this.txtETimingDb.Size = new System.Drawing.Size(429, 21);
+            this.txtETimingDb.TabIndex = 1;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(3, 1);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(233, 13);
+            this.label11.TabIndex = 0;
+            this.label11.Text = "Select the database file from the server-share.";
+            // 
+            // txtPw
+            // 
+            this.txtPw.Location = new System.Drawing.Point(322, 90);
+            this.txtPw.Name = "txtPw";
+            this.txtPw.Size = new System.Drawing.Size(171, 21);
+            this.txtPw.TabIndex = 9;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(261, 93);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 13);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Password";
+            // 
+            // txtUser
+            // 
+            this.txtUser.Location = new System.Drawing.Point(322, 63);
+            this.txtUser.Name = "txtUser";
+            this.txtUser.Size = new System.Drawing.Size(171, 21);
+            this.txtUser.TabIndex = 7;
+            // 
+            // txtPort
+            // 
+            this.txtPort.Location = new System.Drawing.Point(322, 36);
+            this.txtPort.Name = "txtPort";
+            this.txtPort.Size = new System.Drawing.Size(171, 21);
+            this.txtPort.TabIndex = 6;
+            // 
+            // txtHost
+            // 
+            this.txtHost.Location = new System.Drawing.Point(323, 9);
+            this.txtHost.Name = "txtHost";
+            this.txtHost.Size = new System.Drawing.Size(170, 21);
+            this.txtHost.TabIndex = 5;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(261, 66);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(55, 13);
+            this.label4.TabIndex = 4;
+            this.label4.Text = "Username";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(289, 39);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(27, 13);
+            this.label3.TabIndex = 3;
+            this.label3.Text = "Port";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(287, 12);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(29, 13);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Host";
+            // 
+            // comboBox1
+            // 
+            this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(15, 25);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(175, 21);
+            this.comboBox1.TabIndex = 1;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(117, 13);
+            this.label1.TabIndex = 0;
+            this.label1.Text = "Type of eTiming server";
             // 
             // NewETimingComp
             // 
@@ -495,14 +495,14 @@
             this.Name = "NewETimingComp";
             this.Text = "New eTiming connection";
             this.wizard1.ResumeLayout(false);
-            this.wizardPage1.ResumeLayout(false);
-            this.wizardPage1.PerformLayout();
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
             this.wizardPage5.ResumeLayout(false);
             this.wizardPage5.PerformLayout();
             this.wizardPage2.ResumeLayout(false);
             this.wizardPage2.PerformLayout();
+            this.wizardPage1.ResumeLayout(false);
+            this.wizardPage1.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }

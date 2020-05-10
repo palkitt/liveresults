@@ -68,6 +68,8 @@ var res2 = null;
 var Resources = null;
 var runnerStatus = null;
 var calltime = 3;
+var minbib = -99999999;
+var maxbib =  99999999;
 
 $(document).ready(function()
 {
@@ -76,10 +78,18 @@ $(document).ready(function()
 		if (isset($_GET['calltime']))
 			echo 'calltime = ', $_GET['calltime'] ,';'
 	?>
+	<?php 
+		if (isset($_GET['minbib']))
+			echo 'minbib = ', $_GET['minbib'] ,';'
+	?>
+	<?php 
+		if (isset($_GET['maxbib']))
+			echo 'maxbib = ', $_GET['maxbib'] ,';'
+	?>
 		
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
-		Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false);
-    res.updateRadioPassings(<?= $_GET['code']?>,calltime);
+		  Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false);
+    res.updateRadioPassings(<?= $_GET['code']?>,calltime,minbib,maxbib);
 	res.compName = '<?=$currentComp->CompName()?>';
 	
 	if (<?= $_GET['code']?>==0)
@@ -96,29 +106,25 @@ $(document).ready(function()
 		res.radioStart = true;
 	}
 
-	
-	
-	if (!('<?= $_GET['code2']?>'==''))
+	if (<?= (isset($_GET['code2']) ? 1 : 0 ) ?>)
 	{
-		res2 = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",Resources,"false","true","setAutomaticUpdateText","setCompactViewText", runnerStatus, "true","divRadioPassings2");
-		res2.updateRadioPassings(<?php if (isset($_GET['code2'])) echo $_GET['code2'] ,',', $_GET['calltime'] ?>);
-		res2.compName = '<?=$currentComp->CompName()?>';
+		res2 = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
+		       Resources,"false","true","setAutomaticUpdateText","setCompactViewText", runnerStatus, "true","divRadioPassings2",false);
+		res2.updateRadioPassings(<?= (isset($_GET['code2'])),$_GET['code2'],1 ?>,calltime,minbib,maxbib);
+		res2.compName = '<?=$currentComp->CompName()?>'; 
 	}
 });
-
+	
 </script>
 </head>
 <body>
 
 	<?php if (!isset($_GET['comp']) || !isset($_GET['code'])) 
-	{
-	?>
+	{ ?>
 		<h1 class="categoriesheader">Feil. Har du satt compID og postkode? Eks: radio.php?comp=15109&code=120</h1>
-	<?php 
-	}
+	<?php }
 	else
-	{
-	?>
+	{ ?>
 <table border="0" cellpadding="0" cellspacing="0">
 <td valign=top> 
 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px;border-radius: 5px">
@@ -150,7 +156,7 @@ $(document).ready(function()
     <td align="right" valign="top"><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" frameborder="0" width="60" height="14" allowTransparency="true"></iframe></tr>
 <table id="divRadioPassings2"></table>
 </table>
-<?php } ?> <?php }?>
+<?php } ?> <?php }?> 
 </body>
 </html>
 

@@ -4,12 +4,11 @@ $CHARSET = 'utf-8';
 class Emma
 {
 
-
+	
 	public static $db_server = "127.0.0.1";
     public static $db_database = "liveres";
 	public static $db_user = "root";
 	public static $db_pw= "";
-
 
    public static $MYSQL_CHARSET = "utf8";
    var $m_CompId;
@@ -471,7 +470,7 @@ function getAllSplitControls()
 		return $ret;
   }
 
-   function getRadioPassings($code,$calltime,$lastUpdate,$maxNum)
+   function getRadioPassings($code,$calltime,$lastUpdate,$maxNum,$minBib,$maxBib)
   {
 	$ret = Array();
     
@@ -492,8 +491,9 @@ function getAllSplitControls()
 		  WHERE results.TavId =".$this->m_CompId." AND results2.TavId = results.TavId AND runners.TavId = results.TavId
 		  AND results.control = 100 AND results2.control = 1000 
 		  AND (results2.Status = 9 OR results2.status = 1 OR results2.status = 10) 
-		  AND ( ((results.Time-".$currTime.") < ".$preTime ." AND (".$currTime."-results.Time) < ".$postTime." )   
-		        OR (results2.Status = 9 AND results2.Changed > '".$postTimeText."' ) ) 			  
+		  AND runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib." 
+		  AND ( ( results.Time-".$currTime." < ".$preTime ." AND ".$currTime."-results.Time < ".$postTime." ) 
+		        OR (results2.Status = 9 AND results2.Changed > '".$postTimeText."' ) ) 		 
 		  ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.Name
 		  limit 100";		   
 	}
@@ -505,6 +505,7 @@ function getAllSplitControls()
 		  LEFT JOIN results AS results2 ON results.DbID=results2.DbID
 		  WHERE results.TavId =".$this->m_CompId."  AND results2.TavId = results.TavId
 		  AND runners.TavId = results.TavId AND (results.Status = 9 OR results.Status = 10) AND results.control = 1000 AND results2.Control = 100 AND runners.class NOT LIKE '%-All' 
+		  AND runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib." 
 		  ORDER BY runners.Club, results2.Time, runners.Name";
     else
 	{
@@ -513,7 +514,8 @@ function getAllSplitControls()
 		  left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
 		  and runners.class = splitcontrols.classname) 
 		  WHERE results.TavId =".$this->m_CompId." 
-		  AND runners.TavId = results.TavId ";
+		  AND runners.TavId = results.TavId "
+		  AND runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib.";
 	    
 		if ($code == 1000) // Finish
 		   $q .= "AND results.Time <> -1 AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 1

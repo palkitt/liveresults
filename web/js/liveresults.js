@@ -55,9 +55,9 @@ var LiveResults;
 			this.messageBibs = [];
 			this.noSplits = false;
             this.radioStart = false;
-            this.debug = false;
-            this.apiURL = (this.debug ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
-            this.radioURL = (this.debug ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
+            this.local = true;
+            this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
+            this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
             
 			$(window).hashchange(function () {
@@ -533,13 +533,14 @@ var LiveResults;
         };
 
         //Request data for the last radio passings div
-        AjaxViewer.prototype.updateRadioPassings = function (code,calltime) {
+        AjaxViewer.prototype.updateRadioPassings = function (code,calltime,minBib,maxBib) {
             var _this = this;
             if (this.updateAutomatically) {
                 $.ajax({
                     url: this.radioURL,
                     data: "comp=" + this.competitionId + "&method=getradiopassings&code=" + code + "&calltime=" + calltime +
-					      "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash,
+                          "&minbib=" + minBib + "&maxbib=" + maxBib + 
+                          "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash,
                     success: function (data) { _this.handleUpdateRadioPassings(data); },
                     error: function () {
                         _this.radioPassingsUpdateTimer = setTimeout(function () {
@@ -549,7 +550,7 @@ var LiveResults;
                     dataType: "json"
                 });
                 this.radioPassingsUpdateTimer = setTimeout(function () {
-                    _this.updateRadioPassings(code,calltime);
+                    _this.updateRadioPassings(code,calltime,minBib,maxBib);
                 }, this.radioUpdateInterval);
             }
 
@@ -615,10 +616,12 @@ var LiveResults;
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
-                                    if (data>0) // Ordniary
-                                        return data;
-                                    else        // Relay
-                                        return  (-data/100|0) + "-" + (-data%100); 
+                                    if (data<0) // Relay
+                                        return  "(" + (-data/100|0) + "-" + (-data%100) + ")";
+                                    else if (data>0)    // Ordinary
+                                        return "("  + data + ")";
+                                    else
+                                        return "";
                                 }
                                 else
                                     return Math.abs(data);
@@ -675,7 +678,7 @@ var LiveResults;
                             var DNStext = "true";
 						    if (row.runnerName!=undefined && !isNaN(row.runnerName.charAt(0)))
 						        DNStext = "false";
-					        var runnerName = "(" + row.bib + ") " + row.runnerName;
+					        var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ")" : " " ) + row.runnerName;
 						    runnerName = runnerName.replace("<del>","");
 						    runnerName = runnerName.replace("</del>","");
 						    var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
@@ -925,10 +928,10 @@ var LiveResults;
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
-                                    if (data>0) // Ordinary
+                                    if (data<0) // Relay
+                                        return "(" + (-data/100|0) + ")";
+                                    else        // Ordinary
                                         return "(" + data + ")";
-                                    else        // Realy
-                                        return "(" + (-data/100|0) +  ")"; 
                                 }
                                 else
                                     return Math.abs(data);
@@ -1688,10 +1691,12 @@ var LiveResults;
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
-                                    if (data>0) // Ordinary
+                                    if (data<0) // Relay
+                                        return "(" + (-data/100|0) + ")";
+                                    else if(data>0)       // Ordinary
                                         return "(" + data + ")";
-                                    else        // Relay
-                                        return "(" + (-data/100|0) + ")"; 
+                                    else
+                                        return "";
                                 }
                                 else
                                     return data;

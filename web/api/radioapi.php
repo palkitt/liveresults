@@ -42,7 +42,16 @@ if ($_GET['method'] == 'getradiopassings')
 		else
 			$maxNum = 30; 
 
-		$lastPassings = $currentComp->getRadioPassings($code,$calltime,$lastUpdate,$maxNum);
+		if (isset($_GET['minbib']))
+			$minBib = $_GET['minbib']; // Use last hash to contain last update time
+		else
+			$minBib = "-99999999";
+		if (isset($_GET['maxbib']))
+			$maxBib = $_GET['maxbib']; // Use last hash to contain last update time
+		else
+			$maxBib = "99999999";
+
+		$lastPassings = $currentComp->getRadioPassings($code,$calltime,$lastUpdate,$maxNum,$minBib,$maxBib);
 
 		$first = true;
 		$num = 0;
