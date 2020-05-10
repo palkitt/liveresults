@@ -10,6 +10,7 @@ class Emma
 	public static $db_user = "root";
 	public static $db_pw= "";
 
+
    public static $MYSQL_CHARSET = "utf8";
    var $m_CompId;
    var $m_CompName;
@@ -512,10 +513,10 @@ function getAllSplitControls()
 		$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
 	      results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
 		  left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
-		  and runners.class = splitcontrols.classname) 
+		  AND runners.class = splitcontrols.classname) 
 		  WHERE results.TavId =".$this->m_CompId." 
-		  AND runners.TavId = results.TavId "
-		  AND runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib.";
+		  AND runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib."
+		  AND runners.TavId = results.TavId ";
 	    
 		if ($code == 1000) // Finish
 		   $q .= "AND results.Time <> -1 AND results.Status <> -1 AND results.Status <> 9 AND results.Status <> 1
