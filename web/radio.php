@@ -23,9 +23,7 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <META HTTP-EQUIV="expires" CONTENT="-1">
 <meta http-equiv="Content-Type" content="text/html;charset=<?=$CHARSET?>">
 
-<meta name="viewport" content="width=1200,initial-scale=1.0">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
 <link rel="stylesheet" type="text/css" href="css/style-eoc.css?as">
 <link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
@@ -53,7 +51,7 @@ else
 
 <?php }?>
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
-<script type="text/javascript" src="//w.24timezones.com/l.js" async></script>
+<script type="text/javascript" src="//w.24timezones.com/l.js" ></script>
 <script language="javascript" type="text/javascript">
 var noSleep = new NoSleep();
 
@@ -88,7 +86,7 @@ $(document).ready(function()
 	?>
 		
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
-		  Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false);
+		  Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
     res.updateRadioPassings(<?= $_GET['code']?>,calltime,minbib,maxbib);
 	res.compName = '<?=$currentComp->CompName()?>';
 	
@@ -106,13 +104,25 @@ $(document).ready(function()
 		res.radioStart = true;
 	}
 
+	$('#filterText').on('keyup', function () {
+        res.filterTable();
+	}); 
+				
+
 	if (<?= (isset($_GET['code2']) ? 1 : 0 ) ?>)
 	{
 		res2 = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
-		       Resources,"false","true","setAutomaticUpdateText","setCompactViewText", runnerStatus, "true","divRadioPassings2",false);
-		res2.updateRadioPassings(<?= (isset($_GET['code2'])),$_GET['code2'],1 ?>,calltime,minbib,maxbib);
-		res2.compName = '<?=$currentComp->CompName()?>'; 
+		       Resources,false,true,"setAutomaticUpdateText","setCompactViewText", runnerStatus, true,"divRadioPassings2",false, "filterText2");
+		res2.updateRadioPassings(<?= (isset($_GET['code2']) ? $_GET['code2'] : 1) ?>,calltime,minbib,maxbib);
+		res2.compName = '<?=$currentComp->CompName()?>';
+		
+		$('#filterText2').on('keyup', function () {
+        	res2.filterTable();
+	}); 
+
 	}
+
+            
 });
 	
 </script>
@@ -125,38 +135,56 @@ $(document).ready(function()
 	<?php }
 	else
 	{ ?>
-<table border="0" cellpadding="0" cellspacing="0">
-<td valign=top> 
-<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px;border-radius: 5px">
-<tr><td><b>
-   <?php if ($_GET['code']==0){?> START <?php }
-	  else if ($_GET['code']==1000){?> MÅL <?php }
-	  else if ($_GET['code']==-1){?> Alle meldeposter <?php }
-	  else if ($_GET['code']==-2){?> Igjen i skogen <?php }
-	  else {?> Meldepost: <?= $_GET['code']?> <?php } ?>
-	</b>
-	<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b>	
-	<?php if ($_GET['code']==0){?><td align="right"> <b>(<span id="clock"></span></b>)&nbsp&nbsp<?php }?>
-	<td align="right">
-	<iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" frameborder="0" width="60" height="14" allowTransparency="true"></iframe></tr>
-<table id="divRadioPassings"></table>
-
+<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
+	<tr><td width="<?= (isset($_GET['code2']) ? 50 : 100) ?>%"></td><td width="<?= (isset($_GET['code2']) ? 50 : 0) ?>%"></td></tr>
+	<tr valign=top>
+	<td> 
+	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
+	<tr>
+		<td><b>
+   			<?php if ($_GET['code']==0){?> Start <?php }
+	  			else if ($_GET['code']==1000){?> Mål <?php }
+	  			else if ($_GET['code']==-1){?> Meldepost: Alle <?php }
+	  			else if ($_GET['code']==-2){?> Ute i løypa <?php }
+	  			else {?> Meldepost: <?= $_GET['code']?> <?php } ?>
+			</b>
+		</td>
+		<td align="center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
+		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
+		<?php if ($_GET['code']==0){?> <td align="right"><b>(<span id="clock"></span></b>)&nbsp&nbsp</td><?php }?>
+		<td align="right"><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" 
+	    	frameborder="0" width="60" height="14" allowTransparency="true"></iframe></td>
+	</tr>
+	</table>
+	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
+		<tr valign=top><tr><td><table id="divRadioPassings"></table></td></tr>
+	</table>
+</td>
 <?php if (isset($_GET['code2'])) { ?>
-<td valign=top>&nbsp;&nbsp;
-<td valign=top>
-<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px;border-radius: 5px">
-<tr><td valign="top"><b>
-<?php if ($_GET['code2']==0){?> START <?php }
-	  else if ($_GET['code2']==1000){?> MÅL <?php }
-	  else if ($_GET['code2']==-1){?> Alle meldeposter <?php }
-	  else if ($_GET['code2']==-2){?> Igjen i skogen <?php }
-	  else {?> Meldepost: <?= $_GET['code2']?> <?php } ?>
-	</b>
-	<td align="center" valign="top"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b>	
-    <td align="right" valign="top"><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" frameborder="0" width="60" height="14" allowTransparency="true"></iframe></tr>
-<table id="divRadioPassings2"></table>
+	<td>
+	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
+	<tr>
+		<td><b>
+   			<?php if ($_GET['code2']==0){?> Start <?php }
+	  			else if ($_GET['code2']==1000){?> Mål <?php }
+	  			else if ($_GET['code2']==-1){?> Meldepost: Alle <?php }
+	  			else if ($_GET['code2']==-2){?> Ute i løypa <?php }
+	  			else {?> Meldepost: <?= $_GET['code2']?> <?php } ?>
+			</b>
+		</td>
+		<td align="center"><input type="text" id="filterText2" placeholder="filter..." size="5"></td>
+		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
+    	<td align="right"><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" 
+			frameborder="0" width="60" height="14" allowTransparency="true"></iframe></td>
+	</tr>
+	</table>
+	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
+		<tr valign=top><tr><td><table id="divRadioPassings2"></table></td></tr>
+	</table>
+	</td>
+<?php } ?> 
 </table>
-<?php } ?> <?php }?>
+<?php }?>
 <p align="left"><font color="#AAA" size="0.7em">
 Last update: <span id="lastupdate"></span><br> 
 </body>

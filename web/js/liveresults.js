@@ -3,7 +3,9 @@ var LiveResults;
     // ReSharper disable once InconsistentNaming
     LiveResults.Instance = null;
     var AjaxViewer = /** @class */ (function () {
-        function AjaxViewer(competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsControlsDiv, resultsDiv, txtResetSorting, resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, EmmaServer=false) {
+        function AjaxViewer(competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsControlsDiv, resultsDiv, txtResetSorting, 
+            resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
+            EmmaServer=false,filterDiv=null) {
             var _this = this;
             this.competitionId = competitionId;
             this.language = language;
@@ -55,8 +57,9 @@ var LiveResults;
 			this.messageBibs = [];
 			this.noSplits = false;
             this.radioStart = false;
-            this.local = false;
-            this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
+            this.filterDiv = filterDiv;
+            this.local = true;
+            this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
             
@@ -601,19 +604,21 @@ var LiveResults;
 				});
 			}
 			
-			if (this.currentTable != null) 
+			if (this.currentTable != null) // Existing datatable
 			{
 				this.currentTable.fnClearTable();
-				this.currentTable.fnAddData(this.radioData, true);
+                this.currentTable.fnAddData(this.radioData, true);
+                this.filterTable();
 			}
 			else
 			{
-			var columns = Array();
+            if (this.radioData.length==0) return;
+            var columns = Array();
 			var col = 0;
 			var className = "";
 			if (!this.radioStart && !leftInForest)
 			{
-				columns.push({ "sTitle": "Post", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
+				columns.push({ "sTitle": "Sted", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
 			    columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
 			}
             columns.push({ "sTitle": "No", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
@@ -630,7 +635,7 @@ var LiveResults;
                                 else
                                     return Math.abs(data);
                             }
-        });
+            });
             columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName"});
 			columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club" });
 			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
@@ -700,17 +705,27 @@ var LiveResults;
 			this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
 				"bPaginate": false,
 				"bLengthChange": false,
-				"bFilter": false,
+                "bFilter": true,
+                "dom": 'lrtip',
 				"bSort": false,
 				"bInfo": false,
 				"bAutoWidth": false,
 				"aaData": this.radioData,
 				"aaSorting": [[1, "desc"]],
 				"aoColumnDefs": columns,
-				"bDestroy": true
-				});
-			}
-	    };
+                "bDestroy": true,
+                "orderCellsTop": true
+                });            
+            }
+
+        };
+        
+    // Filter rows in table
+    AjaxViewer.prototype.filterTable = function () {
+        var table = this.currentTable.api();
+        table.search($('#' + this.filterDiv)[0].value).draw()
+    };
+
 		
 	   //Popup window for messages to message center
 	    AjaxViewer.prototype.popupDialog = function (runnerName,dbid,idText,DNS) {
@@ -806,8 +821,10 @@ var LiveResults;
                     $.ajax({
                         url: this.apiURL,
                         data: "comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club=" + encodeURIComponent(this.curClubName) + "&last_hash=" + this.lastClubHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
-                        success: function (data) {
-                            _this.handleUpdateClubResults(data);
+                        success: function (data,status,resp) {
+                            var reqTime = new Date();
+                            reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.updateInterval);
+                            _this.handleUpdateClubResults(data,reqTime); 
                         },
                         error: function () {
                             _this.resUpdateTimeout = setTimeout(function () {
@@ -820,9 +837,10 @@ var LiveResults;
             }
         };
         //handle the response on club-results update
-        AjaxViewer.prototype.handleUpdateClubResults = function (data) {
+        AjaxViewer.prototype.handleUpdateClubResults = function (data,reqTime) {
             var _this = this;
-			clearTimeout(this.resUpdateTimeout);
+            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+            clearTimeout(this.resUpdateTimeout);
             if (data.status == "OK") {
                 if (this.currentTable != null) {
 					var posLeft = $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft();
@@ -932,8 +950,10 @@ var LiveResults;
                                 {
                                     if (data<0) // Relay
                                         return "(" + (-data/100|0) + ")";
-                                    else        // Ordinary
-                                        return "(" + data + ")";
+                                    else if (data>0)    // Ordinary
+                                        return "("  + data + ")";
+                                    else
+                                        return "";
                                 }
                                 else
                                     return Math.abs(data);
@@ -1688,8 +1708,7 @@ var LiveResults;
 								return row.placeSortable; 
 					        else
                                 return data; }});  
-                    if (hasBibs)
-                        columns.push({ "sTitle": "No", "sClass": "right", "aTargets": [col++], "mDataProp": "bib",
+                    columns.push({ "sTitle": "No", "sClass": "right", "aTargets": [col++], "mDataProp": (hasBibs ? "bib" : null),
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
@@ -1704,6 +1723,8 @@ var LiveResults;
                                     return data;
                         }
                     });
+                    columns.push({ "sTitle": "bibSortable", "bVisible": false, "mDataProp": (hasBibs ? "bib" : null), "aTargets": [col++], "render": function (data,type,row) {
+                        return data; }});
 					columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [col++], "mDataProp": "name" });
                     columns.push({
                         "sTitle": this.resources["_CLASS"], "sClass": "left", "aTargets": [col++], "mDataProp": "class",
@@ -1750,7 +1771,7 @@ var LiveResults;
                     });
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
 						"scrollX": this.scrollView,
-						"fixedColumns": {leftColumns: 3 + (hasBibs? 1 : 0 )},
+						"fixedColumns": {leftColumns: 5},
 						"responsive": !(this.scrollView),
 						"bPaginate": false,
                         "bLengthChange": false,
@@ -1759,7 +1780,7 @@ var LiveResults;
                         "bInfo": false,
                         "bAutoWidth": false,
                         "aaData": data.results,
-                        "aaSorting": [[1, "asc"]],
+                        "aaSorting": [[1, "asc"],[3,'asc']],
                         "aoColumnDefs": columns,
                         "fnPreDrawCallback": function (oSettings) {
                             if (oSettings.aaSorting[0][0] != 1) {
