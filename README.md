@@ -17,16 +17,17 @@ New features compared to origin project:
 * Norwegian language support
 * Radio view for organizer (all with filter option):
    * Live scroll of finish
-   * Live scroll of any selected radio control or all radio controls in one view
+   * Live scroll of any selected radio control or all radio controls in a single view
    * Start view showing line up for start. Integrated message system for communication with race admin
    * Left in forest function
 * Admin page:
    * Configurable highlight duration
-   * Select one or two line view by default
-   * Tenth of seconds resolution
+   * Select one or two lines view by default
+   * Tenths of seconds resolution
    * Mass start rakning
    * Global qualification limit or seperate limits by class names
-
+   
+![Mobile view](Doc/LiveResiPhone.png?raw=true "Example of mobile view")
 ![Class view](Doc/classview.png?raw=true "Example of class view")
 
 
