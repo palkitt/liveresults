@@ -27,6 +27,6 @@ New features compared to origin project:
    * Mass start view
    * Qualification limits globally or by class names
 
-
+![Class view](Doc/classview.png?raw=true "Example of class view")
 
 
