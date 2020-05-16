@@ -300,6 +300,9 @@ function closeTop() {
 			<?php } elseif($orgainzer=="Freidig"){?>
 			    <td width="60">
 			    <img src="images/Freidig60.png" height="60" /></td>
+			<?php } elseif($orgainzer=="Porsgrunn OL"){?>
+			    <td width="60">
+			    <img src="images/POL.png" height="60" /></td>
 			<?php } elseif($orgainzer=="Byåsen IL"){?>
 			    <td width="60">
 			    <img src="images/BIL.png" height="60" /></td>
