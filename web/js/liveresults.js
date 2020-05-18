@@ -58,7 +58,8 @@ var LiveResults;
 			this.noSplits = false;
             this.radioStart = false;
             this.filterDiv = filterDiv;
-            this.local = true;
+            this.maxNameLength = (this.isMobile() ? 20 : 40);
+            this.local = false;
             this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
@@ -514,7 +515,7 @@ var LiveResults;
                 });
             }
         };
-        //Handle response for updating the last passings..
+        //Handle response for updating the last passings
         AjaxViewer.prototype.handleUpdateLastPassings = function (data) {
             var _this = this;
             if (data != null && data.status == "OK") {
@@ -636,7 +637,19 @@ var LiveResults;
                                     return Math.abs(data);
                             }
             });
-            columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName"});
+            columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName",
+            "render": function (data,type,row) {
+                if (type === 'display')
+                {
+                    if (data.length>_this.maxNameLength)
+                        return _this.nameShort(data);
+                    else
+                        return data;
+                }
+                else
+                    return data;
+            }         
+        });
 			columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club" });
 			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
 			     "render": function (data,type,row) {
@@ -720,6 +733,23 @@ var LiveResults;
 
         };
         
+    // Name shortener
+    AjaxViewer.prototype.nameShort = function (name) {
+        if(!name)
+           return false;
+        if (name[0]=='(')
+           return name;     
+        var array = name.split(' ');
+        if (array.length<3)
+            return name;
+        var shortName = array[0] + ' ';
+        for (var i=1; i<array.length-1; i++)
+           shortName += array[i].charAt(0) + '.';
+        shortName += ' ' + array[array.length-1];
+        return shortName;
+    };
+    
+    
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
         var table = this.currentTable.api();
@@ -968,7 +998,18 @@ var LiveResults;
                             "sClass": "left",
                             "bSortable": false,
                             "aTargets": [col++],
-                            "mDataProp": "name"
+                            "mDataProp": "name",
+                            "render": function (data,type,row) {
+                                if (type === 'display')
+                                {
+                                    if (data.length>_this.maxNameLength)
+                                        return _this.nameShort(data);
+                                    else
+                                        return data;
+                                }
+                                else
+                                    return data;
+                            }
                         });
 					
 					columns.push({
@@ -997,7 +1038,12 @@ var LiveResults;
                     
                             var link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                             if ((haveSplitControls && !unranked && (fullView || lapTimes)))
-                                return row.name + "<br/>" + link;
+                            {
+                                if (row.name.length>_this.maxNameLength)
+                                        return _this.nameShort(row.name) + "<br/>" + link;
+                                    else
+                                        return row.name + "<br/>" + link;
+                            }
                             else
                                 return link;
                         }
@@ -1725,7 +1771,19 @@ var LiveResults;
                     });
                     columns.push({ "sTitle": "bibSortable", "bVisible": false, "mDataProp": (hasBibs ? "bib" : null), "aTargets": [col++], "render": function (data,type,row) {
                         return data; }});
-					columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [col++], "mDataProp": "name" });
+                    columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [col++], "mDataProp": "name",
+                       "render": function (data,type,row) {
+                        if (type === 'display')
+                        {
+                            if (data.length>_this.maxNameLength)
+                                return _this.nameShort(data);
+                            else
+                                return data;
+                        }
+                        else
+                            return data;
+                    }                
+                });
                     columns.push({
                         "sTitle": this.resources["_CLASS"], "sClass": "left", "aTargets": [col++], "mDataProp": "class",
                         "render": function (data,type,row) {
