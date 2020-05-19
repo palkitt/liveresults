@@ -131,17 +131,15 @@ var LiveResults;
 					var classes = data.classes;
 					classes.sort(function(a, b)
 					{
-						var x  = [a.className, b.className];
+						var x  = [a.className.toLowerCase(), b.className.toLowerCase()];
 						for (var i=0; i<2; i++)
 						{
+                            if (x[i].includes("åpen") || x[i].includes("open") || x[i].includes("gjest") || x[i].includes("dir") || x[i].includes("utv") )
+                                x[i] = 'z' + x[i];
 							x[i] = x[i].replace(/(^|[^\d])(\d)($|[^\d])/,'$100$2$3');      // Add 00 ahead of single digits
 							x[i] = x[i].replace(/(^|[^\d])(\d)(\d)($|[^\d])/,'$10$2$3$4'); // Add 0 ahead of double digits
-							x[i] = x[i].replace(' ','');
-							x[i] = x[i].replace(/n-åpen/i,'x');
-							x[i] = x[i].replace(/utv/i,'y');
-							x[i] = x[i].replace(/dir/i,'z');
-							x[i] = x[i].replace(/open/i,'z');
-							x[i] = x[i].replace(/gjest/i,'z');
+                            x[i] = x[i].replace(' ','');
+                            x[i] = x[i].replace('-','');
 						}
 						if (x[0] < x[1]) {return -1;}
 						if (x[0] > x[1]) {return 1;}
