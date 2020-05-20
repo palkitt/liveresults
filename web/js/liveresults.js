@@ -84,7 +84,10 @@ var LiveResults;
                 }
             });
             $(window).hashchange();
-			$(window).on('resize', function () {_this.currentTable.fnAdjustColumnSizing();} );
+			$(window).on('resize', function () {
+                if (_this.currentTable != null)
+                    _this.currentTable.fnAdjustColumnSizing();
+            } );
         }
         AjaxViewer.prototype.startPredictionUpdate = function () {
             var _this = this;
