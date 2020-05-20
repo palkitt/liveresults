@@ -702,7 +702,7 @@ var LiveResults;
                             var DNStext = "true";
 						    if (row.runnerName!=undefined && !isNaN(row.runnerName.charAt(0)))
 						        DNStext = "false";
-					        var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ")" : " " ) + row.runnerName;
+					        var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;
 						    runnerName = runnerName.replace("<del>","");
 						    runnerName = runnerName.replace("</del>","");
 						    var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
