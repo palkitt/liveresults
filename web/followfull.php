@@ -141,7 +141,6 @@ var topBar = false;
 
 $(document).ready(function()
 {
-	
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		Resources, <?= ($currentComp->IsMultiDayEvent() ? "true" : "false")?>, <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", false);
 	<?php if ($isSingleClass){?>
@@ -166,7 +165,6 @@ $(document).ready(function()
 		res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
 		res.startPredictionUpdate();
 	<?php }?>
-
 
 	// Set full view
 	<?php if ($setFullView || $currentComp->FullView() ){?>
@@ -263,11 +261,14 @@ function openTop() {
 	$("#topBar").height(0);
 	$("#topBar").animate({'height': height},"1s");  
   topBar = true;
+  res.autoUpdateLastPassings = true;
+  res.updateLastPassings();
 }
 
 function closeTop() {
   $("#topBar").animate({'height':'0px'},"1s");  
   topBar = false;
+  res.autoUpdateLastPassings = false;
 }
 
 </script>

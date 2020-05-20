@@ -25,6 +25,7 @@ var LiveResults;
             this.EmmaServer = EmmaServer;
             this.showTenthOfSecond = false;
             this.updateAutomatically = true;
+            this.autoUpdateLastPassings = true;
             this.compactView = true;
 			this.scrollView = true;
             this.updateInterval = (EmmaServer ? 15000 : 7000);
@@ -501,7 +502,7 @@ var LiveResults;
         //Request data for the last-passings div
         AjaxViewer.prototype.updateLastPassings = function () {
             var _this = this;
-            if (this.updateAutomatically) {
+            if (this.updateAutomatically && this.autoUpdateLastPassings) {
                 $.ajax({
                     url: this.apiURL,
                     data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language + "&last_hash=" + this.lastPassingsUpdateHash,
