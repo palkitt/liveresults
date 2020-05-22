@@ -60,6 +60,7 @@ var LiveResults;
             this.radioStart = false;
             this.filterDiv = filterDiv;
             this.maxNameLength = (this.isMobile() ? 20 : 40);
+            this.maxClubLength = (this.isMobile() ? 15 : 20);
             this.local = false;
             this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
@@ -652,7 +653,20 @@ var LiveResults;
                     return data;
             }         
         });
-			columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club" });
+            columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
+                "render": function (data,type,row) {
+                    if (type === 'display')
+                    {
+                        if (data.length>_this.maxClubLength)
+                        {
+                            return _this.clubShort(data);
+                        }
+                        else
+                            return data;
+                    }
+                    else
+                        return data;        
+                }});
 			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
 			     "render": function (data,type,row) {
 					    className = row.class;
@@ -694,7 +708,7 @@ var LiveResults;
 						return res;
 					}});
 		    if (this.radioStart){				
-				var message = "<button onclick=\"res.popupDialog('Generell melding','&Tidsp=0&lopid=" +
+				var message = "<button onclick=\"res.popupDialog('Generell melding',0,'&Tidsp=0&lopid=" +
 				              "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";
 				columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
 					"render": function (data,type,row) 
@@ -735,7 +749,7 @@ var LiveResults;
 
         };
         
-    // Name shortener
+    // Runner name shortener
     AjaxViewer.prototype.nameShort = function (name) {
         if(!name)
            return false;
@@ -751,6 +765,39 @@ var LiveResults;
         return shortName;
     };
     
+    // Club name shortener
+    AjaxViewer.prototype.clubShort = function (club) {
+        _this = this;
+        if(!club)
+            return false;
+        var shortClub = club.replace('Orienterings', 'O.');
+        shortClub = shortClub.replace('Orientering', 'O.');
+        shortClub = shortClub.replace('Orienteering', 'O.');
+        shortClub = shortClub.replace('Orienteer', 'O.');
+        shortClub = shortClub.replace('Skiklubb', 'Sk.');
+        shortClub = shortClub.replace('og Omegn IF', 'OIF');
+        shortClub = shortClub.replace('og omegn', '');
+        shortClub = shortClub.replace(/national team/i,'NT');
+        shortClub = shortClub.replace('Sportklubb', 'Spk.');
+        shortClub = shortClub.replace('Sportsklubb', 'Spk.');
+        shortClub = shortClub.replace(' - Ski', '');
+
+        var del = (shortClub.substring(0,5)=="<del>");
+        shortClub = shortClub.replace("<del>","");
+        shortClub = shortClub.replace("</del>","");
+  
+        var lastDiv = shortClub.lastIndexOf("-");
+        var legNoStr = shortClub.substr(lastDiv);
+        if(!isNaN(legNoStr) && lastDiv>0)
+            shortClub = shortClub.substring(0, Math.min(lastDiv,_this.maxClubLength)) + legNoStr;
+        else
+            shortClub = shortClub.substring(0, _this.maxClubLength)
+        if (del)
+            shortClub = "<del>" + shortClub + "</del>";
+        
+        return shortClub;
+    };
+
     
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
@@ -759,24 +806,24 @@ var LiveResults;
     };
 
 		
-	   //Popup window for messages to message center
-	    AjaxViewer.prototype.popupDialog = function (runnerName,dbid,idText,DNS) {
-		    var promptText = runnerName;
-			var defaultText ="";
-			if (DNS)
-				defaultText = "ikke startet";
-			var message = prompt(promptText, defaultText);
-			if (message != null && message != "")
-			{
-				var dataString	= idText + "&Navn=" + runnerName + "&Melding=" + message;
-				$.ajax({
-                    url: "./liveres_helpers/log.php",
-                    data: dataString
-                    }
-                );
-				this.messageBibs.push(dbid);
-			}
-	    }
+    //Popup window for messages to message center
+    AjaxViewer.prototype.popupDialog = function (runnerName,dbid,idText,DNS) {
+        var promptText = runnerName;
+        var defaultText ="";
+        if (DNS)
+            defaultText = "ikke startet";
+        var message = prompt(promptText, defaultText);
+        if (message != null && message != "")
+        {
+            var dataString	= idText + "&Navn=" + runnerName + "&Melding=" + message;
+            $.ajax({
+                url: "./liveres_helpers/log.php",
+                data: dataString
+                }
+            );
+            this.messageBibs.push(dbid);
+        }
+    }
 
        //Check for updating of class results 
         AjaxViewer.prototype.checkForClassUpdate = function () {
@@ -1024,20 +1071,12 @@ var LiveResults;
                         "render": function (data,type,row) {
                             var param = row.club;
 							var clubShort = row.club;
-                            if (param && param.length > 0){
+                            if (param && param.length > 0)
+                            {
                                 param = param.replace('\'', '\\\'');
-								clubShort = clubShort.replace('Orienterings', 'O.');
-								clubShort = clubShort.replace('Orientering', 'O.');
-								clubShort = clubShort.replace('Orienteering', 'O.');
-								clubShort = clubShort.replace('Orienteer', 'O.');
-								clubShort = clubShort.replace('Skiklubb', 'Sk.');
-								clubShort = clubShort.replace('og Omegn IF', 'OIF');
-								clubShort = clubShort.replace('og omegn', '');
-								clubShort = clubShort.replace(/national team/i,'NT');
-								clubShort = clubShort.replace('Sportklubb', 'Spk.');
-								clubShort = clubShort.replace('Sportsklubb', 'Spk.');
-								}
-                    
+                                if (clubShort.length > _this.maxClubLength)
+                                    clubShort = _this.clubShort(clubShort);				
+							}
                             var link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                             if ((haveSplitControls && !unranked && (fullView || lapTimes)))
                             {
