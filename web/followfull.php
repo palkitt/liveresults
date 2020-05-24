@@ -184,24 +184,24 @@ $(document).ready(function()
 
 	// Modify high time
 	<?php if($currentComp->HighTime() ){?> 
-	    res.highTime = <?=$currentComp->HighTime(); ?> <?php }?>;
+	    res.highTime = <?=$currentComp->HighTime(); ?> <?php }?>
 	
 	// Qualification limits and classes (last limit is default)
 	res.qualLimits = [<?=$currentComp->QualLimits();?>];
 	res.qualClasses = [<?=$currentComp->QualClasses();?>];
 	
 	// Check for mobile and close top if mobile is detected
-	var isMobile = res.isMobile();
-	if (isMobile)
-		closeTop();
-	else
-	{
-		document.getElementById("switchTopClick").classList.toggle("change");
-		$("#topBar").height('auto');
-		topBar = true;
-	}
-	document.getElementById("switchNavClick").classList.toggle("change");
-
+	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
+		if (res.isMobile())
+			closeTop();
+		else
+		{
+			document.getElementById("switchTopClick").classList.toggle("change");
+			$("#topBar").height('auto');
+			topBar = true;
+		}
+		document.getElementById("switchNavClick").classList.toggle("change");
+	<?php }?>
 });
 
 function changeFontSize(val)

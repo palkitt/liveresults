@@ -59,9 +59,9 @@ var LiveResults;
 			this.noSplits = false;
             this.radioStart = false;
             this.filterDiv = filterDiv;
-            this.maxNameLength = (this.isMobile() ? 20 : 40);
+            this.maxNameLength = (this.isMobile() ? 15 : 30);
             this.maxClubLength = (this.isMobile() ? 15 : 20);
-            this.local = false;
+            this.local = true;
             this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
@@ -598,14 +598,18 @@ var LiveResults;
 					var hms = passing.passtime.split(':'); 
 					var passTime = (+hms[0]) * 60 * 60 + (+hms[1]) * 60 + (+hms[2]); 
 					var age = time - passTime;
-					if (age >= 0 && age <= _this.radioHighTime)
+                    if (passing.status >= 1 && passing.status <= 6)
+                            passing.DT_RowClass = "yellow_row";
+                    else if (age >= 0 && age <= _this.radioHighTime)
+                    {
 						if (passing.rank == 1)
-							passing.DT_RowClass = "yellow_row";
+							passing.DT_RowClass = "green_row";
 						else
 							passing.DT_RowClass = "red_row";
-					else
-						passing.DT_RowClass = "";
-				});
+                    }
+                    else
+                        passing.DT_RowClass = "";
+                });
 			}
 			
 			if (this.currentTable != null) // Existing datatable
@@ -1280,12 +1284,11 @@ var LiveResults;
 								var res = "";
                                 if (row.status == 0)
                                 {
-                                    if (haveSplitControls && (row.timeplus <= 0))
-                                        res += "<span class=\"besttime\">-" 
-                                            + _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
+                                    if (row.timeplus <= 0)
+                                        res += "<span class=\"besttime\">+";
                                     else
-                                        res += "<span class=\"plustime\">+" 
-                                            + _this.formatTime(Math.max(0,row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
+                                        res += "<span class=\"plustime\">+";
+                                    res += _this.formatTime(Math.max(0,row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
                                 }
                                 return res;
                             }

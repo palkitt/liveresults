@@ -40,7 +40,7 @@ td.submenu table tr td a:hover {text-decoration: underline; color: #F1592A;}
 td.searchmenu { padding-left: 5px;}
 
 /* For compatibility with Emma server */
-tr.new_result {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none} /* font-weight: bold; */
+tr.new_result {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none}
 tr.new_result a {color: white;}
 tr.new_result td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
 tr.new_result td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
@@ -51,7 +51,7 @@ tr.new_result .legtime {color: white;}
 tr.new_result td i { color: white;}
 
 /* Red row marking */
-tr.red_row {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none} /* font-weight: bold; */
+tr.red_row {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none} 
 tr.red_row a {color: white;}
 tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
 tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
@@ -74,7 +74,7 @@ tr.red_row td i { color: white;}
 .red_cell_sqr i { color: white;}
 
 /* New first nonqualifier */
-tr.new_fnq {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: 3px dashed grey;} /* font-weight: bold; */
+tr.new_fnq {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: 3px dashed grey;} 
 tr.new_fnq a {color: white;}
 tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
 tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
@@ -82,15 +82,15 @@ tr.new_fnq td:last-child { border-top-right-radius: 0px; border-bottom-right-rad
 tr.new_fnq .plustime {color: white;}
 
 /* Green row for OK at start */
-tr.green_row { color: black; background-color: #00FF00 !important;  font-weight: bold; border-bottom: 1px solid white; border-top: none}
+tr.green_row { color: black; background-color: #00FF00 !important;  border-bottom: 1px solid white; border-top: none}
 tr.green_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.green_row_new { color: black; background-color: #00FF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.green_row_new { color: black; background-color: #00FF00 !important; border-bottom: 1px solid white; border-top: 3px dashed grey;}
 tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow row for OK at start */
-tr.yellow_row { color: black; background-color: #FFFF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: none}
+tr.yellow_row { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: none}
 tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.yellow_row_new { color: black; background-color: #FFFF00 !important; font-weight: bold; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: 3px dashed grey;}
 tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 table.dataTable td {vertical-align: top;}

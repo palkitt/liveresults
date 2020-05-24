@@ -32,16 +32,13 @@ if ($_GET['method'] == 'getradiopassings')
 		$currentComp = new Emma($_GET['comp']);
 		$code = $_GET['code'];
 		$calltime = $_GET['calltime'];
-		
+		$maxNum = 40; 
+
 		if (isset($_GET['last_hash']))
 			$lastUpdate = $_GET['last_hash']; // Use last hash to contain last update time
 		else
 			$lastUpdate = "";
-		if ($code != 0 && $code !=-2 && $lastUpdate == "")
-			$maxNum = 10; 
-		else
-			$maxNum = 30; 
-
+		
 		if (isset($_GET['minbib']))
 			$minBib = $_GET['minbib']; // Use last hash to contain last update time
 		else
@@ -92,7 +89,8 @@ if ($_GET['method'] == 'getradiopassings')
 					\"class\": \"".$pre.$pass['class'].$post."\",
 					\"control\": ".$pass['Control'].",
 					\"controlName\" : \"".$pass['pname']."\",
-					\"time\": \"".$pre.formatTime($time,$status,$code,$RunnerStatus).$post."\", 
+					\"time\": \"".$pre.formatTime($time,$status,$code,$RunnerStatus).$post."\",
+					\"status\" : \"".$pass['Status']."\",
 					\"compName\": \"".$pass['compName']."\"";
 			
 			if ($code==0) // Start	

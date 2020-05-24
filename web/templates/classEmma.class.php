@@ -492,7 +492,7 @@ function getAllSplitControls()
 		  WHERE results.TavId =".$this->m_CompId." AND results2.TavId = results.TavId AND runners.TavId = results.TavId
 		  AND results.control = 100 AND results2.control = 1000 
 		  AND (results2.Status = 9 OR results2.status = 1 OR results2.status = 10) 
-		  AND runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib." 
+		  AND ( runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib." OR runners.class =\"NOCLAS\") 
 		  AND ( ( results.Time-".$currTime." < ".$preTime ." AND ".$currTime."-results.Time < ".$postTime." ) 
 		        OR (results2.Status = 9 AND results2.Changed > '".$postTimeText."' ) ) 		 
 		  ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.Name
