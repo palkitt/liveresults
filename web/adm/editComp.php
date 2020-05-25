@@ -4,7 +4,8 @@ include_once("../templates/classEmma.class.php");
 if (isset($_POST['btnSave']))
 {
 	Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
-	      $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['hightime'],$_POST['quallimits'],$_POST['qualclasses']);
+        $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['hightime'],$_POST['quallimits'],
+        $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent']);
 }
 else if (isset($_POST['btnAdd']))
 {
@@ -191,7 +192,7 @@ function confirmDelete(msg,url)
                <td>
 <?php
 	$comp = Emma::GetCompetition($_GET['compid']);
-	$qualclasses = htmlspecialchars($comp['qualclasses']);
+  $qualclasses = htmlspecialchars($comp['qualclasses']);
 
 ?>
 <form name="form1" action="editComp.php?what=comp&compid=<?=$comp['tavid']?>" method="post">
@@ -212,6 +213,10 @@ function confirmDelete(msg,url)
 <input type="text" name="qualclasses" size="50" value="<?=$qualclasses?>"/><br/>
 <b>Qual. limits. Last = all classes not in list above (Format: 3, 4, 5, 6)</b><br/>
 <input type="text" name="quallimits" size="50" value="<?=$comp['quallimits']?>"/><br/>
+<b>Multi day stage no</b><br/>
+<input type="text" name="multidaystage" size="50" value="<?=$comp['multidaystage']?>"/><br/>
+<b>Multi day parent (comp id)</b><br/>
+<input type="text" name="multidayparent" size="50" value="<?=$comp['multidayparent']?>"/><br/>
 <br/>
 <input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/><b>Use mass start sorting</b><br/>
 <input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/><b>Show tenth of seconds</b><br/>

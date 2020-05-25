@@ -3,8 +3,6 @@ $CHARSET = 'utf-8';
 
 class Emma
 {
-
-	
 	public static $db_server = "127.0.0.1";
     public static $db_database = "liveres";
 	public static $db_user = "root";
@@ -138,7 +136,8 @@ public static function DelRadioControl($compid,$code,$classname)
 		$id = 10000;
 
 
-	 mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,hightime,quallimits,qualclasses) values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0,0,0,0,60,'','')") or die(mysqli_error($conn));
+	 mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,hightime,quallimits,qualclasses,multidaystage,multidayparent)
+	  values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0,0,0,0,60,'','',0,0)") or die(mysqli_error($conn));
 
 	}
 
@@ -168,13 +167,14 @@ public static function DelRadioControl($compid,$code,$classname)
 
 	}
 
-public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,$hightime,$quallimits,$qualclasses)
+public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent)
 
         {
         $conn = self::openConnection();
 	 $sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, public=". (!isset($public) ? "0":"1") ."
 	         , massstartsort=". (!isset($massstartsort) ? "0":"1") .", tenthofseconds=". (!isset($tenthofseconds) ? "0":"1") ."
-			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses' where tavid=$id";
+			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses'
+			 , multidaystage='$multidaystage', multidayparent='$multidayparent' where tavid=$id";
 	 
 
 	 mysqli_query($conn, $sql) or die(mysqli_error($conn));
