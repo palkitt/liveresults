@@ -1342,16 +1342,21 @@ var LiveResults;
                                     return _this.formatTime(row.totalresult, row.totalstatus);
                                 }
                                 else {
-                                    var txt = _this.formatTime(row.totalresult, row.totalstatus) +
-                                        " (" +
-                                        row.totalplace +
-                                        ")";
-                                    if (haveSplitControls) {
-                                        txt += "<br/><span class=\"plustime\">+" +
-                                            _this.formatTime(row.totalplus, row.totalstatus) +
-                                            "</span>";
+                                    var res = "";
+                                    if (row.totalplace == 1)
+                                        res += "<span class=\"besttime\">";
+                                    else
+                                        res += "<span>";
+                                    res += _this.formatTime(row.totalresult, row.totalstatus) + " (" + row.totalplace + ")</span>";
+                                    if (haveSplitControls) 
+                                    {
+                                        if (row.totalplace == 1)
+                                            res += "<br/><span class=\"besttime\">+";
+                                        else
+                                            res += "<br/><span class=\"plustime\">+";
+                                        res += _this.formatTime(row.totalplus, row.totalstatus) + "</span>";
                                     }
-                                    return txt;
+                                    return res;
                                 }
                             }
                         });
@@ -1371,7 +1376,15 @@ var LiveResults;
                                     if (row.totalstatus != 0)
                                         return "";
                                     else
-                                        return "+" + _this.formatTime(row.totalplus, row.totalstatus);
+                                    {
+                                        var res = "";
+                                        if (row.totalplace == 1)
+                                            res += "<span class=\"besttime\">+";
+                                        else
+                                            res += "<span class=\"plustime\">+";
+                                        res += _this.formatTime(row.totalplus, row.totalstatus) + "</span>";
+                                        return res;
+                                    }
                                 }
                             });
                         }
