@@ -61,7 +61,7 @@ var LiveResults;
             this.filterDiv = filterDiv;
             this.maxNameLength = (this.isMobile() ? 15 : 30);
             this.maxClubLength = (this.isMobile() ? 15 : 20);
-            this.local = true;
+            this.local = false;
             this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
@@ -1348,7 +1348,7 @@ var LiveResults;
                                     else
                                         res += "<span>";
                                     res += _this.formatTime(row.totalresult, row.totalstatus) + " (" + row.totalplace + ")</span>";
-                                    if (haveSplitControls) 
+                                    if (haveSplitControls && fullView) 
                                     {
                                         if (row.totalplace == 1)
                                             res += "<br/><span class=\"besttime\">+";
@@ -1363,7 +1363,7 @@ var LiveResults;
 
                         col++;
                         columns.push({ "sTitle": "TotalStatus", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "totalstatus" });
-                        if (!haveSplitControls) {
+                        if (!haveSplitControls || !fullView) {
                             columns.push({
                                 "sTitle": "",
                                 "sClass": "right",
