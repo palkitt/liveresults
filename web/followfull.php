@@ -138,7 +138,6 @@ runnerStatus[13] = "<?=$_STATUSFINISHED?>";
 var sideBar = true;
 var topBar = false;
 
-
 $(document).ready(function()
 {
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
@@ -200,8 +199,13 @@ $(document).ready(function()
 			$("#topBar").height('auto');
 			topBar = true;
 		}
-		document.getElementById("switchNavClick").classList.toggle("change");
+		document.getElementById("switchNavClick1").classList.toggle("change");
+		document.getElementById("switchNavClick2").classList.toggle("change");
 	<?php }?>
+
+	// Initial view is with open class list
+	openNav();
+
 });
 
 function changeFontSize(val)
@@ -212,7 +216,8 @@ function changeFontSize(val)
 }
 
 function switchNav(x) {
-  x.classList.toggle("change");
+  document.getElementById("switchNavClick1").classList.toggle("change");
+  document.getElementById("switchNavClick2").classList.toggle("change");
   if (sideBar)
 	  closeNav();
   else
@@ -231,28 +236,29 @@ function switchTop(x) {
 function openNav() {
   if(res.currentTable != null)
   {
-	$(".firstCol").width("70px");  
+	$(".firstCol").width("75px");  
   	$('#divResults').DataTable()
      .columns.adjust()
 	 .responsive.recalc();
 	 $(".firstCol").width("0px");  
   }
-  $(".firstCol").animate({'width':'70px'},"1s");
+  $(".firstCol").animate({'width':'75px'},"1s");
+  $('#switchNavClick1').hide();
   sideBar = true;
 }
 
 function closeNav() {
   if(res.currentTable != null)
   {
-	$(".firstCol").width("0px");  
-  	$('#divResults').DataTable()
-     .columns.adjust()
-	 .responsive.recalc();
-    $(".firstCol").width("70px");  
+		$(".firstCol").width("0px");  
+		$('#divResults').DataTable()
+		.columns.adjust()
+		.responsive.recalc();
+		$(".firstCol").width("75px");  
   }
-
   $(".firstCol").animate({'width':'0px'},"1s");  
-  sideBar = false;
+  $('#switchNavClick1').show();
+  sideBar = false;	
 }
 
 function openTop() {
@@ -320,12 +326,17 @@ function closeTop() {
 </td></tr>
 
 <tr valign="top" style="background-color:#555555; color:#FFF">
-  <td class="firstCol">&nbsp;Klasser</td>
+  <td class="firstCol">
+  <table border="0" cellpadding="3 px" cellspacing="0">
+     <tr><td align="left">
+     <span id="switchNavClick2" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
+		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
+		</tr></table></td>
   <td width="100%">
   <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
 	<tr>
   	<td align="left" width="28%">
-	<span id="switchNavClick" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
+	<span id="switchNavClick1" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
 
 	<td align="center" width="28%">

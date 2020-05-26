@@ -214,7 +214,7 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 
 .firstCol{
   overflow: hidden;
-  width: 70px;
+  width: 75px;
 }
 
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
