@@ -1022,7 +1022,7 @@ var LiveResults;
                     if (hasBibs)
                     {
                         columns.push({
-                            "sTitle": "No",
+                            "sTitle": "No&nbsp;&nbsp;",
 						    "responsivePriority": 1,
 						    "sClass": "right",
                             "bSortable": true,
@@ -1095,7 +1095,7 @@ var LiveResults;
                     });
                                         
 					columns.push({
-                        "sTitle": this.resources["_START"],
+                        "sTitle": this.resources["_START"] + "&nbsp;&nbsp;",
 						"responsivePriority": 4,
                         "sClass": "right",
                         "sType": "numeric",
@@ -1143,7 +1143,7 @@ var LiveResults;
                             {
                                 columns.push(
                                     {
-                                        "sTitle": value.name,
+                                        "sTitle": value.name + "&nbsp;&nbsp;",
 										"responsivePriority": 100,
                                         "sClass": "right",
 										"bSortable": !unranked,
@@ -1217,7 +1217,7 @@ var LiveResults;
 
                     var timecol = col;
                     columns.push({
-                        "sTitle": this.resources["_CONTROLFINISH"],
+                        "sTitle": this.resources["_CONTROLFINISH"] + "&nbsp;&nbsp;",
 						"responsivePriority": 2,
                         "sClass": "right",
                         "sType": "numeric",
@@ -1328,7 +1328,7 @@ var LiveResults;
 							
                     if (this.isMultiDayEvent) {
                         columns.push({
-                            "sTitle": this.resources["_TOTAL"],
+                            "sTitle": this.resources["_TOTAL"] + "&nbsp;&nbsp;",
                             "sClass": "right",
                             "sType": "numeric",
                             "aDataSort": [col + 1, col, 0],
@@ -1805,13 +1805,13 @@ var LiveResults;
                     var hasBibs = (data.results[0].bib != undefined);
                     var columns = Array();
                     var col = 0;
-                    columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place"});
+                    columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place"});
                     columns.push({ "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data,type,row) {
 							if (type=="sort") 
 								return row.placeSortable; 
 					        else
                                 return data; }});  
-                    columns.push({ "sTitle": "No", "sClass": "right", "aTargets": [col++], "mDataProp": (hasBibs ? "bib" : null),
+                    columns.push({ "sTitle": "No&nbsp;&nbsp;", "sClass": "right", "aTargets": [col++], "mDataProp": (hasBibs ? "bib" : null),
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
@@ -1851,7 +1851,7 @@ var LiveResults;
                         }
                     });
                     columns.push({
-                        "sTitle": this.resources["_START"], "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
+                        "sTitle": this.resources["_START"] + "&nbsp;&nbsp;", "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
                         "render": function (data,type,row) {
                             if (row.start == "") {
                                 return "";
@@ -1864,7 +1864,7 @@ var LiveResults;
                     col++;
                     var timecol = col;
                     columns.push({
-                        "sTitle": this.resources["_CONTROLFINISH"], "sClass": "right", "sType": "numeric", "aDataSort": [col + 1, col, 0], "aTargets": [col], "bUseRendered": false, "mDataProp": "result",
+                        "sTitle": this.resources["_CONTROLFINISH"] + "&nbsp;&nbsp;", "sClass": "right", "sType": "numeric", "aDataSort": [col + 1, col, 0], "aTargets": [col], "bUseRendered": false, "mDataProp": "result",
                         "render": function (data,type,row) {
                             if (row.place == "-" || row.place == "" || row.place == "F") {
                                 return _this.formatTime(row.result, row.status);

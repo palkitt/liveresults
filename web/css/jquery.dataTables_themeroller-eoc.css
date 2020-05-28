@@ -12,7 +12,7 @@ table.dataTable {
 
 
 table.dataTable thead th {
-    padding: 3px 15px 3px 5px;
+    padding: 3px 7px 3px 0px;
     cursor: pointer;
     *cursor: hand;
 }
@@ -22,7 +22,7 @@ table.dataTable tfoot th {
 }
 
 table.dataTable td {
-	padding: 3px 5px;
+	padding: 3px 7px 3px 2px;
 }
 
 table.dataTable td.center,
