@@ -28,11 +28,13 @@ namespace LiveResults.Client
             set { m_CompetitionID = value; }
         }
 
+
         public string Organizer;
         public DateTime CompDate;
-        public List<int> eTimingId;
         public bool deleteEmmaIDs;
         public bool OneLineRelayRes;
+        public bool useEventorID;
+        public List<IDpar> clientIDpars;
         public int IdOffset;
         
         public void SetParser(IExternalSystemResultParser parser)
@@ -137,10 +139,18 @@ namespace LiveResults.Client
                         listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " eTiming and database matches");
                         if (deleteEmmaIDs)
                         {
-                            if (IdOffset != 0)
-                                for (var i=0; i < eTimingId.Count; i++)
-                                    eTimingId[i] += IdOffset;
-                            cli.DeleteUnusedRunners(eTimingId);
+                            List<int> usedID = new List<int>();
+                            int id = 0;
+                            for (var i = 0; i < clientIDpars.Count; i++)
+                            {
+                                if (useEventorID)
+                                    id = (clientIDpars[i].EventorID > 0 ? clientIDpars[i].EventorID : clientIDpars[i].eTimingID + 1000000);
+                                else
+                                    id = clientIDpars[i].eTimingID;
+                                id += IdOffset;
+                                usedID.Add(id);
+                            }
+                            cli.DeleteUnusedRunners(usedID);
                         }
                     }
                 }

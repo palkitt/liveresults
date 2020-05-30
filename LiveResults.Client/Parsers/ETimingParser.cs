@@ -25,11 +25,12 @@ namespace LiveResults.Client
         private bool m_lapTimes;
         private bool m_MSSQL;
         private bool m_twoEcards;
+        private bool m_EventorID;
         private int m_IdOffset;
         private int day;
 
         public ETimingParser(IDbConnection conn, int sleepTime, bool recreateRadioControls = true, bool oneLineRelayRes = false, 
-            bool MSSQL = false, bool twoEcards = false, bool lapTimes = false, int IdOffset = 0)
+            bool MSSQL = false, bool twoEcards = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0)
         {
             m_connection = conn;
             m_createRadioControls = recreateRadioControls;
@@ -38,6 +39,7 @@ namespace LiveResults.Client
             m_MSSQL = MSSQL;
             m_twoEcards = twoEcards;
             m_lapTimes = lapTimes;
+            m_EventorID = EventorID;
             m_IdOffset = IdOffset;
         }
         
@@ -367,13 +369,16 @@ namespace LiveResults.Client
                                         Dictionary<int, int> radioCnt = new Dictionary<int, int>();
                                         foreach (var radioControl in RadioPosts[cource])
                                         {
-                                            string classN = className; 
-                                            int Code = radioControl.Code;
-                                            int CodeforCnt = 0; // Code for counter
-                                            int AddforLeg = 0;  // Addition for relay legs
-                                            int nStep = 1;      // Multiplicator used in relay order      
+                                            if (radioControl.RadioType == 1) // Skip if radiocontrol is start
+                                                continue;
+                                            int Code = radioControl.Code;    
                                             if (numLegs == 0 && (Code == 999 || Code == 0))
                                                 continue;       // Skip if not relay and finish or start code
+
+                                            string classN = className;
+                                            int CodeforCnt = 0; // Code for counter
+                                            int AddforLeg = 0;  // Addition for relay legs
+                                            int nStep = 1;      // Multiplicator used in relay order  
 
                                             if (numLegs > 0 || chaseStart || (m_lapTimes && !isRelay)) // Make ready for pass times
                                                 nStep = 2;
@@ -468,7 +473,7 @@ namespace LiveResults.Client
                     else
                         modulus = "MOD";
                     
-                    baseCommandRelay = string.Format(@"SELECT N.id, N.startno, N.ename, N.name, N.times, N.intime,
+                    baseCommandRelay = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime,
                             N.place, N.status, N.cource, N.starttime, N.ecard, N.ecard2, N.ecard3, N.ecard4,
                             T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, 
                             C.firststart AS cfirststart, C.purmin AS cpurmin,
@@ -477,7 +482,7 @@ namespace LiveResults.Client
                             WHERE N.class=C.code AND T.code=R.lgteam AND N.rank=R.lgstartno AND (N.startno {0} 100)<=C.purmin 
                             ORDER BY N.startno", modulus);
 
-                    baseCommandInd = string.Format(@"SELECT N.id, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
+                    baseCommandInd = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
                             N.place, N.status, N.cource, N.starttime, N.races, N.ecard, N.ecard2, N.ecard3, N.ecard4,
                             T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, C.cheaseing
                             FROM Name N, Class C, Team T
@@ -559,7 +564,8 @@ namespace LiveResults.Client
             {
                 while (reader.Read())
                 {
-                    int time = 0, runnerID = 0, iStartTime = 0, iStartClass = 0, totalTime = 0, bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1;
+                    int time = 0, runnerID = 0, eTimeID = 0, EventorID = 0, iStartTime = 0, iStartClass = 0, totalTime = 0;
+                    int bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1;
                     int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
                     string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", name = "", shortName = "-";
                     bool chaseStart = false, freeStart = false;
@@ -567,8 +573,15 @@ namespace LiveResults.Client
 
                     try
                     {
-                        runnerID = Convert.ToInt32(reader["id"].ToString()) + m_IdOffset;
-
+                        eTimeID = Convert.ToInt32(reader["id"].ToString());
+                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
+                            EventorID = Convert.ToInt32(reader["kid"].ToString());
+                        if (m_EventorID)
+                            runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
+                        else
+                            runnerID = eTimeID;
+                        runnerID += m_IdOffset;
+                        
                         status = reader["status"] as string;
                         if ((status == "V") || (status == "C")) // Skip if free or not entered  
                             continue;

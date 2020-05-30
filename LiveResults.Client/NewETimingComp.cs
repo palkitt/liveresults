@@ -16,6 +16,12 @@ using LiveResults.Model;
 
 namespace LiveResults.Client
 {
+    public struct IDpar
+    {
+        public int eTimingID;
+        public int EventorID;
+    };
+
     public partial class NewETimingComp : Form
     {
         public NewETimingComp()
@@ -32,9 +38,9 @@ namespace LiveResults.Client
             chkOneLineRelayRes.Checked = false;
             chkTwoEcards.Checked = false;
             chkLapTimes.Checked = false;
+            chkEventorID.Checked = false;
             RetreiveSettings();
             chkDeleteEmmaIDs.Checked = false;
-            
         }
 
         [Serializable]
@@ -265,7 +271,7 @@ namespace LiveResults.Client
         {
             public string Name;
             public int Id;
-            public List<int> eTimingId;
+            public List<IDpar> eTimingIDpars;
             public string Organizer;
             public DateTime CompDate;
 
@@ -298,20 +304,28 @@ namespace LiveResults.Client
                     cmp.CompDate = Convert.ToDateTime(reader[("firststart")]);
                 }
                 reader.Close();
-
-                cmd.CommandText = "SELECT id, status from Name";
+                int EventorID = 0, eTimingID = 0;
+                cmd.CommandText = "SELECT id, kid, status from Name";
                 reader = cmd.ExecuteReader();
-                var eTimingId = new List<int>();
+                IDpar eTimingIDs;
+                cmp.eTimingIDpars = new List<IDpar>();
+
                 while (reader.Read())
                 {
                     string status = reader["status"] as string;
                     if ((status != "V") && (status != "C")) // Continue if not "free" nor "entered"  
-                        eTimingId.Add(Convert.ToInt32(reader["id"].ToString()));
+                    {
+                        eTimingID = Convert.ToInt32(reader["id"].ToString());
+                        EventorID = 0;
+                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
+                            EventorID = Convert.ToInt32(reader["kid"].ToString());
+                        eTimingIDs.eTimingID = eTimingID;
+                        eTimingIDs.EventorID = EventorID;
+                        cmp.eTimingIDpars.Add(eTimingIDs);
+                    }
                 }
                 reader.Close();
                 cmd.Dispose();
-
-                cmp.eTimingId = eTimingId;
             }
             catch (Exception ee)
             {
@@ -340,18 +354,18 @@ namespace LiveResults.Client
 
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
                     Convert.ToInt32(txtSleepTime.Text), 
-                    chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, chkLapTimes.Checked,
-                    Convert.ToInt32(txtIdOffset.Text));
+                    chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, 
+                    chkLapTimes.Checked, chkEventorID.Checked, Convert.ToInt32(txtIdOffset.Text));
 
             monForm.SetParser(pars as IExternalSystemResultParser);
             monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
             monForm.Organizer = cmp.Organizer;
             monForm.CompDate  = cmp.CompDate;
-            monForm.eTimingId = cmp.eTimingId;
+            monForm.useEventorID = chkEventorID.Checked;
             monForm.deleteEmmaIDs = chkDeleteEmmaIDs.Checked;
+            monForm.clientIDpars = cmp.eTimingIDpars;
             monForm.IdOffset = Convert.ToInt32(txtIdOffset.Text);
             monForm.ShowDialog(this);
-              
         }
 
 
