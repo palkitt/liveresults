@@ -629,7 +629,7 @@ var LiveResults;
 				columns.push({ "sTitle": "Sted", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
 			    columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
 			}
-            columns.push({ "sTitle": "No", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+            columns.push({ "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
@@ -691,7 +691,7 @@ var LiveResults;
 					return ecardstr;}});
 			}				
 			if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
-				columns.push({ "sTitle": "Pl.", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
+				columns.push({ "sTitle": "#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
 					"render": function (data,type,row) {
 						var res = "";
 						if (row.rank >= 0) res += row.rank;
@@ -1022,7 +1022,7 @@ var LiveResults;
                     if (hasBibs)
                     {
                         columns.push({
-                            "sTitle": "No&nbsp;&nbsp;",
+                            "sTitle": "&#8470;&nbsp;&nbsp;",
 						    "responsivePriority": 1,
 						    "sClass": "right",
                             "bSortable": true,
@@ -1811,7 +1811,7 @@ var LiveResults;
 								return row.placeSortable; 
 					        else
                                 return data; }});  
-                    columns.push({ "sTitle": "No&nbsp;&nbsp;", "sClass": "right", "aTargets": [col++], "mDataProp": (hasBibs ? "bib" : null),
+                    columns.push({ "sTitle": "&#8470;&nbsp;&nbsp;", "sClass": "right", "aTargets": [col++], "mDataProp": (hasBibs ? "bib" : null),
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
