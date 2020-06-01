@@ -62,7 +62,7 @@ var LiveResults;
             this.browserType = this.isMobile();
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 17 : 20));
-            this.local = true;
+            this.local = false;
             this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
@@ -97,7 +97,7 @@ var LiveResults;
         };
         //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
         AjaxViewer.prototype.isMobile = function () {
-            if (navigator.userAgent.match(/iPad/i))
+            if (navigator.userAgent.match(/iPad/i) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
                 return 2;
             if (navigator.userAgent.match(/Mobi/))
                 return 1;
