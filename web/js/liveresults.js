@@ -59,9 +59,10 @@ var LiveResults;
 			this.noSplits = false;
             this.radioStart = false;
             this.filterDiv = filterDiv;
-            this.maxNameLength = (this.isMobile() ? 15 : 30);
-            this.maxClubLength = (this.isMobile() ? 15 : 20);
-            this.local = false;
+            this.browserType = this.isMobile();
+            this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
+            this.maxClubLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 17 : 20));
+            this.local = true;
             this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
@@ -94,16 +95,18 @@ var LiveResults;
             var _this = this;
             this.updatePredictedTimeTimer = setInterval(function () { _this.updatePredictedTimes(); }, 1000);
         };
-        //Detect if the browser is a mobile phone
+        //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
         AjaxViewer.prototype.isMobile = function () {
+            if (navigator.userAgent.match(/iPad/i))
+                return 2;
             if (navigator.userAgent.match(/Mobi/))
-               return true;
+                return 1;
             if ('screen' in window && window.screen.width < 1366)
-               return true;
+                return 1;
             var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
             if (connection && connection.type === 'cellular')
-               return true;
-            return false;
+                return 1;
+            return 0;
 		}
         
         // Update the classlist
@@ -757,15 +760,24 @@ var LiveResults;
     AjaxViewer.prototype.nameShort = function (name) {
         if(!name)
            return false;
-        if (name[0]=='(')
-           return name;     
         var array = name.split(' ');
-        if (array.length<3)
+        if (array.length==1)
             return name;
         var shortName = array[0] + ' ';
         for (var i=1; i<array.length-1; i++)
-           shortName += array[i].charAt(0) + '.';
-        shortName += ' ' + array[array.length-1];
+            shortName += array[i].charAt(0) + '.';
+        if (shortName.length + array[array.length-1].length < this.maxNameLength)
+            shortName += ' ' + array[array.length-1];
+        else
+        {
+            var arrayLast = array[array.length-1].split('-');
+            var lastName = '';
+            if (arrayLast.length>1)
+                lastName = arrayLast[arrayLast.length-2].charAt(0) + '-' + arrayLast[arrayLast.length-1];
+            else
+                lastName = arrayLast[0];
+            shortName += ' ' + lastName;
+        }
         return shortName;
     };
     
