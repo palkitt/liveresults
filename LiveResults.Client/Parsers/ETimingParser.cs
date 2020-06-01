@@ -1080,7 +1080,7 @@ namespace LiveResults.Client
                     var res = new Result
                     {
                         ID = -ecard,
-                        RunnerName = ecard + " UKJENT BRIKKE START",
+                        RunnerName = ecard + " UKJENT",
                         RunnerClub = "NOTEAM",
                         Class = "NOCLAS",
                         StartTime = split.passTime,
