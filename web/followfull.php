@@ -191,7 +191,7 @@ $(document).ready(function()
 	
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
-		if (res.isMobile()==1)
+		if (res.browserType==1)
 			closeTop();
 		else
 		{

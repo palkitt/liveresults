@@ -7,6 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -28,8 +29,8 @@ var LiveResults;
             this.autoUpdateLastPassings = true;
             this.compactView = true;
 			this.scrollView = true;
-            this.updateInterval = (EmmaServer ? 15000 : 7000);
-            this.radioUpdateInterval = 5000;
+            this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 7000));
+            this.radioUpdateInterval = (this.local ? 2000 : 5000);
             this.classUpdateInterval = 60000;
             this.radioHighTime = 15;
             this.highTime = 60;
@@ -59,11 +60,10 @@ var LiveResults;
 			this.noSplits = false;
             this.radioStart = false;
             this.filterDiv = filterDiv;
-            this.browserType = this.isMobile();
+            this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 17 : 20));
-            this.local = false;
-            this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.freidig.idrett.no/api.php"));
+            this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
             
@@ -71,22 +71,23 @@ var LiveResults;
                 if (window.location.hash) {
                     var hash = window.location.hash.substring(1);
                     var cl;
-                    if (hash.indexOf('club::') >= 0) {
+                    if (hash.indexOf('club::') >= 0) 
+                    {
                         cl = decodeURIComponent(hash.substring(6));
-                        if (cl != _this.curClubName) {
+                        if (cl != _this.curClubName)
                             LiveResults.Instance.viewClubResults(cl);
-                        }
                     }
-                    else {
+                    else 
+                    {
                         cl = decodeURIComponent(hash);
-                        if (cl != _this.curClassName) {
+                        if (cl != _this.curClassName) 
                             _this.chooseClass(cl);
-                        }
                     }
                 }
             });
             $(window).hashchange();
-			$(window).on('resize', function () {
+            $(window).on('resize', function () 
+            {
                 if (_this.currentTable != null)
                     _this.currentTable.fnAdjustColumnSizing();
             } );
