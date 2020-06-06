@@ -92,47 +92,55 @@ if ($_GET['method'] == 'getradiopassings')
 					\"time\": \"".$pre.formatTime($time,$status,$code,$RunnerStatus).$post."\",
 					\"status\" : \"".$pass['Status']."\",
 					\"compName\": \"".$pass['compName']."\"";
-			
-			if ($code==0) // Start	
+			// Start
+			if ($code==0) 	
 			{
 				$ret .= ", \"ecard1\": ".$pass['ecard1'].", \"ecard2\": ".$pass['ecard2'].", \"bib\": ".$pass['bib'].", \"dbid\": ".$pass['dbid'];
 				$currTime = (date('H')*3600 + date('i')*60 + date('s'))*100;
 				$timeToStart = $time - $currTime;
-				if ($pass['class']=="NOCLAS") // Unknown ecard
+				// Unknown ecard
+				if ($pass['class']=="NOCLAS") 
 					$ret .= ",$br \"DT_RowClass\": \"red_row\"";
-				elseif ($status == 9)        // Registered at start 
+				// Registered at start
+				elseif ($status == 9)  
 				{
-					if ($timeToStart >= 0 && ($lasttime - $time > 5900))
+					if ($timeToStart > 0 && ($lasttime - $time > 5900))
 						$ret .= ",$br \"DT_RowClass\": \"green_row_new\"";
 					elseif ($timeToStart < 0 && $firstStarted == false)
 					{
 						$firstStarted = true; 
-						$ret .= ",$br \"DT_RowClass\": \"green_row_new\"";
+						$ret .= ",$br \"DT_RowClass\": \"green_row_firststarter\"";
 					}
 					else
 						$ret .= ",$br \"DT_RowClass\": \"green_row\"";
 				}
-				elseif ($timeToStart >= 0)   // In call zone, code 1 or 10
+				// In call zone
+				elseif ($timeToStart > 0 && $timeToStart < $calltime*6000)   
 				{
 					if ($lasttime - $time > 2900)
 						$ret .= ",$br \"DT_RowClass\": \"yellow_row_new\"";
 					else
 						$ret .= ",$br \"DT_RowClass\": \"yellow_row\"";
 				}
-				elseif ($timeToStart < 0 && $firstStarted == false) 
+				// Not in call zone. Either started or waiting for call zone
+				elseif ($timeToStart <= 0 && $firstStarted == false) 
 				{
 					$firstStarted = true;
-					$ret .= ",$br \"DT_RowClass\": \"firstnonqualifier\"";
+					$ret .= ",$br \"DT_RowClass\": \"firststarter\"";
 				}
 			    $lasttime = $time;
 			}
-			elseif ($code == -2) // Left in forest	
+			
+			// Left in forest
+			elseif ($code == -2) 	
 			{
 				$timeDiff = -2;
 				$rank = -1;
 				$ret .= ",\"rank\": ".$rank.",\"timeDiff\": ".$timeDiff;
 			}
-			else // New result, all but start and left in forest. Use hash as last updated time
+			
+			// All cases exept from start and left in forest. Use hash as last updated time
+			else 
 			{	
 				if (($status == 0) || ($status == 9) || ($status == 10))
 				{
