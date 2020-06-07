@@ -29,7 +29,8 @@ h3{font-size:1em; font-weight:normal; margin-bottom: 0px;}
 #divClasses {font-size: 1.1em; line-height: 1.4em;}
 
 .firstnonqualifier {border-top: 3px dashed grey;} 
-.firststarter {border-top: 5px solid grey;}
+.firststarter {border-top: 5px solid black;}
+.pre_post_start {background-color: #DFDFDF !important;}
 
 /* Submenu classes */
 /*td.submenu{background: #3A5C9C; border-left:1px solid #ABC9EF; border-right:1px solid #ABC9EF;}*/
@@ -85,15 +86,15 @@ tr.new_fnq .plustime {color: white;}
 /* Green row for OK at start */
 tr.green_row { color: black; background-color: #00FF00 !important;  border-bottom: 1px solid white; border-top: none}
 tr.green_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.green_row_new { color: black; background-color: #00FF00 !important; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.green_row_new { color: black; background-color: #00FF00 !important; border-bottom: 1px solid white; border-top: 2px solid grey;}
 tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-bottom: 1px solid white; border-top: 5px solid grey;}
+tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-bottom: 1px solid white; border-top: 5px solid black;}
 tr.green_row_firststarter td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
-/* Yellow row for OK at start */
+/* Yellow row for inside calltime at start and not OK at finish */
 tr.yellow_row { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: none}
 tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: 2px solid grey;}
 tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 table.dataTable td {vertical-align: top;}

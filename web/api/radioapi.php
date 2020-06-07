@@ -122,12 +122,15 @@ if ($_GET['method'] == 'getradiopassings')
 					else
 						$ret .= ",$br \"DT_RowClass\": \"yellow_row\"";
 				}
-				// Not in call zone. Either started or waiting for call zone
+				// First starter (and not registered at start)
 				elseif ($timeToStart <= 0 && $firstStarted == false) 
 				{
 					$firstStarted = true;
-					$ret .= ",$br \"DT_RowClass\": \"firststarter\"";
+					$ret .= ",$br \"DT_RowClass\": \"firststarter pre_post_start\"";
 				}
+				// Not in call zone, not first starter and not registered at start
+				else 
+					$ret .= ",$br \"DT_RowClass\": \"pre_post_start\"";
 			    $lasttime = $time;
 			}
 			
