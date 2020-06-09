@@ -375,18 +375,32 @@ var LiveResults;
                                     if (this.compactView || relay || lapTimes){
                                         $( table.cell(i,(offset + numSplits*2)).node() ).addClass('red_cell_sqr');
                                         $( table.cell(i,(offset + numSplits*2 + 2)).node() ).addClass('red_cell');
+                                        if (this.isMultiDayEvent)
+                                        {
+                                            $( table.cell(i,(offset + numSplits*2 + 3)).node() ).addClass('red_cell_sqr');
+                                            $( table.cell(i,(offset + numSplits*2 + 5)).node() ).addClass('red_cell');
+                                        }
                                     }
                                     else
                                         $( table.cell(i,(offset + numSplits*2)).node() ).addClass('red_cell');
+                                        if (this.isMultiDayEvent)
+                                            $( table.cell(i,(offset + numSplits*2 + 2)).node() ).addClass('red_cell');
                                 }
                                 else
                                 {	
                                     if (this.compactView || relay || lapTimes){
                                         $( table.cell(i,(offset + numSplits*2)).node() ).removeClass('red_cell_sqr');
                                         $( table.cell(i,(offset + numSplits*2 + 2)).node() ).removeClass('red_cell');
+                                        if (this.isMultiDayEvent)
+                                        {
+                                            $( table.cell(i,(offset + numSplits*2 + 3)).node() ).removeClass('red_cell_sqr');
+                                            $( table.cell(i,(offset + numSplits*2 + 5)).node() ).removeClass('red_cell');
+                                        }
                                     }
                                     else
                                         $( table.cell(i,(offset + numSplits*2)).node() ).removeClass('red_cell');
+                                        if (this.isMultiDayEvent)
+                                            $( table.cell(i,(offset + numSplits*2 + 2)).node() ).removeClass('red_cell');
                                 }
                             }
                         }
@@ -405,7 +419,9 @@ var LiveResults;
 								elapsedTimeStr += "<i>" + this.formatTime(elapsedTime, 0, false) + "</i>";
                                 if (this.curClassSplits == null || this.curClassSplits.length == 0){
                                 // No split controls
-									if (!unranked){
+                                    var MDoffset = (this.isMultiDayEvent && !this.compactView && !unranked ? -1 : 0) // Multiday offset
+                                    if (!unranked)
+                                    {
 										if (this.curClassSplitsBests[0][0]>0){
 											rank = this.findRank(this.curClassSplitsBests[0],elapsedTime);
 											if (rank > 1)
@@ -415,9 +431,12 @@ var LiveResults;
 										}
 										else
 											timeDiffStr = "<i>(...)<\i>";
-										table.cell( i, 6 + (hasBibs? 1 : 0)).data(timeDiffStr);
+                                        if (this.isMultiDayEvent && !this.compactView)
+                                            elapsedTimeStr += "<br/>" + timeDiffStr;
+                                        else
+                                            table.cell( i, 6 + MDoffset + (hasBibs? 1 : 0)).data(timeDiffStr);
 									}
-									table.cell( i, 4 + (hasBibs? 1 : 0)).data(elapsedTimeStr);
+									table.cell( i, 4 + MDoffset + (hasBibs? 1 : 0)).data(elapsedTimeStr);
                                 }
                                 else{ 
                                 // Have split controls
@@ -1057,7 +1076,7 @@ var LiveResults;
                         });
                     }
 
-                    if (!haveSplitControls || unranked || (!fullView && !lapTimes))
+                    if (!(haveSplitControls || _this.isMultiDayEvent)|| unranked || (!fullView && !lapTimes))
                         columns.push({
                             "sTitle": this.resources["_NAME"],
 						    "responsivePriority": 1,
@@ -1079,9 +1098,9 @@ var LiveResults;
                         });
 					
 					columns.push({
-                        "sTitle": (haveSplitControls && !unranked && fullView || lapTimes) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
+                        "sTitle": ((haveSplitControls || _this.isMultiDayEvent) && !unranked && (fullView || lapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
                         "sClass": "left",
-						"responsivePriority": (haveSplitControls && !unranked && fullView || lapTimes) ? 1 : 10000,
+						"responsivePriority": ((haveSplitControls|| _this.isMultiDayEvent) && !unranked && (fullView || lapTimes)) ? 1 : 10000,
                         "bSortable": false,
                         "aTargets": [col++],
                         "mDataProp": "club",
@@ -1095,7 +1114,7 @@ var LiveResults;
                                     clubShort = _this.clubShort(clubShort);				
 							}
                             var link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
-                            if ((haveSplitControls && !unranked && (fullView || lapTimes)))
+                            if ((haveSplitControls || _this.isMultiDayEvent) && !unranked && (fullView || lapTimes))
                             {
                                 if (row.name.length>_this.maxNameLength)
                                         return _this.nameShort(row.name) + "<br/>" + link;
@@ -1248,21 +1267,24 @@ var LiveResults;
                                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
                             else 
 							{
-                                if (haveSplitControls && (row.place == 1))
+                                if ((haveSplitControls || _this.isMultiDayEvent) && (row.place == 1))
                                     res += "<span class=\"besttime\">";
 								else
 									res += "<span>";
                                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond) + " (" + row.place + ")<\span>";
                                 
-                                if (haveSplitControls && fullView && !(relay) && !(lapTimes) && (row.status == 0))
+                                if ((haveSplitControls || _this.isMultiDayEvent) && fullView && !(relay) && !(lapTimes) && row.status == 0)
 								{
                                     if (row.place==1)
-                                        res += "<br/><span class=\"besttime\">-" 
-                                            + _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
-                                    else
+                                    {
+                                        res += "<br/><span class=\"besttime\">";
+                                        res += (haveSplitControls ? "-" : "+");
+                                        res += _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
+                                    }
+                                     else
                                         res += "<br/><span class=\"plustime\">+" 
                                             + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
-								}
+                                }
 							}
 							if (haveSplitControls && (fullView && relay || lapTimes) && (row.splits["999_place"] != undefined))
 							{
@@ -1282,7 +1304,7 @@ var LiveResults;
                     
                     col++;
                     columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
-                    if (!haveSplitControls || !fullView || lapTimes) {
+                    if (!(haveSplitControls || _this.isMultiDayEvent) || !fullView || lapTimes) {
                         columns.push({
                             "sTitle": "",
                             "bVisible": !unranked,
@@ -1361,7 +1383,7 @@ var LiveResults;
                                     else
                                         res += "<span>";
                                     res += _this.formatTime(row.totalresult, row.totalstatus) + " (" + row.totalplace + ")</span>";
-                                    if (haveSplitControls && fullView) 
+                                    if (fullView) 
                                     {
                                         if (row.totalplace == 1)
                                             res += "<br/><span class=\"besttime\">+";
@@ -1376,7 +1398,7 @@ var LiveResults;
 
                         col++;
                         columns.push({ "sTitle": "TotalStatus", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "totalstatus" });
-                        if (!haveSplitControls || !fullView) {
+                        if (!fullView) {
                             columns.push({
                                 "sTitle": "",
                                 "sClass": "right",
@@ -1951,4 +1973,3 @@ Date.prototype.stdTimezoneOffset = function () {
 Date.prototype.dst = function () {
     return this.getTimezoneOffset() < this.stdTimezoneOffset();
 };
-
