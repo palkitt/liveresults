@@ -345,8 +345,7 @@ function closeTop() {
 	  
   	<td align="right"width="28%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
-  	<td align="right" width="16%"><span id="scrollView" class="noUnderline"><a href="javascript:LiveResults.Instance.setScrollView(false);">&#8853;</a></span>&nbsp;&nbsp;
-  	<span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
+  	<td align="right" width="16%"><span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
 	</tr>
   </table></td>
 </tr>
