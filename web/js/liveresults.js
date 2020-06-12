@@ -288,8 +288,8 @@ var LiveResults;
                 try {
                     var dt = new Date();
 					var compDay = new Date(this.compDate);
-					if (dt.getDate() != compDay.getDate())
-                       return;			
+					//if (dt.getDate() != compDay.getDate())
+                    //   return;			
 					var data = this.currentTable.fnGetData();
                     var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
                     var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
@@ -302,12 +302,15 @@ var LiveResults;
                     var hasBibs = (data[0].bib != undefined && data[0].bib != 0);
                     var timeDiff = 0;
 					var timeDiffCol = 0;
-					var timeDiffStr = "";
 					var highlight = false;
 					var age = 0;
 					var table = this.currentTable.api();					
                     var unranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})); 
-                    var offset = 3 + (hasBibs? 1 : 0) + ((unranked || (this.compactView && !lapTimes)) ? 1 : 0);										
+                    var offset = 3 + (hasBibs? 1 : 0) + ((unranked || (this.compactView && !lapTimes)) ? 1 : 0);
+                    var MDoffset = (this.isMultiDayEvent && !this.compactView && !unranked ? -1 : 0) // Multiday offset
+                    var rank;
+                    var timeDiffStr;
+                    var elapsedTimeStr;
                     
                     var numSplits;
 					if (this.curClassSplits == null)
@@ -317,7 +320,16 @@ var LiveResults;
 					else if (lapTimes)
 						numSplits = (this.curClassSplits.length-1)/2;
 					else
-						numSplits = this.curClassSplits.length;
+                        numSplits = this.curClassSplits.length;
+                        
+                    if (this.isMultiDayEvent){
+                        var totalTimeCol = offset + numSplits*2 + (this.compactView ? 3 : 2);
+                        if( typeof(data[0].totalresultSave) == 'undefined')
+                        {
+                            for (var i = 0; i < data.length; i++)
+                                data[i].totalresultSave =  data[i].totalresult;
+                        }
+                    }
                      
                     // *** Highlight new results and write running times***
                     for (var i = 0; i < data.length; i++) 
@@ -410,16 +422,18 @@ var LiveResults;
 							var elapsedTime = time - data[i].start;
 							if (elapsedTime>=0) 
 							{
-								table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
-								var elapsedTimeStr = "";
-								var timeDiffStr = "";
-								var rank;
-								if (relay && !this.compactView)
-									elapsedTimeStr += "<br/>";
-								elapsedTimeStr += "<i>" + this.formatTime(elapsedTime, 0, false) + "</i>";
+                                table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
+
+                                if(this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !unranked)
+                                {
+                                    var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
+                                    var elapsedTotalTimeStr = "<i>(" + this.formatTime(elapsedTotalTime, 0, false) + ")</i>";
+                                    table.cell( i, totalTimeCol).data(elapsedTotalTimeStr);
+                                }  
+
+								elapsedTimeStr = (relay && !this.compactView ? "<br/><i>" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
                                 if (this.curClassSplits == null || this.curClassSplits.length == 0){
                                 // No split controls
-                                    var MDoffset = (this.isMultiDayEvent && !this.compactView && !unranked ? -1 : 0) // Multiday offset
                                     if (!unranked)
                                     {
 										if (this.curClassSplitsBests[0][0]>0){
@@ -427,7 +441,7 @@ var LiveResults;
 											if (rank > 1)
 												elapsedTimeStr += "<i> (" + rank + ")</i>";
 											timeDiff = elapsedTime - this.curClassSplitsBests[0][0]; 
-											timeDiffStr += "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
+											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
 										}
 										else
 											timeDiffStr = "<i>(...)<\i>";
@@ -479,7 +493,7 @@ var LiveResults;
 											var rankStr = "";
 											if (rank > 1)
 												rankStr = "<i> (" + rank + ")</i>";											
-											timeDiffStr += "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
+											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
 											if (nextSplit==numSplits)
 												elapsedTimeStr += rankStr;
 											else
@@ -489,12 +503,10 @@ var LiveResults;
 										timeDiffCol = offset + nextSplit*2;
 										if (nextSplit==numSplits) // Approach finish
 											timeDiffCol += 2;
-                                        
-                                            // Display elapsed time
+                                        // Display elapsed time
 										if (!this.compactView && !relay && !lapTimes && nextSplit==numSplits)
 											elapsedTimeStr += "<br/>" + timeDiffStr;
 										table.cell( i, offset + numSplits*2 ).data(elapsedTimeStr);
-                                        
                                         // Display time diff
 										if (this.compactView || relay || nextSplit!=numSplits || lapTimes)
 											table.cell( i, timeDiffCol ).data(timeDiffStr);
@@ -503,7 +515,7 @@ var LiveResults;
                             }
                         }
                     }
-					table.draw();
+					//table.draw();
                 } 
                 catch (e) {
                 }

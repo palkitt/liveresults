@@ -839,16 +839,17 @@ function getAllSplitControls()
 
 						$ret[$dbId]["Time"] += (int)$row['Time'];
 						$status = (int)$row['Status'];
-						if ($status > $ret[$dbId]["Status"] )
+						if ($status > 0)
 						{
-							$ret[$dbId]["Status"] = $status;
+							if ($ret[$dbId]["Status"] == 0)
+								$ret[$dbId]["Status"] = $status;
+							elseif (!($ret[$dbId]["Status"]==13 && $status == 13))
+								$ret[$dbId]["Status"] = min($status, $ret[$dbId]["Status"] );
 						}
 						$ret[$dbId]["c_".$row['TavId']] = true;
 					}
 
 					mysqli_free_result($result);
-
-					//print_r($ret);
 
 					/*set DNS on those missing any comp*/
 					foreach($ret as $key => $val)
