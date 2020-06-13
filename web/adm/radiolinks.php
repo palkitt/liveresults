@@ -11,6 +11,7 @@ include_once("../templates/emmalang_$lang.php");
 
 $currentComp = new Emma($_GET['comp']);
 $orgainzer = $currentComp->Organizer();
+$compName = $currentComp->CompName();
 
 header('Content-Type: text/html; charset='.$CHARSET);
 ?>
@@ -78,6 +79,8 @@ function startRadioControl() {
   <table border="0" cellpadding="0" cellspacing="0">
   <tr><td>
 
+ 
+
 <table border="0" cellpadding="0" cellspacing="2" width="100%">
 <tr><td><b>Type</b></td><td><b>Kode</b></td><td><b>Link</b></td><td></td></tr>
 <tr><td>Start</td><td>0</td><td> <a href="..\radio.php?comp=<?=$_GET['comp']?>&code=0">Link</a> </td><td></td></tr>
@@ -85,9 +88,11 @@ function startRadioControl() {
 <tr><td>Igjen i skogen</td><td>-2</td><td> <a href="..\radio.php?comp=<?=$_GET['comp']?>&code=-2">Link</a> </td><td></td></tr>
 <tr><td>Alle meldeposter</td><td>-1</td><td> <a href="..\radio.php?comp=<?=$_GET['comp']?>&code=-1">Link</a> </td><td></td></tr>
 <tr><td>En meldepost</td><td>NN</td><td> <button onclick="startRadioControl()">Link</button> </td><td></td></tr>
-	</table>
-		</td>
-	     </tr>
+<tr><td>LiveRes meldinger</td><td></td><td> <a href="..\liveres_helpers\les.php?lopid=(<?=$_GET['comp']?>) <?=$compName?>">Link</a> </td><td></td></tr>
+</table>
+</td></tr>
+
+
 	</table>
      </td>
   </tr>
