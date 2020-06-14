@@ -62,7 +62,7 @@ var LiveResults;
             this.filterDiv = filterDiv;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
-            this.maxClubLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 17 : 20));
+            this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
             this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
             LiveResults.Instance = this;
@@ -288,8 +288,8 @@ var LiveResults;
                 try {
                     var dt = new Date();
 					var compDay = new Date(this.compDate);
-					//if (dt.getDate() != compDay.getDate())
-                    //   return;			
+					if (dt.getDate() != compDay.getDate())
+                       return;			
 					var data = this.currentTable.fnGetData();
                     var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
                     var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
@@ -340,7 +340,7 @@ var LiveResults;
                             {
                                 var row = table.row(i).node();
                                 highlight = false;
-                                if (data[i].changed != ""){ 
+                                if (data[i].changed != "" && data[i].progress==100){ 
                                     age = timeServer - data[i].changed;
                                     highlight = (age < this.highTime);
                                 }
@@ -515,7 +515,7 @@ var LiveResults;
                             }
                         }
                     }
-					//table.draw();
+					table.fixedColumns().update();
                 } 
                 catch (e) {
                 }
@@ -757,11 +757,11 @@ var LiveResults;
 						        DNStext = "false";
 					        var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;
 						    runnerName = runnerName.replace("<del>","");
-						    runnerName = runnerName.replace("</del>","");
+                            runnerName = runnerName.replace("</del>","");
 						    var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
 						    "'lopid=" + "(" + _this.competitionId +") " + _this.compName +
-						    "&Tidsp=" + row.passtime + 
-						    "&T0="    + row.club + 
+                            "&Tidsp=" + row.passtime + 
+                            "&T0="    + row.club + 
 						    "&T1="    + className +
 						    "&T2="    + row.controlName + 
 						    "&T3="    + row.time + "'," + DNStext + ");\">&#128172;</button>";						
@@ -828,7 +828,14 @@ var LiveResults;
         shortClub = shortClub.replace(/national team/i,'NT');
         shortClub = shortClub.replace('Sportklubb', 'Spk.');
         shortClub = shortClub.replace('Sportsklubb', 'Spk.');
+        shortClub = shortClub.replace('Idrettslag', '');
+        shortClub = shortClub.replace('Idrettslaget', '');
         shortClub = shortClub.replace(' - Ski', '');
+        shortClub = shortClub.replace('OL', '');
+        shortClub = shortClub.replace('OK', '');
+        shortClub = shortClub.replace('SK', '');
+        shortClub = shortClub.replace('IL', '');
+        shortClub = shortClub.trim();
 
         var del = (shortClub.substring(0,5)=="<del>");
         shortClub = shortClub.replace("<del>","");
@@ -931,7 +938,7 @@ var LiveResults;
 							table.row(j).nodes().to$().find('td:first-child').trigger('click');
 					}
 					$(table.settings()[0].nScrollBody).scrollLeft( posLeft );
-					this.updatePredictedTimes();
+                    this.updatePredictedTimes();
                     this.lastClassHash = newData.hash;
 
                 }
@@ -1440,7 +1447,6 @@ var LiveResults;
 					
                    this.currentTable = $('#' + this.resultsDiv).dataTable({
                         "scrollX": this.scrollView,
-//                        "scrollY": ($(window).height()-250),
 						"fixedColumns": {leftColumns: 2 + (hasBibs? 1 : 0) },
 						"responsive": !(this.scrollView),
                         "bPaginate": false,
@@ -1459,8 +1465,13 @@ var LiveResults;
                         },
                         "bDestroy": true
                     });
-										
-					this.lastClassHash = data.hash;
+                    if (this.scrollView && (unranked || (this.compactView && !lapTimes))) // Scroll passed club column
+                    {
+                        var clubCol = 2 + (hasBibs? 1 : 0)
+                        var clubColWidth = parseInt($('#' + this.resultsDiv +' thead th:eq('+ clubCol +')').css('width'));
+					    $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( clubColWidth );				
+                    }
+                    this.lastClassHash = data.hash;
                 }
             }
         };
