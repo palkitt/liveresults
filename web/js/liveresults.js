@@ -746,7 +746,16 @@ var LiveResults;
 							res += "<span class=\"besttime\">-" + _this.formatTime(-row.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
 						return res;
 					}});
-		    if (this.radioStart){				
+            if (leftInForest)
+                columns.push({ "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
+					"render": function (data,type,row) {
+						var res = "";
+						if (data == 9)
+							res += "Startet";
+						return res;
+					}});
+
+            if (this.radioStart){				
 				var message = "<button onclick=\"res.popupDialog('Generell melding',0,'&Tidsp=0&lopid=" +
 				              "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";
 				columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
@@ -828,8 +837,8 @@ var LiveResults;
         shortClub = shortClub.replace(/national team/i,'NT');
         shortClub = shortClub.replace('Sportklubb', 'Spk.');
         shortClub = shortClub.replace('Sportsklubb', 'Spk.');
-        shortClub = shortClub.replace('Idrettslag', '');
         shortClub = shortClub.replace('Idrettslaget', '');
+        shortClub = shortClub.replace('Idrettslag', '');
         shortClub = shortClub.replace(' - Ski', '');
         shortClub = shortClub.replace('OL', '');
         shortClub = shortClub.replace('OK', '');
