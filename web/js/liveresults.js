@@ -1474,11 +1474,16 @@ var LiveResults;
                         },
                         "bDestroy": true
                     });
-                    if (this.scrollView && (unranked || (this.compactView && !lapTimes))) // Scroll passed club column
+                    if (this.scrollView && (unranked || (this.compactView && !lapTimes))) // Scroll to inital view
                     {
-                        var clubCol = 2 + (hasBibs? 1 : 0)
-                        var clubColWidth = parseInt($('#' + this.resultsDiv +' thead th:eq('+ clubCol +')').css('width'));
-					    $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( clubColWidth );				
+                        var scrollLength;
+                        if (data.results[0].progress == undefined)
+                            scrollLength = 0;
+                        else if (data.results[0].progress < 50)
+                            scrollLength = parseInt($('#' + this.resultsDiv +' thead th:eq('+ (2 + (hasBibs? 1 : 0)) +')').css('width')); // Club col
+                        else
+                            scrollLength = 9999;
+                        $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( scrollLength );
                     }
                     this.lastClassHash = data.hash;
                 }
