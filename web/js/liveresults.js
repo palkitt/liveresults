@@ -1839,7 +1839,10 @@ var LiveResults;
         };
         
         AjaxViewer.prototype.newWin = function () {
-            var url = 'followfull.php?comp=' + this.competitionId + '&lang=' + this.language;
+            var url = "";
+            if (this.EmmaServer)
+                url += 'emma/';
+            url += 'followfull.php?comp=' + this.competitionId + '&lang=' + this.language;
             if (this.curClassName != null) {
                 url += '&class=' + encodeURIComponent(this.curClassName);
 				if (!this.compactView)
@@ -1954,7 +1957,7 @@ var LiveResults;
                                 return "";
                             }
                             else {
-                                return _this.formatTime(row.start, 0, false, true);
+                                return _this.formatTime(row.start, 0, false, true, true) 
                             }
                         }
                     });
