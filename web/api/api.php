@@ -176,9 +176,7 @@ elseif ($_GET['method'] == 'getclubresults')
 		$first = true;
 
 		if (isset($_GET['unformattedTimes']) && $_GET['unformattedTimes'] == "true")
-		{
 			$unformattedTimes = true;
-		}
 
 		foreach ($results as $res)
 		{
@@ -187,54 +185,35 @@ elseif ($_GET['method'] == 'getclubresults')
 
 			if ($time == "")
 				$status = 9;
-
 			$cp = $res['Place'];
 			if ($status == 9 || $status == 10)
-			{
 				$cp = "";
-
-			}
 			elseif ($status == 13)
-			{
 				$cp = "F";
-			}
 			elseif ($status != 0 || $time < 0)
-			{
 				$cp = "-";
-			}
 
 			$timeplus = $res['TimePlus'];
-
 			$age = time()-strtotime($res['Changed']);
-			$modified = $age < $hightime ? 1:0;
+			$modified = ( ($age < $hightime && $status != 9) ? 1 : 0);
 
 			if (!$unformattedTimes)
 			{
 				$time = formatTime($res['Time'],$res['Status'],$RunnerStatus);
 				$timeplus = "+".formatTime($timeplus,$res['Status'],$RunnerStatus);
-
 			}
 
 			if (!$first)
 				$ret .= ",$br";
-
 			$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"bib\": \"".$res['Bib']."\", \"club\": \"".$res['Club']."\",\"class\": \"".$res['Class']."\", \"result\": \"".$time."\",\"status\" : ".$status.", \"timeplus\": \"$timeplus\"";
 
-
 			if (isset($res["start"]))
-			{
 				$ret .= ",$br \"start\": ".$res["start"];
-			}
 			else
-			{
 				$ret .= ",$br \"start\": \"\"";
-			}
 
 			if ($modified)
-			{
 				$ret .= ",$br \"DT_RowClass\": \"red_row\"";
-			}
-
 			$ret .= "$br}";
 
 			$first = false;
