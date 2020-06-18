@@ -1104,31 +1104,7 @@ var LiveResults;
                         "aTargets": [col++],
                         "mDataProp": "place"
                     });
-                    if (hasBibs)
-                    {
-                        columns.push({
-                            "sTitle": "&#8470;&nbsp;&nbsp;",
-						    "responsivePriority": 1,
-						    "sClass": "right",
-                            "bSortable": true,
-                            "aTargets": [col++],
-                            "mDataProp": "bib",
-                            "render": function (data,type,row) {
-                                if (type === 'display')
-                                {
-                                    if (data<0) // Relay
-                                        return "(" + (-data/100|0) + ")";
-                                    else if (data>0)    // Ordinary
-                                        return "("  + data + ")";
-                                    else
-                                        return "";
-                                }
-                                else
-                                    return Math.abs(data);
-                            }
-                        });
-                    }
-
+                    
                     if (!(haveSplitControls || _this.isMultiDayEvent)|| unranked || (!fullView && !lapTimes))
                         columns.push({
                             "sTitle": this.resources["_NAME"],
@@ -1178,7 +1154,32 @@ var LiveResults;
                                 return link;
                         }
                     });
-                                        
+                    
+                    if (hasBibs)
+                    {
+                        columns.push({
+                            "sTitle": "&#8470;&nbsp;&nbsp;",
+						    "responsivePriority": 1,
+						    "sClass": "right",
+                            "bSortable": true,
+                            "aTargets": [col++],
+                            "mDataProp": "bib",
+                            "render": function (data,type,row) {
+                                if (type === 'display')
+                                {
+                                    if (data<0) // Relay
+                                        return "(" + (-data/100|0) + ")";
+                                    else if (data>0)    // Ordinary
+                                        return "("  + data + ")";
+                                    else
+                                        return "";
+                                }
+                                else
+                                    return Math.abs(data);
+                            }
+                        });
+                    }
+                    
 					columns.push({
                         "sTitle": this.resources["_START"] + "&nbsp;&nbsp;",
 						"responsivePriority": 4,
@@ -1481,7 +1482,7 @@ var LiveResults;
 					
                    this.currentTable = $('#' + this.resultsDiv).dataTable({
                         "scrollX": this.scrollView,
-						"fixedColumns": {leftColumns: 2 + (hasBibs? 1 : 0) },
+						"fixedColumns": {leftColumns: 2 },
 						"responsive": !(this.scrollView),
                         "bPaginate": false,
                         "bLengthChange": false,
@@ -1499,15 +1500,25 @@ var LiveResults;
                         },
                         "bDestroy": true
                     });
-                    if (this.scrollView && (unranked || (this.compactView && !lapTimes))) // Scroll to inital view
+
+                    if (this.scrollView && data.results[0].progress != undefined) // Scroll to inital view
                     {
-                        var scrollLength;
-                        if (data.results[0].progress == undefined)
-                            scrollLength = 0;
-                        else if (data.results[0].progress < 50)
-                            scrollLength = parseInt($('#' + this.resultsDiv +' thead th:eq('+ (2 + (hasBibs? 1 : 0)) +')').css('width')); // Club col
-                        else
-                            scrollLength = 9999;
+                        var scrollLength = 0;
+                        if (unranked || (this.compactView && !lapTimes)) 
+                        {
+                            if (data.results[0].progress < 50)
+                                scrollLength = parseInt($('#' + this.resultsDiv +' thead th:eq(2)').css('width'))
+                                           + (hasBibs? parseInt($('#' + this.resultsDiv +' thead th:eq(3)').css('width')) : 0); // Club and bib col
+                            else
+                                scrollLength = 9999;
+                        }
+                        else // Double line
+                        {
+                            if (data.results[0].progress < 50)
+                                scrollLength = (hasBibs? parseInt($('#' + this.resultsDiv +' thead th:eq(2)').css('width')) : 0); // Bib col
+                            else
+                                scrollLength = 9999;
+                        }
                         $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( scrollLength );
                     }
                     this.lastClassHash = data.hash;
@@ -1911,23 +1922,6 @@ var LiveResults;
 								return row.placeSortable; 
 					        else
                                 return data; }});  
-                    columns.push({ "sTitle": "&#8470;&nbsp;&nbsp;", "sClass": "right", "aTargets": [col++], "mDataProp": (hasBibs ? "bib" : null),
-                            "render": function (data,type,row) {
-                                if (type === 'display')
-                                {
-                                    if (data<0) // Relay
-                                        return "(" + (-data/100|0) + ")";
-                                    else if(data>0)       // Ordinary
-                                        return "(" + data + ")";
-                                    else
-                                        return "";
-                                }
-                                else
-                                    return data;
-                        }
-                    });
-                    columns.push({ "sTitle": "bibSortable", "bVisible": false, "mDataProp": (hasBibs ? "bib" : null), "aTargets": [col++], "render": function (data,type,row) {
-                        return data; }});
                     columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [col++], "mDataProp": "name",
                        "render": function (data,type,row) {
                         if (type === 'display')
@@ -1939,8 +1933,8 @@ var LiveResults;
                         }
                         else
                             return data;
-                    }                
-                });
+                        }                
+                    });
                     columns.push({
                         "sTitle": this.resources["_CLASS"], "sClass": "left", "aTargets": [col++], "mDataProp": "class",
                         "render": function (data,type,row) {
@@ -1950,6 +1944,24 @@ var LiveResults;
                             return "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + row["class"] + "</a>";
                         }
                     });
+                    columns.push({ "sTitle": "&#8470;&nbsp;&nbsp;", "sClass": "right", "aTargets": [col++], "mDataProp": (hasBibs ? "bib" : null),
+                        "render": function (data,type,row) {
+                            if (type === 'display')
+                            {
+                                if (data<0) // Relay
+                                    return "(" + (-data/100|0) + ")";
+                                else if(data>0)       // Ordinary
+                                    return "(" + data + ")";
+                                else
+                                    return "";
+                            }
+                            else
+                                return data;
+                        }
+                    });
+                    columns.push({ "sTitle": "bibSortable", "bVisible": false, "mDataProp": (hasBibs ? "bib" : null), "aTargets": [col++], "render": function (data,type,row) {
+                        return data; }});
+                    
                     columns.push({
                         "sTitle": this.resources["_START"] + "&nbsp;&nbsp;", "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
                         "render": function (data,type,row) {
@@ -1986,7 +1998,7 @@ var LiveResults;
                     });
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
 						"scrollX": this.scrollView,
-						"fixedColumns": {leftColumns: 5},
+						"fixedColumns": {leftColumns: 3},
 						"responsive": !(this.scrollView),
 						"bPaginate": false,
                         "bLengthChange": false,
@@ -1995,7 +2007,7 @@ var LiveResults;
                         "bInfo": false,
                         "bAutoWidth": false,
                         "aaData": data.results,
-                        "aaSorting": [[1, "asc"],[3,'asc']],
+                        "aaSorting": [[1, "asc"],[5,'asc']],
                         "aoColumnDefs": columns,
                         "fnPreDrawCallback": function (oSettings) {
                             if (oSettings.aaSorting[0][0] != 1) {
