@@ -495,7 +495,7 @@ function getAllSplitControls()
 		  AND ( runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib." OR runners.class =\"NOCLAS\") 
 		  AND ( ( results.Time-".$currTime." < ".$preTime ." AND ".$currTime."-results.Time < ".$postTime." ) 
 		        OR (results2.Status = 9 AND results2.Changed > '".$postTimeText."' ) ) 		 
-		  ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.Name
+		  ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.bib DESC, runners.Name
 		  limit 100";		   
 	}
 	elseif ($code == -2) // Left in forest
