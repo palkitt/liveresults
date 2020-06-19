@@ -14,7 +14,8 @@ table.dataTable {
 table.dataTable thead th {
     padding: 3px 7px 3px 2px;
     cursor: pointer;
-    *cursor: hand;
+	*cursor: hand;
+	white-space: nowrap;
 }
 
 table.dataTable tfoot th {
