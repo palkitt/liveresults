@@ -242,7 +242,7 @@ function openNav() {
 	 .responsive.recalc();
 	 $(".firstCol").width("0px");  
   }
-  $(".firstCol").animate({'width':'75px'},"1s");
+  $(".firstCol").animate({'width':'75px'},300);
   $('#switchNavClick1').hide();
   sideBar = true;
 }
@@ -256,7 +256,7 @@ function closeNav() {
 		.responsive.recalc();
 		$(".firstCol").width("75px");  
   }
-  $(".firstCol").animate({'width':'0px'},"1s");  
+  $(".firstCol").animate({'width':'0px'},300);  
   $('#switchNavClick1').show();
   sideBar = false;	
 }
@@ -265,14 +265,14 @@ function openTop() {
 	$("#topBar").height('auto');
 	var height = $("#topBar").height();
 	$("#topBar").height(0);
-	$("#topBar").animate({'height': height},"1s");  
+	$("#topBar").animate({'height': height},300);  
   topBar = true;
   res.autoUpdateLastPassings = true;
   res.updateLastPassings();
 }
 
 function closeTop() {
-  $("#topBar").animate({'height':'0px'},"1s");  
+  $("#topBar").animate({'height':'0px'},300);  
   topBar = false;
   res.autoUpdateLastPassings = false;
 }
