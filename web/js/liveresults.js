@@ -1501,25 +1501,33 @@ var LiveResults;
                         "bDestroy": true
                     });
 
+                    // Scroll to initial view and hide class column if necessary
                     if (this.scrollView && data.results[0].progress != undefined) // Scroll to inital view
                     {
-                        var scrollLength = 0;
-                        if (unranked || (this.compactView && !lapTimes)) 
-                        {
-                            if (data.results[0].progress < 50)
-                                scrollLength = parseInt($('#' + this.resultsDiv +' thead th:eq(2)').css('width'))
-                                           + (hasBibs? parseInt($('#' + this.resultsDiv +' thead th:eq(3)').css('width')) : 0); // Club and bib col
+                        var scrollBody = $(this.currentTable.api().settings()[0].nScrollBody);
+                        var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
+                        if ( maxScroll > 5 )
+                        { 
+                            var clubBibWidth = 0;
+                            if (unranked || (this.compactView && !lapTimes)) // Club and bib col 
+                                clubBibWidth = 9 + parseInt($('#' + this.resultsDiv +' thead th:eq(2)').css('width'))
+                                    + (hasBibs? 9 + parseInt($('#' + this.resultsDiv +' thead th:eq(3)').css('width')) : 0); 
+                            else // Bib col
+                                clubBibWidth = (hasBibs? 9 + parseInt($('#' + this.resultsDiv +' thead th:eq(2)').css('width')) : 0); 
+
+                            var scrollLength = 0;
+                            if (data.results[0].progress > 0 && data.results[0].progress < 50)
+                                scrollLength = clubBibWidth;
                             else
-                                scrollLength = 9999;
+                                scrollLength = maxScroll;
+
+                            if (scrollLength > 0)
+                            {
+                                scrollBody.scrollLeft( scrollLength );
+                                if ( $(".firstCol").width() > 0 && maxScroll >= clubBibWidth+5)
+                                    $('#switchNavClick1').trigger('click');
+                            }
                         }
-                        else // Double line
-                        {
-                            if (data.results[0].progress < 50)
-                                scrollLength = (hasBibs? parseInt($('#' + this.resultsDiv +' thead th:eq(2)').css('width')) : 0); // Bib col
-                            else
-                                scrollLength = 9999;
-                        }
-                        $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( scrollLength );
                     }
                     this.lastClassHash = data.hash;
                 }
