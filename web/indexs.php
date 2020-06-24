@@ -60,20 +60,20 @@ el.style.backgroundColor = "";
 Results from liveresultat.orientering.se can be found <a href='emma/index.php'>here</a>.<br>
 <br>
 <b>Choose language</b><br>
-<a href=index.php?lang=no style='text-decoration: none'><img src='images/no.png?a' border='0' alt='Norsk'></a>&nbsp
-<a href=index.php?lang=sv style='text-decoration: none'><img src='images/se.png?a' border='0' alt='Svenska'></a>&nbsp
-<a href=index.php?lang=en style='text-decoration: none'><img src='images/en.png?a' border='0' alt='English'></a>&nbsp
-<a href=index.php?lang=fi style='text-decoration: none'><img src='images/fi.png?a' border='0' alt='Suomeksi'></a>&nbsp
-<a href=index.php?lang=ru style='text-decoration: none'><img src='images/ru.png?a' border='0' alt='Русский'></a>&nbsp
-<a href=index.php?lang=cz style='text-decoration: none'><img src='images/cz.png?a' border='0' alt='Česky'></a>&nbsp
-<a href=index.php?lang=de style='text-decoration: none'><img src='images/de.png?a' border='0' alt='Deutsch'></a>&nbsp
-<a href=index.php?lang=bg style='text-decoration: none'><img src='images/bg.png?a' border='0' alt='български'></a>&nbsp
-<a href=index.php?lang=fr style='text-decoration: none'><img src='images/fr.png?a' border='0' alt='Français'></a>&nbsp
-<a href=index.php?lang=it style='text-decoration: none'><img src='images/it.png?a' border='0' alt='Italiano'></a>&nbsp
-<a href=index.php?lang=hu style='text-decoration: none'><img src='images/hu.png?a' border='0' alt='Magyar'></a>&nbsp
-<a href=index.php?lang=es style='text-decoration: none'><img src='images/es.png?a' border='0' alt='Español'></a>&nbsp
-<a href=index.php?lang=pl style='text-decoration: none'><img src='images/pl.png?a' border='0' alt='Polska'></a>&nbsp
-<a href=index.php?lang=pt style='text-decoration: none'><img src='images/pt.png?a' border='0' alt='Português'></a>
+<a href=indexs.php?lang=no style='text-decoration: none'><img src='images/no.png?a' border='0' alt='Norsk'></a>&nbsp
+<a href=indexs.php?lang=sv style='text-decoration: none'><img src='images/se.png?a' border='0' alt='Svenska'></a>&nbsp
+<a href=indexs.php?lang=en style='text-decoration: none'><img src='images/en.png?a' border='0' alt='English'></a>&nbsp
+<a href=indexs.php?lang=fi style='text-decoration: none'><img src='images/fi.png?a' border='0' alt='Suomeksi'></a>&nbsp
+<a href=indexs.php?lang=ru style='text-decoration: none'><img src='images/ru.png?a' border='0' alt='Русский'></a>&nbsp
+<a href=indexs.php?lang=cz style='text-decoration: none'><img src='images/cz.png?a' border='0' alt='Česky'></a>&nbsp
+<a href=indexs.php?lang=de style='text-decoration: none'><img src='images/de.png?a' border='0' alt='Deutsch'></a>&nbsp
+<a href=indexs.php?lang=bg style='text-decoration: none'><img src='images/bg.png?a' border='0' alt='български'></a>&nbsp
+<a href=indexs.php?lang=fr style='text-decoration: none'><img src='images/fr.png?a' border='0' alt='Français'></a>&nbsp
+<a href=indexs.php?lang=it style='text-decoration: none'><img src='images/it.png?a' border='0' alt='Italiano'></a>&nbsp
+<a href=indexs.php?lang=hu style='text-decoration: none'><img src='images/hu.png?a' border='0' alt='Magyar'></a>&nbsp
+<a href=indexs.php?lang=es style='text-decoration: none'><img src='images/es.png?a' border='0' alt='Español'></a>&nbsp
+<a href=indexs.php?lang=pl style='text-decoration: none'><img src='images/pl.png?a' border='0' alt='Polska'></a>&nbsp
+<a href=indexs.php?lang=pt style='text-decoration: none'><img src='images/pt.png?a' border='0' alt='Português'></a>
 <br>
 
 <table border="0" cellpadding="0px" cellspacing="0" width="100%" id="tblLiveComps">
