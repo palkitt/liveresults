@@ -53,7 +53,7 @@ $_OPENINNEWWINDOW = "Åpne i nytt vindu";
 $_INSTRUCTIONSHELP = "Instruksjoner / Hjelp ";
 $_LOADINGCLASSES = "Laster klasser...";
 $_START = "Start";
-$_TOTAL = "Total";
+$_TOTAL = "Sammenl.";
 $_CLASS = "Klasse";
 
 $_EVENTNAME = "Løpsnavn";
