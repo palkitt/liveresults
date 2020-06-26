@@ -165,6 +165,11 @@ $(document).ready(function()
 		res.startPredictionUpdate();
 	<?php }?>
 
+	// Insert comp name
+	var compName = "<?=$currentComp->CompName()?>";
+	compName = compName.substring(0,  (res.browserType == 1 ? 30 : 60) )
+	$("#compname").html(compName);
+	
 	// Set full view
 	<?php if ($setFullView || $currentComp->FullView() ){?>
 		res.setCompactView(false); <?php }?>
@@ -345,7 +350,8 @@ function closeTop() {
 	  
   	<td align="right"width="28%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
-  	<td align="right" width="16%"><span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
+  	<td align="right" width="16%">
+	  <span class="noUnderline"><a href="javascript:changeFontSize(1);">&CirclePlus;</a> <a href="javascript:changeFontSize(-1);">&CircleMinus;</a></span> <span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
 	</tr>
   </table></td>
 </tr>
@@ -360,7 +366,7 @@ function closeTop() {
   <tr><td>
   <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
   <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
-  <td align="center"><b><?=$currentComp->CompName()?></b></td>
+  <td align="center"><b><span id="compname">loading comp name...</b></td>
   <td align="right"><?php if (!$isSingleClass && !$isSingleClub) {?><a href="javascript:LiveResults.Instance.newWin()"> <?=$_OPENINNEWWINDOW?></a> <?php }?> <span id="txtResetSorting"></span></td></tr></table></td></tr>
   
    <tr valign="top"><td>
