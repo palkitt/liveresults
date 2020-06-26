@@ -1518,7 +1518,7 @@ var LiveResults;
                             var scrollLength = 0;
                             if (data.results[0].progress > 0 && data.results[0].progress < 50)
                                 scrollLength = clubBibWidth;
-                            else
+                            else if (data.results[0].progress >= 50)
                                 scrollLength = maxScroll;
 
                             if (scrollLength > 0)
