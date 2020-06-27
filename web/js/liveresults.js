@@ -269,10 +269,14 @@ var LiveResults;
 					qualIndex = this.qualClasses.indexOf(data.className);
 				if (qualIndex == -1)
 					qualIndex = this.qualLimits.length-1;
-				var qualLim = this.qualLimits[qualIndex];
+                var qualLim = this.qualLimits[qualIndex];
+                var lastPos = -1;
+                var curPos = -1;
 				for (var i = 0; i< data.results.length; i++)
 				{
-					if (data.results[i].place != undefined && data.results[i].place > qualLim )
+                    lastPos = curPos;
+                    curPos = data.results[i].place;
+                    if (data.results[i].progress > 0 && data.results[i].virtual_position > qualLim - 1 && curPos != lastPos)
 					{
 						data.results[i].DT_RowClass = "firstnonqualifier";
 						break;
@@ -959,10 +963,10 @@ var LiveResults;
 						if( table.row(i).child.isShown() )
 							shownId.push(oldData[i].dbid);
 					}
-					if (this.qualLimits != null)
+                    this.updateResultVirtualPosition(newData.results);
+                    if (this.qualLimits != null && this.qualLimits.length > 0)
                         this.updateQualLimMarks(newData); 
                     this.updateClassSplitsBest(newData);
-                    this.updateResultVirtualPosition(newData.results);
 					this.currentTable.fnClearTable();
 					this.currentTable.fnAddData(newData.results, true);
 					for (var i = 0; i < shownId.length; i++) 
@@ -1080,7 +1084,8 @@ var LiveResults;
                 }
                 $('#' + this.txtResetSorting).html("");
                 if (data.results != null) {
-				    if (this.qualLimits != null)
+                    this.updateResultVirtualPosition(data.results);
+                    if (this.qualLimits != null && this.qualLimits.length > 0)
 						this.updateQualLimMarks(data);
 				    this.updateClassSplitsBest(data);
                     var columns = Array();
@@ -1094,7 +1099,6 @@ var LiveResults;
                     var relay = (haveSplitControls && (this.curClassSplits[0].code == "0" || data.className.slice(-4) == "-All"));
                     var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
                     var hasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
-                    this.updateResultVirtualPosition(data.results);
 
                     columns.push({
                         "sTitle": "#",
