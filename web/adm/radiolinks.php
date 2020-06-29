@@ -22,6 +22,9 @@ header('Content-Type: text/html; charset='.$CHARSET);
 <head><title><?=$_TITLE?></title>
 <meta http-equiv="Content-Type" content="text/html;charset=<?=$CHARSET?>">
 <meta name="robots" content="noindex">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="stylesheet" type="text/css" href="../css/style-eoc.css">
 
 <script language="javascript">
@@ -44,7 +47,7 @@ function startRadioControl() {
 <!-- MAIN DIV -->
 <div class="maindiv">
 
-<table border="0" cellpadding="0" cellspacing="0" width="500px">
+<table border="0" cellpadding="0" cellspacing="0">
 <tr><td valign="bottom">
 
 <!-- MAIN MENU FLAPS - Two rows, note that left and right styles differs from middle ones -->

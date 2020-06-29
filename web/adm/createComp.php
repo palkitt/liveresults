@@ -28,6 +28,7 @@ include_once("../templates/emmalang_$lang.php");
 
 header('Content-Type: text/html; charset='.$CHARSET);
 
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
@@ -37,8 +38,11 @@ header('Content-Type: text/html; charset='.$CHARSET);
 <head><title><?=$_TITLE?></title>
 
 <link rel="stylesheet" type="text/css" href="../css/style-eoc.css">
-<meta name="robots" content="noindex">
 <meta http-equiv="Content-Type" content="text/html;charset=<?=$CHARSET?>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="robots" content="noindex">
 
 <script language="javascript">
 
@@ -80,7 +84,7 @@ el.style.backgroundColor = "";
 
 <div class="maindiv">
 
-<table border="0" cellpadding="0" cellspacing="0" width="759">
+<table border="0" cellpadding="0" cellspacing="0">
 
   <tr>
 

@@ -50,6 +50,10 @@ header('Content-Type: text/html; charset='.$CHARSET);
 <link rel="stylesheet" type="text/css" href="../css/style-eoc.css">
 <meta name="robots" content="noindex">
 <meta http-equiv="Content-Type" content="text/html;charset=<?=$CHARSET?>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+
 <script language="javascript">
 
 function colorRow(row)
@@ -100,7 +104,7 @@ function confirmDelete(msg,url)
 
 <div class="maindiv">
 
-<table width="759" cellpadding="0" cellspacing="0" border="0" ID="Table6">
+<table cellpadding="0" cellspacing="0" border="0" ID="Table6">
 
 	<tr>
 
@@ -126,7 +130,7 @@ function confirmDelete(msg,url)
 
 
 
-<table border="0" cellpadding="0" cellspacing="0" width="759">
+<table border="0" cellpadding="0" cellspacing="0" >
 
   <tr>
 

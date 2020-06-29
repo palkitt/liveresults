@@ -25,6 +25,9 @@ header('Content-Type: text/html; charset='.$CHARSET);
 
 <head><title><?=$_TITLE?></title>
 <meta http-equiv="Content-Type" content="text/html;charset=<?=$CHARSET?>">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="robots" content="noindex">
 
 
@@ -71,7 +74,7 @@ el.style.backgroundColor = "";
 <div class="maindiv">
 
 
-<table border="0" cellpadding="0" cellspacing="0" width="759">
+<table border="0" cellpadding="0" cellspacing="0" >
 
   <tr>
 
