@@ -184,6 +184,7 @@ $(document).ready(function()
 <?php } ?> 
 </table>
 <?php }?>
+<?php if ($_GET['code']==-2){?> Antall: <span id="numberOfRunners"></span> <?php } ?>
 <p align="left"><font color="#AAA" size="0.7em">
 Last update: <span id="lastupdate"></span><br> 
 </body>

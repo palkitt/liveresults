@@ -650,8 +650,11 @@ var LiveResults;
 				}
 				this.lastRadioPassingsUpdateHash = data.hash;
 			}
-			if (this.radioData != null && this.radioData.length > 0 && this.radioData[0].timeDiff == -2)
-				leftInForest = true;			
+            if (this.radioData != null && this.radioData.length > 0 && this.radioData[0].timeDiff == -2)
+            {
+                leftInForest = true;
+                $('#numberOfRunners').html(this.radioData.length);
+            }			
 			
 			// Modify data-table
 			if (this.radioData != null && !this.radioStart)
@@ -682,146 +685,146 @@ var LiveResults;
                 this.currentTable.fnAddData(this.radioData, true);
                 this.filterTable();
 			}
-			else
+			else // New datatable
 			{
-            if (this.radioData.length==0) return;
-            var columns = Array();
-			var col = 0;
-			var className = "";
-			if (!this.radioStart && !leftInForest)
-			{
-				columns.push({ "sTitle": "Sted", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
-			    columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
-			}
-            columns.push({ "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
-                            "render": function (data,type,row) {
-                                if (type === 'display')
-                                {
-                                    if (data<0) // Relay
-                                        return  "(" + (-data/100|0) + "-" + (-data%100) + ")";
-                                    else if (data>0)    // Ordinary
-                                        return "("  + data + ")";
-                                    else
-                                        return "";
-                                }
-                                else
-                                    return Math.abs(data);
-                            }
-            });
-            columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName",
-            "render": function (data,type,row) {
-                if (type === 'display')
+                if (this.radioData.length==0) return;
+                var columns = Array();
+                var col = 0;
+                var className = "";
+                if (!this.radioStart && !leftInForest)
                 {
-                    if (data.length>_this.maxNameLength)
-                        return _this.nameShort(data);
-                    else
-                        return data;
+                    columns.push({ "sTitle": "Sted", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
+                    columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
                 }
-                else
-                    return data;
-            }         
-        });
-            columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
+                columns.push({ "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+                                "render": function (data,type,row) {
+                                    if (type === 'display')
+                                    {
+                                        if (data<0) // Relay
+                                            return  "(" + (-data/100|0) + "-" + (-data%100) + ")";
+                                        else if (data>0)    // Ordinary
+                                            return "("  + data + ")";
+                                        else
+                                            return "";
+                                    }
+                                    else
+                                        return Math.abs(data);
+                                }
+                });
+                columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName",
                 "render": function (data,type,row) {
                     if (type === 'display')
                     {
-                        if (data.length>_this.maxClubLength)
-                        {
-                            return _this.clubShort(data);
-                        }
+                        if (data.length>_this.maxNameLength)
+                            return _this.nameShort(data);
                         else
                             return data;
                     }
                     else
-                        return data;        
-                }});
-			columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
-			     "render": function (data,type,row) {
-					    className = row.class;
-                        var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
-						link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
-						return link;
-					}});
-            if (this.radioStart)
-			{				
-				columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
-				   "render": function (data,type,row) {
-					var ecardstr = "";
-					if (row.ecard1>0) {
-						ecardstr = row.ecard1;
-						if (row.ecard2>0) ecardstr += " / " + row.ecard2;}
-					else
-						if (row.ecard2>0) ecardstr = row.ecard2;
-					return ecardstr;}});
-			}				
-			if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
-				columns.push({ "sTitle": "#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
-					"render": function (data,type,row) {
-						var res = "";
-						if (row.rank >= 0) res += row.rank;
-						return res;
-					}});
-			var timeTitle = "Tid";
-            if (this.radioStart || leftInForest) 
-                timeTitle = "Starttid";
-			columns.push({ "sTitle": timeTitle, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time"});
-			if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
-				columns.push({ "sTitle": "Diff", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeDiff",
-					"render": function (data,type,row) {
-						var res = "";
-						if (row.timeDiff >= 0)
-							res += "+" + _this.formatTime(row.timeDiff, 0, _this.showTenthOfSecond);
-						else if (row.timeDiff != -1)
-							res += "<span class=\"besttime\">-" + _this.formatTime(-row.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
-						return res;
-					}});
-            if (leftInForest)
-                columns.push({ "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
-					"render": function (data,type,row) {
-						var res = "";
-						if (data == 9)
-							res += "Startet";
-						return res;
-					}});
-
-            if (this.radioStart){				
-				var message = "<button onclick=\"res.popupDialog('Generell melding',0,'&Tidsp=0&lopid=" +
-				              "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";
-				columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
-					"render": function (data,type,row) 
-					{
-                            var DNStext = "true";
-						    if (row.runnerName!=undefined && !isNaN(row.runnerName.charAt(0)))
-						        DNStext = "false";
-					        var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;
-						    runnerName = runnerName.replace("<del>","");
-                            runnerName = runnerName.replace("</del>","");
-						    var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
-						    "'lopid=" + "(" + _this.competitionId +") " + _this.compName +
-                            "&Tidsp=" + row.passtime + 
-                            "&T0="    + row.club + 
-						    "&T1="    + className +
-						    "&T2="    + row.controlName + 
-						    "&T3="    + row.time + "'," + DNStext + ");\">&#128172;</button>";						
-						    if ( _this.messageBibs.indexOf(row.dbid) > -1)
-							    link += " &#9679;";
+                        return data;
+                }         
+            });
+                columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
+                    "render": function (data,type,row) {
+                        if (type === 'display')
+                        {
+                            if (data.length>_this.maxClubLength)
+                            {
+                                return _this.clubShort(data);
+                            }
+                            else
+                                return data;
+                        }
+                        else
+                            return data;        
+                    }});
+                columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
+                    "render": function (data,type,row) {
+                            className = row.class;
+                            var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
+                            link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
                             return link;
-					}});
-			}
-			this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
-				"bPaginate": false,
-				"bLengthChange": false,
-                "bFilter": true,
-                "dom": 'lrtip',
-				"bSort": false,
-				"bInfo": false,
-				"bAutoWidth": false,
-				"aaData": this.radioData,
-				"aaSorting": [[1, "desc"]],
-				"aoColumnDefs": columns,
-                "bDestroy": true,
-                "orderCellsTop": true
-                });            
+                        }});
+                if (this.radioStart)
+                {				
+                    columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
+                    "render": function (data,type,row) {
+                        var ecardstr = "";
+                        if (row.ecard1>0) {
+                            ecardstr = row.ecard1;
+                            if (row.ecard2>0) ecardstr += " / " + row.ecard2;}
+                        else
+                            if (row.ecard2>0) ecardstr = row.ecard2;
+                        return ecardstr;}});
+                }				
+                if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
+                    columns.push({ "sTitle": "#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
+                        "render": function (data,type,row) {
+                            var res = "";
+                            if (row.rank >= 0) res += row.rank;
+                            return res;
+                        }});
+                var timeTitle = "Tid";
+                if (this.radioStart || leftInForest) 
+                    timeTitle = "Starttid";
+                columns.push({ "sTitle": timeTitle, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time"});
+                if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
+                    columns.push({ "sTitle": "Diff", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeDiff",
+                        "render": function (data,type,row) {
+                            var res = "";
+                            if (row.timeDiff >= 0)
+                                res += "+" + _this.formatTime(row.timeDiff, 0, _this.showTenthOfSecond);
+                            else if (row.timeDiff != -1)
+                                res += "<span class=\"besttime\">-" + _this.formatTime(-row.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
+                            return res;
+                        }});
+                if (leftInForest)
+                    columns.push({ "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
+                        "render": function (data,type,row) {
+                            var res = "";
+                            if (data == 9)
+                                res += "Startet";
+                            return res;
+                        }});
+
+                if (this.radioStart){				
+                    var message = "<button onclick=\"res.popupDialog('Generell melding',0,'&Tidsp=0&lopid=" +
+                                "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";
+                    columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
+                        "render": function (data,type,row) 
+                        {
+                                var DNStext = "true";
+                                if (row.runnerName!=undefined && !isNaN(row.runnerName.charAt(0)))
+                                    DNStext = "false";
+                                var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;
+                                runnerName = runnerName.replace("<del>","");
+                                runnerName = runnerName.replace("</del>","");
+                                var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
+                                "'lopid=" + "(" + _this.competitionId +") " + _this.compName +
+                                "&Tidsp=" + row.passtime + 
+                                "&T0="    + row.club + 
+                                "&T1="    + className +
+                                "&T2="    + row.controlName + 
+                                "&T3="    + row.time + "'," + DNStext + ");\">&#128172;</button>";						
+                                if ( _this.messageBibs.indexOf(row.dbid) > -1)
+                                    link += " &#9679;";
+                                return link;
+                        }});
+                }
+                this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
+                    "bPaginate": false,
+                    "bLengthChange": false,
+                    "bFilter": true,
+                    "dom": 'lrtip',
+                    "bSort": false,
+                    "bInfo": false,
+                    "bAutoWidth": false,
+                    "aaData": this.radioData,
+                    "aaSorting": [[1, "desc"]],
+                    "aoColumnDefs": columns,
+                    "bDestroy": true,
+                    "orderCellsTop": true
+                    });            
             }
 
         };
