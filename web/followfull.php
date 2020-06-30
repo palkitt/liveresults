@@ -118,7 +118,8 @@ var Resources = {
 	_LOADINGCLASSES: "<?=$_LOADINGCLASSES ?>",
 	_START: "<?=$_START?>",
 	_TOTAL: "<?=$_TOTAL?>",
-	_CLASS: "<?=$_CLASS?>"
+	_CLASS: "<?=$_CLASS?>",
+	_FREESTART : "<?=$_FREESTART?>"
 };
 
 var runnerStatus = Array();

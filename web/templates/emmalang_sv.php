@@ -58,4 +58,7 @@ $_CLASS = "Klass";
 $_EVENTNAME = "Namn";
 $_ORGANIZER = "Arrangör";
 $_DATE = "Datum";
+
+//new Freidig
+$_FREESTART = "fri start";
 ?>

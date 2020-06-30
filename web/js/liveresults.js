@@ -447,7 +447,7 @@ var LiveResults;
                         }
 						
 						// *** Update predicted times ***
-						if ((data[i].status == 10 || data[i].status == 9) && data[i].start != "") { 
+						if ((data[i].status == 10 || data[i].status == 9) && data[i].start != "" && data[i].start > 0) { 
 							var elapsedTime = time - data[i].start;
 							if (elapsedTime>=0) 
 							{
@@ -1620,6 +1620,8 @@ var LiveResults;
             if (status != 0) {
                 return this.runnerStatus[status];
             }
+            else if (time == -999)
+                return this.resources["_FREESTART"];
             else if (time < 0)
                 return "*"
             else {

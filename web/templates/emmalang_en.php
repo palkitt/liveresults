@@ -116,4 +116,7 @@ $_ORGANIZER = "Organizer";
 $_DATE = "Date";
 $_EVENTNAME = "Name";
 
+//new Freidig
+$_FREESTART = "open start";
+
 ?>

@@ -59,4 +59,8 @@ $_CLASS = "Klasse";
 $_EVENTNAME = "Løpsnavn";
 $_ORGANIZER = "Arrangør";
 $_DATE = "Dato";
+
+//new Freidig
+$_FREESTART = "fristart";
+
 ?>

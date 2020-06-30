@@ -626,7 +626,9 @@ namespace LiveResults.Client
                             sign = -1;
 
                         iStartTime = 0;
-                        if (reader["starttime"] != null && reader["starttime"] != DBNull.Value)
+                        if (freeStart)
+                            iStartTime = -999;
+                        else if (reader["starttime"] != null && reader["starttime"] != DBNull.Value)
                             iStartTime = ConvertFromDay2cs(Convert.ToDouble(reader["starttime"]));
 
                         if (isRelay)
