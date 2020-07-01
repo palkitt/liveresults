@@ -428,7 +428,7 @@ namespace LiveResults.Model
 
                     if (!m_currentlyBuffering)
                     {
-                        FireLogMsg("Local update info: (" + Math.Abs(cur.Bib) + ") " + cur.Name);
+                        FireLogMsg("Local update info: " + (Math.Abs(cur.Bib) > 0 ? "(" + Math.Abs(cur.Bib) + ") " : "") + cur.Name);
                     }
                 }
             }
@@ -446,7 +446,7 @@ namespace LiveResults.Model
                 m_itemsToUpdate.Add(r);
                 if (!m_currentlyBuffering)
                 {
-                    FireLogMsg("Local update add: (" + Math.Abs(r.Bib) + ") " + r.Name);
+                    FireLogMsg("Local update add: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
                 }
             }
         }
@@ -471,7 +471,7 @@ namespace LiveResults.Model
                 m_itemsToUpdate.Add(new DelRunner { RunnerID = r.ID });
                 if (!m_currentlyBuffering)
                 {
-                    FireLogMsg("Local update delete: (" + Math.Abs(r.Bib) + ") " + r.Name + ", " + r.Class);
+                    FireLogMsg("Local update delete: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + r.Class);
                 }
             }
         }
@@ -533,7 +533,7 @@ namespace LiveResults.Model
                 if (!m_currentlyBuffering)
                 {
                     FireResultChanged(r, 1000);
-                    FireLogMsg("Local update result: (" + Math.Abs(r.Bib) + ") " + r.Name + ", " + r.Time);
+                    FireLogMsg("Local update result: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + r.Time);
                 }
             }
         }
@@ -551,7 +551,7 @@ namespace LiveResults.Model
                 if (!m_currentlyBuffering)
                 {
                     FireResultChanged(r, controlcode);
-                    FireLogMsg("Local update split: (" + Math.Abs(r.Bib) + ") " + r.Name + ", {cn: " + controlcode + ", t: " + time + "}");
+                    FireLogMsg("Local update split: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", {cn: " + controlcode + ", t: " + time + "}");
                 }
             }
 
@@ -562,14 +562,14 @@ namespace LiveResults.Model
             if (!IsRunnerAdded(runnerID))
                 throw new ApplicationException("Runner is not added! {" + runnerID + "} [SetRunnerStartTime]");
             var r = m_runners[runnerID];
-
+            
             if (r.HasStartTimeChanged(starttime))
             {
                 r.SetStartTime(starttime);
                 m_itemsToUpdate.Add(r);
                 if (!m_currentlyBuffering)
                 {
-                    FireLogMsg("Local update start: (" + Math.Abs(r.Bib) + ") " + r.Name + ", t: " + starttime + "}");
+                    FireLogMsg("Local update start: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", t: " + starttime + "}");
                 }
             }
 
@@ -589,7 +589,7 @@ namespace LiveResults.Model
                             ControlCode = splitTime.Control
                         });
                         r.DeleteSplitTime(splitTime.Control);
-                        FireLogMsg("Local update split delete: (" + Math.Abs(r.Bib) + ") " + r.Name + ", {cn: " + splitTime.Control + "}");
+                        FireLogMsg("Local update split delete: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", {cn: " + splitTime.Control + "}");
                     }
                 }
             }
@@ -749,7 +749,7 @@ namespace LiveResults.Model
 
         private void UpdateRunnerTimes(Runner runner)
         {
-            if (runner.StartTime >= 0)
+            if (runner.StartTime == -999 || runner.StartTime >= 0)
                 SetRunnerStartTime(runner.ID, runner.StartTime);
 
             SetRunnerResult(runner.ID, runner.Time, runner.Status);
@@ -943,7 +943,7 @@ namespace LiveResults.Model
                                             }
                                         }
                                         cmd.Parameters.Clear();
-                                        FireLogMsg("DB update info: (" + Math.Abs(r.Bib) + ") " + r.Name);
+                                        FireLogMsg("DB update info: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
                                         r.RunnerUpdated = false;
                                     }
                                     if (r.ResultUpdated)
@@ -967,7 +967,7 @@ namespace LiveResults.Model
                                                 "Could not update result for runner " + r.Name + ", " + r.Club + ", " + r.Class + " to server due to: " + ee.Message, ee);
                                         }
                                         cmd.Parameters.Clear();
-                                        FireLogMsg("DB update result: (" + Math.Abs(r.Bib) + ") " + r.Name);
+                                        FireLogMsg("DB update result: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
                                         r.ResultUpdated = false;
                                     }
                                     if (r.StartTimeUpdated)
@@ -991,7 +991,7 @@ namespace LiveResults.Model
                                                 "Could not update starttime for runner " + r.Name + ", " + r.Club + ", " + r.Class + " to server due to: " + ee.Message, ee);
                                         }
                                         cmd.Parameters.Clear();
-                                        FireLogMsg("DB update start: (" + Math.Abs(r.Bib) + ") " + r.Name);
+                                        FireLogMsg("DB update start: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
                                         r.StartTimeUpdated = false;
                                     }
                                     if (r.HasUpdatedSplitTimes())
@@ -1021,7 +1021,7 @@ namespace LiveResults.Model
                                                 throw new ApplicationException(
                                                     "Could not update split time for runner " + r.Name + " splittime{" + t.Control + "} to server due to: " + ee.Message, ee);
                                             }
-                                            FireLogMsg("DB update split: (" + Math.Abs(r.Bib) + ") " + r.Name + ", {cn: " + t.Control + "}");
+                                            FireLogMsg("DB update split: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", {cn: " + t.Control + "}");
                                             t.Updated = false;
                                         }
                                         cmd.Parameters.Clear();
