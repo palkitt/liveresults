@@ -632,6 +632,11 @@ var LiveResults;
         //Handle response for updating the last radio passings..
         AjaxViewer.prototype.handleUpdateRadioPassings = function (data,reqTime) {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+            // Make live blinker pulsing
+            var el = document.getElementById('liveIndicator');
+                el.style.animation = 'none';
+                el.offsetHeight; /* trigger reflow */
+                el.style.animation = null; 
             const maxLines = 40;
             var _this = this;
 			var leftInForest = false;
