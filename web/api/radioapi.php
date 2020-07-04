@@ -187,26 +187,7 @@ if ($_GET['method'] == 'getradiopassings')
 			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$changedTime\"}");
 	}
 }
-else if ($_GET['method'] == 'sendmessage')
-{
-	$changed = time();
-	$DNS = 0;	
-	if (!isset($_GET['comp']))
-		echo("{\"status\": \"Error\", \"message\": \"comp not set\"}");
-	if (!isset($_GET['dbid']))
-		echo("{\"status\": \"Error\", \"message\": \"dbid not set\"}");
-	if (!isset($_GET['message']))
-		echo("{\"status\": \"Error\", \"message\": \"message not set\"}");
-	if (isset($_GET['dns']))
-		$DNS = $_GET['dns'];
 
-	$ret = Emma::SendMessage($_GET['comp'],$_GET['dbid'],$changed,$_GET['message'],$DNS);
-
-	if ($ret > 0)
-		echo("{\"status\": \"OK\"}");
-	else
-		echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
-}
 else
 {
     $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
