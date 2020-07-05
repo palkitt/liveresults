@@ -85,7 +85,16 @@ var Messages;
                     var columns = Array();
                     var col = 0;
                     
-                    columns.push({ "sTitle": "Tidsp.", "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "changed",
+                    columns.push({ "sTitle": "GroupTime", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "groupchanged",
+                        "render": function (data,type,row) {
+                          return data;
+                    }});
+                    columns.push({ "sTitle": "Time", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "changed",
+                        "render": function (data,type,row) {
+                          return data;
+                    }});
+
+                    columns.push({ "sTitle": "Tidsp.", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "changed",
                         "render": function (data,type,row) {
                         if (type === 'display')
                             return "<div class=\"tooltip\">" + data.substring(11,19) + "<span class=\"tooltiptext\">" + data.substring(2,10) + "</span></div>";
@@ -108,7 +117,8 @@ var Messages;
                                 return Math.abs(data);
                         }
                     });
-                    columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "name",
+
+                    columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
                         "render": function (data,type,row) {
                         if (type === 'display')
                         {
@@ -117,12 +127,12 @@ var Messages;
                                 ret += _this.nameShort(data);
                             else
                                 ret += data;
-                            return "<div class=\"wrapok\">" + ret + "</div>";
+                            return "<a href=\"javascript:;\" onclick=\"mess.popupDialog('" + row.name + "'," + row.dbid + ")\">" + ret + "</a>";
                         }
                         else
                             return data;
                         }});
-                    columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "club",
+                    columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
                         "render": function (data,type,row) {
                         if (type === 'display')
                         {
@@ -134,9 +144,9 @@ var Messages;
                         else
                             return data;        
                         }});
-                    columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "class"});
+                    columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class"});
                     
-                    columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": true, "aTargets": [col++], "mDataProp": "ecard1", 
+                    columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
                         "render": function (data,type,row) {
                             var ecardstr = "";
                             if (row.ecard1>0) {
@@ -147,7 +157,7 @@ var Messages;
                             return "<div class=\"wrapok\">" + ecardstr + "</div>";
                         }});
                     
-                    columns.push({ "sTitle": "Start", "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "start"});
+                    columns.push({ "sTitle": "Start", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "start"});
                     
                     columns.push({ "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
                             "render": function (data,type,row) {
@@ -156,20 +166,22 @@ var Messages;
                                 else if (data == 9)
                                     return "Startet";
                                 else
-                                    return _this.runnerStatus[data];
+                                    return "";
                             }});
-                    columns.push({ "sTitle": "Melding", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "message",
+
+                    var meldingTitle = "Melding <a href=\"javascript:;\" onclick=\"mess.popupDialog('Generell melding',0)\">(generell)</a>";
+                    columns.push({ "sTitle": meldingTitle, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "message",
                         "render": function (data,type,row) {
                                 return ("<div class=\"wrapok\">" + data + "</div>");
                             }});
-                    columns.push({ "sTitle": "DNS", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "dns",
+ /*                   columns.push({ "sTitle": "DNS", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "dns",
                         "render": function(data, type, row) {
                             if (data == 1 )
                                 return '<input type="checkbox" onclick="mess.setMessageDNS(' + row.messid + ',0);" checked>';
                             else
                                 return '<input type="checkbox" onclick="mess.setMessageDNS(' + row.messid + ',1);">';
                         }});
-                    columns.push({ "sTitle": "Utført", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "completed",
+ */                   columns.push({ "sTitle": "Utført", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "completed",
                         "render": function(data, type, row) {
                             if (data == 1 )
                                 return '<input type="checkbox" onclick="mess.setMessageCompleted(' + row.messid + ',0);" checked>';
@@ -182,11 +194,11 @@ var Messages;
                         "bLengthChange": false,
                         "bFilter": true,
                         "dom": 'lrtip',
-                        "bSort": false,
+                        "bSort": true,
                         "bInfo": false,
                         "bAutoWidth": false,
                         "aaData": this.radioData,
-                        "aaSorting": [[1, "desc"]],
+                        "aaSorting": [[0, "desc"],[1, "desc"]],
                         "aoColumnDefs": columns,
                         "bDestroy": true,
                         "orderCellsTop": true
@@ -202,20 +214,28 @@ var Messages;
     {
         if (this.currentTable != null )
         {
+            _this = this;
             var table = this.currentTable.api();
             var data = this.currentTable.fnGetData();
-            for (var i = 0; i < data.length; i++)
-            {
-                if (data[i].completed)
-                    $( table.cell(i,8).node() ).addClass('green_cell');
-                else
-                    $( table.cell(i,8).node() ).addClass('yellow_cell');
+            var lastID = null;
 
-                if (!this.showAllMessages && data[i].completed)
-                    $(table.row(i).node()).hide();
+            table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
+                var data = this.data();
+                if (data.completed)
+                    $( table.cell(rowIdx,10).node() ).addClass('green_cell');
                 else
-                    $(table.row(i).node()).show();
-            }
+                    $( table.cell(rowIdx,10).node() ).addClass('yellow_cell');
+
+                if (!_this.showAllMessages && data.groupcompleted)
+                    $(table.row(rowIdx).node()).hide();
+                else
+                    $(table.row(rowIdx).node()).show();
+                
+                if (data.dbid != lastID)
+                    $(table.row(rowIdx).node()).addClass('firstnonqualifier');
+                lastID =  data.dbid;
+
+            } );
         };
     } 
 
@@ -312,37 +332,20 @@ var Messages;
         var table = this.currentTable.api();
         table.search($('#filterText')[0].value).draw()
     };
-
 		
     //Popup window for messages to message center
-    AjaxViewer.prototype.popupDialog = function (runnerName,dbid,idText,DNS) {
-        var promptText = runnerName;
+    AjaxViewer.prototype.popupDialog = function (promptText,dbid) {
         var defaultText ="";
-        if (DNS)
-            defaultText = "ikke startet";
         var message = prompt(promptText, defaultText);
         if (message != null && message != "")
         {
-            var dataString	= idText + "&Navn=" + runnerName + "&Melding=" + message;
             $.ajax({
-                url: "./liveres_helpers/log.php",
-                data: dataString
+                url: this.URL + "?method=sendmessage", 
+                data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message
                 }
             );
-            this.messageBibs.push(dbid);
+            this.updateMessages();
         }
-    };
-
-          
-    AjaxViewer.prototype.resetSorting = function () {
-            var idxCol = 1;
-            $.each(this.currentTable.fnSettings().aoColumns, function (idx, val) {
-                if (val.sTitle == "VP") {
-                    idxCol = idx;
-                }
-            });
-            this.currentTable.fnSort([[idxCol, 'asc']]);
-            $("#" + this.txtResetSorting).html("");
     };
         
     // ReSharper disable once InconsistentNaming

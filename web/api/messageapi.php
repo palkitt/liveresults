@@ -76,21 +76,38 @@ else if ($_GET['method'] == 'getmessages')
 	$messages = $currentComp->getMessages();
 	$ret = "";
 	$first = true;
+	$lastId = null;
+	$groupCompleted = false;
 	foreach ($messages as $message)
 	{
+		$dbid      = $message['dbid'];
+		$completed = $message['completed'];
+		$changed   = $message['changed'];
 		
+		if ($dbid != $lastID) // New runner 
+		{
+			$groupCompleted = $completed;
+			$groupChanged   = $changed;
+		}
 		$bib    = ($message['bib']    != null ? $message['bib'] : 0);
 		$ecard1 = ($message['ecard1'] != null ? $message['ecard1'] : 0);
 		$ecard2 = ($message['ecard2'] != null ? $message['ecard2'] : 0);
 		$start  = ($message['time']   != null ? formatTime($message['time'],0,0,$RunnerStatus) : "");
 		$status = ($message['status'] != null ? $message['status'] : 0);
+		$name   = ($dbid == 0 ? "Generell melding" : ($message['name'] != null ? $message['name'] : ""));
+		$club   = $message['club'];
+		$class  = $message['class'];
 		
+		$lastID = $dbid;
+
 		if (!$first)
 			$ret .=",$br";
-		$ret .= "{\"messid\": ".$message['messid'].", \"dbid\": ".$message['dbid'].", \"changed\": \"".$message['changed']."\", \"message\": \"";
-		$ret .=	$message['message']."\", \"dns\": ".$message['dns'].", \"completed\": ".$message['completed'].", \"name\": \"".$message['name']."\"";
-		$ret .= ", \"bib\": ".$bib.", \"club\": \"".$message['club']."\", \"start\": \"".$start."\", \"status\": ".$status.", \"class\": \"";
-		$ret .= $message['class']."\", \"ecard1\": ".$ecard1.", \"ecard2\": ".$ecard2."}";
+		$ret .= "{\"messid\": ".$message['messid'].", \"dbid\": ".$dbid.", \"changed\": \"".$changed."\", ";
+		$ret .= "\"groupchanged\": \"".$groupChanged."\", \"message\": \"".$message['message']."\", ";
+		$ret .=	"\"dns\": ".$message['dns'].", \"completed\": ".$completed.", \"groupcompleted\": ".$groupCompleted.", \"name\": \"".$name."\"";
+		$ret .= ", \"bib\": ".$bib.", \"club\": \"".$club."\", \"start\": \"".$start."\", \"status\": ".$status.", \"class\": \"";
+		$ret .= $class."\", \"ecard1\": ".$ecard1.", \"ecard2\": ".$ecard2."}";
+		
 		$first = false;
 	}
 	$hash = MD5($ret);

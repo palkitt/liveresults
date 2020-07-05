@@ -150,7 +150,7 @@ class Emma
 		mysqli_free_result($result);
  		return $ret;
 	}
-	
+
 	public static function SendMessage($compid,$dbid,$changed,$message,$dns)
 	{
 		$conn = self::openConnection();
@@ -163,6 +163,20 @@ class Emma
 		return $ret;
 	}
 
+	public static function SetMessageCompleted($messid,$completed)
+	{
+		$conn = self::openConnection();
+	 	$sql = "update messages set completed = ".$completed." where messid = ".$messid;
+		mysqli_query($conn, $sql) or die(mysqli_error($conn));
+	}
+	
+	public static function SetMessageDNS($messid,$DNS)
+	{
+		$conn = self::openConnection();
+	 	$sql = "update messages set dns = ".$DNS." where messid = ".$messid;
+		mysqli_query($conn, $sql) or die(mysqli_error($conn));
+	}
+	
 	function Emma($compID)
 	{
 		$this->m_CompId = $compID;
@@ -745,6 +759,30 @@ class Emma
 		}
 		return $ret;
 	}
+
+	function getMessages()
+  	{
+    	$ret = Array();
+		$q = "SELECT messages.messid, messages.dbid, messages.changed, messages.message, messages.dns, messages.completed,
+			runners.name, runners.class, runners.club, runners.ecard1, runners.ecard2, runners.bib, 
+			results.control, results.time, results.status
+			FROM messages 
+			LEFT JOIN runners ON (runners.dbid = messages.dbid AND runners.tavid=".$this->m_CompId.") 
+			LEFT JOIN results ON (results.dbid = messages.dbid AND results.tavid=".$this->m_CompId." AND (results.control=100))
+			WHERE messages.tavid = ". $this->m_CompId ." 
+			ORDER BY messages.dbid, messages.completed, messages.changed DESC";
+
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+  	}
+
 }
 
 ?>
