@@ -151,15 +151,15 @@ class Emma
  		return $ret;
 	}
 
-	public static function SendMessage($compid,$dbid,$changed,$message,$dns)
+	public static function SendMessage($compid,$dbid,$changed,$message,$dns,$ecardchange)
 	{
 		$conn = self::openConnection();
 		$res = mysqli_query($conn, "select max(messid)+1 from messages");
 		list($messid) = mysqli_fetch_row($res);
 		if ($messid < 1)
 			$messid = 1;
-		$ret = mysqli_query($conn, "insert into messages(messid,tavid,dbid,changed,message,dns,completed)
-		  values(".$messid.",".$compid.",".$dbid.",FROM_UNIXTIME(".$changed."),'".$message."',".$dns.",0)") or die(mysqli_error($conn));
+		$ret = mysqli_query($conn, "insert into messages(messid,tavid,dbid,changed,message,dns,ecardchange,completed)
+		  values(".$messid.",".$compid.",".$dbid.",FROM_UNIXTIME(".$changed."),'".$message."',".$dns.",".$ecardchange.",0)") or die(mysqli_error($conn));
 		return $ret;
 	}
 
@@ -767,8 +767,8 @@ class Emma
 			runners.name, runners.class, runners.club, runners.ecard1, runners.ecard2, runners.bib, 
 			results.control, results.time, results.status
 			FROM messages 
-			LEFT JOIN runners ON (runners.dbid = messages.dbid AND runners.tavid=".$this->m_CompId.") 
-			LEFT JOIN results ON (results.dbid = messages.dbid AND results.tavid=".$this->m_CompId." AND (results.control=100))
+			LEFT JOIN runners ON (runners.dbid=messages.dbid AND runners.tavid=".$this->m_CompId.") 
+			LEFT JOIN results ON (results.dbid=messages.dbid AND results.tavid=".$this->m_CompId." AND results.control=100)
 			WHERE messages.tavid = ". $this->m_CompId ." 
 			ORDER BY messages.dbid, messages.completed, messages.changed DESC";
 
@@ -781,7 +781,42 @@ class Emma
 		else
 			die(mysqli_error($this->m_Conn));
 		return $ret;
-  	}
+	}
+	 
+	function getDNS()
+  	{
+    	$ret = Array();
+		$q = "SELECT dbid, changed FROM messages WHERE tavid=". $this->m_CompId ." AND dns=1 AND completed=0";
+
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+
+	function getEcardChange()
+  	{
+    	$ret = Array();
+		$q = "SELECT messages.dbid, messages.changed, messages.message, runners.name 
+		      FROM messages
+			  LEFT JOIN runners ON (runners.dbid=messages.dbid AND runners.tavid=".$this->m_CompId.")  
+		      WHERE messages.tavid=". $this->m_CompId ." AND messages.ecardchange=1 AND messages.completed=0";
+
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
 
 }
 
