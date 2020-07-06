@@ -65,6 +65,7 @@ var LiveResults;
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
             this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
+            this.messageURL = (this.local ? "api/messageapi.php" : "//api.freidig.idrett.no/messageapi.php");
             LiveResults.Instance = this;
             
 			$(window).hashchange(function () {
@@ -793,24 +794,16 @@ var LiveResults;
                         }});
 
                 if (this.radioStart){				
-                    var message = "<button onclick=\"res.popupDialog('Generell melding',0,'&Tidsp=0&lopid=" +
-                                "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";
+                    var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
+                    
                     columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
                         "render": function (data,type,row) 
                         {
-                                var DNStext = "true";
-                                if (row.runnerName!=undefined && !isNaN(row.runnerName.charAt(0)))
-                                    DNStext = "false";
+                                var defaultDNS = (row.dbid > 0 ? 1 : 0);
                                 var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;
                                 runnerName = runnerName.replace("<del>","");
                                 runnerName = runnerName.replace("</del>","");
-                                var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
-                                "'lopid=" + "(" + _this.competitionId +") " + _this.compName +
-                                "&Tidsp=" + row.passtime + 
-                                "&T0="    + row.club + 
-                                "&T1="    + className +
-                                "&T2="    + row.controlName + 
-                                "&T3="    + row.time + "'," + DNStext + ");\">&#128172;</button>";						
+                                var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";						
                                 if ( _this.messageBibs.indexOf(row.dbid) > -1)
                                     link += " &#9679;";
                                 return link;
@@ -908,23 +901,24 @@ var LiveResults;
 
 		
     //Popup window for messages to message center
-    AjaxViewer.prototype.popupDialog = function (runnerName,dbid,idText,DNS) {
-        var promptText = runnerName;
+    AjaxViewer.prototype.popupDialog = function (promptText,dbid,defaultDNS) {
         var defaultText ="";
-        if (DNS)
+        if (defaultDNS)
             defaultText = "ikke startet";
+        else if (dbid<0)
+            defaultText = "startnummer:";
         var message = prompt(promptText, defaultText);
         if (message != null && message != "")
         {
-            var dataString	= idText + "&Navn=" + runnerName + "&Melding=" + message;
+            var DNS = (message == "ikke startet" ? 1 : 0);
+            var ecardChange = (dbid<0 && message.match(/\d+/g) != null);
             $.ajax({
-                url: "./liveres_helpers/log.php",
-                data: dataString
+                url: this.messageURL + "?method=sendmessage", 
+                data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
                 }
             );
-            this.messageBibs.push(dbid);
         }
-    }
+    };
 
        //Check for updating of class results 
         AjaxViewer.prototype.checkForClassUpdate = function () {
