@@ -70,6 +70,7 @@
             this.wizardPage2 = new Gui.Wizard.WizardPage();
             this.lstDB = new System.Windows.Forms.ListBox();
             this.label6 = new System.Windows.Forms.Label();
+            this.chkUpdateMessage = new System.Windows.Forms.CheckBox();
             this.wizard1.SuspendLayout();
             this.wizardPage1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -79,9 +80,9 @@
             // 
             // wizard1
             // 
-            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage2);
+            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
@@ -248,6 +249,7 @@
             // 
             // wizardPage5
             // 
+            this.wizardPage5.Controls.Add(this.chkUpdateMessage);
             this.wizardPage5.Controls.Add(this.chkEventorID);
             this.wizardPage5.Controls.Add(this.txtIdOffset);
             this.wizardPage5.Controls.Add(this.label16);
@@ -497,6 +499,16 @@
             this.label6.TabIndex = 0;
             this.label6.Text = "Database";
             // 
+            // chkUpdateMessage
+            // 
+            this.chkUpdateMessage.AutoSize = true;
+            this.chkUpdateMessage.Location = new System.Drawing.Point(319, 185);
+            this.chkUpdateMessage.Name = "chkUpdateMessage";
+            this.chkUpdateMessage.Size = new System.Drawing.Size(163, 17);
+            this.chkUpdateMessage.TabIndex = 20;
+            this.chkUpdateMessage.Text = "Update eTiming from messages";
+            this.chkUpdateMessage.UseVisualStyleBackColor = true;
+            // 
             // NewETimingComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -562,5 +574,6 @@
         private System.Windows.Forms.TextBox txtIdOffset;
         private System.Windows.Forms.Label label16;
         public System.Windows.Forms.CheckBox chkEventorID;
+        public System.Windows.Forms.CheckBox chkUpdateMessage;
     }
 }

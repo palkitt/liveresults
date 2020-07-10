@@ -39,6 +39,7 @@ namespace LiveResults.Client
             chkTwoEcards.Checked = false;
             chkLapTimes.Checked = false;
             chkEventorID.Checked = false;
+            chkUpdateMessage.Checked = false;
             RetreiveSettings();
             chkDeleteEmmaIDs.Checked = false;
         }
@@ -355,8 +356,8 @@ namespace LiveResults.Client
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
                     Convert.ToInt32(txtSleepTime.Text), 
                     chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, 
-                    chkLapTimes.Checked, chkEventorID.Checked, Convert.ToInt32(txtIdOffset.Text));
-
+                    chkLapTimes.Checked, chkEventorID.Checked, Convert.ToInt32(txtIdOffset.Text), 
+                    chkUpdateMessage.Checked, Convert.ToInt32(txtCompID.Text));
             monForm.SetParser(pars as IExternalSystemResultParser);
             monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
             monForm.Organizer = cmp.Organizer;
@@ -422,5 +423,7 @@ namespace LiveResults.Client
         {
 
         }
+
+        
     }
 }

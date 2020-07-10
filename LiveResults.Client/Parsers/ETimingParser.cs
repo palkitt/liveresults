@@ -8,7 +8,12 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Xml;
+using System.Net;
+using System.Windows.Forms;
 using LiveResults.Model;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Microsoft.CSharp;
 namespace LiveResults.Client
 {
     
@@ -27,10 +32,13 @@ namespace LiveResults.Client
         private bool m_twoEcards;
         private bool m_EventorID;
         private int m_IdOffset;
+        private bool m_updateMessage;
+        private int m_compID;
         private int day;
 
         public ETimingParser(IDbConnection conn, int sleepTime, bool recreateRadioControls = true, bool oneLineRelayRes = false, 
-            bool MSSQL = false, bool twoEcards = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0)
+            bool MSSQL = false, bool twoEcards = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0, 
+            bool updateMessage = false, int compID = 0)
         {
             m_connection = conn;
             m_createRadioControls = recreateRadioControls;
@@ -41,6 +49,8 @@ namespace LiveResults.Client
             m_lapTimes = lapTimes;
             m_EventorID = EventorID;
             m_IdOffset = IdOffset;
+            m_updateMessage = updateMessage;
+            m_compID = compID;
         }
         
         private void FireOnResult(Result newResult)
@@ -62,6 +72,7 @@ namespace LiveResults.Client
         }
 
         Thread m_monitorThread;
+        Thread m_messageThread;
 
         public void Start()
         {
@@ -512,6 +523,12 @@ namespace LiveResults.Client
                     }
 
                     FireLogMsg("eTiming Monitor thread started");
+
+                    string messageServer = ConfigurationManager.AppSettings["messageServer"];
+                    WebClient client = new WebClient();
+                    int maxSleepTimeMessage = 10;
+                    int SleepTimeMessage = 0;
+
                     while (m_continue)
                     {
                         try
@@ -521,6 +538,14 @@ namespace LiveResults.Client
                             if (isRelay)
                                 ParseReader(cmdRelay, ref splitList, true, out lastRunner);
                             handleUnknowns(splitList, ref unknownRunners);
+
+                            SleepTimeMessage += m_sleepTime;
+                            if (m_updateMessage && SleepTimeMessage >= maxSleepTimeMessage)
+                            {
+                                updateDNSFromMessages(messageServer, client);
+                                updateEcardFromMessages(messageServer, client);
+                                SleepTimeMessage = 0;
+                            }
                             Thread.Sleep(1000*m_sleepTime);
                         }
                         catch (Exception ee)
@@ -865,7 +890,7 @@ namespace LiveResults.Client
                         {
                             if (split.controlCode == 0)
                             {
-                                if (status == "I") // Change code of only entered runners
+                                if (status == "I" || status == "N") // Change code of entered and not started (by mistake) runners
                                     status = "S";
                                 if (freeStart)
                                     calcStartTime = split.passTime;
@@ -1211,7 +1236,211 @@ namespace LiveResults.Client
             }
         }
 
-        
+        private void updateDNSFromMessages(string messageServer, WebClient client)
+        {
+            // Get and set DNS
+            string apiResponse = client.DownloadString(messageServer + "messageapi.php?method=getdns&comp=" + m_compID);  
+            var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
+            if (objects.status == "OK")
+            {
+                JArray items = (JArray)objects["dns"];
+                foreach (JObject element in items)
+                {
+                    int messid = (element["messid"]).ToObject<int>();
+                    int kid = 0;
+                    int dbid = (element["dbid"]).ToObject<int>();
+                    dbid -= m_IdOffset;
+                    if (m_EventorID)
+                    {
+                        if (dbid > 1000000)
+                            dbid -= 1000000;
+                        else
+                            kid = dbid;
+                    }
+                    try
+                    {
+                        IDbCommand cmd = m_connection.CreateCommand();
+
+                        if (kid>0) // use Eventor ID
+                            cmd.CommandText = string.Format(@"SELECT id, ename, name, status FROM name WHERE kid={0}", kid);
+                        else       // use eTiming ID
+                            cmd.CommandText = string.Format(@"SELECT id, ename, name, status FROM name WHERE id={0}", dbid);
+
+                        string status = "", givName = "", famName = "", name = "";
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
+                            reader.Read();
+                            if (reader[0] != null && reader[0] != DBNull.Value)
+                            {
+                                // bruke ID
+                                // Forenkle kutt message i api metoder
+                                status = reader["status"] as string;
+                                famName = reader["ename"] as string;
+                                givName = reader["name"] as string;
+                                if (!string.IsNullOrEmpty(famName))
+                                    famName = famName.Trim();
+                                if (!string.IsNullOrEmpty(famName))
+                                    givName = givName.Trim();
+                                name = givName + " " + famName;
+                            }
+                            reader.Close();
+                        }
+
+                        if (status == "I")
+                        {
+                            cmd.CommandText = string.Format(@"UPDATE name SET status='N' WHERE id = {0}", dbid);
+                            var update = cmd.ExecuteNonQuery();
+                            if (update == 1)
+                            {
+                                FireLogMsg("'eTiming Message (ID): (" + dbid + ") " + name + " set to DNS");
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagecompleted&completed=1&messid=" + messid);
+                            }
+                            else
+                            {
+                                FireLogMsg("'eTiming Message (ID): (" + dbid + ") " + name + " not possoble to set to DNS");
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedns&dns=0&messid=" + messid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Ikke oppdatert. Status:" + status + "&dbid=" + dbid);
+                            }
+                        }
+                        else 
+                        {
+                            FireLogMsg("'eTiming Message (dbid/kid): (" + (kid > 0 ? kid : dbid) + ") " + name + " not set to DNS. Status: " + status);
+                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedns&dns=0&messid=" + messid);
+                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Ikke oppdatert. Status:" + status + "&dbid=" + dbid);
+                        }
+                                
+                    }
+                    catch (Exception ee)
+                    {
+                        FireLogMsg("eTiming Message DNS: " + ee.Message);
+                    } 
+                }
+            }
+                    
+        }
+
+        private void updateEcardFromMessages(string messageServer, WebClient client)
+        {
+            // Get and set ecard change
+            string apiResponse = client.DownloadString(messageServer + "messageapi.php?method=getecardchange&comp=" + m_compID);
+            var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
+            if (objects.status == "OK")
+            {
+                JArray items = (JArray)objects["ecardchange"];
+                foreach (JObject element in items)
+                {
+                    int dbidMessage = (element["dbid"]).ToObject<int>();
+                    int messid = (element["messid"]).ToObject<int>();
+                    int ecard = (element["ecard"]).ToObject<int>();
+                    int bib = (element["bib"]).ToObject<int>();
+
+                    try
+                    {
+                        IDbCommand cmd = m_connection.CreateCommand();
+                        cmd.CommandText = string.Format(@"SELECT id, ename, name, ecard, ecard2, ecard3, ecard4, status FROM name WHERE startno={0}", bib);
+
+                        string status = "", givName = "", famName = "", name = "";
+                        int dbid = 0;
+                        int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
+                        bool bibOK = false;
+                        bool ecardOK = true;
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
+                            reader.Read();
+                            if (reader.RecordsAffected == 1 && reader[0] != null && reader[0] != DBNull.Value)
+                            {
+                                string dbidread = (reader["id"].ToString()).Trim();
+                                dbid = string.IsNullOrEmpty(dbidread) ? 0 : Convert.ToInt32(dbidread);
+                                status = reader["status"] as string;
+                                famName = reader["ename"] as string;
+                                givName = reader["name"] as string;
+                                if (!string.IsNullOrEmpty(famName))
+                                    famName = famName.Trim();
+                                if (!string.IsNullOrEmpty(famName))
+                                    givName = givName.Trim();
+                                name = givName + " " + famName;
+
+                                if (reader["ecard"] != null && reader["ecard"] != DBNull.Value)
+                                    ecard1 = Convert.ToInt32(reader["ecard"].ToString());
+                                if (reader["ecard2"] != null && reader["ecard2"] != DBNull.Value)
+                                    ecard2 = Convert.ToInt32(reader["ecard2"].ToString());
+                                if (reader["ecard3"] != null && reader["ecard3"] != DBNull.Value)
+                                    ecard3 = Convert.ToInt32(reader["ecard3"].ToString());
+                                if (reader["ecard4"] != null && reader["ecard4"] != DBNull.Value)
+                                    ecard4 = Convert.ToInt32(reader["ecard4"].ToString());
+
+                                bibOK = (status == "I");
+                            }
+                            reader.Close();
+                        }
+
+                        if (bibOK)
+                        {
+                            cmd.CommandText = string.Format(@"SELECT id FROM name WHERE ecard={0} OR ecard2={0} OR ecard3={0} OR ecard4={0}", ecard);
+                            using (IDataReader reader = cmd.ExecuteReader())
+                            {
+                                reader.Read();
+                                if (reader[0] != null && reader[0] != DBNull.Value)
+                                    ecardOK = false;
+                                reader.Close();
+                            }
+                        }
+
+                        if (bibOK && ecardOK)
+                        {
+                            bool emiTag  = (ecard < 10000 || ecard > 1000000);   
+                            bool emiTag1 = (ecard1 < 10000 || ecard1 > 1000000);
+                            bool emiTag2 = (ecard2 < 10000 || ecard2 > 1000000);
+                            int ecardOld = 0;
+                            int cardToChange = 3; // Use tag 3 place if both tag holders are of same type as new tag
+                            if (emiTag && emiTag1 && !emiTag2 || !emiTag && !emiTag1 && emiTag2 || ecard1 == 0)
+                            {
+                                cardToChange = 1;
+                                ecardOld = ecard1;
+                            }
+                            else if (emiTag && emiTag2 && !emiTag1 || !emiTag && !emiTag2 && emiTag1 || ecard2 == 0)
+                            {
+                                cardToChange = 2;
+                                ecardOld = ecard2;
+                            }
+
+                            if (cardToChange==1)
+                                cmd.CommandText = string.Format(@"UPDATE name SET ecard={0} WHERE bib={1}", ecard, bib);
+                            else
+                                cmd.CommandText = string.Format(@"UPDATE name SET ecard{2}={0} WHERE bib={1}", ecard, bib, cardToChange);
+                            var update = cmd.ExecuteNonQuery();
+                            if (update == 1)
+                            {
+                                FireLogMsg("'eTiming Message: (" + bib + ") " + name + " replaced ecard: " + ecardOld + " with : "+ ecard);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagecompleted&completed=1&messid=" + messid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Brikkebytte: " + ecardOld +
+                                    " byttet til " + ecard + "&dbid=" + dbid);
+
+                            }
+                            else
+                            {
+                                FireLogMsg("'eTiming Message: (" + bib + ") " + name + " not possoble to change ecard");
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessageecardchange&ecardchange=0&messid=" + messid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Ikke oppdatert brikkenummer&dbid=" + dbid);
+                            }
+                        }
+                        else
+                        {
+                            FireLogMsg("'eTiming Message: (" + bib + ") " + name + " not changed ecard.");
+                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessageecardchange&ecardchange=0&messid=" + messid);
+                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Ikke oppdatert brikkenummer&dbid=" + dbid);
+                        }
+
+                    }
+                    catch (Exception ee)
+                    {
+                        FireLogMsg("eTiming Message ecard: " + ee.Message);
+                    }
+                }
+            }
+
+        }
+
         private static int GetRunTime(string runTime)
         {
             int factor = 1;
