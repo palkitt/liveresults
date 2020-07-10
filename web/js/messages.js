@@ -14,6 +14,7 @@ var Messages;
             this.radioData = null;
             this.showAllMessages = false;
             this.newMessageAudio = new Audio(src="images/newmessage.ogg");
+            this.audioMute = true;
             this.lastNumberOfMessages = null;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
@@ -75,7 +76,8 @@ var Messages;
                 else if (this.radioData.length > this.lastNumberOfMessages)
                 {
                     this.lastNumberOfMessages = this.radioData.length;
-                    this.newMessageAudio.play();
+                    if (!this.audioMute)
+                        this.newMessageAudio.play();
                 }
 						
                 // Existing datatable
@@ -347,6 +349,7 @@ var Messages;
         var message = prompt(promptText, defaultText);
         if (message != null && message != "")
         {
+            message = message.substring(0,250);
             $.ajax({
                 url: this.URL + "?method=sendmessage", 
                 data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message

@@ -41,6 +41,21 @@ function enableNoSleep() {
   document.removeEventListener('click', enableNoSleep, false);
 }
 
+function switchSound()
+{
+	if (mess.audioMute)
+	{
+		$('#audioOnOff').html(" &#128264; ")
+		mess.audioMute = false;
+	}
+	else
+	{
+		$('#audioOnOff').html(" &#128263; ")
+		mess.audioMute = true;
+	}
+}
+
+
 document.addEventListener('click', enableNoSleep, false);
 var mess = null;
 
@@ -80,6 +95,7 @@ $(document).ready(function()
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
 	<tr>
 		<td><span class="pulsingLive" id="liveIndicator">&#9679;</span>
+		<span style="cursor:pointer; color:#FFF; font-size:1.3em" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
 		<b>Meldinger</b>
 		</td>
 		<td align="center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
