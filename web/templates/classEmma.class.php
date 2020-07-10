@@ -177,6 +177,13 @@ class Emma
 		mysqli_query($conn, $sql) or die(mysqli_error($conn));
 	}
 	
+	public static function SetMessageEcardChange($messid,$ecardchange)
+	{
+		$conn = self::openConnection();
+	 	$sql = "update messages set ecardchange = ".$ecardchange." where messid = ".$messid;
+		mysqli_query($conn, $sql) or die(mysqli_error($conn));
+	}
+
 	function Emma($compID)
 	{
 		$this->m_CompId = $compID;
@@ -786,7 +793,7 @@ class Emma
 	function getDNS()
   	{
     	$ret = Array();
-		$q = "SELECT dbid, changed FROM messages WHERE tavid=". $this->m_CompId ." AND dns=1 AND completed=0";
+		$q = "SELECT messid, dbid, changed FROM messages WHERE tavid=". $this->m_CompId ." AND dns=1 AND completed=0";
 
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
@@ -802,7 +809,7 @@ class Emma
 	function getEcardChange()
   	{
     	$ret = Array();
-		$q = "SELECT messages.dbid, messages.changed, messages.message, runners.name 
+		$q = "SELECT messages.messid, messages.dbid, messages.changed, messages.message, runners.name 
 		      FROM messages
 			  LEFT JOIN runners ON (runners.dbid=messages.dbid AND runners.tavid=".$this->m_CompId.")  
 		      WHERE messages.tavid=". $this->m_CompId ." AND messages.ecardchange=1 AND messages.completed=0";

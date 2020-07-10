@@ -71,6 +71,20 @@ else if ($_GET['method'] == 'setmessagedns')
 	else
 		echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
 }
+else if ($_GET['method'] == 'setmessageecardchange')
+{
+	if (!isset($_GET['messid']))
+		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
+	if (!isset($_GET['ecardchange']))
+		echo("{\"status\": \"Error\", \"message\": \"ecardchange not set\"}");
+
+	$ret = Emma::SetMessageEcardChange($_GET['messid'],$_GET['ecardchange']);
+
+	if ($ret > 0)
+		echo("{\"status\": \"OK\"}");
+	else
+		echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
+}
 else if ($_GET['method'] == 'getmessages')
 {
 	$currentComp = new Emma($_GET['comp']);
@@ -128,11 +142,12 @@ else if ($_GET['method'] == 'getdns')
 	$first = true;
 	foreach ($runners as $runner)
 	{
+		$messid    = $runner['messid'];
 		$dbid      = $runner['dbid'];
 		$changed   = $runner['changed'];
 		if (!$first)
 			$ret .=",$br";
-		$ret .= "{\"dbid\": ".$dbid.", \"changed\": \"".$changed."\"}";
+		$ret .= "{\"messid\": ".$messid.", \"dbid\": ".$dbid.", \"changed\": \"".$changed."\"}";
 		$first = false;
 	}
 	$hash = MD5($ret);
@@ -149,6 +164,7 @@ else if ($_GET['method'] == 'getecardchange')
 	$first = true;
 	foreach ($runners as $runner)
 	{
+		$messid    = $runner['messid'];
 		$dbid      = $runner['dbid'];
 		$changed   = $runner['changed'];
 		$name      = $runner['name'];
@@ -161,7 +177,7 @@ else if ($_GET['method'] == 'getecardchange')
 
 		if (!$first)
 			$ret .=",$br";
-		$ret .= "{\"dbid\": ".$dbid.", \"changed\": \"".$changed."\", \"ecard\": \"".$ecard."\", \"bib\": \"".$bib."\"}";
+		$ret .= "{\"messid\": ".$messid.", \"dbid\": ".$dbid.", \"changed\": \"".$changed."\", \"ecard\": \"".$ecard."\", \"bib\": \"".$bib."\"}";
 		$first = false;
 	}
 	$hash = MD5($ret);
