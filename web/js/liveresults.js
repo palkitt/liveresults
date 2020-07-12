@@ -918,6 +918,7 @@ var LiveResults;
                 data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
                 }
             );
+            this.messageBibs.push(dbid);
         }
     };
 
