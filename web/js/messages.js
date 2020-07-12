@@ -254,7 +254,7 @@ var Messages;
     {
         _this = this;
         $.ajax({
-                url: this.URL + "?method=setmessagecompleted", 
+                url: this.URL + "?method=setcompleted", 
                 data: "&messid=" + messid + "&completed=" + completed,
                 success: function() {_this.updateMessages();}
                 });
@@ -265,7 +265,7 @@ var Messages;
     {
         var _this = this;
         var ret = $.ajax({
-                url: _this.URL + "?method=setmessagedns",
+                url: _this.URL + "?method=setdns",
                 data: "&messid=" + messid + "&dns=" + dns,
                 success: function() {_this.updateMessages();}
                 });

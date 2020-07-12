@@ -27,6 +27,7 @@ if ($_GET['method'] == 'sendmessage')
 	$changed = time();
 	$DNS = 0;
 	$ecardChange = 0;
+	$completed = 0;
 	if (!isset($_GET['comp']))
 		echo("{\"status\": \"Error\", \"message\": \"comp not set\"}");
 	if (!isset($_GET['dbid']))
@@ -37,14 +38,16 @@ if ($_GET['method'] == 'sendmessage')
 		$DNS = $_GET['dns'];
 	if (isset($_GET['ecardchange']))
 		$ecardChange = $_GET['ecardchange'];
-	$ret = Emma::SendMessage($_GET['comp'],$_GET['dbid'],$changed,$_GET['message'],$DNS,$ecardChange);
+	if (isset($_GET['completed']))
+		$completed = $_GET['completed'];
+	$ret = Emma::SendMessage($_GET['comp'],$_GET['dbid'],$changed,$_GET['message'],$DNS,$ecardChange,$completed);
 
 	if ($ret > 0)
 		echo("{\"status\": \"OK\"}");
 	else
 		echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
 }
-else if ($_GET['method'] == 'setmessagecompleted')
+else if ($_GET['method'] == 'setcompleted')
 {
 	if (!isset($_GET['messid']))
 		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
@@ -57,7 +60,7 @@ else if ($_GET['method'] == 'setmessagecompleted')
 	else
 		echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
 }
-else if ($_GET['method'] == 'setmessagedns')
+else if ($_GET['method'] == 'setdns')
 {
 	if (!isset($_GET['messid']))
 		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
@@ -71,7 +74,7 @@ else if ($_GET['method'] == 'setmessagedns')
 	else
 		echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
 }
-else if ($_GET['method'] == 'setmessageecardchange')
+else if ($_GET['method'] == 'setecardchange')
 {
 	if (!isset($_GET['messid']))
 		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");

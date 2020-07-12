@@ -151,7 +151,7 @@ class Emma
  		return $ret;
 	}
 
-	public static function SendMessage($compid,$dbid,$changed,$message,$dns,$ecardchange)
+	public static function SendMessage($compid,$dbid,$changed,$message,$dns,$ecardchange,$completed)
 	{
 		$conn = self::openConnection();
 		$res = mysqli_query($conn, "select max(messid)+1 from messages");
@@ -159,7 +159,7 @@ class Emma
 		if ($messid < 1)
 			$messid = 1;
 		$ret = mysqli_query($conn, "insert into messages(messid,tavid,dbid,changed,message,dns,ecardchange,completed)
-		  values(".$messid.",".$compid.",".$dbid.",FROM_UNIXTIME(".$changed."),'".$message."',".$dns.",".$ecardchange.",0)") or die(mysqli_error($conn));
+		  values(".$messid.",".$compid.",".$dbid.",FROM_UNIXTIME(".$changed."),'".$message."',".$dns.",".$ecardchange.",".$completed.")") or die(mysqli_error($conn));
 		return $ret;
 	}
 
