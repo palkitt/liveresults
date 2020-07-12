@@ -28,3 +28,16 @@ alter table login add column hightime int(11) DEFAULT NULL;
 -- addition 2020-02-13
 alter table login add column quallimits varchar(50) CHARACTER SET utf8 NOT NULL DEFAULT '';
 alter table login add column qualclasses varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '';
+
+-- addition 2020-07-11
+CREATE TABLE `messages` (
+`messid` int(11) NOT NULL DEFAULT '0',
+`tavid` int(11) NOT NULL DEFAULT '0',
+`dbid` int(11) NOT NULL DEFAULT '0',
+`changed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+`message` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+`dns` tinyint(1) DEFAULT NULL,
+`ecardchange` tinyint(1) DEFAULT NULL,
+`completed` tinyint(1) DEFAULT NULL,
+PRIMARY KEY (`messid`)
+) DEFAULT CHARSET=utf8;
