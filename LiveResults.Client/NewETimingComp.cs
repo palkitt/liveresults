@@ -295,37 +295,42 @@ namespace LiveResults.Client
                 IDbCommand cmd = conn.CreateCommand();
 
                 cmd.CommandText = "SELECT id, name, organizator, firststart FROM arr";
-                IDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                using (IDataReader reader = cmd.ExecuteReader())
                 {
-                    cmp.Id = Convert.ToInt32(reader["id"].ToString());
-                    cmp.Name = Convert.ToString(reader["name"]);
-                    cmp.Organizer = Convert.ToString(reader["organizator"]).Trim();
-                    cmp.CompDate = Convert.ToDateTime(reader[("firststart")]);
+                    while (reader.Read())
+                    {
+                        cmp.Id = Convert.ToInt32(reader["id"].ToString());
+                        cmp.Name = Convert.ToString(reader["name"]);
+                        cmp.Organizer = Convert.ToString(reader["organizator"]).Trim();
+                        cmp.CompDate = Convert.ToDateTime(reader[("firststart")]);
+                    }
+                    reader.Close();
                 }
-                reader.Close();
+
                 int EventorID = 0, eTimingID = 0;
-                cmd.CommandText = "SELECT id, kid, status from Name";
-                reader = cmd.ExecuteReader();
+                bool parseOK;
                 IDpar eTimingIDs;
                 cmp.eTimingIDpars = new List<IDpar>();
 
-                while (reader.Read())
+                cmd.CommandText = "SELECT id, kid, status from Name";
+                using (IDataReader reader = cmd.ExecuteReader())
                 {
-                    string status = reader["status"] as string;
-                    if ((status != "V") && (status != "C")) // Continue if not "free" nor "entered"  
+                    while (reader.Read())
                     {
-                        eTimingID = Convert.ToInt32(reader["id"].ToString());
-                        EventorID = 0;
-                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
-                            EventorID = Convert.ToInt32(reader["kid"].ToString());
-                        eTimingIDs.eTimingID = eTimingID;
-                        eTimingIDs.EventorID = EventorID;
-                        cmp.eTimingIDpars.Add(eTimingIDs);
+                        string status = reader["status"] as string;
+                        if ((status != "V") && (status != "C")) // Continue if not "free" nor "entered"  
+                        {
+                            eTimingID = Convert.ToInt32(reader["id"].ToString());
+                            EventorID = 0;
+                            if (reader["kid"] != null && reader["kid"] != DBNull.Value && reader["kid"].ToString() != "")
+                                parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
+                            eTimingIDs.eTimingID = eTimingID;
+                            eTimingIDs.EventorID = EventorID;
+                            cmp.eTimingIDpars.Add(eTimingIDs);
+                        }
                     }
+                    reader.Close();
                 }
-                reader.Close();
                 cmd.Dispose();
             }
             catch (Exception ee)
