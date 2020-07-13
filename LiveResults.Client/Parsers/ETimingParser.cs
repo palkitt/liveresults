@@ -1306,21 +1306,21 @@ namespace LiveResults.Client
                             var update = cmd.ExecuteNonQuery();
                             if (update == 1)
                             {
-                                FireLogMsg("eTiming Message (ID): (" + eTimingID + ") " + name + " set to DNS");
+                                FireLogMsg("eTiming Message (ID: " + eTimingID + ") " + name + " set to DNS");
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
                             }
                             else
                             {
-                                FireLogMsg("eTiming Message (ID): (" + eTimingID + ") " + name + " not possoble to set to DNS");
+                                FireLogMsg("eTiming Message (ID: " + eTimingID + ") " + name + " not possible to set to DNS");
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setdns&dns=0&messid=" + messid);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Ikke oppdatert. Status:" + status + "&dbid=" + dbid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere. Status:" + status + "&dbid=" + dbid);
                             }
                         }
                         else 
                         {
-                            FireLogMsg("'eTiming Message (dbid/kid): (" + (kid > 0 ? kid : dbid) + ") " + name + " not set to DNS. Status: " + status);
+                            FireLogMsg("eTiming Message (" + (kid > 0 ? "kid: " + kid : "dbid:" + dbid) + ") " + name + " not posible to set to DNS. Status: " + status);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setdns&dns=0&messid=" + messid);
-                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Ikke oppdatert. Status:" + status + "&dbid=" + dbid);
+                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere. Status:" + status + "&dbid=" + dbid);
                         }
                                 
                     }
@@ -1461,7 +1461,7 @@ namespace LiveResults.Client
                             var update = cmd.ExecuteNonQuery();
                             if (update == 1)
                             {
-                                FireLogMsg("eTiming Message: (" + bib + ") " + name + " replaced ecard: " + ecardOld + " with: "+ ecard);
+                                FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " replaced ecard: " + ecardOld + " with: "+ ecard);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID + "&message=Brikke: " + ecardOld +
                                     " byttet til " + ecard + "&dbid=" + dbid);
@@ -1469,16 +1469,16 @@ namespace LiveResults.Client
                             }
                             else
                             {
-                                FireLogMsg("eTiming Message: (" + bib + ") " + name + " not possoble to change ecard " + ecard);
+                                FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " not possible to change ecard " + ecard);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setecardchange&ecardchange=0&messid=" + messid);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Ikke oppdatert brikkenummer&dbid=" + dbidMessage);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikkenr&dbid=" + dbidMessage);
                             }
                         }
                         else
                         {
-                            FireLogMsg("eTiming Message: (" + bib + ") " + name + " not changed ecard " + ecard);
+                            FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " not possible to change ecard " + ecard);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setecardchange&ecardchange=0&messid=" + messid);
-                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Ikke oppdatert brikkenummer&dbid=" + dbidMessage);
+                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikkenr&dbid=" + dbidMessage);
                         }
 
                     }
