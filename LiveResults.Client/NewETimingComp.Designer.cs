@@ -47,6 +47,9 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.wizardPage5 = new Gui.Wizard.WizardPage();
+            this.txtOsOffset = new System.Windows.Forms.TextBox();
+            this.label17 = new System.Windows.Forms.Label();
+            this.chkUpdateMessage = new System.Windows.Forms.CheckBox();
             this.chkEventorID = new System.Windows.Forms.CheckBox();
             this.txtIdOffset = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
@@ -70,7 +73,6 @@
             this.wizardPage2 = new Gui.Wizard.WizardPage();
             this.lstDB = new System.Windows.Forms.ListBox();
             this.label6 = new System.Windows.Forms.Label();
-            this.chkUpdateMessage = new System.Windows.Forms.CheckBox();
             this.wizard1.SuspendLayout();
             this.wizardPage1.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -80,9 +82,9 @@
             // 
             // wizard1
             // 
+            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage2);
-            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
@@ -122,7 +124,7 @@
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(267, 13);
             this.label15.TabIndex = 10;
-            this.label15.Text = "Ver 01.07.2020 - https://github.com/palkitt/liveresults";
+            this.label15.Text = "Ver 14.07.2020 - https://github.com/palkitt/liveresults";
             this.label15.Click += new System.EventHandler(this.label15_Click);
             // 
             // panel1
@@ -249,6 +251,8 @@
             // 
             // wizardPage5
             // 
+            this.wizardPage5.Controls.Add(this.txtOsOffset);
+            this.wizardPage5.Controls.Add(this.label17);
             this.wizardPage5.Controls.Add(this.chkUpdateMessage);
             this.wizardPage5.Controls.Add(this.chkEventorID);
             this.wizardPage5.Controls.Add(this.txtIdOffset);
@@ -279,14 +283,40 @@
             this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
             this.wizardPage5.ShowFromNext += new System.EventHandler(this.wizardPage5_ShowFromNext);
             // 
+            // txtOsOffset
+            // 
+            this.txtOsOffset.Location = new System.Drawing.Point(160, 111);
+            this.txtOsOffset.Name = "txtOsOffset";
+            this.txtOsOffset.Size = new System.Drawing.Size(81, 21);
+            this.txtOsOffset.TabIndex = 21;
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(12, 114);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(141, 13);
+            this.label17.TabIndex = 22;
+            this.label17.Text = "Open start time offset [min]";
+            // 
+            // chkUpdateMessage
+            // 
+            this.chkUpdateMessage.AutoSize = true;
+            this.chkUpdateMessage.Location = new System.Drawing.Point(319, 186);
+            this.chkUpdateMessage.Name = "chkUpdateMessage";
+            this.chkUpdateMessage.Size = new System.Drawing.Size(175, 17);
+            this.chkUpdateMessage.TabIndex = 20;
+            this.chkUpdateMessage.Text = "Update eTiming from messages";
+            this.chkUpdateMessage.UseVisualStyleBackColor = true;
+            // 
             // chkEventorID
             // 
             this.chkEventorID.AutoSize = true;
-            this.chkEventorID.Location = new System.Drawing.Point(12, 208);
+            this.chkEventorID.Location = new System.Drawing.Point(319, 163);
             this.chkEventorID.Name = "chkEventorID";
-            this.chkEventorID.Size = new System.Drawing.Size(203, 17);
+            this.chkEventorID.Size = new System.Drawing.Size(181, 17);
             this.chkEventorID.TabIndex = 19;
-            this.chkEventorID.Text = "Use Eventor ID/kid (multiday events)";
+            this.chkEventorID.Text = "Use Eventor ID (multiday event)";
             this.chkEventorID.UseVisualStyleBackColor = true;
             // 
             // txtIdOffset
@@ -309,7 +339,7 @@
             // chkLapTimes
             // 
             this.chkLapTimes.AutoSize = true;
-            this.chkLapTimes.Location = new System.Drawing.Point(12, 162);
+            this.chkLapTimes.Location = new System.Drawing.Point(12, 186);
             this.chkLapTimes.Name = "chkLapTimes";
             this.chkLapTimes.Size = new System.Drawing.Size(150, 17);
             this.chkLapTimes.TabIndex = 16;
@@ -337,7 +367,7 @@
             // chkTwoEcards
             // 
             this.chkTwoEcards.AutoSize = true;
-            this.chkTwoEcards.Location = new System.Drawing.Point(12, 185);
+            this.chkTwoEcards.Location = new System.Drawing.Point(12, 208);
             this.chkTwoEcards.Name = "chkTwoEcards";
             this.chkTwoEcards.Size = new System.Drawing.Size(202, 17);
             this.chkTwoEcards.TabIndex = 14;
@@ -348,7 +378,7 @@
             // chkOneLineRelayRes
             // 
             this.chkOneLineRelayRes.AutoSize = true;
-            this.chkOneLineRelayRes.Location = new System.Drawing.Point(12, 139);
+            this.chkOneLineRelayRes.Location = new System.Drawing.Point(12, 163);
             this.chkOneLineRelayRes.Name = "chkOneLineRelayRes";
             this.chkOneLineRelayRes.Size = new System.Drawing.Size(190, 17);
             this.chkOneLineRelayRes.TabIndex = 13;
@@ -427,7 +457,7 @@
             this.chkCreateRadioControls.AutoSize = true;
             this.chkCreateRadioControls.Checked = true;
             this.chkCreateRadioControls.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkCreateRadioControls.Location = new System.Drawing.Point(12, 116);
+            this.chkCreateRadioControls.Location = new System.Drawing.Point(12, 140);
             this.chkCreateRadioControls.Name = "chkCreateRadioControls";
             this.chkCreateRadioControls.Size = new System.Drawing.Size(191, 17);
             this.chkCreateRadioControls.TabIndex = 4;
@@ -499,16 +529,6 @@
             this.label6.TabIndex = 0;
             this.label6.Text = "Database";
             // 
-            // chkUpdateMessage
-            // 
-            this.chkUpdateMessage.AutoSize = true;
-            this.chkUpdateMessage.Location = new System.Drawing.Point(319, 185);
-            this.chkUpdateMessage.Name = "chkUpdateMessage";
-            this.chkUpdateMessage.Size = new System.Drawing.Size(163, 17);
-            this.chkUpdateMessage.TabIndex = 20;
-            this.chkUpdateMessage.Text = "Update eTiming from messages";
-            this.chkUpdateMessage.UseVisualStyleBackColor = true;
-            // 
             // NewETimingComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -575,5 +595,7 @@
         private System.Windows.Forms.Label label16;
         public System.Windows.Forms.CheckBox chkEventorID;
         public System.Windows.Forms.CheckBox chkUpdateMessage;
+        private System.Windows.Forms.TextBox txtOsOffset;
+        private System.Windows.Forms.Label label17;
     }
 }

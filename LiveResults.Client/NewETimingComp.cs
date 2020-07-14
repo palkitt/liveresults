@@ -35,6 +35,7 @@ namespace LiveResults.Client
             txtETimingDb.Text = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             txtSleepTime.Text = "3";
             txtIdOffset.Text = "0";
+            txtOsOffset.Text = "0";
             chkOneLineRelayRes.Checked = false;
             chkTwoEcards.Checked = false;
             chkLapTimes.Checked = false;
@@ -355,22 +356,30 @@ namespace LiveResults.Client
             FrmETimingMonitor monForm = new FrmETimingMonitor();
             this.Hide();
 
-            bool MSSQL = false;
+            bool MSSQL = false, parseOK = false;
             if (comboBox1.SelectedIndex == 1) MSSQL = true;
 
+            int CompID = 0, IdOffset = 0, SleepTime = 0, OsOffset = 0;
+
+            parseOK = Int32.TryParse(txtCompID.Text, out CompID);
+            parseOK = Int32.TryParse(txtSleepTime.Text, out SleepTime);
+            parseOK = Int32.TryParse(txtIdOffset.Text, out IdOffset);
+            parseOK = Int32.TryParse(txtOsOffset.Text, out OsOffset);
+            
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
-                    Convert.ToInt32(txtSleepTime.Text), 
+                    SleepTime, 
                     chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, 
-                    chkLapTimes.Checked, chkEventorID.Checked, Convert.ToInt32(txtIdOffset.Text), 
-                    chkUpdateMessage.Checked, Convert.ToInt32(txtCompID.Text));
+                    chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
+                    chkUpdateMessage.Checked, CompID, OsOffset);
             monForm.SetParser(pars as IExternalSystemResultParser);
-            monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
+            monForm.CompetitionID = CompID;
             monForm.Organizer = cmp.Organizer;
             monForm.CompDate  = cmp.CompDate;
             monForm.useEventorID = chkEventorID.Checked;
             monForm.deleteEmmaIDs = chkDeleteEmmaIDs.Checked;
             monForm.clientIDpars = cmp.eTimingIDpars;
-            monForm.IdOffset = Convert.ToInt32(txtIdOffset.Text);
+            monForm.IdOffset = IdOffset;
+            monForm.OsOffset = OsOffset;
             monForm.ShowDialog(this);
         }
 

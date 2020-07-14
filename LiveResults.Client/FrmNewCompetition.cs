@@ -48,7 +48,7 @@ namespace LiveResults.Client
 
         private void button6_MouseEnter(object sender, EventArgs e)
         {
-            lblInfo.Text = "Export liveresults from eTiming (BETA)";
+            lblInfo.Text = "Export live results from eTiming";
         }
 
 

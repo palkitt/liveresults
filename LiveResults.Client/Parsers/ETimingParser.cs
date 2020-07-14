@@ -35,10 +35,11 @@ namespace LiveResults.Client
         private bool m_updateMessage;
         private int m_compID;
         private int day;
+        private int m_OsOffset;
 
         public ETimingParser(IDbConnection conn, int sleepTime, bool recreateRadioControls = true, bool oneLineRelayRes = false, 
             bool MSSQL = false, bool twoEcards = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0, 
-            bool updateMessage = false, int compID = 0)
+            bool updateMessage = false, int compID = 0, int OsOffset = 0)
         {
             m_connection = conn;
             m_createRadioControls = recreateRadioControls;
@@ -51,6 +52,7 @@ namespace LiveResults.Client
             m_IdOffset = IdOffset;
             m_updateMessage = updateMessage;
             m_compID = compID;
+            m_OsOffset = OsOffset;
         }
         
         private void FireOnResult(Result newResult)
@@ -893,7 +895,12 @@ namespace LiveResults.Client
                                 if (status == "I" || status == "N") // Change code of entered and not started (by mistake) runners
                                     status = "S";
                                 if (freeStart)
-                                    calcStartTime = split.passTime;
+                                {
+                                    if (m_OsOffset > 0) // Set starttime rounded to whole minutes including offset minutes
+                                        calcStartTime = (split.passTime/6000 + m_OsOffset)*6000;
+                                    else
+                                        calcStartTime = split.passTime;
+                                }
                                 continue;         
                             }
                                 
@@ -919,7 +926,7 @@ namespace LiveResults.Client
                             }
                             else
                                 passTime = split.passTime - iStartTime;
-                            if (passTime < 3000)  // Neglect pass times less than 3 s from start
+                            if (passTime < 1000)  // Neglect pass times less than 10 s from start
                                 continue;
                             if (m_lapTimes && !isRelay)
                             {
@@ -1243,7 +1250,6 @@ namespace LiveResults.Client
             try
             {
                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=getdns&comp=" + m_compID);
-
             }
             catch (Exception ee)
             { 
@@ -1257,9 +1263,9 @@ namespace LiveResults.Client
                 foreach (JObject element in items)
                 {
                     int messid = (element["messid"]).ToObject<int>();
-                    int kid = 0;
                     int dbid = (element["dbid"]).ToObject<int>();
                     dbid -= m_IdOffset;
+                    int kid = 0;
                     if (m_EventorID)
                     {
                         if (dbid > 1000000)
@@ -1318,11 +1324,10 @@ namespace LiveResults.Client
                         }
                         else 
                         {
-                            FireLogMsg("eTiming Message (" + (kid > 0 ? "kid: " + kid : "dbid:" + dbid) + ") " + name + " not posible to set to DNS. Status: " + status);
+                            FireLogMsg("eTiming Message (ID: " + eTimingID + ") " + name + " not posible to set to DNS. Status: " + status);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setdns&dns=0&messid=" + messid);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere. Status:" + status + "&dbid=" + dbid);
                         }
-                                
                     }
                     catch (Exception ee)
                     {
@@ -1363,7 +1368,7 @@ namespace LiveResults.Client
 
                         string status = "", givName = "", famName = "", name = "";
                         int dbid = 0, ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0, numBibs = 0;
-                        bool bibOK = false, ecardOK = true;
+                        bool bibOK = false, ecardOK = true, sameBibEcard = false;
 
                         using (IDataReader reader = cmd.ExecuteReader())
                         {
@@ -1403,7 +1408,8 @@ namespace LiveResults.Client
                         {
                             bool replaceUnknown = false;
                             int dbidUnknown = 0;
-                            cmd.CommandText = string.Format(@"SELECT id, ename, name, status FROM name WHERE ecard={0} OR ecard2={0} OR ecard3={0} OR ecard4={0}", ecard);
+                            int eTimingBib = 0;
+                            cmd.CommandText = string.Format(@"SELECT id, ename, name, startno, status FROM name WHERE ecard={0} OR ecard2={0} OR ecard3={0} OR ecard4={0}", ecard);
                             using (IDataReader reader = cmd.ExecuteReader())
                             {
                                 while (reader.Read())
@@ -1416,10 +1422,15 @@ namespace LiveResults.Client
                                             famName = famName.Trim();
                                         if (reader["id"] != null && reader["id"] != DBNull.Value)
                                             dbidUnknown = Convert.ToInt32(reader["id"].ToString());
+                                        if (reader["startno"] != null && reader["startno"] != DBNull.Value)
+                                            eTimingBib = Convert.ToInt32(reader["startno"].ToString());
                                         if ((status == "U" || status == "S") && famName == "U1 Ukjent løper")
                                             replaceUnknown = true;
                                         else // ecard belongs to existing runner
+                                        {
                                             ecardOK = false;
+                                            sameBibEcard = (eTimingBib == bib);
+                                        }
                                     }
                                 }
                                 reader.Close();
@@ -1478,9 +1489,11 @@ namespace LiveResults.Client
                         {
                             FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " not possible to change ecard " + ecard);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setecardchange&ecardchange=0&messid=" + messid);
-                            apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikkenr&dbid=" + dbidMessage);
+                            if (sameBibEcard) // Same bib and ecard
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID + "&message=Startnummer og brikke var allerede koblet&dbid=" + dbidMessage);
+                            else
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikkenr&dbid=" + dbidMessage);
                         }
-
                     }
                     catch (Exception ee)
                     {

@@ -36,6 +36,7 @@ namespace LiveResults.Client
         public bool useEventorID;
         public List<IDpar> clientIDpars;
         public int IdOffset;
+        public int OsOffset;
         
         public void SetParser(IExternalSystemResultParser parser)
         {
