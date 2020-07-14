@@ -12,7 +12,7 @@ var Messages;
             this.lastRadioPassingsUpdateHash = "";
             this.currentTable = null;
             this.radioData = null;
-            this.showAllMessages = false;
+            this.showAllMessages = true;
             this.newMessageAudio = new Audio(src="images/newmessage.ogg");
             this.audioMute = true;
             this.lastNumberOfMessages = null;

@@ -91,7 +91,7 @@ function startRadioControl() {
 <tr><td>Igjen i skogen</td><td>-2</td><td> <a href="..\radio.php?comp=<?=$_GET['comp']?>&code=-2">Link</a> </td><td></td></tr>
 <tr><td>Alle meldeposter</td><td>-1</td><td> <a href="..\radio.php?comp=<?=$_GET['comp']?>&code=-1">Link</a> </td><td></td></tr>
 <tr><td>En meldepost</td><td>NN</td><td> <button onclick="startRadioControl()">Link</button> </td><td></td></tr>
-<tr><td>LiveRes meldinger</td><td></td><td> <a href="..\liveres_helpers\les.php?lopid=(<?=$_GET['comp']?>) <?=$compName?>">Link</a> </td><td></td></tr>
+<tr><td>LiveRes meldinger</td><td></td><td> <a href="..\message.php?comp=<?=$_GET['comp']?>">Link</a> </td><td></td></tr>
 </table>
 </td></tr>
 

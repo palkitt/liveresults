@@ -101,7 +101,7 @@ $(document).ready(function()
 		<td align="center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
 		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
 		<td align="center"><b><span id="clock"></span></b></td>
-		<td align="right"><b>Vis alle<input type="checkbox" onclick="mess.showAllMessages = !(mess.showAllMessages); mess.updateMessageMarking();"></span></b></td>
+		<td align="right"><b>Vis alle<input type="checkbox" checked="checked" onclick="mess.showAllMessages = !(mess.showAllMessages); mess.updateMessageMarking();"></span></b></td>
 
 	</tr>
 	</table>
