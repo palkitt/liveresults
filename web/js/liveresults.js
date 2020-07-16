@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1088,6 +1088,8 @@ var LiveResults;
                 }
                 $('#' + this.txtResetSorting).html("");
                 if (data.results != null) {
+                    var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
+                    this.curClassSplits = data.splitcontrols;
                     this.updateResultVirtualPosition(data.results);
                     if (this.qualLimits != null && this.qualLimits.length > 0)
 						this.updateQualLimMarks(data);
@@ -1095,9 +1097,7 @@ var LiveResults;
                     var columns = Array();
                     var col = 0;
                     var i;
-                    this.curClassSplits = data.splitcontrols;
 					fullView = !this.compactView;
-                    var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
                     var unranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})) || 
                                    !(data.results.every(function check(el) {return el.status != 13;}));
                     var relay = (haveSplitControls && (this.curClassSplits[0].code == "0" || data.className.slice(-4) == "-All"));
@@ -1722,8 +1722,10 @@ var LiveResults;
                         return Math.abs(a.bib) - Math.abs(b.bib); 
                     else
                         return 0;
+                if (a.start == -999 || b.start == -999) // Place open start lower
+                    return b.start - a.start;
                 else
-                    return a.start - b.start;
+                    return a.start - b.start;    
             }
             else
                 return b.progress - a.progress;
@@ -1748,7 +1750,8 @@ var LiveResults;
 			}
             if (a.progress == 100 && b.progress == 100)
                 return a.result - b.result;
-            if (a.progress == 0 && b.progress == 0) {
+            if (a.progress == 0 && b.progress == 0) 
+            {
                 if (a.start && !b.start)
                     return -1;
                 if (!a.start && b.start)
@@ -1758,8 +1761,10 @@ var LiveResults;
                         return Math.abs(a.bib) - Math.abs(b.bib); 
                     else
                         return 0;
+                if (a.start == -999 || b.start == -999) // Place open start lower
+                    return b.start - a.start;
                 else
-                    return a.start - b.start;
+                    return a.start - b.start; 
             }
             if (a.progress == b.progress && a.progress > 0 && a.progress < 100) {
                 //Both have reached the same split
