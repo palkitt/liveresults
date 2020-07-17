@@ -103,6 +103,10 @@ var Messages;
                         "render": function (data,type,row) {
                           return data;
                     }});
+                    columns.push({ "sTitle": "MessId", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "messid",
+                        "render": function (data,type,row) {
+                          return data;
+                    }});
 
                     columns.push({ "sTitle": "&#8470;", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
                         "render": function (data,type,row) {
@@ -202,7 +206,7 @@ var Messages;
                         "bInfo": false,
                         "bAutoWidth": false,
                         "aaData": this.radioData,
-                        "aaSorting": [[0, "desc"],[1, "desc"]],
+                        "aaSorting": [[0, "desc"],[1, "desc"],[2, "desc"]],
                         "aoColumnDefs": columns,
                         "bDestroy": true,
                         "orderCellsTop": true
@@ -227,13 +231,13 @@ var Messages;
                 var data = this.data();
                 if (data.completed)
                 {
-                    $( table.cell(rowIdx,9).node() ).addClass('green_cell');
                     $( table.cell(rowIdx,10).node() ).addClass('green_cell');
+                    $( table.cell(rowIdx,11).node() ).addClass('green_cell');
                 }
                 else
                 {
-                    $( table.cell(rowIdx,9).node() ).addClass('yellow_cell');
                     $( table.cell(rowIdx,10).node() ).addClass('yellow_cell');
+                    $( table.cell(rowIdx,11).node() ).addClass('yellow_cell');
                 }
 
                 if (!_this.showAllMessages && data.groupcompleted)

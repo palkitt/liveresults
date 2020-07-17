@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1811,6 +1811,7 @@ var LiveResults;
                 }
             }
             if (result.start != "") {
+                var startTime = (result.start == -999 ? 8640000 : result.start);
                 for (d = 0; d < data.length; d++) {
                     if (data[d].place == "-") {
                         data.splice(d, 0, result);
@@ -1818,7 +1819,7 @@ var LiveResults;
                     }
                     if (result.place == "" && data[d].place != "") {
                     }
-                    else if (data[d].start != "" && data[d].start > result.start && result.progress == 0 && data[d].progress == 0) {
+                    else if (data[d].start != "" && data[d].start > startTime && result.progress == 0 && data[d].progress == 0) {
                         data.splice(d, 0, result);
                         return;
                     }
