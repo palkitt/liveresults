@@ -9,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using System.Net;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 using LiveResults.Model;
 using Newtonsoft.Json;
@@ -529,9 +531,15 @@ namespace LiveResults.Client
 
                     string messageServer = ConfigurationManager.AppSettings["messageServer"];
                     WebClient client = new WebClient();
-                    int maxSleepTimeMessage = 10;
+                    ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
+
+                    int maxSleepTimeMessage = 9;
                     int sleepTimeMessage = maxSleepTimeMessage;
 
+
+                    /* ***            Main loop        ***
+                    /* ************************************/
+                                          
                     while (m_continue)
                     {
                         try
