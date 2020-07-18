@@ -84,7 +84,7 @@ else if ($_GET['method'] == 'createcompetition')
 }
 else if ($_GET['method'] == 'getcompetitioninfo')
 {
-                $compid = $_GET['comp'];
+        $compid = $_GET['comp'];
 		$comp = Emma::GetCompetition($compid);
           if (isset($comp["tavid"]))
           {

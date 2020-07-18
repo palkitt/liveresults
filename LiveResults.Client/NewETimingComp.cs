@@ -35,10 +35,12 @@ namespace LiveResults.Client
             txtETimingDb.Text = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             txtSleepTime.Text = "3";
             txtIdOffset.Text = "0";
+            txtOsOffset.Text = "0";
             chkOneLineRelayRes.Checked = false;
             chkTwoEcards.Checked = false;
             chkLapTimes.Checked = false;
             chkEventorID.Checked = false;
+            chkUpdateMessage.Checked = false;
             RetreiveSettings();
             chkDeleteEmmaIDs.Checked = false;
         }
@@ -294,37 +296,42 @@ namespace LiveResults.Client
                 IDbCommand cmd = conn.CreateCommand();
 
                 cmd.CommandText = "SELECT id, name, organizator, firststart FROM arr";
-                IDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                using (IDataReader reader = cmd.ExecuteReader())
                 {
-                    cmp.Id = Convert.ToInt32(reader["id"].ToString());
-                    cmp.Name = Convert.ToString(reader["name"]);
-                    cmp.Organizer = Convert.ToString(reader["organizator"]).Trim();
-                    cmp.CompDate = Convert.ToDateTime(reader[("firststart")]);
+                    while (reader.Read())
+                    {
+                        cmp.Id = Convert.ToInt32(reader["id"].ToString());
+                        cmp.Name = Convert.ToString(reader["name"]);
+                        cmp.Organizer = Convert.ToString(reader["organizator"]).Trim();
+                        cmp.CompDate = Convert.ToDateTime(reader[("firststart")]);
+                    }
+                    reader.Close();
                 }
-                reader.Close();
+
                 int EventorID = 0, eTimingID = 0;
-                cmd.CommandText = "SELECT id, kid, status from Name";
-                reader = cmd.ExecuteReader();
+                bool parseOK;
                 IDpar eTimingIDs;
                 cmp.eTimingIDpars = new List<IDpar>();
 
-                while (reader.Read())
+                cmd.CommandText = "SELECT id, kid, status from Name";
+                using (IDataReader reader = cmd.ExecuteReader())
                 {
-                    string status = reader["status"] as string;
-                    if ((status != "V") && (status != "C")) // Continue if not "free" nor "entered"  
+                    while (reader.Read())
                     {
-                        eTimingID = Convert.ToInt32(reader["id"].ToString());
-                        EventorID = 0;
-                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
-                            EventorID = Convert.ToInt32(reader["kid"].ToString());
-                        eTimingIDs.eTimingID = eTimingID;
-                        eTimingIDs.EventorID = EventorID;
-                        cmp.eTimingIDpars.Add(eTimingIDs);
+                        string status = reader["status"] as string;
+                        if ((status != "V") && (status != "C")) // Continue if not "free" nor "entered"  
+                        {
+                            eTimingID = Convert.ToInt32(reader["id"].ToString());
+                            EventorID = 0;
+                            if (reader["kid"] != null && reader["kid"] != DBNull.Value && reader["kid"].ToString() != "")
+                                parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
+                            eTimingIDs.eTimingID = eTimingID;
+                            eTimingIDs.EventorID = EventorID;
+                            cmp.eTimingIDpars.Add(eTimingIDs);
+                        }
                     }
+                    reader.Close();
                 }
-                reader.Close();
                 cmd.Dispose();
             }
             catch (Exception ee)
@@ -349,22 +356,30 @@ namespace LiveResults.Client
             FrmETimingMonitor monForm = new FrmETimingMonitor();
             this.Hide();
 
-            bool MSSQL = false;
+            bool MSSQL = false, parseOK = false;
             if (comboBox1.SelectedIndex == 1) MSSQL = true;
 
-            ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
-                    Convert.ToInt32(txtSleepTime.Text), 
-                    chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, 
-                    chkLapTimes.Checked, chkEventorID.Checked, Convert.ToInt32(txtIdOffset.Text));
+            int CompID = 0, IdOffset = 0, SleepTime = 0, OsOffset = 0;
 
+            parseOK = Int32.TryParse(txtCompID.Text, out CompID);
+            parseOK = Int32.TryParse(txtSleepTime.Text, out SleepTime);
+            parseOK = Int32.TryParse(txtIdOffset.Text, out IdOffset);
+            parseOK = Int32.TryParse(txtOsOffset.Text, out OsOffset);
+            
+            ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
+                    SleepTime, 
+                    chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, 
+                    chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
+                    chkUpdateMessage.Checked, CompID, OsOffset);
             monForm.SetParser(pars as IExternalSystemResultParser);
-            monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
+            monForm.CompetitionID = CompID;
             monForm.Organizer = cmp.Organizer;
             monForm.CompDate  = cmp.CompDate;
             monForm.useEventorID = chkEventorID.Checked;
             monForm.deleteEmmaIDs = chkDeleteEmmaIDs.Checked;
             monForm.clientIDpars = cmp.eTimingIDpars;
-            monForm.IdOffset = Convert.ToInt32(txtIdOffset.Text);
+            monForm.IdOffset = IdOffset;
+            monForm.OsOffset = OsOffset;
             monForm.ShowDialog(this);
         }
 
@@ -422,5 +437,7 @@ namespace LiveResults.Client
         {
 
         }
+
+        
     }
 }

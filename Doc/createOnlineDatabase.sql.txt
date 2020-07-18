@@ -71,3 +71,15 @@ CREATE TABLE `splitcontrols` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8; 
 
  create table classproperties (tavid integer, className  varchar(50) CHARACTER SET utf8 not null, resolution varchar(10), havebibnumbers bit default 0, startallocation varchar(20), primary key (tavid,className));
+
+CREATE TABLE `messages` (
+  `messid` int(11) NOT NULL DEFAULT '0',
+  `tavid` int(11) NOT NULL DEFAULT '0',
+  `dbid` int(11) NOT NULL DEFAULT '0',
+  `changed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `message` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
+  `dns` tinyint(1) DEFAULT NULL,
+  `ecardchange` tinyint(1) DEFAULT NULL,
+  `completed` tinyint(1) DEFAULT NULL,
+  PRIMARY KEY (`messid`)
+) DEFAULT CHARSET=utf8;

@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -65,6 +65,7 @@ var LiveResults;
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
             this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
             this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
+            this.messageURL = (this.local ? "api/messageapi.php" : "//api.freidig.idrett.no/messageapi.php");
             LiveResults.Instance = this;
             
 			$(window).hashchange(function () {
@@ -793,24 +794,16 @@ var LiveResults;
                         }});
 
                 if (this.radioStart){				
-                    var message = "<button onclick=\"res.popupDialog('Generell melding',0,'&Tidsp=0&lopid=" +
-                                "(" + _this.competitionId +") " + _this.compName + "',false);\">&#128172;</button>";
+                    var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
+                    
                     columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
                         "render": function (data,type,row) 
                         {
-                                var DNStext = "true";
-                                if (row.runnerName!=undefined && !isNaN(row.runnerName.charAt(0)))
-                                    DNStext = "false";
+                                var defaultDNS = (row.dbid > 0 ? 1 : 0);
                                 var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;
                                 runnerName = runnerName.replace("<del>","");
                                 runnerName = runnerName.replace("</del>","");
-                                var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," +
-                                "'lopid=" + "(" + _this.competitionId +") " + _this.compName +
-                                "&Tidsp=" + row.passtime + 
-                                "&T0="    + row.club + 
-                                "&T1="    + className +
-                                "&T2="    + row.controlName + 
-                                "&T3="    + row.time + "'," + DNStext + ");\">&#128172;</button>";						
+                                var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";						
                                 if ( _this.messageBibs.indexOf(row.dbid) > -1)
                                     link += " &#9679;";
                                 return link;
@@ -908,23 +901,26 @@ var LiveResults;
 
 		
     //Popup window for messages to message center
-    AjaxViewer.prototype.popupDialog = function (runnerName,dbid,idText,DNS) {
-        var promptText = runnerName;
+    AjaxViewer.prototype.popupDialog = function (promptText,dbid,defaultDNS) {
         var defaultText ="";
-        if (DNS)
+        if (defaultDNS)
             defaultText = "ikke startet";
+        else if (dbid<0)
+            defaultText = "startnummer:";
         var message = prompt(promptText, defaultText);
         if (message != null && message != "")
         {
-            var dataString	= idText + "&Navn=" + runnerName + "&Melding=" + message;
+            message = message.substring(0,250); // limit number of characters
+            var DNS = (message == "ikke startet" ? 1 : 0);
+            var ecardChange = (dbid<0 && message.match(/\d+/g) != null);
             $.ajax({
-                url: "./liveres_helpers/log.php",
-                data: dataString
+                url: this.messageURL + "?method=sendmessage", 
+                data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
                 }
             );
             this.messageBibs.push(dbid);
         }
-    }
+    };
 
        //Check for updating of class results 
         AjaxViewer.prototype.checkForClassUpdate = function () {
@@ -1092,6 +1088,8 @@ var LiveResults;
                 }
                 $('#' + this.txtResetSorting).html("");
                 if (data.results != null) {
+                    var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
+                    this.curClassSplits = data.splitcontrols;
                     this.updateResultVirtualPosition(data.results);
                     if (this.qualLimits != null && this.qualLimits.length > 0)
 						this.updateQualLimMarks(data);
@@ -1099,9 +1097,7 @@ var LiveResults;
                     var columns = Array();
                     var col = 0;
                     var i;
-                    this.curClassSplits = data.splitcontrols;
 					fullView = !this.compactView;
-                    var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
                     var unranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})) || 
                                    !(data.results.every(function check(el) {return el.status != 13;}));
                     var relay = (haveSplitControls && (this.curClassSplits[0].code == "0" || data.className.slice(-4) == "-All"));
@@ -1726,8 +1722,10 @@ var LiveResults;
                         return Math.abs(a.bib) - Math.abs(b.bib); 
                     else
                         return 0;
+                if (a.start == -999 || b.start == -999) // Place open start lower
+                    return b.start - a.start;
                 else
-                    return a.start - b.start;
+                    return a.start - b.start;    
             }
             else
                 return b.progress - a.progress;
@@ -1752,7 +1750,8 @@ var LiveResults;
 			}
             if (a.progress == 100 && b.progress == 100)
                 return a.result - b.result;
-            if (a.progress == 0 && b.progress == 0) {
+            if (a.progress == 0 && b.progress == 0) 
+            {
                 if (a.start && !b.start)
                     return -1;
                 if (!a.start && b.start)
@@ -1762,8 +1761,10 @@ var LiveResults;
                         return Math.abs(a.bib) - Math.abs(b.bib); 
                     else
                         return 0;
+                if (a.start == -999 || b.start == -999) // Place open start lower
+                    return b.start - a.start;
                 else
-                    return a.start - b.start;
+                    return a.start - b.start; 
             }
             if (a.progress == b.progress && a.progress > 0 && a.progress < 100) {
                 //Both have reached the same split
@@ -1810,6 +1811,7 @@ var LiveResults;
                 }
             }
             if (result.start != "") {
+                var startTime = (result.start == -999 ? 8640000 : result.start);
                 for (d = 0; d < data.length; d++) {
                     if (data[d].place == "-") {
                         data.splice(d, 0, result);
@@ -1817,7 +1819,7 @@ var LiveResults;
                     }
                     if (result.place == "" && data[d].place != "") {
                     }
-                    else if (data[d].start != "" && data[d].start > result.start && result.progress == 0 && data[d].progress == 0) {
+                    else if (data[d].start != "" && data[d].start > startTime && result.progress == 0 && data[d].progress == 0) {
                         data.splice(d, 0, result);
                         return;
                     }

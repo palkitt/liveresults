@@ -11,6 +11,7 @@ body.iframed {margin-left:0px; margin-right:0px; font-size:68.75%; font-family: 
 button {font-size:0.8em; padding-top: 0px; padding-bottom: 0px}
 table {font-size:1em;}
 td{font-family: arial, helvetica, verdana, geneva, sans-serif; font-size:1em; line-height: 1.4em; white-space: nowrap;}
+.wrapok{white-space: normal;}
 th{white-space: normal;}
 tr{border-top: hidden;}
 
@@ -97,6 +98,11 @@ tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-r
 tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: 2px solid grey;}
 tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
+/* Yellow and green cells for messages */
+.yellow_cell {color: black; background-color: #FFFF00 !important;}
+.green_cell  {color: black; background-color: #00FF00 !important;} 
+
+
 table.dataTable td {vertical-align: top;}
 
 /* Pulsing dot for live runner */
@@ -109,7 +115,7 @@ table.dataTable td {vertical-align: top;}
 .pulsingLive {
   animation: blinker 1s ease-in-out;
   animation-iteration-count: 5;
-  color: #13f80b;
+  color: #51ff00;
   font-size: 1.35em;
 }
 
