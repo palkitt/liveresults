@@ -8,8 +8,8 @@ $_UP60SEK = "Hvert minutt";
 $_UP120SEK = "Annenhvert minutt";
 $_UPNEVER = "Aldri";
 
-$_LASTPASSINGS="Siste passeringer";
-$_LASTPASSFINISHED="gikk i mål";
+$_LASTPASSINGS="Siste oppdateringer";
+$_LASTPASSFINISHED="kom i mål";
 $_LASTPASSPASSED="passerte";
 $_LASTPASSWITHTIME="med tiden";
 $_CHOOSECLASS="Velg klasse";
@@ -62,5 +62,6 @@ $_DATE = "Dato";
 
 //new Freidig
 $_FREESTART = "fristart";
+$_NEWSTATUS = "har ny status:";
 
 ?>

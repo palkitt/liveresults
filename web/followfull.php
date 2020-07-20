@@ -119,7 +119,8 @@ var Resources = {
 	_START: "<?=$_START?>",
 	_TOTAL: "<?=$_TOTAL?>",
 	_CLASS: "<?=$_CLASS?>",
-	_FREESTART : "<?=$_FREESTART?>"
+	_FREESTART : "<?=$_FREESTART?>",
+	_NEWSTATUS : "<?=$_NEWSTATUS?>"
 };
 
 var runnerStatus = Array();

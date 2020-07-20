@@ -118,5 +118,7 @@ $_EVENTNAME = "Name";
 
 //new Freidig
 $_FREESTART = "open start";
+$_NEWSTATUS = "has new status:";
+
 
 ?>

@@ -122,6 +122,7 @@ elseif ($_GET['method'] == 'getlastpassings')
 					\"class\": \"".$pass['class']."\",
 					\"control\": ".$pass['Control'].",
 					\"controlName\" : \"".$pass['pname']."\",
+					\"status\" : ".$pass['Status'].", 
 					\"time\": \"" .formatTime($pass['Time'],$pass['Status'],$RunnerStatus)."\" }";
 			$first = false;
 		}

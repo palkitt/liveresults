@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -590,10 +590,16 @@ var LiveResults;
                 if (data.passings != null) {
                     var str = "";
                     $.each(data.passings, function (key, value) {
+                        var runnerName = (value.runnerName.length > _this.maxNameLength ? _this.nameShort(value.runnerName) : value.runnerName);
                         var cl = value["class"];
+                        var status = value["status"];
                         if (cl && cl.length > 0)
                             cl = cl.replace('\'', '\\\'');
-                        str += value.passtime + ": " + value.runnerName + " (<a href=\"javascript:LiveResults.Instance.chooseClass('" + cl + "')\">" + value["class"] + "</a>) " + (value.control == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"]) + " " + _this.resources["_LASTPASSWITHTIME"] + " " + value["time"] + "<br/>";
+                        str += value.passtime + ": " + runnerName 
+                        + " (<a href=\"javascript:LiveResults.Instance.chooseClass('" + cl + "')\">" + value["class"] + "</a>) " 
+                        + (value.control == 1000 && status > 0 && status < 7 ? _this.resources["_NEWSTATUS"] :
+                        (value.control == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"]) 
+                        + " " + _this.resources["_LASTPASSWITHTIME"]) + " " + value["time"] + "<br/>";
                     });
                     $("#" + this.lastPassingsDiv).html(str);
                     this.lastPassingsUpdateHash = data.hash;
