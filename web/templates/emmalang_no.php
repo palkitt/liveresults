@@ -62,6 +62,6 @@ $_DATE = "Dato";
 
 //new Freidig
 $_FREESTART = "fristart";
-$_NEWSTATUS = "har ny status:";
+$_NEWSTATUS = "fikk ny status:";
 
 ?>
