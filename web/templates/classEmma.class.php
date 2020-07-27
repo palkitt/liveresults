@@ -3,12 +3,11 @@ $CHARSET = 'utf-8';
 
 class Emma
 {
-	public static $db_server = "127.0.0.1";
-    public static $db_database = "liveres";
-	public static $db_user = "root";
-	public static $db_pw= "";
-
-
+   public static $db_server = "127.0.0.1";
+   public static $db_database = "liveres";
+   public static $db_user = "root";
+   public static $db_pw= "";
+	
    public static $MYSQL_CHARSET = "utf8";
    var $m_CompId;
    var $m_CompName;
@@ -167,21 +166,24 @@ class Emma
 	{
 		$conn = self::openConnection();
 	 	$sql = "update messages set completed = ".$completed." where messid = ".$messid;
-		mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
 	}
 	
 	public static function SetMessageDNS($messid,$DNS)
 	{
 		$conn = self::openConnection();
 	 	$sql = "update messages set dns = ".$DNS." where messid = ".$messid;
-		mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
 	}
 	
 	public static function SetMessageEcardChange($messid,$ecardchange)
 	{
 		$conn = self::openConnection();
 	 	$sql = "update messages set ecardchange = ".$ecardchange." where messid = ".$messid;
-		mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
 	}
 
 	function Emma($compID)
