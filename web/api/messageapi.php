@@ -118,8 +118,8 @@ else if ($_GET['method'] == 'getmessages')
 		$club   = $message['club'];
 		$class  = $message['class'];
 
-		if ($dbid<0 && $name=="")
-			$name = -$dbid + " UKJENT";
+		if ($dbid<0 && $name == "")
+			$name = strval(-$dbid)." UKJENT";
 		
 		$lastID = $dbid;
 
@@ -175,7 +175,11 @@ else if ($_GET['method'] == 'getecardchange')
 		$name      = $runner['name'];
 		$message   = $runner['message'];
 
-		$ecard = (int) filter_var($name, FILTER_SANITIZE_NUMBER_INT);
+		if ($name != null)
+			$ecard = (int) filter_var($name, FILTER_SANITIZE_NUMBER_INT);
+		else if ($dbid<0)
+		    $ecard = -$dbid;
+
 		$bib   = (int) filter_var($message, FILTER_SANITIZE_NUMBER_INT);
 		if (!$ecard || !$bib)
 			continue;
