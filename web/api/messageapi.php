@@ -118,8 +118,8 @@ else if ($_GET['method'] == 'getmessages')
 		$club   = $message['club'];
 		$class  = $message['class'];
 
-		if ($dbid<0 && $name=="")
-			$name = -$dbid + " UKJENT";
+		if ($dbid<0 && $name == "")
+			$name = strval(-$dbid)." UKJENT";
 		
 		$lastID = $dbid;
 
