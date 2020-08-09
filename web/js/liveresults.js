@@ -61,6 +61,7 @@ var LiveResults;
             this.radioStart = false;
             this.filterDiv = filterDiv;
             this.predData = Array(0);
+            this.rankedStartlist = true;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
@@ -260,8 +261,7 @@ var LiveResults;
 				this.curClassSplitsBests = classSplitsBest;
 			}
 		};
-		
-		
+				
 		// Update qualification markings
 		AjaxViewer.prototype.updateQualLimMarks = function (results, className) {
 			if (results != null && this.qualLimits != null) 
@@ -278,15 +278,13 @@ var LiveResults;
 				{
                 //    lastPos = curPos;
                 //    curPos = results[i].place;
-                    if (results[i].progress > 0 && results[i].virtual_position == qualLim )
+                    if (results[i].virtual_position == qualLim && ( this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0 ))
                         results[i].DT_RowClass = "firstnonqualifier";
                     else
-                        results[i].DT_RowClass = "nothing";
-					
+                        results[i].DT_RowClass = "nostyle";					
 				}
 			}
-		};
-		
+		};		
 		
 		// Updated predicted times
 		AjaxViewer.prototype.updatePredictedTimes = function () {
@@ -294,7 +292,7 @@ var LiveResults;
                 try {
                     var dt = new Date();
 					var compDay = new Date(this.compDate);
-					if (dt.getDate() != compDay.getDate())
+					if (dt.getDate() != compDay.getDate() && !this.local)
                        return;			
 					var data = this.currentTable.fnGetData();
                     var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
@@ -478,7 +476,7 @@ var LiveResults;
 											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
 										}
 										else
-											timeDiffStr = "<i>(...)<\i>";
+											timeDiffStr = "<i>(..)<\i>";
                                         if (this.isMultiDayEvent && !this.compactView)
                                             elapsedTimeStr += "<br/>" + timeDiffStr;
                                         else
@@ -509,12 +507,12 @@ var LiveResults;
                                     }
 									if (unranked){
 										table.cell( i, offset + nextSplit*2 ).data(elapsedTimeStr);
-										table.cell( i, offset + numSplits*2 ).data("<i>(...)<\i>");
+										table.cell( i, offset + numSplits*2 ).data("<i>(..)<\i>");
 									}
                                     else
                                     {
 										if (this.curClassSplitsBests[nextSplitRef][0]==0)
-										   timeDiffStr = "<i>(...)<\i>";
+										   timeDiffStr = "<i>(..)<\i>";
 										else{
                                             if (relay)
                                             {
@@ -529,9 +527,11 @@ var LiveResults;
                                             
                                             var rankStr = "";
 											if (rank > 1)
-												rankStr = "<i> (" + rank + ")</i>";											
+                                                rankStr = " <i>(" + rank + ")</i>";
+                                            else
+                                                rankStr = " <i>(..)</i>";											
 											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
-											if (nextSplit==numSplits)
+                                            if (nextSplit==numSplits)
 												elapsedTimeStr += rankStr;
 											else
 												timeDiffStr += rankStr; 
@@ -552,25 +552,37 @@ var LiveResults;
                                         const predOffset = 0;
                                         if (predRank && !relay && !lapTimes)
                                         {
-                                            for (var j = i+1; j < data.length; j++) 
-                                            {                                                
-                                                if (data[j].status != 0 && data[j].status != 9 && data[j].status != 10)
-                                                    break
-                                                if (data[j].status == 0 && nextSplit==numSplits && elapsedTime - predOffset > parseInt(data[j].result))
-                                                {
-                                                    tmpPredData[i].result = elapsedTime - predOffset;
-                                                    tmpPredData[i].progress = 100;
-                                                    tmpPredData[i].place = "p";
-                                                    tmpPredData[i].status = 0;
-                                                    break;
-                                                }
-                                                if (nextSplit < numSplits && elapsedTime - predOffset > parseInt(data[j].splits[this.curClassSplits[nextSplit].code]))
-                                                {
-                                                    tmpPredData[i].splits[this.curClassSplits[nextSplit].code] = elapsedTime - predOffset;
-                                                    tmpPredData[i].progress = 100.0 * (nextSplit + 1) / (numSplits + 1);
+                                            if (nextSplit == 0 && this.rankedStartlist)
+                                                {   
+                                                    tmpPredData[i].splits[this.curClassSplits[0].code] = elapsedTime - predOffset;
+                                                    tmpPredData[i].progress = 100.0 * 1/(numSplits + 1);
                                                     tmpPredData[i].place = "";
-                                                    break;
                                                 }
+                                            else
+                                            {
+                                                for (var j = i+1; j < data.length; j++) 
+                                                {                                                
+                                                    if (data[j].status != 0 && data[j].status != 9 && data[j].status != 10)
+                                                        break                                                
+                                                    if (nextSplit == numSplits && data[j].status == 0 && elapsedTime - predOffset > parseInt(data[j].result))
+                                                    {
+                                                        tmpPredData[i].result = elapsedTime - predOffset;
+                                                        tmpPredData[i].progress = 100;
+                                                        tmpPredData[i].place = "p";
+                                                        tmpPredData[i].status = 0;
+                                                        break;
+                                                    }
+                                                    if (nextSplit < numSplits && parseInt(data[j].splits[this.curClassSplits[nextSplit].code]) > 0)
+                                                    {
+                                                        if (elapsedTime - predOffset > parseInt(data[j].splits[this.curClassSplits[nextSplit].code]))
+                                                        {
+                                                            tmpPredData[i].splits[this.curClassSplits[nextSplit].code] = elapsedTime - predOffset;
+                                                            tmpPredData[i].progress = 100.0 * (nextSplit + 1) / (numSplits + 1);
+                                                            tmpPredData[i].place = "";
+                                                        }
+                                                        break;
+                                                    }
+                                                }   
                                             }
                                         }                                        
 									}
@@ -582,15 +594,21 @@ var LiveResults;
                     if (predRank && !this.curClassIsMassStart && !relay && !unranked && !lapTimes)
                     {
                         this.updateResultVirtualPosition(tmpPredData, false);
+                        var updateVP = false;
                         for (var j = 0; j < tmpPredData.length; j++)
-                            data[tmpPredData[j].idx].virtual_position = tmpPredData[j].virtual_position;
-                        if (this.qualLimits != null && this.qualLimits.length > 0)                        
+                        {
+                            if (data[tmpPredData[j].idx].virtual_position != tmpPredData[j].virtual_position)
+                            {
+                                updateVP = true;    
+                                data[tmpPredData[j].idx].virtual_position = tmpPredData[j].virtual_position;
+                            }
+                        }
+                        if (updateVP && this.qualLimits != null && this.qualLimits.length > 0)                        
                             this.updateQualLimMarks(data, this.curClassName); 
-                        table.rows().invalidate().draw();
+                        if (updateVP)
+                            table.rows().invalidate().draw();
                     }
-                    else
-                        table.fixedColumns().update();
-
+                    table.fixedColumns().update();
                 } 
                 catch (e) {
                 }
@@ -758,9 +776,9 @@ var LiveResults;
                                     if (type === 'display')
                                     {
                                         if (data<0) // Relay
-                                            return  "(" + (-data/100|0) + "-" + (-data%100) + ")";
+                                            return  "<span class=\"bib\">" + (-data/100|0) + "-" + (-data%100) + "</span>";
                                         else if (data>0)    // Ordinary
-                                            return "("  + data + ")";
+                                            return " <span class=\"bib\">" + data + "</span>";
                                         else
                                             return "";
                                     }
@@ -1229,11 +1247,11 @@ var LiveResults;
                                 if (type === 'display')
                                 {
                                     if (data<0) // Relay
-                                        return "(" + (-data/100|0) + ")";
+                                        return "<span class=\"bib\">" + (-data/100|0) + "</span>";
                                     else if (data>0)    // Ordinary
-                                        return "("  + data + ")";
+                                        return "<span class=\"bib\">"  + data + "</span>";
                                     else
-                                        return "";
+                                        return "";                                        
                                 }
                                 else
                                     return Math.abs(data);
@@ -1386,8 +1404,10 @@ var LiveResults;
                                     res += "<span class=\"besttime\">";
 								else
 									res += "<span>";
-                                res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond) + " (" + row.place + ")<\span>";
-                                
+                                res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
+                                if (haveSplitControls)
+                                    res += " (" + row.place + ")";
+                                res += "</span>";
                                 if ((haveSplitControls || _this.isMultiDayEvent) && fullView && !(relay) && !(lapTimes) && row.status == 0)
 								{
                                     if (row.place==1)
@@ -1591,6 +1611,7 @@ var LiveResults;
                         }
                     }
                     this.lastClassHash = data.hash;
+                    this.updatePredictedTimes();
                 }
             }
         };
@@ -2031,9 +2052,9 @@ var LiveResults;
                             if (type === 'display')
                             {
                                 if (data<0) // Relay
-                                    return "(" + (-data/100|0) + ")";
+                                    return "<span class=\"bib\">" + (-data/100|0) + "</span>";
                                 else if(data>0)       // Ordinary
-                                    return "(" + data + ")";
+                                    return "<span class=\"bib\">" + data + "</span>";
                                 else
                                     return "";
                             }
@@ -2064,7 +2085,7 @@ var LiveResults;
                                 return _this.formatTime(row.result, row.status);
                             }
                             else {
-                                return _this.formatTime(row.result, row.status) + " (" + row.place + ")";
+                                return _this.formatTime(row.result, row.status);
                             }
                         }
                     });

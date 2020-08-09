@@ -63,6 +63,7 @@ tr.red_row .plustime { color: white;}
 tr.red_row .besttime { color: white;}
 tr.red_row .legtime {color: white;}
 tr.red_row td i { color: white;}
+tr.red_row .bib {color: white;}
 
 /* Red cell for singel cell marking of new result */
 .red_cell {color: white; background-color: #F1592A !important;  border-bottom-right-radius: 10px}
@@ -128,6 +129,7 @@ table.dataTable td {vertical-align: top;}
 .plustime {color: dimgrey;}
 .legtime {color: dimgrey;}
 .besttime {color: red;}
+.bib {color: grey; font-style: normal;}
 
 /*predicted times  */
 td i { color: grey;}
