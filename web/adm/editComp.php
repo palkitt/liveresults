@@ -94,8 +94,8 @@ function confirmDelete(msg,url)
     <td class="submenu" colspan="2">
        <table border="0" cellpadding="0" cellspacing="0">
              <tr>
-             <td><a href="admincompetitions.php">Adminpage Competitionindex</a> | </td>
-               <td><a href="../index.php"><?=$_CHOOSECMP?> to view</a></td>
+             <td><a href="index.php">Adminpage Competitionindex</a> | </td>
+               <td><a href="../indexs.php"><?=$_CHOOSECMP?> to view</a></td>
              </tr>
        </table>
      </td>
