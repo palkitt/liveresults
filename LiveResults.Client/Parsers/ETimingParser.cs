@@ -536,7 +536,6 @@ namespace LiveResults.Client
                     int maxSleepTimeMessage = 9;
                     int sleepTimeMessage = maxSleepTimeMessage;
 
-
                     /* ***            Main loop        ***
                     /* ************************************/
                                           
@@ -548,6 +547,7 @@ namespace LiveResults.Client
                             ParseReader(cmdInd, ref splitList, false, out lastRunner);
                             if (isRelay)
                                 ParseReader(cmdRelay, ref splitList, true, out lastRunner);
+                            lastRunner = "Finished parsing runners";
                             handleUnknowns(splitList, ref unknownRunners);
                             sleepTimeMessage += m_sleepTime;
                             if (m_updateMessage && sleepTimeMessage >= maxSleepTimeMessage)
@@ -561,7 +561,7 @@ namespace LiveResults.Client
                         catch (Exception ee)
                         {
                             FireLogMsg("eTiming Parser: " + ee.Message + " {parsing: " + lastRunner);
-                            Thread.Sleep(100);
+                            Thread.Sleep(1000);
                             switch (m_connection.State)
                             {
                                 case ConnectionState.Broken:
@@ -1261,11 +1261,11 @@ namespace LiveResults.Client
             }
             catch (Exception ee)
             { 
-                FireLogMsg("eTiming Message get DNS: " + ee.Message);
+                FireLogMsg("Bad network? eTiming Message get not stated : " + ee.Message);
             }
             
             var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
-            if (objects.status == "OK")
+            if (objects != null && objects.status == "OK")
             {
                 JArray items = (JArray)objects["dns"];
                 foreach (JObject element in items)
@@ -1339,7 +1339,7 @@ namespace LiveResults.Client
                     }
                     catch (Exception ee)
                     {
-                        FireLogMsg("eTiming Message DNS: " + ee.Message);
+                        FireLogMsg("Bad network? eTiming Message DNS: " + ee.Message);
                     } 
                 }
             }
@@ -1355,11 +1355,11 @@ namespace LiveResults.Client
             }
             catch (Exception ee)
             {
-                FireLogMsg("eTiming Message get ecard change: " + ee.Message);
+                FireLogMsg("Bad network? eTiming Message get ecard change: " + ee.Message);
             }
             
             var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
-            if (objects.status == "OK")
+            if (objects != null && objects.status == "OK")
             {
                 JArray items = (JArray)objects["ecardchange"];
                 foreach (JObject element in items)
@@ -1505,7 +1505,7 @@ namespace LiveResults.Client
                     }
                     catch (Exception ee)
                     {
-                        FireLogMsg("eTiming Message ecard: " + ee.Message);
+                        FireLogMsg("Bad network? eTiming Message ecard: " + ee.Message);
                     }
                 }
             }
