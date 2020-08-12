@@ -337,7 +337,6 @@ var LiveResults;
                     }
                      
                     // *** Highlight new results and write running times***
-
                     var tmpPredData = Array(0); 
                     for (var i = 0; i < data.length; i++) 
                     {   
@@ -386,9 +385,13 @@ var LiveResults;
                                         highlight = (age < this.highTime);
                                     }
                                     if (highlight && !$( table.cell(i,colNum).node() ).hasClass('red_cell'))
+                                    {
                                         $( table.cell(i,colNum).node() ).addClass('red_cell');
+                                    }
                                     else if (!highlight && $( table.cell(i,colNum).node() ).hasClass('red_cell'))
+                                    {
                                         $( table.cell(i,colNum).node() ).removeClass('red_cell');
+                                    }
                                 }
                                 // Highlight finish-time
                                 highlight = false;
@@ -455,7 +458,6 @@ var LiveResults;
 							if (elapsedTime>=0) 
 							{
                                 table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
-
                                 if(this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !unranked)
                                 {
                                     var elapsedTotalTime = elapsedTime + data[i].totalresultSave;

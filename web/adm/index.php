@@ -36,96 +36,52 @@ header('Content-Type: text/html; charset='.$CHARSET);
 <script language="javascript">
 
 function colorRow(row)
-
 {
-
-var el = document.getElementById(row);
-
-if (el == null)
-
-  return;
-
-el.style.backgroundColor = "#C0D6FF";
-
+  var el = document.getElementById(row);
+  if (el == null)
+    return;
+  el.style.backgroundColor = "#C0D6FF";
 }
 
 function resetRow(row)
-
 {
-
-var el = document.getElementById(row);
-
-if (el == null)
-
-  return;
-
-el.style.backgroundColor = "";
-
+  var el = document.getElementById(row);
+  if (el == null)
+    return;
+  el.style.backgroundColor = "";
 }
 
 </script>
-
 </head>
-
 <body topmargin="0" leftmargin="0">
 
 <!-- MAIN DIV -->
 
 <div class="maindiv">
-
-
 <table border="0" cellpadding="0" cellspacing="0" >
-
   <tr>
-
      <td valign="bottom">
-
-
-
 <!-- MAIN MENU FLAPS - Two rows, note that left and right styles differs from middle ones -->
 
      <table border="0" cellpadding="0" cellspacing="0">
-
           <!-- Top row with rounded corners -->
-
           <tr>
-
                <td colspan="4"><span class="mttop"></td>
-
           </tr>
-
      </table>
-
-
-
      </td>
-
      <td align="right" valign="bottom">
-
-
-
      </td>
-
   </tr>
-
   <tr>
-
     <td class="submenu" colspan="2">
-
        <table border="0" cellpadding="0" cellspacing="0">
-
              <tr>
-
                <td><a href="../index.php"><?=$_CHOOSECMP?></a></td>
-
              </tr>
-
        </table>
-
      </td>
-
   </tr>
-
 <!-- End SUB MENU -->
 
   <tr>
@@ -138,56 +94,49 @@ el.style.backgroundColor = "";
 
                <td>
 <a href="createComp.php">Create new competition</a><br/>
-
-
 <h1 class="categoriesheader">Existing competitions</h1>
 
 			<table border="0" cellpadding="0" cellspacing="2" width="100%">
 <tr>
-<td><b>Date</b></td><td><b>Name</b></td><td><b>Organizer</b></td><td><b>Public</b></td><td><b>Radio</b></td><td></td>
+<td><b>Date</b></td>
+<td><b>Name</b></td>
+<td><b>Organizer</b></td>
+<td><b>Public</b></td>
+<td><b>Results</b></td>
+<td><b>Radio</b></td>
+<td><b>Edit</b></td>
 </tr>
 
 <?php
 
 	$comps = Emma::GetAllCompetitions();
-
 	//echo(sizeof($comps));
-
 	//for ($i = 0; $i < sizeof($comps); $i++)
 
 	foreach ($comps as $comp)
 
 	{
-
 	?>
-
-		<tr id="row<?=$comp["tavid"]?>"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td><td><?=$comp["compName"]?></td><td><?=$comp["organizer"]?></td><td><?=$comp["public"] == "1" ? "yes" : "false"?></td><td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td><td><a href="editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></tr>
-
+		<tr id="row<?=$comp["tavid"]?>">
+    <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
+    <td><?=$comp["compName"]?></td>
+    <td><?=$comp["organizer"]?></td>
+    <td><?=$comp["public"] == "1" ? "yes" : "false"?></td>
+    <td><a href="/followfull.php?comp=<?=$comp['tavid']?>">Results</td>
+    <td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td>
+    <td><a href="editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></tr>
 	<?php
-
 	}
-
 	?>
-
 			</table>
-
 		</td>
-
 	     </tr>
-
 	</table>
      </td>
-
   </tr>
-
-
-
 </table>
-
 </div>
-
 <br/><br/>
-
 </body>
 
 </html>
