@@ -191,6 +191,10 @@ $(document).ready(function()
 	// Modify high time
 	<?php if($currentComp->HighTime() ){?> 
 	    res.highTime = <?=$currentComp->HighTime(); ?> <?php }?>
+
+	// Set ranked startlist
+	<?php if($currentComp->RankedStartlist() ){?> 
+	    res.rankedStartlist = <?=$currentComp->RankedStartlist(); ?> <?php }?>
 	
 	// Qualification limits and classes (last limit is default)
 	res.qualLimits = [<?=$currentComp->QualLimits();?>];

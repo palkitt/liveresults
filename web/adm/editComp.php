@@ -4,7 +4,7 @@ include_once("../templates/classEmma.class.php");
 if (isset($_POST['btnSave']))
 {
 	Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
-        $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['hightime'],$_POST['quallimits'],
+        $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['rankedstartlist'],$_POST['hightime'],$_POST['quallimits'],
         $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent']);
 }
 else if (isset($_POST['btnAdd']))
@@ -138,7 +138,7 @@ function confirmDelete(msg,url)
 <input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/><b>Use mass start sorting</b><br/>
 <input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/><b>Show tenth of seconds</b><br/>
 <input type="checkbox" name="fullviewdefault" <?= $comp['fullviewdefault'] == 1 ? "checked" : "" ?>/><b>Show full view by default. Two lines</b><br/>
-<input type="checkbox" name="rankedstart" <?= $comp['rankedstart'] == 1 ? "checked" : "" ?>/><b>Ranked startlist (best starting last) for virtual positions</b><br/>
+<input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?>/><b>Ranked startlist (best starting last) applied to first radio control</b><br/>
 <input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/><b>Set competion visibility as Public</b><br/>
 <br/>
 <input type="submit" name="btnSave" value="Save"/>

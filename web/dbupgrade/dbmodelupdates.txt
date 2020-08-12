@@ -41,3 +41,6 @@ CREATE TABLE `messages` (
 `completed` tinyint(1) DEFAULT NULL,
 PRIMARY KEY (`messid`)
 ) DEFAULT CHARSET=utf8;
+
+-- addition 2020-08-09
+alter table login add column rankedstartlist tinyint(1) DEFAULT NULL;

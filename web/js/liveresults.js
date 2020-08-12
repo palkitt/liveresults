@@ -61,7 +61,7 @@ var LiveResults;
             this.radioStart = false;
             this.filterDiv = filterDiv;
             this.predData = Array(0);
-            this.rankedStartlist = true;
+            this.rankedStartlist = false;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));

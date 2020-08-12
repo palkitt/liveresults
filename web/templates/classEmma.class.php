@@ -94,8 +94,9 @@ class Emma
 		list($id) = mysqli_fetch_row($res);
 		if ($id < 10000)
 			$id = 10000;
-		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,hightime,quallimits,qualclasses,multidaystage,multidayparent)
-	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0,0,0,0,60,'','',0,0)") or die(mysqli_error($conn));
+		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
+		hightime,quallimits,qualclasses,multidaystage,multidayparent)
+	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0,0,0,0,0,60,'','',0,0)") or die(mysqli_error($conn));
 	}
 
 	public static function CreateCompetitionFull($name,$org,$date, $email, $password, $country)
@@ -118,12 +119,13 @@ class Emma
 		mysqli_query($conn, "insert into splitcontrols(tavid,classname,name,code,corder) values($compid,'$classname','$name',$code,$id)") or die(mysqli_error($conn));
 	}
 
-	public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent)
+	public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent)
 	{
 		$conn = self::openConnection();
 	 	$sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, public=". (!isset($public) ? "0":"1") ."
 	         , massstartsort=". (!isset($massstartsort) ? "0":"1") .", tenthofseconds=". (!isset($tenthofseconds) ? "0":"1") ."
-			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses'
+			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", rankedstartlist=". (!isset($rankedstartlist) ? "0":"1") ."
+			 , hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses'
 			 , multidaystage='$multidaystage', multidayparent='$multidayparent' where tavid=$id";
 		mysqli_query($conn, $sql) or die(mysqli_error($conn));
 	}
@@ -142,7 +144,7 @@ class Emma
 	public static function GetCompetition($compid)
     {
 		$conn = self::openConnection();
-		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, fullviewdefault, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, multidayparent from login where tavid=$compid");
+		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, fullviewdefault, rankedstartlist, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, multidayparent from login where tavid=$compid");
 		$ret = null;
 		while ($tmp = mysqli_fetch_array($result))
 			$ret = $tmp;
@@ -201,6 +203,7 @@ class Emma
 			$this->m_UseMassStartSort = $tmp["massstartsort"];
 			$this->m_ShowTenthOfSeconds = $tmp["tenthofseconds"];
 			$this->m_ShowFullView = $tmp["fullviewdefault"];
+			$this->m_RankedStartlist = $tmp["rankedstartlist"];
 			$this->m_QualLimits = $tmp["quallimits"];
 			$this->m_QualClasses = $tmp["qualclasses"];
 
@@ -284,6 +287,11 @@ class Emma
 	function FullView()
 	{
 		return $this->m_ShowFullView;
+	}
+	
+	function RankedStartlist()
+	{
+		return $this->m_RankedStartlist;
 	}
 	
 	function ShowTenthOfSeconds()
