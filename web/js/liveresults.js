@@ -228,7 +228,7 @@ var LiveResults;
 				var j = 0;
 				for (var i = 0; i< data.results.length; i++)
 				{
-					if(data.results[i].place != undefined && data.results[i].place >0 )
+					if(data.results[i].place != undefined && data.results[i].place > 0 || data.results[i].place == "=")
 					{
 						if (relay)
 							classSplitsBest[classSplits.length][j] = data.results[i].start + data.results[i].splits[classSplits[classSplits.length-1].code];
@@ -287,7 +287,7 @@ var LiveResults;
 		};		
 		
 		// Updated predicted times
-		AjaxViewer.prototype.updatePredictedTimes = function () {
+		AjaxViewer.prototype.updatePredictedTimes = function (refresh = false) {
             if (this.currentTable != null && this.curClassName != null && this.serverTimeDiff && this.updateAutomatically) {
                 try {
                     var dt = new Date();
@@ -306,7 +306,8 @@ var LiveResults;
                     var hasBibs = (data[0].bib != undefined && data[0].bib != 0);
                     var timeDiff = 0;
 					var timeDiffCol = 0;
-					var highlight = false;
+                    var highlight = false;
+                    var modifiedTable = false;
 					var age = 0;
 					var table = this.currentTable.api();					
                     var unranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})); 
@@ -354,6 +355,7 @@ var LiveResults;
                                 {
                                     if( !$(row).hasClass('red_row') && !$(row).hasClass('new_fnq') )
                                     {
+                                        modifiedTable = true;
                                         if (data[i].DT_RowClass != undefined && (data[i].DT_RowClass == "firstnonqualifier" || data[i].DT_RowClass == "new_fnq"))
                                             $(row).addClass('new_fnq');
                                         else
@@ -362,6 +364,7 @@ var LiveResults;
                                 }
                                 else if( $(row).hasClass('red_row') || $(row).hasClass('new_fnq') )
                                 {   
+                                    modifiedTable = true;
                                     $(row).removeClass('red_row');
                                     $(row).removeClass('new_fnq');
                                 }
@@ -386,10 +389,12 @@ var LiveResults;
                                     }
                                     if (highlight && !$( table.cell(i,colNum).node() ).hasClass('red_cell'))
                                     {
+                                        modifiedTable = true;
                                         $( table.cell(i,colNum).node() ).addClass('red_cell');
                                     }
                                     else if (!highlight && $( table.cell(i,colNum).node() ).hasClass('red_cell'))
                                     {
+                                        modifiedTable = true;
                                         $( table.cell(i,colNum).node() ).removeClass('red_cell');
                                     }
                                 }
@@ -405,6 +410,7 @@ var LiveResults;
                                     {
                                         if (!$( table.cell(i,(offset + numSplits*2)).node() ).hasClass('red_cell_sqr'))
                                         {
+                                            modifiedTable = true;
                                             $( table.cell(i,(offset + numSplits*2)).node() ).addClass('red_cell_sqr');
                                             $( table.cell(i,(offset + numSplits*2 + 2)).node() ).addClass('red_cell');
                                             if (this.isMultiDayEvent)
@@ -418,6 +424,7 @@ var LiveResults;
                                     {
                                         if (!$( table.cell(i,(offset + numSplits*2)).node() ).hasClass('red_cell'))
                                         {
+                                            modifiedTable = true;
                                             $( table.cell(i,(offset + numSplits*2)).node() ).addClass('red_cell');
                                             if (this.isMultiDayEvent)
                                                 $( table.cell(i,(offset + numSplits*2 + 2)).node() ).addClass('red_cell');
@@ -430,6 +437,7 @@ var LiveResults;
                                     {
                                         if ($( table.cell(i,(offset + numSplits*2)).node() ).hasClass('red_cell_sqr'))
                                         {
+                                            modifiedTable = true;
                                             $( table.cell(i,(offset + numSplits*2)).node() ).removeClass('red_cell_sqr');
                                             $( table.cell(i,(offset + numSplits*2 + 2)).node() ).removeClass('red_cell');
                                             if (this.isMultiDayEvent)
@@ -443,6 +451,7 @@ var LiveResults;
                                     {
                                         if ($( table.cell(i,(offset + numSplits*2)).node() ).hasClass('red_cell'))
                                         {
+                                            modifiedTable = true;
                                             $( table.cell(i,(offset + numSplits*2)).node() ).removeClass('red_cell');
                                             if (this.isMultiDayEvent)
                                                 $( table.cell(i,(offset + numSplits*2 + 2)).node() ).removeClass('red_cell');
@@ -457,7 +466,12 @@ var LiveResults;
 							var elapsedTime = time - data[i].start;
 							if (elapsedTime>=0) 
 							{
-                                table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
+                                if (elapsedTime < 200 || refresh)
+                                {
+                                    table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
+                                    modifiedTable = true;
+                                }
+                            
                                 if(this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !unranked)
                                 {
                                     var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
@@ -610,7 +624,8 @@ var LiveResults;
                         if (updateVP)
                             table.rows().invalidate().draw();
                     }
-                    table.fixedColumns().update();
+                    if (modifiedTable || refresh)
+                        table.fixedColumns().update();
                 } 
                 catch (e) {
                 }
@@ -1052,7 +1067,7 @@ var LiveResults;
 							table.row(j).nodes().to$().find('td:first-child').trigger('click');
 					}
 					$(table.settings()[0].nScrollBody).scrollLeft( posLeft );
-                    this.updatePredictedTimes();
+                    this.updatePredictedTimes(true);
                     this.lastClassHash = newData.hash;
 
                 }
@@ -1613,7 +1628,7 @@ var LiveResults;
                         }
                     }
                     this.lastClassHash = data.hash;
-                    this.updatePredictedTimes();
+                    this.updatePredictedTimes(true);
                 }
             }
         };
