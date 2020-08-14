@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -272,16 +272,41 @@ var LiveResults;
 				if (qualIndex == -1)
 					qualIndex = this.qualLimits.length-1;
                 var qualLim = this.qualLimits[qualIndex];
-                //var lastPos = -1;
-                //var curPos = -1;
+
+                if (qualLim < 0)
+                    return
+
+                if (qualLim < 1) // If given as a fraction of started runners
+                {
+                    var numDNS = 0;
+                    for (var i=0; i< results.length; i++)
+                    {   if(results[i].status == 1)
+                            numDNS++;
+                    }
+                    qualLim = Math.ceil(qualLim*(results.length - numDNS));
+                }
+                var lastPos = -1;
+                var curPos = -1;
+                var instaRanked = false;
+                var limitSet = false;
 				for (var i = 0; i< results.length; i++)
 				{
-                //    lastPos = curPos;
-                //    curPos = results[i].place;
-                    if (results[i].virtual_position == qualLim && ( this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0 ))
+                    lastPos = curPos;
+                    curPos = results[i].place;
+                    if (results[i].virtual_position != i)
+                        instaRanked = true;
+                    
+                    if ( (!limitSet) && ( curPos == "-" || !instaRanked && results[i].virtual_position > qualLim - 1 && curPos != lastPos ||
+                         instaRanked && results[i].virtual_position == qualLim && ( this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0 )) )
+                    {
+                        limitSet = true;
                         results[i].DT_RowClass = "firstnonqualifier";
+                    }
                     else
-                        results[i].DT_RowClass = "nostyle";					
+                        results[i].DT_RowClass = "nostyle";
+                    
+                    if (curPos == "")
+                        curPos = "x";	                    					
 				}
 			}
 		};		
@@ -333,7 +358,7 @@ var LiveResults;
                         if( typeof(data[0].totalresultSave) == 'undefined')
                         {
                             for (var i = 0; i < data.length; i++)
-                                data[i].totalresultSave =  data[i].totalresult;
+                                data[i].totalresultSave = data[i].totalresult;
                         }
                     }
                      
@@ -470,8 +495,7 @@ var LiveResults;
                                 {
                                     table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
                                     modifiedTable = true;
-                                }
-                            
+                                }                            
                                 if(this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !unranked)
                                 {
                                     var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
@@ -487,7 +511,9 @@ var LiveResults;
 										if (this.curClassSplitsBests[0][0]>0){
 											rank = this.findRank(this.curClassSplitsBests[0],elapsedTime);
 											if (rank > 1)
-												elapsedTimeStr += "<i> (" + rank + ")</i>";
+                                                elapsedTimeStr += "<i> (" + rank + ")</i>";
+                                            else
+                                                elapsedTimeStr += "<i> (..)</i>";	
 											timeDiff = elapsedTime - this.curClassSplitsBests[0][0]; 
 											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
 										}
@@ -550,15 +576,16 @@ var LiveResults;
                                             if (nextSplit==numSplits)
 												elapsedTimeStr += rankStr;
 											else
-												timeDiffStr += rankStr; 
-										}
+                                                timeDiffStr += rankStr;
+                                        }
 										
 										timeDiffCol = offset + nextSplit*2;
 										if (nextSplit==numSplits) // Approach finish
 											timeDiffCol += 2;
-                                        // Display elapsed time
+                                        
+                                            // Display elapsed time
 										if (!this.compactView && !relay && !lapTimes && nextSplit==numSplits)
-											elapsedTimeStr += "<br/>" + timeDiffStr;
+                                            elapsedTimeStr += "<br/>" + timeDiffStr;                                      
 										table.cell( i, offset + numSplits*2 ).data(elapsedTimeStr);
                                         // Display time diff
 										if (this.compactView || relay || nextSplit!=numSplits || lapTimes)
@@ -1422,9 +1449,7 @@ var LiveResults;
 								else
 									res += "<span>";
                                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
-                                if (haveSplitControls)
-                                    res += " (" + row.place + ")";
-                                res += "</span>";
+                                res += " (" + row.place + ")</span>";
                                 if ((haveSplitControls || _this.isMultiDayEvent) && fullView && !(relay) && !(lapTimes) && row.status == 0)
 								{
                                     if (row.place==1)
@@ -1471,7 +1496,7 @@ var LiveResults;
 								var res = "";
                                 if (row.status == 0)
                                 {
-                                    if (row.timeplus <= 0)
+                                    if (row.timeplus <= 0 && haveSplitControls)
                                         res += "<span class=\"besttime\">+";
                                     else
                                         res += "<span class=\"plustime\">+";
