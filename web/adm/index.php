@@ -102,9 +102,10 @@ function resetRow(row)
 <td><b>Name</b></td>
 <td><b>Organizer</b></td>
 <td><b>Public</b></td>
+<td><b>Edit</b></td>
 <td><b>Results</b></td>
 <td><b>Radio</b></td>
-<td><b>Edit</b></td>
+<td><b>Startlist</b></td>
 </tr>
 
 <?php
@@ -122,9 +123,11 @@ function resetRow(row)
     <td><?=$comp["compName"]?></td>
     <td><?=$comp["organizer"]?></td>
     <td><?=$comp["public"] == "1" ? "yes" : "false"?></td>
+    <td><a href="editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></td>
     <td><a href="/followfull.php?comp=<?=$comp['tavid']?>">Results</td>
     <td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td>
-    <td><a href="editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></tr>
+    <td><a href="/startlist.php?comp=<?=$comp["tavid"]?>">Startlist</a></td>
+    </tr>
 	<?php
 	}
 	?>

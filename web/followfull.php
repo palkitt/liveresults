@@ -327,10 +327,17 @@ function closeTop() {
 			<?php } elseif($orgainzer=="Byåsen IL"){?>
 			    <td width="60">
 			    <img src="images/BIL.png" height="60" /></td>
-		     <?php } elseif($orgainzer=="Byaasen Skiklub"){?>
+			<?php } elseif($orgainzer=="Røros IL"){?>
+			    <td width="60">
+			    <img src="images/roros.png" height="60" ></td>
+			<?php } elseif($orgainzer=="Freidig/Wing/Malvik"){?>
+			    <td width="60">
+			    <img src="images/NM2020.png" height="60" ></td>
+			<?php } elseif($orgainzer=="Byaasen Skiklub"){?>
 			    <td width="60">
 			    <img src="images/BSK.png" height="60" ></td>
 			<?php }?>
+			
 <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
 </tr>
 </table></div>
