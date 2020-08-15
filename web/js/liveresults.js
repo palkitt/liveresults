@@ -965,6 +965,123 @@ var LiveResults;
         return shortName;
     };
     
+    //Request data for start list
+    AjaxViewer.prototype.updateStartList = function () {
+        var _this = this;
+        if (true) {
+            $.ajax({
+                url: this.apiURL,
+                data: "comp=" + this.competitionId + "&method=getrunners",
+                success: function (data,status,resp) {                    
+                    _this.handleUpdateStartList(data); },
+                error: function () { },
+                dataType: "json"                   
+            });
+        }
+    };
+    //Handle response for updating start list
+    AjaxViewer.prototype.handleUpdateStartList = function (data) {
+        
+        var _this = this;
+        // Insert data from query
+        if (data != null && data.status == "OK" && data.runners != null) 
+        {
+            if (data.runners.length==0) return;
+            var columns = Array();
+            var col = 0;
+            columns.push({ "sTitle": "St.no", "bVisible": false, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+                            "render": function (data,type,row) {
+                                    return Math.abs(data);
+                            }
+            });
+            columns.push({ "sTitle": "St.no", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+                            "render": function (data,type,row) {
+                                if (type === 'display')
+                                {
+                                    if (data<0) // Relay
+                                        return  (-data/100|0) + "-" + (-data%100);
+                                    else if (data>0)    // Ordinary
+                                        return data;
+                                    else
+                                        return "";
+                                }
+                                else
+                                    return Math.abs(data);
+                            }
+            });
+            columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
+            "render": function (data,type,row) {
+                if (type === 'display')
+                {
+                    if (data.length>_this.maxNameLength)
+                        return _this.nameShort(data);
+                    else
+                        return data;
+                }
+                else
+                    return data;
+            }         
+                });
+            columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
+                "render": function (data,type,row) {
+                    if (type === 'display')
+                    {
+                        if (data.length>_this.maxClubLength)
+                        {
+                            return _this.clubShort(data);
+                        }
+                        else
+                            return data;
+                    }
+                    else
+                        return data;        
+                }});
+            columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
+                "render": function (data,type,row) {
+                        className = row.class;
+                        var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
+                        link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
+                        return link;
+                    }});
+                    
+            columns.push({ "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start"});         				
+          
+            columns.push({ "sTitle": "Brikke 1" , "sClass": "right" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard2",
+                "render": function (data,type,row) 
+                {
+                    var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.name;
+                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 1 fra " 
+                        + row.ecard1 + " til '," + row.dbid + ",0,1);\">"+ row.ecard1 +"</button>";						
+                    return link;
+                }});
+            columns.push({ "sTitle": "Brikke 2" , "sClass": "right" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard2",
+                "render": function (data,type,row) 
+                {
+                    var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.name;
+                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 2 fra "
+                        + row.ecard2 + " til '," + row.dbid + ",0,2);\">"+ row.ecard2 +"</button>";						
+                    return link;
+                }});
+
+            this.currentTable = $('#startList').dataTable({
+                "bPaginate": false,
+                "bLengthChange": false,
+                "bFilter": true,
+                "dom": 'lrtip',
+                "bSort": true,
+                "bInfo": false,
+                "bAutoWidth": false,
+                "aaData": data.runners,
+                "aaSorting": [[0, "asc"]],
+                "aoColumnDefs": columns,
+                "bDestroy": true,
+                "orderCellsTop": true
+                });            
+        }
+
+    };
+    
+    
     // Club name shortener
     AjaxViewer.prototype.clubShort = function (club) {
         _this = this;
@@ -1014,7 +1131,7 @@ var LiveResults;
 
 		
     //Popup window for messages to message center
-    AjaxViewer.prototype.popupDialog = function (promptText,dbid,defaultDNS) {
+    AjaxViewer.prototype.popupDialog = function (promptText,dbid,defaultDNS,startListChange = -1) {
         var defaultText ="";
         if (defaultDNS)
             defaultText = "ikke startet";
@@ -1026,6 +1143,8 @@ var LiveResults;
             message = message.substring(0,250); // limit number of characters
             var DNS = (message == "ikke startet" ? 1 : 0);
             var ecardChange = (dbid<0 && message.match(/\d+/g) != null);
+            if (startListChange>0)
+                message = promptText + message;
             $.ajax({
                 url: this.messageURL + "?method=sendmessage", 
                 data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
