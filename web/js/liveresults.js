@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1144,7 +1144,10 @@ var LiveResults;
             var DNS = (message == "ikke startet" ? 1 : 0);
             var ecardChange = (dbid<0 && message.match(/\d+/g) != null);
             if (startListChange>0)
+            {
                 message = promptText + message;
+                alert("Ønsket endring av brikkenummer er registrert: " + message);
+            }
             $.ajax({
                 url: this.messageURL + "?method=sendmessage", 
                 data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange

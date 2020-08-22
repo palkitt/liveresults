@@ -226,6 +226,8 @@ var Messages;
             var table = this.currentTable.api();
             var data = this.currentTable.fnGetData();
             var lastID = null;
+            var lastEcard1 = null;
+            var lastEcard2 = null;
 
             table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
                 var data = this.data();
@@ -245,9 +247,11 @@ var Messages;
                 else
                     $(table.row(rowIdx).node()).show();
                 
-                if (data.dbid != lastID)
+                if (data.dbid != lastID && Math.abs(data.dbid) != lastEcard1 && Math.abs(data.dbid) != lastEcard2)
                     $(table.row(rowIdx).node()).addClass('firstnonqualifier');
                 lastID =  data.dbid;
+                lastEcard1 = data.ecard1;
+                lastEcard2 = data.ecard2;
 
             } );
         };

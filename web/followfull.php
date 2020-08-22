@@ -333,6 +333,9 @@ function closeTop() {
 			<?php } elseif($orgainzer=="Freidig/Wing/Malvik"){?>
 			    <td width="60">
 			    <img src="images/NM2020.png" height="60" ></td>
+			<?php } elseif($orgainzer=="Eiker O-lag"){?>
+			    <td width="60">
+			    <img src="images/Eiker.png" height="60" ></td>
 			<?php } elseif($orgainzer=="Byaasen Skiklub"){?>
 			    <td width="60">
 			    <img src="images/BSK.png" height="60" ></td>
