@@ -106,6 +106,7 @@ function resetRow(row)
 <td><b>Results</b></td>
 <td><b>Radio</b></td>
 <td><b>Startlist</b></td>
+<td><b>Messages</b></td>
 </tr>
 
 <?php
@@ -127,6 +128,7 @@ function resetRow(row)
     <td><a href="/followfull.php?comp=<?=$comp['tavid']?>">Results</td>
     <td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td>
     <td><a href="/startlist.php?comp=<?=$comp["tavid"]?>">Startlist</a></td>
+    <td><a href="/message.php?comp=<?=$comp["tavid"]?>">Messages</a></td>
     </tr>
 	<?php
 	}
