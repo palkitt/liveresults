@@ -432,7 +432,7 @@ namespace LiveResults.Client
                                                         ClassName = classN,
                                                         IntermediateName = radioControl.Description + "PassTime",
                                                         Position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg + 100000,
-                                                        Order = nStep * radioControl.Order - 1 // Sort this before "normal intermediate time
+                                                        Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
                                                     });
                                                 }
 
@@ -660,7 +660,7 @@ namespace LiveResults.Client
                         if (timingType == 1 || timingType == 2)  // 0=normal, 1=not ranked, 2=not show times
                             sign = -1;
 
-                        iStartTime = 0;
+                        iStartTime = -1;
                         if (freeStart)
                             iStartTime = -999;
                         else if (reader["starttime"] != null && reader["starttime"] != DBNull.Value)
