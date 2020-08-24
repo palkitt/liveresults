@@ -1049,7 +1049,8 @@ var LiveResults;
             columns.push({ "sTitle": "Brikke 1" , "sClass": "right" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard2",
                 "render": function (data,type,row) 
                 {
-                    var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.name;
+                    var bibstr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib/100|0) + "-" + (-row.bib%100) : row.bib ) + ") ");
+                    var runnerName = bibstr + row.name;
                     var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 1 fra " 
                         + row.ecard1 + " til '," + row.dbid + ",0,1);\">"+ row.ecard1 +"</button>";						
                     return link;
