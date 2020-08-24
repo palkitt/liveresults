@@ -101,6 +101,7 @@ function resetRow(row)
 <td><b>Date</b></td>
 <td><b>Name</b></td>
 <td><b>Organizer</b></td>
+<td><b>CompId</b></td>
 <td><b>Public</b></td>
 <td><b>Edit</b></td>
 <td><b>Results</b></td>
@@ -123,7 +124,8 @@ function resetRow(row)
     <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
     <td><?=$comp["compName"]?></td>
     <td><?=$comp["organizer"]?></td>
-    <td><?=$comp["public"] == "1" ? "yes" : "false"?></td>
+    <td><?=$comp["tavid"]?></td>
+    <td><?=$comp["public"] == "1" ? "yes" : "no"?></td>
     <td><a href="editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></td>
     <td><a href="/followfull.php?comp=<?=$comp['tavid']?>">Results</td>
     <td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td>

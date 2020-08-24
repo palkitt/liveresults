@@ -206,6 +206,9 @@ function formatTime($time,$status,$code,& $RunnerStatus)
   if ($time == -999)
 	return $_FREESTART;
 
+  if ($time == -1)
+	return "";
+
   if ($time < 0)
   	return "*";
 

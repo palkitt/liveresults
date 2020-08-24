@@ -1861,6 +1861,8 @@ var LiveResults;
             }
             else if (time == -999)
                 return this.resources["_FREESTART"];
+            else if (time == -1)
+                return "";
             else if (time < 0)
                 return "*"
             else {

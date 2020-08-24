@@ -205,8 +205,16 @@ else
 function formatTime($time,$status,$code,& $RunnerStatus)
 {
   global $lang;
+  global $_FREESTART;
+
   if ( ($code != 0) && ($status != "0") && ($status != "9") && ($status != "10"))
     return $RunnerStatus[$status]; //$status;
+
+  if ($time == -999)
+	  return $_FREESTART;
+  
+  if ($time == -1)
+	return "";
 
   if ($time < 0)
   	return "*";

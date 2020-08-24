@@ -113,9 +113,9 @@ var Messages;
                             if (type === 'display')
                             {
                                 if (data<0) // Relay
-                                    return  "(" + (-data/100|0) + "-" + (-data%100) + ")";
+                                    return  (-data/100|0) + "-" + (-data%100);
                                 else if (data>0)    // Ordinary
-                                    return "("  + data + ")";
+                                    return data;
                                 else
                                     return "";
                             }
@@ -157,7 +157,7 @@ var Messages;
                             var ecardstr = "";
                             if (row.ecard1>0) {
                                 ecardstr = row.ecard1;
-                                if (row.ecard2>0) ecardstr += " " + row.ecard2;}
+                                if (row.ecard2>0) ecardstr += " / " + row.ecard2;}
                             else
                                 if (row.ecard2>0) ecardstr = row.ecard2;
                             return "<div class=\"wrapok\">" + ecardstr + "</div>";

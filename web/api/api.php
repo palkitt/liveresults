@@ -598,14 +598,22 @@ function formatTime($time,$status,& $RunnerStatus)
 
 {
   global $lang;
+  global $_FREESTART;
 
   if ($status != "0")
   {
     return $RunnerStatus[$status]; //$status;
   }
 
+  if ($time == -999)
+	  return $_FREESTART;
+  
+  if ($time == -1)
+	return "";
+
   if ($time < 0)
   	return "*";
+
   else {
    if ($lang == "no" or $lang == "fi")
 {
