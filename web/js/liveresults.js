@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1046,21 +1046,24 @@ var LiveResults;
                     
             columns.push({ "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start"});         				
           
-            columns.push({ "sTitle": "Brikke 1" , "sClass": "right" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard2",
+            columns.push({ "sTitle": "O-brikke" , "sClass": "center" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
                 "render": function (data,type,row) 
                 {
-                    var bibstr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib/100|0) + "-" + (-row.bib%100) : row.bib ) + ") ");
-                    var runnerName = bibstr + row.name;
-                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 1 fra " 
-                        + row.ecard1 + " til '," + row.dbid + ",0,1);\">"+ row.ecard1 +"</button>";						
+                    var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib/100|0) + "-" + (-row.bib%100) : row.bib ) + ") ");
+                    var ecardStr = (row.ecard1 == 0 ? "-" : row.ecard1 );
+                    var runnerName = bibStr + row.name;
+                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre o-brikke fra " 
+                        + ecardStr + " til: '," + row.dbid + ",0,1);\">"+ ecardStr +"</button>";						
                     return link;
                 }});
-            columns.push({ "sTitle": "Brikke 2" , "sClass": "right" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard2",
+            columns.push({ "sTitle": "emiTag" , "sClass": "center" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard2",
                 "render": function (data,type,row) 
                 {
-                    var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.name;
-                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 2 fra "
-                        + row.ecard2 + " til '," + row.dbid + ",0,2);\">"+ row.ecard2 +"</button>";						
+                    var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib/100|0) + "-" + (-row.bib%100) : row.bib ) + ") ");
+                    var ecardStr = (row.ecard2 == 0 ? "-" : row.ecard2 );
+                    var runnerName = bibStr + row.name;
+                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre emiTag fra " 
+                        + ecardStr + " til: '," + row.dbid + ",0,1);\">"+ ecardStr +"</button>";						
                     return link;
                 }});
 
