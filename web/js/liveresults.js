@@ -296,8 +296,9 @@ var LiveResults;
                     if (results[i].virtual_position != i)
                         instaRanked = true;
                     
-                    if ( (!limitSet) && ( curPos == "-" || !instaRanked && results[i].virtual_position > qualLim - 1 && curPos != lastPos ||
-                         instaRanked && results[i].virtual_position == qualLim && ( this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0 )) )
+                    if ( (!limitSet) && ( this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0 ) && 
+                         ( curPos == "-" || !instaRanked && results[i].virtual_position > qualLim - 1 && curPos != lastPos || 
+                          instaRanked && results[i].virtual_position == qualLim ) )
                     {
                         limitSet = true;
                         results[i].DT_RowClass = "firstnonqualifier";
