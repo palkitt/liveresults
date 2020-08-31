@@ -297,8 +297,9 @@ var LiveResults;
                         instaRanked = true;
                     
                     if ( (!limitSet) && ( this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0 ) && 
-                         ( curPos == "-" || !instaRanked && results[i].virtual_position > qualLim - 1 && curPos != lastPos || 
-                          instaRanked && results[i].virtual_position == qualLim ) )
+                          ( curPos == "-" && results[i].virtual_position <= qualLim - 1 || 
+                            !instaRanked  && results[i].virtual_position > qualLim - 1 && curPos != lastPos || 
+                            instaRanked   && results[i].virtual_position == qualLim ) )
                     {
                         limitSet = true;
                         results[i].DT_RowClass = "firstnonqualifier";
@@ -307,7 +308,7 @@ var LiveResults;
                         results[i].DT_RowClass = "nostyle";
                     
                     if (curPos == "")
-                        curPos = "x";	                    					
+                        curPos = "-";	                    					
 				}
 			}
 		};		
@@ -1610,7 +1611,7 @@ var LiveResults;
                     columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
                     if (!(haveSplitControls || _this.isMultiDayEvent) || !fullView || lapTimes) {
                         columns.push({
-                            "sTitle": "",
+                            "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
                             "bVisible": !unranked,
 						    "responsivePriority": 2000,
                             "sClass": "right",
