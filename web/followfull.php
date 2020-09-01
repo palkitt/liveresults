@@ -367,7 +367,11 @@ function closeTop() {
   	<td align="right"width="28%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
   	<td align="right" width="16%">
-	  <span class="noUnderline"><a href="javascript:changeFontSize(1);">&CirclePlus;</a> <a href="javascript:changeFontSize(-1);">&CircleMinus;</a></span> <span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
+	  <span class="noUnderline"><a href="images/LiveResGuide.png">?</a> 
+	                            <a href="javascript:changeFontSize(1);">&CirclePlus;</a> 
+								<a href="javascript:changeFontSize(-1);">&CircleMinus;</a></span> 
+	<span id="setCompactViewText" class="noUnderline">
+	                            <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
 	</tr>
   </table></td>
 </tr>
