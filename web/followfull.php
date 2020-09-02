@@ -13,7 +13,7 @@ header('Content-Type: text/html; charset='.$CHARSET);
 
 $currentComp = new Emma($_GET['comp']);
 $currentCompNo = $_GET['comp'];
-$orgainzer = $currentComp->Organizer();
+$organizer = $currentComp->Organizer();
 
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
@@ -202,7 +202,7 @@ $(document).ready(function()
 	
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
-		if (res.browserType==1)
+		if (res.browserType == 1 && <?=($organizer=="Freidig/Wing/Malvik"?0:1)?>)
 			closeTop();
 		else
 		{
@@ -210,6 +210,7 @@ $(document).ready(function()
 			$("#topBar").height('auto');
 			topBar = true;
 		}
+		
 		document.getElementById("switchNavClick1").classList.toggle("change");
 		document.getElementById("switchNavClick2").classList.toggle("change");
 	<?php }?>
@@ -297,10 +298,11 @@ function closeTop() {
 <div id="main">
 <?php if (!$isSingleClass && !$isSingleClub) {?>
 
-  <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0" >
+  <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
   <tr><td class="firstCol"></td><td width="100%"></td></tr>
   <tr valign="top">
-  <td colspan="2"><div id="topBar" style="overflow: hidden">
+  <td colspan="2" align="center"><div id="topBar" style="overflow: hidden">
+    <?php if($organizer=="Freidig/Wing/Malvik"){?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
 	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		<tr>
 			<?php if(in_array($_GET['comp'], array("15821","15822","15823"))){?>
@@ -315,28 +317,28 @@ function closeTop() {
 			<?php } elseif(in_array($_GET['comp'], array("16699"))){?>
 			    <td width="70">
 			    <img src="images/MOTTV.png" height="60" /></td>
-			<?php } elseif($orgainzer=="Freidig"){?>
+			<?php } elseif($organizer=="Freidig"){?>
 			    <td width="60">
 			    <img src="images/Freidig60.png" height="60" /></td>
-			<?php } elseif($orgainzer=="Porsgrunn OL"){?>
+			<?php } elseif($organizer=="Porsgrunn OL"){?>
 			    <td width="60">
 			    <img src="images/POL.png" height="60" /></td>
-			<?php } elseif($orgainzer=="Wing OK"){?>
+			<?php } elseif($organizer=="Wing OK"){?>
 			    <td width="60">
 			    <img src="images/Wing.png" height="60" /></td>
-			<?php } elseif($orgainzer=="Byåsen IL"){?>
+			<?php } elseif($organizer=="Byåsen IL"){?>
 			    <td width="60">
 			    <img src="images/BIL.png" height="60" /></td>
-			<?php } elseif($orgainzer=="Røros IL"){?>
+			<?php } elseif($organizer=="Røros IL"){?>
 			    <td width="60">
 			    <img src="images/roros.png" height="60" ></td>
-			<?php } elseif($orgainzer=="Freidig/Wing/Malvik"){?>
+			<?php } elseif($organizer=="Freidig/Wing/Malvik"){?>
 			    <td width="60">
 			    <img src="images/NM2020.png" height="60" ></td>
-			<?php } elseif($orgainzer=="Eiker O-lag"){?>
+			<?php } elseif($organizer=="Eiker O-lag"){?>
 			    <td width="60">
 			    <img src="images/Eiker.png" height="60" ></td>
-			<?php } elseif($orgainzer=="Byaasen Skiklub"){?>
+			<?php } elseif($organizer=="Byaasen Skiklub"){?>
 			    <td width="60">
 			    <img src="images/BSK.png" height="60" ></td>
 			<?php }?>
@@ -367,7 +369,7 @@ function closeTop() {
   	<td align="right"width="28%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
   	<td align="right" width="16%">
-	  <span class="noUnderline"><a href="images/LiveResGuide.png">?</a> 
+	  <span class="noUnderline"><a href="images/LiveResGuide.jpg">?</a> 
 	                            <a href="javascript:changeFontSize(1);">&CirclePlus;</a> 
 								<a href="javascript:changeFontSize(-1);">&CircleMinus;</a></span> 
 	<span id="setCompactViewText" class="noUnderline">
