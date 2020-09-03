@@ -1055,7 +1055,7 @@ var LiveResults;
                     var ecardStr = (row.ecard1 == 0 ? "-" : row.ecard1 );
                     var runnerName = bibStr + row.name;
                     var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre o-brikke fra " 
-                        + ecardStr + " til: '," + row.dbid + ",0,1);\">"+ ecardStr +"</button>";						
+                        + ecardStr + " til '," + row.dbid + ",0,1);\">"+ ecardStr +"</button>";						
                     return link;
                 }});
             columns.push({ "sTitle": "emiTag" , "sClass": "center" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard2",
@@ -1065,7 +1065,7 @@ var LiveResults;
                     var ecardStr = (row.ecard2 == 0 ? "-" : row.ecard2 );
                     var runnerName = bibStr + row.name;
                     var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre emiTag fra " 
-                        + ecardStr + " til: '," + row.dbid + ",0,1);\">"+ ecardStr +"</button>";						
+                        + ecardStr + " til '," + row.dbid + ",0,1);\">"+ ecardStr +"</button>";						
                     return link;
                 }});
 
@@ -1149,14 +1149,25 @@ var LiveResults;
             message = message.substring(0,250); // limit number of characters
             var DNS = (message == "ikke startet" ? 1 : 0);
             var ecardChange = (dbid<0 && message.match(/\d+/g) != null);
-            if (startListChange>0)
+            var sendOK = true;
+            if (startListChange > 0)
             {
-                message = promptText + message;
-                alert("Ønsket endring av brikkenummer er registrert: " + message);
+                var senderName = prompt("Innsenders navn og mobilnummer");
+                if (senderName == null || senderName == "")
+                {
+                    alert("Innsender må registreres!");
+                    sendOK = false;
+                }
+                else
+                {    
+                    message = senderName + " registrerte: " + promptText + message;
+                    alert("Ønsket endring av brikkenummer er registrert\n" + message);
+                }
             }
-            $.ajax({
-                url: this.messageURL + "?method=sendmessage", 
-                data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
+            if (sendOK)
+                $.ajax({
+                    url: this.messageURL + "?method=sendmessage", 
+                    data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
                 }
             );
             this.messageBibs.push(dbid);
