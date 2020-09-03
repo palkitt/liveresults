@@ -338,6 +338,9 @@ function closeTop() {
 			<?php } elseif($organizer=="Eiker O-lag"){?>
 			    <td width="60">
 			    <img src="images/Eiker.png" height="60" ></td>
+			<?php } elseif($organizer=="Stokke IL"){?>
+			    <td width="60">
+			    <img src="images/stokke.png" height="60" ></td>
 			<?php } elseif($organizer=="Byaasen Skiklub"){?>
 			    <td width="60">
 			    <img src="images/BSK.png" height="60" ></td>
