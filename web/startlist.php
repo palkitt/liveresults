@@ -1,5 +1,6 @@
 <?php
 date_default_timezone_set("Europe/Oslo");
+$closeTime = "2020-09-13 08:00:00 +2:00";
 $lang = "no";
 
 if (isset($_GET['lang']))
@@ -60,11 +61,13 @@ $(document).ready(function()
 </head>
 <body>
 
-	<?php if (!isset($_GET['comp']) ) 
-	{ ?>
-		<h1 class="categoriesheader">Feil. Har du satt compID</h1>
+	<?php if (!isset($_GET['comp']) ) { ?>
+		<h1 class="categoriesheader">Feil. Har du satt compID</h1>	
 	<?php }
-	else
+	else if ( time() - strtotime($closeTime) > 0 )  { ?>
+       <h1 class="categoriesheader">Tjenesten er nå stengt. Se kontaktinfo i Eventor eller henvend deg i løpskontoret.</h1>	
+    <?php }
+    else
 	{ ?>
 		<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
 	<tr><td width="<?= (isset($_GET['code2']) ? 50 : 100) ?>%"></td><td width="<?= (isset($_GET['code2']) ? 50 : 0) ?>%"></td></tr>
