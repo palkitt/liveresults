@@ -1209,7 +1209,9 @@ var LiveResults;
             if (newData.status == "OK") {
                 if (this.currentTable != null)
 				{	
-					var table = this.currentTable.api();
+                    var table = this.currentTable.api();
+                    var numberOfRunners = newData.results.length;
+                    $('#numberOfRunners').html(numberOfRunners);
 					var oldData = this.currentTable.fnGetData();
 					var shownId = [];
 					
@@ -1272,6 +1274,8 @@ var LiveResults;
             clearTimeout(this.resUpdateTimeout);
             if (data.status == "OK") {
                 if (this.currentTable != null) {
+                    var numberOfRunners = data.results.length;
+                    $('#numberOfRunners').html(numberOfRunners);
 					var posLeft = $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft();
                     this.currentTable.fnClearTable();
                     if (data && data.results) {
@@ -1347,7 +1351,10 @@ var LiveResults;
                     this.predData = $.extend(true,[],data.results);
                     if (this.qualLimits != null && this.qualLimits.length > 0)
 						this.updateQualLimMarks(data.results, data.className);
-				    this.updateClassSplitsBest(data);
+                    this.updateClassSplitsBest(data);
+                    var numberOfRunners = data.results.length;
+                    $('#numberOfRunners').html(numberOfRunners);
+                    
                     var columns = Array();
                     var col = 0;
                     var i;
@@ -2199,6 +2206,8 @@ var LiveResults;
 						if (res.place == "F")
                             res.placeSortable = 0;
                     });
+                    var numberOfRunners = data.results.length;
+                    $('#numberOfRunners').html(numberOfRunners);
                     var hasBibs = (data.results[0].bib != undefined);
                     var columns = Array();
                     var col = 0;

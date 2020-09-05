@@ -399,8 +399,8 @@ function closeTop() {
    </td></tr>
   </table>
 
-  <?php if (!$isSingleClass && !$isSingleClub) {?>  
-  
+  <?php if (!$isSingleClass && !$isSingleClub) {?> 
+  Antall: <span id="numberOfRunners"></span>
   <p align="left"><font color="#AAA" size="0.7em">
   Last update: <span id="lastupdate"></span><br>
   * <?=$_HELPREDRESULTS?><br>
