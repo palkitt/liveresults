@@ -290,7 +290,7 @@ namespace LiveResults.Client
                                     if (reader["cource"] != null && reader["cource"] != DBNull.Value)
                                         cource = Convert.ToInt32(reader["cource"].ToString());
 
-                                    if (reader["purmin"] != null && reader["purmin"] != DBNull.Value)
+                                    if (isRelay && reader["purmin"] != null && reader["purmin"] != DBNull.Value)
                                         numLegs = Convert.ToInt32(reader["purmin"].ToString());
 
                                     if (reader["timingtype"] != null && reader["timingtype"] != DBNull.Value)
@@ -479,17 +479,10 @@ namespace LiveResults.Client
                         }
                     }
 
-                    string baseCommandInd;
-                    string baseCommandRelay; 
-                    string baseSplitCommand;
-
-                    string modulus; // integer_div, //integer_div = "/"; //integer_div = "\\";
-                    if (m_MSSQL)
-                        modulus = "%";
-                    else
-                        modulus = "MOD";
+                    string modulus = (m_MSSQL ? "%" : "MOD");
+                    string purmin = (isRelay ? "AND(C.purmin IS NULL OR C.purmin < 2)" : "");
                     
-                    baseCommandRelay = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime,
+                    string baseCommandRelay = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime,
                             N.place, N.status, N.cource, N.starttime, N.ecard, N.ecard2, N.ecard3, N.ecard4,
                             T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, 
                             C.firststart AS cfirststart, C.purmin AS cpurmin,
@@ -498,13 +491,13 @@ namespace LiveResults.Client
                             WHERE N.class=C.code AND T.code=R.lgteam AND N.rank=R.lgstartno AND (N.startno {0} 100)<=C.purmin 
                             ORDER BY N.startno", modulus);
 
-                    baseCommandInd = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
+                    string baseCommandInd = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
                             N.place, N.status, N.cource, N.starttime, N.races, N.ecard, N.ecard2, N.ecard3, N.ecard4,
                             T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, C.cheaseing
                             FROM Name N, Class C, Team T
-                            WHERE N.class=C.code AND T.code=N.team AND (C.purmin IS NULL OR C.purmin<2)");
+                            WHERE N.class=C.code AND T.code=N.team {0}", purmin);
 
-                    baseSplitCommand = string.Format(@"SELECT mellomid, iplace, stasjon, mintime, nettotid, timechanged, mecard 
+                    string baseSplitCommand = string.Format(@"SELECT mellomid, iplace, stasjon, mintime, nettotid, timechanged, mecard 
                             FROM mellom 
                             WHERE stasjon>=0 AND stasjon<250 AND mecard>0 AND day={0}
                             ORDER BY mintime",day);
@@ -706,7 +699,7 @@ namespace LiveResults.Client
                             if (reader["cfirststart"] != null && reader["cfirststart"] != DBNull.Value)
                                 iStartClass = ConvertFromDay2cs(Convert.ToDouble(reader["cfirststart"]));
 
-                            if (reader["cpurmin"] != null && reader["cpurmin"] != DBNull.Value)
+                            if (isRelay && reader["cpurmin"] != null && reader["cpurmin"] != DBNull.Value)
                                 numlegs = Convert.ToInt16(reader["cpurmin"]);
 
                             if (reader["intime"] != null && reader["intime"] != DBNull.Value)
