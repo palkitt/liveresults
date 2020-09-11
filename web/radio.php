@@ -50,7 +50,7 @@ else
 
 <?php }?>
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
-<script type="text/javascript" src="//w.24timezones.com/l.js" ></script>
+<script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
 <script language="javascript" type="text/javascript">
 var noSleep = new NoSleep();
 
@@ -70,6 +70,7 @@ var maxbib =  99999999;
 
 $(document).ready(function()
 {
+	time_is_widget.init({Oslo_z71e:{}});
 	
 	<?php 
 		if (isset($_GET['calltime']))
@@ -152,8 +153,8 @@ $(document).ready(function()
 		<td align="center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
 		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
 		<?php if ($_GET['code']==0){?> <td align="right"><b>(<span id="clock"></span></b>)&nbsp&nbsp</td><?php }?>
-		<td align="right"><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" 
-	    	frameborder="0" width="60" height="14" allowTransparency="true"></iframe></td>
+		<td align="right"><a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF">Time.is:</a>
+<span id="Oslo_z71e"></span></td>
 	</tr>
 	</table>
 	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
@@ -174,8 +175,6 @@ $(document).ready(function()
 		</td>
 		<td align="center"><input type="text" id="filterText2" placeholder="filter..." size="5"></td>
 		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-    	<td align="right"><iframe src="https://freesecure.timeanddate.com/clock/i6ryyd5b/n2601/tlno10/fs11/fcfff/tct/pct/ftb/th1" 
-			frameborder="0" width="60" height="14" allowTransparency="true"></iframe></td>
 	</tr>
 	</table>
 	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
