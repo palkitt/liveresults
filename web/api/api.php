@@ -2,7 +2,7 @@
 date_default_timezone_set("Europe/Stockholm");
 $compid   = $_GET['comp'];
 $hightime = 60;
-$refreshTime = 7;
+$refreshTime = 10;
 
 $lang = "no";
 if (isset($_GET['lang']))
@@ -141,8 +141,11 @@ elseif ($_GET['method'] == 'getlastpassings')
 elseif ($_GET['method'] == 'getclasses')
 {
 
-		$currentComp = new Emma($_GET['comp']);
+		$currentComp = new Emma($_GET['comp']);	
 		$classes = $currentComp->Classes();
+		$numberOfRunners = $currentComp->numberOfRunners();
+		$numberOfStartedRunners = $currentComp->numberOfStartedRunners();
+
 		$ret = "";
 		$first = true;
 
@@ -153,8 +156,14 @@ elseif ($_GET['method'] == 'getclasses')
 			$ret .="{\"className\": \"".$class['Class']."\"}";
 			$first = false;
 		}
-
-		$hash = MD5($ret);
+		
+		$retnum = "";
+		foreach ($numberOfRunners as $numrun)
+			$retnum ="\"numberOfRunners\": \"".$numrun['num']."\"";
+		foreach ($numberOfStartedRunners as $numstartrun)
+			$retnum .=",\"numberOfStartedRunners\": \"".$numstartrun['num']."\"";
+			
+		$hash = MD5($ret.$retnum);
 
 		if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
 		{
@@ -163,6 +172,7 @@ elseif ($_GET['method'] == 'getclasses')
 		else
 		{
 			echo("{ \"status\": \"OK\", \"classes\" : [$br$ret$br]");
+			echo(",$retnum");
 			echo(",$br \"hash\": \"". $hash."\"}");
 		}
 

@@ -382,7 +382,10 @@ function closeTop() {
 </tr>
  
  <tr>
-  <td class="firstCol" valign="top" style="background-color:#FFF; color:#000"><div id="divClasses"></div></td>
+  <td class="firstCol" valign="top" style="background-color:#FFF; color:#000"><div id="divClasses"></div>
+    <br>Totalt antall: <div id="numberOfRunnersTotal"></div>
+	<br>Antall startet: <div id="numberOfRunnersStarted"></div>
+  </td>
 
   <td valign="top" width="100%">  
  

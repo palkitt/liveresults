@@ -324,6 +324,28 @@ class Emma
 		return $ret;
 	}
 
+	function numberOfRunners()
+	{
+		$ret = [];
+		$q = "SELECT COUNT(*) AS num FROM runners where TavId = ". $this->m_CompId;
+		if ($result = mysqli_query($this->m_Conn, $q))
+			$ret = $result;
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+	
+	function numberOfStartedRunners()
+	{
+		$ret = [];
+		$q = "SELECT COUNT(*) AS num FROM results WHERE results.TavId =".$this->m_CompId." AND results.control = 1000 AND results.Status != 1"; 
+		if ($result = mysqli_query($this->m_Conn, $q))
+			$ret = $result;
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+
 	function getAllSplitControls()
 	{
 		$ret = Array();

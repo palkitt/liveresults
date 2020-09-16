@@ -29,7 +29,7 @@ var LiveResults;
             this.autoUpdateLastPassings = true;
             this.compactView = true;
 			this.scrollView = true;
-            this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 7000));
+            this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
             this.radioUpdateInterval = (this.local ? 2000 : 5000);
             this.classUpdateInterval = 60000;
             this.radioHighTime = 15;
@@ -95,10 +95,19 @@ var LiveResults;
                     _this.currentTable.fnAdjustColumnSizing();
             } );
         }
+        
         AjaxViewer.prototype.startPredictionUpdate = function () {
             var _this = this;
             this.updatePredictedTimeTimer = setInterval(function () { _this.updatePredictedTimes(); }, 1000);
         };
+
+        // Function to detect if comp date is today
+        AjaxViewer.prototype.isCompToday = function () {
+            var dt = new Date();
+            var compDay = new Date(this.compDate);
+            return (dt.getDate() == compDay.getDate() || this.local ? true : false)
+        };
+
         //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
         AjaxViewer.prototype.isMobile = function () {
             if (navigator.userAgent.match(/iPad/i) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
@@ -169,7 +178,10 @@ var LiveResults;
 						param = className.replace('\'', '\\\'');
 						if (className && className.length > 0)
 						{
-							var classNameClean = className.replace(/-\d$/,'');
+                            className = className.replace('Menn','M');
+							className = className.replace('Kvinner','K');
+							className = className.replace(' Vann','-V');
+                            var classNameClean = className.replace(/-\d$/,'');
 							classNameClean = classNameClean.replace(/-All$/,'');
 							if (i<(nClass-1))
 							{
@@ -207,12 +219,17 @@ var LiveResults;
                     };
                     str += "</nowrap>";
                     $("#" + this.classesDiv).html(str);
+
+                    var numRunners = data.numberOfRunners;
+                    var numStartedRunners = data.numberOfStartedRunners;
+                    $("#numberOfRunnersTotal").html(numRunners);
+                    $("#numberOfRunnersStarted").html(numStartedRunners);
+
                     this.lastClassListHash = data.hash;
                 }
             }
-            this.classUpdateTimer = setTimeout(function () {
-                _this.updateClassList();
-            }, this.classUpdateInterval);
+            if (_this.isCompToday())
+                this.classUpdateTimer = setTimeout(function () {_this.updateClassList(); }, this.classUpdateInterval);
         };
 		
 		// Update best split times
@@ -315,12 +332,9 @@ var LiveResults;
 		
 		// Updated predicted times
 		AjaxViewer.prototype.updatePredictedTimes = function (refresh = false) {
-            if (this.currentTable != null && this.curClassName != null && this.serverTimeDiff && this.updateAutomatically) {
+            if (this.currentTable != null && this.curClassName != null && this.serverTimeDiff && this.updateAutomatically && this.isCompToday()) {
                 try {
-                    var dt = new Date();
-					var compDay = new Date(this.compDate);
-					if (dt.getDate() != compDay.getDate() && !this.local)
-                       return;			
+                    var dt = new Date();			
 					var data = this.currentTable.fnGetData();
                     var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
                     var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
@@ -714,9 +728,8 @@ var LiveResults;
                     this.lastPassingsUpdateHash = data.hash;
                 }
             }
-            this.passingsUpdateTimer = setTimeout(function () {
-                _this.updateLastPassings();
-            }, this.updateInterval);
+            if (_this.isCompToday())
+                this.passingsUpdateTimer = setTimeout(function () {_this.updateLastPassings();}, this.updateInterval);
         };
 
         //Request data for the last radio passings div
@@ -739,9 +752,8 @@ var LiveResults;
                     },
                     dataType: "json"                   
                 });
-                this.radioPassingsUpdateTimer = setTimeout(function () {
-                    _this.updateRadioPassings(code,calltime,minBib,maxBib);
-                }, this.radioUpdateInterval);
+                if (_this.isCompToday())
+                    this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(code,calltime,minBib,maxBib);}, this.radioUpdateInterval);
             }
 
         };
@@ -1240,9 +1252,8 @@ var LiveResults;
 
                 }
             }
-            this.resUpdateTimeout = setTimeout(function () {
-                _this.checkForClassUpdate();
-            }, this.updateInterval);
+            if (_this.isCompToday()) 
+                this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, this.updateInterval);
         };
         //Check for update in clubresults
         AjaxViewer.prototype.checkForClubUpdate = function () {
@@ -1294,9 +1305,8 @@ var LiveResults;
                     this.lastClubHash = data.hash;
                 }
             }
-            this.resUpdateTimeout = setTimeout(function () {
-                _this.checkForClubUpdate();
-            }, this.updateInterval);
+            if (_this.isCompToday())
+                this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, this.updateInterval);
         };	
 		
 		AjaxViewer.prototype.chooseClass = function (className) {
@@ -1332,7 +1342,8 @@ var LiveResults;
             if (!this.isSingleClass) {
                 window.location.hash = className;
             }
-            this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate();}, this.updateInterval);
+            if (_this.isCompToday())
+                this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate();}, this.updateInterval);
         };
 		
         AjaxViewer.prototype.updateClassResults = function (data,reqTime) {
