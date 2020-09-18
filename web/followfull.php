@@ -383,8 +383,9 @@ function closeTop() {
  
  <tr>
   <td class="firstCol" valign="top" style="background-color:#FFF; color:#000"><div id="divClasses"></div>
-    <br>Totalt antall: <div id="numberOfRunnersTotal"></div>
-	<br>Antall startet: <div id="numberOfRunnersStarted"></div>
+    <br>Totalt: <span id="numberOfRunnersTotal"></span>
+	<br><?=$_START?>: <span id="numberOfRunnersStarted"></span>
+	<br><?=$_CONTROLFINISH?>: <span id="numberOfRunnersFinished"></span>
   </td>
 
   <td valign="top" width="100%">  

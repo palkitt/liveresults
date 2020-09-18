@@ -145,6 +145,7 @@ elseif ($_GET['method'] == 'getclasses')
 		$classes = $currentComp->Classes();
 		$numberOfRunners = $currentComp->numberOfRunners();
 		$numberOfStartedRunners = $currentComp->numberOfStartedRunners();
+		$numberOfFinishedRunners = $currentComp->numberOfFinishedRunners();
 
 		$ret = "";
 		$first = true;
@@ -162,6 +163,8 @@ elseif ($_GET['method'] == 'getclasses')
 			$retnum ="\"numberOfRunners\": \"".$numrun['num']."\"";
 		foreach ($numberOfStartedRunners as $numstartrun)
 			$retnum .=",\"numberOfStartedRunners\": \"".$numstartrun['num']."\"";
+		foreach ($numberOfFinishedRunners as $numfinrun)
+			$retnum .=",\"numberOfFinishedRunners\": \"".$numfinrun['num']."\"";
 			
 		$hash = MD5($ret.$retnum);
 
