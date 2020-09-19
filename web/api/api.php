@@ -1,17 +1,21 @@
 <?php
 date_default_timezone_set("Europe/Stockholm");
 $compid   = $_GET['comp'];
-$hightime = 60;
-$refreshTime = 10;
-
 $lang = "no";
 if (isset($_GET['lang']))
 	$lang = $_GET['lang'];
 	
+$hightime = 60;
+if (!isset($_GET['method']))
+    $_GET['method'] = null;
+if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults')
+	$refreshTime = 60;
+else
+	$refreshTime = 10;
+
 include_once("../templates/emmalang_en.php");
 include_once("../templates/emmalang_$lang.php");
 include_once("../templates/classEmma.class.php");
-
 
 $RunnerStatus = Array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUSWO, "12" => $_STATUSMOVEDUP, "9" => $_STATUSNOTSTARTED,"0" => $_STATUSOK, "3" => $_STATUSMP, "4" => $_STATUSDSQ, "5" => $_STATUSOT, "9" => "", "10" => "", "13" => $_STATUSFINISHED);
 
@@ -20,10 +24,6 @@ header('Access-Control-Allow-Origin: *');
 header('cache-control: max-age='+ ($refreshTime-1));
 header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($refreshTime-1)));
 
-if (!isset($_GET['method']))
-{
-    $_GET['method'] = null;
-}
 
 $pretty = isset($_GET['pretty']);
 $br = $pretty ? "\n" : "";

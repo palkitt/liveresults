@@ -31,7 +31,10 @@ var LiveResults;
 			this.scrollView = true;
             this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
             this.radioUpdateInterval = (this.local ? 2000 : 5000);
+            this.clubUpdateInterval = 60000;
             this.classUpdateInterval = 60000;
+            this.inactiveTimout = 30*60;
+            this.inactiveTimer = 0;
             this.radioHighTime = 15;
             this.highTime = 60;
             this.classUpdateTimer = null;
@@ -125,6 +128,8 @@ var LiveResults;
         // Update the classlist
         AjaxViewer.prototype.updateClassList = function () {
             var _this = this;
+            this.inactiveTimer += this.classUpdateInterval/1000;
+
             if (this.updateAutomatically) {
                 $.ajax({
                     url: this.apiURL,
@@ -226,6 +231,7 @@ var LiveResults;
                     this.lastClassListHash = data.hash;
                 }
             }
+
             if (_this.isCompToday())
                 this.classUpdateTimer = setTimeout(function () {_this.updateClassList(); }, this.classUpdateInterval);
         };
@@ -1187,6 +1193,11 @@ var LiveResults;
        //Check for updating of class results 
         AjaxViewer.prototype.checkForClassUpdate = function () {
             var _this = this;
+            if (this.inactiveTimer > this.inactiveTimout)
+            {
+                alert('For lenge inaktiv. Trykk OK for å oppdatere.')
+                this.inactiveTimer = 0;
+            }
             if (this.updateAutomatically) {
                 if (this.currentTable != null) {
                     $.ajax({
@@ -1256,6 +1267,11 @@ var LiveResults;
         //Check for update in clubresults
         AjaxViewer.prototype.checkForClubUpdate = function () {
             var _this = this;
+            if (this.inactiveTimer >= this.inactiveTimout)
+            {
+                alert('For lenge inaktiv. Trykk OK for å oppdatere.')
+                this.inactiveTimer = 0;
+            }
             if (this.updateAutomatically) {
                 if (this.currentTable != null) {
                     $.ajax({
@@ -1263,13 +1279,13 @@ var LiveResults;
                         data: "comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club=" + encodeURIComponent(this.curClubName) + "&last_hash=" + this.lastClubHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                         success: function (data,status,resp) {
                             var reqTime = new Date();
-                            reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.updateInterval);
+                            reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.clubUpdateInterval);
                             _this.handleUpdateClubResults(data,reqTime); 
                         },
                         error: function () {
                             _this.resUpdateTimeout = setTimeout(function () {
                                 _this.checkForClubUpdate();
-                            }, _this.updateInterval);
+                            }, _this.clubUpdateInterval);
                         },
                         dataType: "json"
                     });
@@ -1304,13 +1320,14 @@ var LiveResults;
                 }
             }
             if (_this.isCompToday())
-                this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, this.updateInterval);
+                this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, this.clubUpdateInterval);
         };	
 		
 		AjaxViewer.prototype.chooseClass = function (className) {
             if (className.length == 0)
 				return;
-			var _this = this;
+            var _this = this;
+            this.inactiveTimer = 0;
             clearTimeout(this.resUpdateTimeout);
             if (this.currentTable != null) {
                 try {
@@ -2170,6 +2187,7 @@ var LiveResults;
         
         AjaxViewer.prototype.viewClubResults = function (clubName) {
             var _this = this;
+            this.inactiveTimer = 0;
             if (this.currentTable != null) {
                 try {
                     this.currentTable.api().destroy();
