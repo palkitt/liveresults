@@ -87,8 +87,8 @@ $(document).ready(function()
 		
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		  Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
-    res.updateRadioPassings(<?= $_GET['code']?>,calltime,minbib,maxbib);
 	res.compName = '<?=$currentComp->CompName()?>';
+	res.compDate = "<?=$currentComp->CompDate();?>";
 	
 	if (<?= $_GET['code']?>==0)
 	{ 
@@ -103,18 +103,19 @@ $(document).ready(function()
 		setInterval(function () {updateClock( clockElement );}, 1000);
 		res.radioStart = true;
 	}
+	res.updateRadioPassings(<?= $_GET['code']?>,calltime,minbib,maxbib);
 
 	$('#filterText').on('keyup', function () {
         res.filterTable();
-	}); 
-				
+	}); 	
 
 	if (<?= (isset($_GET['code2']) ? 1 : 0 ) ?>)
 	{
 		res2 = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		       Resources,false,true,"setAutomaticUpdateText","setCompactViewText", runnerStatus, true,"divRadioPassings2",false, "filterText2");
+  	    res2.compName = '<?=$currentComp->CompName()?>';
+        res2.compDate = "<?=$currentComp->CompDate();?>";
 		res2.updateRadioPassings(<?= (isset($_GET['code2']) ? $_GET['code2'] : 1) ?>,calltime,minbib,maxbib);
-		res2.compName = '<?=$currentComp->CompName()?>';
 		
 		$('#filterText2').on('keyup', function () {
         	res2.filterTable();
