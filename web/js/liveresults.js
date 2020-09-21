@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1494,19 +1494,20 @@ var LiveResults;
                                 var txt = "";
                                 if (row.splits != undefined && row.splits["0_place"] >= 1)
 								{
-									if (row.splits["0_place"] == 1)									
-										txt += "<span class=\"besttime\">" +_this.formatTime(row.start, 0, false, true, true)+ " (1)<\span>";
-									else if (row.splits["0_place"] > 1)
-										txt += _this.formatTime(row.start, 0, false, true, true) + " (" + row.splits["0_place"] + ")";
-									else
-										txt += _this.formatTime(row.start, 0, false, true, true); 
                                     if (fullView)
                                     {
                                         if (row.splits["0_place"] == 1)
-                                            txt += "<br /><span class=\"besttime\">-" + _this.formatTime(-row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                            txt += "<span class=\"besttime\">-" + _this.formatTime(-row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + " (1)</span><br />";
                                         else
-                                            txt += "<br /><span>+" + _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                            txt += "<span>+" + _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + " (" + row.splits["0_place"] + ")</span><br />";
                                     }
+                                    if (row.splits["0_place"] == 1)									
+										txt += "<span class=\"besttime\">" +_this.formatTime(row.start, 0, false, true, true);
+									else 
+										txt += "<span>" + _this.formatTime(row.start, 0, false, true, true);
+                                    if (!fullView && row.splits["0_place"] >=1)
+                                        txt += " (" + row.splits["0_place"] + ")";
+                                    txt += "</span>";
 								}
 								else
 									txt += _this.formatTime(row.start, 0, false, true, true) 
