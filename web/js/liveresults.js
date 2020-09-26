@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -33,7 +33,7 @@ var LiveResults;
             this.radioUpdateInterval = (this.local ? 2000 : 5000);
             this.clubUpdateInterval = 60000;
             this.classUpdateInterval = 60000;
-            this.inactiveTimout = 30*60;
+            this.inactiveTimeout = 30*60;
             this.inactiveTimer = 0;
             this.radioHighTime = 15;
             this.highTime = 60;
@@ -65,6 +65,7 @@ var LiveResults;
             this.filterDiv = filterDiv;
             this.predData = Array(0);
             this.rankedStartlist = false;
+            this.relayClasses = [];
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
@@ -154,7 +155,8 @@ var LiveResults;
                     $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
                 if (data.classes != null)
 				{
-					var classes = data.classes;
+                    this.relayClasses = [];
+                    var classes = data.classes;
 					classes.sort(function(a, b)
 					{
 						var x  = [a.className.toLowerCase(), b.className.toLowerCase()];
@@ -166,6 +168,7 @@ var LiveResults;
 							x[i] = x[i].replace(/(^|[^\d])(\d)(\d)($|[^\d])/,'$10$2$3$4'); // Add 0 ahead of double digits
                             x[i] = x[i].replace(' ','');
                             x[i] = x[i].replace('-','');
+                            x[i] = x[i].replace('+','');
 						}
 						if (x[0] < x[1]) {return -1;}
 						if (x[0] > x[1]) {return 1;}
@@ -207,7 +210,8 @@ var LiveResults;
 							}
 							if (relay)
 							{
-								var legText = "";
+                                this.relayClasses.push(classes[i].className);
+                                var legText = "";
 								leg += 1;
 								// var relayLeg = className.replace(classNameClean,'Etappe');
 								if (className.replace(classNameClean,'') == "-All")
@@ -1193,7 +1197,7 @@ var LiveResults;
        //Check for updating of class results 
         AjaxViewer.prototype.checkForClassUpdate = function () {
             var _this = this;
-            if (this.inactiveTimer > this.inactiveTimout)
+            if (this.inactiveTimer > this.inactiveTimeout)
             {
                 alert('For lenge inaktiv. Trykk OK for å oppdatere.')
                 this.inactiveTimer = 0;
@@ -1267,7 +1271,7 @@ var LiveResults;
         //Check for update in clubresults
         AjaxViewer.prototype.checkForClubUpdate = function () {
             var _this = this;
-            if (this.inactiveTimer >= this.inactiveTimout)
+            if (this.inactiveTimer >= this.inactiveTimeout)
             {
                 alert('For lenge inaktiv. Trykk OK for å oppdatere.')
                 this.inactiveTimer = 0;
@@ -1390,6 +1394,7 @@ var LiveResults;
                     var relay = (haveSplitControls && (this.curClassSplits[0].code == "0" || data.className.slice(-4) == "-All"));
                     var lapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
                     var hasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
+                    var relayClass = this.relayClasses.includes(data.className);
 
                     columns.push({
                         "sTitle": "#",
@@ -1399,56 +1404,106 @@ var LiveResults;
                         "aTargets": [col++],
                         "mDataProp": "place"
                     });
-                    
-                    if (!(haveSplitControls || _this.isMultiDayEvent)|| unranked || (!fullView && !lapTimes))
+
+                    if (relayClass)
+                    {
+                        if (!haveSplitControls || !fullView )
                         columns.push({
-                            "sTitle": this.resources["_NAME"],
+                            "sTitle": this.resources["_CLUB"],
 						    "responsivePriority": 1,
                             "sClass": "left",
                             "bSortable": false,
                             "aTargets": [col++],
+                            "mDataProp": "club",
+                            "render": function (data,type,row) {
+                                var param = row.club;
+							    var clubShort = row.club;
+                                if (param && param.length > 0)
+                                {
+                                    param = param.replace('\'', '\\\'');
+                                    if (clubShort.length > _this.maxClubLength)
+                                        clubShort = _this.clubShort(clubShort);				
+							    }
+                                return link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                            }
+                        });
+                        columns.push({
+                            "sTitle": (haveSplitControls && fullView ) ? this.resources["_CLUB"] + " / " + this.resources["_NAME"] : this.resources["_NAME"],
+                            "sClass": "left",
+                            "responsivePriority": (haveSplitControls && fullView) ? 1 : 10000,
+                            "bSortable": false,
+                            "aTargets": [col++],
                             "mDataProp": "name",
                             "render": function (data,type,row) {
-                                if (type === 'display')
+                                var param = row.club;
+                                var clubShort = row.club;
+                                var nameShort = row.name;
+                                if (row.name.length>_this.maxNameLength)
+                                    nameShort = _this.nameShort(row.name);
+                                if (param && param.length > 0)
                                 {
-                                    if (data.length>_this.maxNameLength)
-                                        return _this.nameShort(data);
+                                    param = param.replace('\'', '\\\'');
+                                    if (clubShort.length > _this.maxClubLength)
+                                        clubShort = _this.clubShort(clubShort);				
+                                }
+                                var clubLink = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                                                                                                                                    
+                                return (haveSplitControls && fullView ? clubLink + "<br/>" + nameShort : nameShort);
+                            }
+                        });
+                    }
+                    else // Not relay
+                    {
+                        if (!(haveSplitControls || _this.isMultiDayEvent)|| unranked || (!fullView && !lapTimes))
+                            columns.push({
+                                "sTitle": this.resources["_NAME"],
+                                "responsivePriority": 1,
+                                "sClass": "left",
+                                "bSortable": false,
+                                "aTargets": [col++],
+                                "mDataProp": "name",
+                                "render": function (data,type,row) {
+                                    if (type === 'display')
+                                    {
+                                        if (data.length>_this.maxNameLength)
+                                            return _this.nameShort(data);
+                                        else
+                                            return data;
+                                    }
                                     else
                                         return data;
                                 }
+                            });
+                        
+                        columns.push({
+                            "sTitle": ((haveSplitControls || _this.isMultiDayEvent) && !unranked && (fullView || lapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
+                            "sClass": "left",
+                            "responsivePriority": ((haveSplitControls|| _this.isMultiDayEvent) && !unranked && (fullView || lapTimes)) ? 1 : 10000,
+                            "bSortable": false,
+                            "aTargets": [col++],
+                            "mDataProp": "club",
+                            "render": function (data,type,row) {
+                                var param = row.club;
+                                var clubShort = row.club;
+                                if (param && param.length > 0)
+                                {
+                                    param = param.replace('\'', '\\\'');
+                                    if (clubShort.length > _this.maxClubLength)
+                                        clubShort = _this.clubShort(clubShort);				
+                                }
+                                var link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                                if ((haveSplitControls || _this.isMultiDayEvent) && !unranked && (fullView || lapTimes))
+                                {
+                                    if (row.name.length>_this.maxNameLength)
+                                            return _this.nameShort(row.name) + "<br/>" + link;
+                                        else
+                                            return row.name + "<br/>" + link;
+                                }
                                 else
-                                    return data;
+                                    return link;
                             }
                         });
-					
-					columns.push({
-                        "sTitle": ((haveSplitControls || _this.isMultiDayEvent) && !unranked && (fullView || lapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
-                        "sClass": "left",
-						"responsivePriority": ((haveSplitControls|| _this.isMultiDayEvent) && !unranked && (fullView || lapTimes)) ? 1 : 10000,
-                        "bSortable": false,
-                        "aTargets": [col++],
-                        "mDataProp": "club",
-                        "render": function (data,type,row) {
-                            var param = row.club;
-							var clubShort = row.club;
-                            if (param && param.length > 0)
-                            {
-                                param = param.replace('\'', '\\\'');
-                                if (clubShort.length > _this.maxClubLength)
-                                    clubShort = _this.clubShort(clubShort);				
-							}
-                            var link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
-                            if ((haveSplitControls || _this.isMultiDayEvent) && !unranked && (fullView || lapTimes))
-                            {
-                                if (row.name.length>_this.maxNameLength)
-                                        return _this.nameShort(row.name) + "<br/>" + link;
-                                    else
-                                        return row.name + "<br/>" + link;
-                            }
-                            else
-                                return link;
-                        }
-                    });
+                    }
                     
                     if (hasBibs)
                     {
