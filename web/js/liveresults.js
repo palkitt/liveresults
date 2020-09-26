@@ -925,6 +925,8 @@ var LiveResults;
                             var res = "";
                             if (data == 9)
                                 res += "Startet";
+                            else if (row.checked == 1)
+                                res += "Brikkesjekk";
                             return res;
                         }});
 

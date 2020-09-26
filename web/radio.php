@@ -87,8 +87,8 @@ $(document).ready(function()
 		
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		  Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
-	res.compName = '<?=$currentComp->CompName()?>';
-	res.compDate = "<?=$currentComp->CompDate();?>";
+	res.compName = "<?=$currentComp->CompName()?>";
+	res.compDate = "<?=$currentComp->CompDate()?>";
 	
 	if (<?= $_GET['code']?>==0)
 	{ 
@@ -113,8 +113,8 @@ $(document).ready(function()
 	{
 		res2 = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		       Resources,false,true,"setAutomaticUpdateText","setCompactViewText", runnerStatus, true,"divRadioPassings2",false, "filterText2");
-  	    res2.compName = '<?=$currentComp->CompName()?>';
-        res2.compDate = "<?=$currentComp->CompDate();?>";
+  	    res2.compName = "<?=$currentComp->CompName()?>";
+        res2.compDate = "<?=$currentComp->CompDate()?>";
 		res2.updateRadioPassings(<?= (isset($_GET['code2']) ? $_GET['code2'] : 1) ?>,calltime,minbib,maxbib);
 		
 		$('#filterText2').on('keyup', function () {

@@ -2,7 +2,7 @@
 date_default_timezone_set("Europe/Oslo");
 $lang = "no";
 $compid   = $_GET['comp'];
-$refreshTime = 10;
+$refreshTime = 5;
 
 
 if (isset($_GET['lang']))
@@ -81,15 +81,35 @@ else if ($_GET['method'] == 'setecardchange')
 {
 	if (!isset($_GET['messid']))
 		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
-	if (!isset($_GET['ecardchange']))
+	elseif (!isset($_GET['ecardchange']))
 		echo("{\"status\": \"Error\", \"message\": \"ecardchange not set\"}");
-
-	$ret = Emma::SetMessageEcardChange($_GET['messid'],$_GET['ecardchange']);
-
-	if ($ret > 0)
-		echo("{\"status\": \"OK\"}");
 	else
-		echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
+	{
+		$ret = Emma::SetMessageEcardChange($_GET['messid'],$_GET['ecardchange']);
+		if ($ret > 0)
+			echo("{\"status\": \"OK\"}");
+		else
+			echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
+	}
+}
+else if ($_GET['method'] == 'setecardchecked')
+{
+	if (!isset($_GET['dbid']) && !isset($_GET['bib']))
+		echo("{\"status\": \"Error\", \"message\": \"dbid or bib not set\"}");
+	elseif (!isset($_GET['comp']))
+		echo("{\"status\": \"Error\", \"message\": \"comp not set\"}");
+	else
+	{
+		
+		$dbid = (isset($_GET['dbid']) ? $_GET['dbid'] : 0);
+		$bib  = (isset($_GET['bib'])  ? $_GET['bib']  : 0);
+		
+		$ret = Emma::SetMessageEcardChecked($_GET['comp'],$dbid,$bib);
+		if ($ret > 0)
+			echo("{\"status\": \"OK\"}");
+		else
+			echo("{\"status\": \"Error\", \"message\": \"Error setting ecard change\" }");
+	}
 }
 else if ($_GET['method'] == 'getmessages')
 {

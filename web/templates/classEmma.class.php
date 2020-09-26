@@ -164,6 +164,17 @@ class Emma
 		return $ret;
 	}
 
+	public static function SetMessageEcardChecked($compid,$dbid,$bib)
+	{
+		$conn = self::openConnection();
+		if ($dbid > 0)
+			$sql = "update runners set ecardchecked=1 where tavid=".$compid." AND dbid=".$dbid;
+		else
+			$sql = "update runners set ecardchecked=1 where tavid=".$compid." AND bib=".$bib;	
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
+	}
+
 	public static function SetMessageCompleted($messid,$completed)
 	{
 		$conn = self::openConnection();
@@ -398,7 +409,7 @@ class Emma
   	function getLastPassings($num)
   	{
     	$ret = Array();
-		$q = "SELECT runners.Name, runners.class, runners.Club, results.Time,results.Status, results.Changed, 
+		$q = "SELECT runners.Name, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
 	      results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
 		  left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
 		  and runners.class = splitcontrols.classname) where results.TavId =".$this->m_CompId." 
@@ -436,7 +447,7 @@ class Emma
 			$postTimeAbs = time()-5*60;
 			$postTimeText = date("Y-m-d H:i:s", $postTimeAbs);
 			
-			$q = "SELECT runners.Name, runners.class, runners.Club, runners.ecard1, runners.ecard2, runners.bib, runners.dbid, 
+			$q = "SELECT runners.Name, runners.class, runners.Club, runners.ecard1, runners.ecard2, runners.bib, runners.dbid, runners.ecardchecked, 
 			results.Time, results2.Status, results2.Changed, results.Control, splitcontrols.name as pname 
 			FROM results 
 			INNER JOIN runners ON results.DbId = runners.DbId 
@@ -452,7 +463,8 @@ class Emma
 			limit 100";		   
 		}
 		elseif ($code == -2) // Left in forest
-			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results2.Time, results.Status, results.Changed, results.Control, splitcontrols.name AS pname 
+			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, runners.ecardchecked,
+			     results2.Time, results.Status, results.Changed, results.Control, splitcontrols.name AS pname 
 			FROM results 
 			INNER JOIN runners ON results.DbId = runners.DbId 
 			LEFT JOIN splitcontrols ON (splitcontrols.code = results.Control AND splitcontrols.tavid=".$this->m_CompId." AND runners.class = splitcontrols.classname) 

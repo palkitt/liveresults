@@ -46,6 +46,8 @@
   `ecard1` int(11) DEFAULT NULL,
   `ecard2` int(11) DEFAULT NULL,
   `bib` int(11) DEFAULT NULL,
+  `ecardchecked` tinyint(1) DEFAULT NULL,
+
   PRIMARY KEY (`dbid`,`tavid`),
   KEY `runners_class` (`class`),
   KEY `runnersComp_class` (`tavid`,`class`),

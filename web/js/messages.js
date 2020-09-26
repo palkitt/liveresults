@@ -35,7 +35,15 @@ var Messages;
             if (connection && connection.type === 'cellular')
                 return 1;
             return 0;
-		}
+        }
+        
+        // Function to detect if comp date is today
+        AjaxViewer.prototype.isCompToday = function () {
+            var dt = new Date();
+            var compDay = new Date(this.compDate);
+            return (dt.getDate() == compDay.getDate() || this.local ? true : false)
+        };
+
         
         //Request data for messages
         AjaxViewer.prototype.updateMessages = function () {
@@ -53,7 +61,8 @@ var Messages;
                 dataType: "json"                   
             });
             clearTimeout(this.radioPassingsUpdateTimer);
-            this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateMessages();}, this.radioUpdateInterval);
+            if (_this.isCompToday())
+                this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateMessages();}, this.radioUpdateInterval);
         };
         
         //Handle response for updating the last radio passings..

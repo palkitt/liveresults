@@ -44,3 +44,6 @@ PRIMARY KEY (`messid`)
 
 -- addition 2020-08-09
 alter table login add column rankedstartlist tinyint(1) DEFAULT NULL;
+
+-- addition 2020-09-19
+alter table runners add column ecardchecked tinyint(1) DEFAULT NULL;
