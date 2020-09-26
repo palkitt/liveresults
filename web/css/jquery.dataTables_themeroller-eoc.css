@@ -16,6 +16,7 @@ table.dataTable thead th {
     cursor: pointer;
 	*cursor: hand;
 	white-space: nowrap;
+	background-color: white;
 }
 
 table.dataTable tfoot th {
