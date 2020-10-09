@@ -101,7 +101,7 @@ if ($_GET['method'] == 'getradiopassings')
 			if ($pass['class']=="NOCLAS") 
 				$ret .= ",$br \"DT_RowClass\": \"red_row\"";
 			// Registered at start
-			elseif ($status == 9 || $pass['ecardchecked']=="1")  
+			elseif ($status == 9 || $pass['ecardchecked'] == 1)  
 			{
 				if ($timeToStart > 0 && ($lasttime - $time > 5900))
 					$ret .= ",$br \"DT_RowClass\": \"green_row_new\"";
@@ -139,7 +139,7 @@ if ($_GET['method'] == 'getradiopassings')
 			$timeDiff = -2;
 			$rank = -1;
 			$ret .= ",\"rank\": ".$rank.",\"timeDiff\": ".$timeDiff;
-			$ret .= ",\"checked\": ".($pass["ecardchecked"]==1 ? 1 : 0);
+			$ret .= ",\"checked\": ".($pass["ecardchecked"] == 1 ? 1 : 0);
 		}
 		
 		// All cases exept from start and left in forest. Use hash as last updated time

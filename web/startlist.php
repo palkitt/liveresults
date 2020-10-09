@@ -1,6 +1,6 @@
 <?php
 date_default_timezone_set("Europe/Oslo");
-$closeTime = "2020-09-13 08:00:00 +2:00";
+$closeTime = "2020-09-13 07:32:00 +2:00";
 $lang = "no";
 
 if (isset($_GET['lang']))

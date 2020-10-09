@@ -62,7 +62,9 @@ var mess = null;
 $(document).ready(function()
 {
 	mess = new Messages.AjaxViewer(<?= $_GET['comp']?>);
-	mess.compName = '<?=$currentComp->CompName()?>';
+	mess.compName = "<?=$currentComp->CompName()?>";
+	mess.compDate  = "<?=$currentComp->CompDate()?>";
+
 	mess.updateMessages();
 	$('#filterText').on('keyup', function () {
         mess.filterTable();
