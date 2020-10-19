@@ -201,282 +201,276 @@ namespace LiveResults.Client
                      *  L = leg number
                      */
 
-
-                    if (m_createRadioControls)
+                                 
+                    List<IntermediateTime> intermediates = new List<IntermediateTime>();
+                    var dlg = OnRadioControl;
+                    if (dlg != null)
                     {
-                        List<IntermediateTime> intermediates = new List<IntermediateTime>();
-                        var dlg = OnRadioControl;
-                        if (dlg != null)
+                        // radiotype, 2=finish/finish-passing, 4 = normal, 10 = exchange
+                        cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, description, etappe, radiorundenr, live 
+                                            FROM radiopost WHERE radioday={0}",day);
+                        var RadioPosts = new Dictionary<int, List<RadioStruct>>();
+
+                        using (IDataReader reader = cmd.ExecuteReader())
                         {
-                            // radiotype, 2=finish/finish-passing, 4 = normal, 10 = exchange
-                            cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, description, etappe, radiorundenr, live 
-                                               FROM radiopost WHERE radioday={0}",day);
-                            var RadioPosts = new Dictionary<int, List<RadioStruct>>();
-
-                            using (IDataReader reader = cmd.ExecuteReader())
+                            while (reader.Read())
                             {
-                                while (reader.Read())
-                                {
-                                    int cource = 0, code = 0, radiotype = 0, leg = 0, order = 0;
-                                    bool live = false;
+                                int cource = 0, code = 0, radiotype = 0, leg = 0, order = 0;
+                                bool live = false;
 
-                                    if (reader["live"] != null && reader["live"] != DBNull.Value)
-                                        live = Convert.ToBoolean(reader["live"].ToString());
-                                    if (!live) continue;
+                                if (reader["live"] != null && reader["live"] != DBNull.Value)
+                                    live = Convert.ToBoolean(reader["live"].ToString());
+                                if (!live) continue;
 
-                                    if (reader["code"] != null && reader["code"] != DBNull.Value)
-                                        code = Convert.ToInt32(reader["code"].ToString());
+                                if (reader["code"] != null && reader["code"] != DBNull.Value)
+                                    code = Convert.ToInt32(reader["code"].ToString());
 
-                                    if (code > 1000)
-                                        code = code / 100; // Take away last to digits if code 1000+
+                                if (code > 1000)
+                                    code = code / 100; // Take away last to digits if code 1000+
 
-                                    if (reader["radiocourceno"] != null && reader["radiocourceno"] != DBNull.Value)
-                                        cource = Convert.ToInt32(reader["radiocourceno"].ToString());
+                                if (reader["radiocourceno"] != null && reader["radiocourceno"] != DBNull.Value)
+                                    cource = Convert.ToInt32(reader["radiocourceno"].ToString());
                                    
-                                    if (reader["radiotype"] != null && reader["radiotype"] != DBNull.Value)
-                                        radiotype = Convert.ToInt32(reader["radiotype"].ToString());
+                                if (reader["radiotype"] != null && reader["radiotype"] != DBNull.Value)
+                                    radiotype = Convert.ToInt32(reader["radiotype"].ToString());
 
-                                    if (reader["etappe"] != null && reader["etappe"] != DBNull.Value)
-                                        leg = Convert.ToInt32(reader["etappe"].ToString());
+                                if (reader["etappe"] != null && reader["etappe"] != DBNull.Value)
+                                    leg = Convert.ToInt32(reader["etappe"].ToString());
 
-                                    if (reader["radiorundenr"] != null && reader["radiorundenr"] != DBNull.Value)
-                                        order = Convert.ToInt32(reader["radiorundenr"].ToString());
+                                if (reader["radiorundenr"] != null && reader["radiorundenr"] != DBNull.Value)
+                                    order = Convert.ToInt32(reader["radiorundenr"].ToString());
 
-                                    string description = reader["description"] as string;
-                                    if (!string.IsNullOrEmpty(description))
-                                        description = description.Trim();
+                                string description = reader["description"] as string;
+                                if (!string.IsNullOrEmpty(description))
+                                    description = description.Trim();
 
-                                    var radioControl = new RadioStruct
-                                    {
-                                        Code        = code,         
-                                        Description = description,
-                                        RadioType   = radiotype,
-                                        Order       = order,
-                                        Leg         = leg
-                                    };
+                                var radioControl = new RadioStruct
+                                {
+                                    Code        = code,         
+                                    Description = description,
+                                    RadioType   = radiotype,
+                                    Order       = order,
+                                    Leg         = leg
+                                };
 
-                                    if (!RadioPosts.ContainsKey(cource))
-                                    {
-                                        RadioPosts.Add(cource, new List<RadioStruct>());
-                                    };
-                                    RadioPosts[cource].Add(radioControl);
-                                }
-                                reader.Close();
+                                if (!RadioPosts.ContainsKey(cource))
+                                {
+                                    RadioPosts.Add(cource, new List<RadioStruct>());
+                                };
+                                RadioPosts[cource].Add(radioControl);
                             }
+                            reader.Close();
+                        }
 
-                            // Class table
-                            cmd.CommandText = @"SELECT code, cource, class, purmin, timingtype, cheaseing FROM class";
-                            var classTable = new Dictionary<string,ClassStruct>();
+                        // Class table
+                        cmd.CommandText = @"SELECT code, cource, class, purmin, timingtype, cheaseing FROM class";
+                        var classTable = new Dictionary<string,ClassStruct>();
 
-                            using (IDataReader reader = cmd.ExecuteReader())
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
                             {
-                                while (reader.Read())
-                                {
-                                    int cource = 0, numLegs = 0, timingType = 0, sign = 1;
+                                int cource = 0, numLegs = 0, timingType = 0, sign = 1;
 
-                                    bool chaseStart = Convert.ToBoolean(reader["cheaseing"].ToString());
+                                bool chaseStart = Convert.ToBoolean(reader["cheaseing"].ToString());
 
-                                    string classCode = reader["code"] as string;
-                                    if (!string.IsNullOrEmpty(classCode))
-                                        classCode = classCode.Trim();
-                                    else
-                                        continue;
+                                string classCode = reader["code"] as string;
+                                if (!string.IsNullOrEmpty(classCode))
+                                    classCode = classCode.Trim();
+                                else
+                                    continue;
                                    
-                                    string className = reader["class"] as string;
-                                    if (!string.IsNullOrEmpty(className))
-                                        className = className.Trim();
-                                    if (className == "NOCLAS") continue; // Skip if NOCLAS
+                                string className = reader["class"] as string;
+                                if (!string.IsNullOrEmpty(className))
+                                    className = className.Trim();
+                                if (className == "NOCLAS") continue; // Skip if NOCLAS
 
-                                    if (reader["cource"] != null && reader["cource"] != DBNull.Value)
-                                        cource = Convert.ToInt32(reader["cource"].ToString());
+                                if (reader["cource"] != null && reader["cource"] != DBNull.Value)
+                                    cource = Convert.ToInt32(reader["cource"].ToString());
 
-                                    if (isRelay && reader["purmin"] != null && reader["purmin"] != DBNull.Value)
-                                        numLegs = Convert.ToInt32(reader["purmin"].ToString());
+                                if (isRelay && reader["purmin"] != null && reader["purmin"] != DBNull.Value)
+                                    numLegs = Convert.ToInt32(reader["purmin"].ToString());
 
-                                    if (reader["timingtype"] != null && reader["timingtype"] != DBNull.Value)
-                                        timingType = Convert.ToInt32(reader["timingtype"].ToString());
+                                if (reader["timingtype"] != null && reader["timingtype"] != DBNull.Value)
+                                    timingType = Convert.ToInt32(reader["timingtype"].ToString());
 
-                                    if (timingType == 1 || timingType == 2) // 0 = normal, 1 = not ranked, 2 = not show times
-                                        sign = -1; // Use negative sign for these timing types
-                                    if (timingType == 1) // Add neg finish passing for not-ranked class
-                                        intermediates.Add(new IntermediateTime
-                                        {
-                                            ClassName = className,
-                                            IntermediateName = "Tid",
-                                            Position = -999,
-                                            Order = 999
-                                        });
+                                if (timingType == 1 || timingType == 2) // 0 = normal, 1 = not ranked, 2 = not show times
+                                    sign = -1; // Use negative sign for these timing types
+                                if (timingType == 1) // Add neg finish passing for not-ranked class
+                                    intermediates.Add(new IntermediateTime
+                                    {
+                                        ClassName = className,
+                                        IntermediateName = "Tid",
+                                        Position = -999,
+                                        Order = 999
+                                    });
 
                                     
-                                    // Add starttime and leg times for chase start
-                                    if (chaseStart)
+                                // Add starttime and leg times for chase start
+                                if (chaseStart)
+                                {
+                                    intermediates.Add(new IntermediateTime
                                     {
-                                        intermediates.Add(new IntermediateTime
-                                        {
-                                            ClassName = className,
-                                            IntermediateName = "Start",
-                                            Position = 0,
-                                            Order = 0
-                                        });
+                                        ClassName = className,
+                                        IntermediateName = "Start",
+                                        Position = 0,
+                                        Order = 0
+                                    });
 
-                                        intermediates.Add(new IntermediateTime
-                                        {
-                                            ClassName = className,
-                                            IntermediateName = "Leg",
-                                            Position = 999,
-                                            Order = 999
-                                        });
-                                    }
-
-                                    // Add lap time for last lap
-                                    if (m_lapTimes && !isRelay)
-                                        intermediates.Add(new IntermediateTime
-                                        {
-                                            ClassName = className,
-                                            IntermediateName = "Leg",
-                                            Position = 999,
-                                            Order = 999
-                                        });
-
-                                    // Add exchange and leg times for legs 2 and up
-                                    for (int i = 2; i <= numLegs; i++) 
+                                    intermediates.Add(new IntermediateTime
                                     {
-                                        string classN = className;
-                                        if (!classN.EndsWith("-"))
-                                                classN += "-";
-                                        classN += Convert.ToString(i);
+                                        ClassName = className,
+                                        IntermediateName = "Leg",
+                                        Position = 999,
+                                        Order = 999
+                                    });
+                                }
 
-                                        intermediates.Add(new IntermediateTime
-                                        {
+                                // Add lap time for last lap
+                                if (m_lapTimes && !isRelay)
+                                    intermediates.Add(new IntermediateTime
+                                    {
+                                        ClassName = className,
+                                        IntermediateName = "Leg",
+                                        Position = 999,
+                                        Order = 999
+                                    });
+
+                                // Add exchange and leg times for legs 2 and up
+                                for (int i = 2; i <= numLegs; i++) 
+                                {
+                                    string classN = className;
+                                    if (!classN.EndsWith("-"))
+                                            classN += "-";
+                                    classN += Convert.ToString(i);
+
+                                    intermediates.Add(new IntermediateTime
+                                    {
+                                        ClassName = classN,
+                                        IntermediateName = "Exchange",
+                                        Position = 0,
+                                        Order = 0
+                                    });
+
+                                    intermediates.Add(new IntermediateTime
+                                    {
                                             ClassName = classN,
-                                            IntermediateName = "Exchange",
-                                            Position = 0,
-                                            Order = 0
-                                        });
-
-                                        intermediates.Add(new IntermediateTime
-                                        {
-                                             ClassName = classN,
-                                             IntermediateName = "Leg",
-                                             Position = 999,
-                                             Order = 999
-                                        });
-                                    }
-
-                                    string classAll = className;
-                                    if (!classAll.EndsWith("-"))
-                                        classAll += "-";
-                                    classAll += "All";
-
-                                    if (numLegs > 0 && m_oneLineRelayRes)
-                                    { // Add leg time for last leg in one-line results
-                                        intermediates.Add(new IntermediateTime
-                                        {
-                                            ClassName = classAll,
                                             IntermediateName = "Leg",
                                             Position = 999,
                                             Order = 999
-                                        });
-                                    }
+                                    });
+                                }
 
+                                string classAll = className;
+                                if (!classAll.EndsWith("-"))
+                                    classAll += "-";
+                                classAll += "All";
 
-                                    if (RadioPosts.ContainsKey(cource))
-                                    {   // Add radio controls to course
-                                        Dictionary<int, int> radioCnt = new Dictionary<int, int>();
-                                        foreach (var radioControl in RadioPosts[cource])
+                                if (numLegs > 0 && m_oneLineRelayRes)
+                                { // Add leg time for last leg in one-line results
+                                    intermediates.Add(new IntermediateTime
+                                    {
+                                        ClassName = classAll,
+                                        IntermediateName = "Leg",
+                                        Position = 999,
+                                        Order = 999
+                                    });
+                                }
+
+                                if (m_createRadioControls && RadioPosts.ContainsKey(cource))
+                                {   // Add radio controls to course
+                                    Dictionary<int, int> radioCnt = new Dictionary<int, int>();
+                                    foreach (var radioControl in RadioPosts[cource])
+                                    {
+                                        if (radioControl.RadioType == 1) // Skip if radiocontrol is start
+                                            continue;
+                                        int Code = radioControl.Code;    
+                                        if (numLegs == 0 && (Code == 999 || Code == 0))
+                                            continue;       // Skip if not relay and finish or start code
+
+                                        string classN = className;
+                                        int CodeforCnt = 0; // Code for counter
+                                        int AddforLeg = 0;  // Addition for relay legs
+                                        int nStep = 1;      // Multiplicator used in relay order  
+
+                                        if (numLegs > 0 || chaseStart || (m_lapTimes && !isRelay)) // Make ready for pass times
+                                            nStep = 2;
+
+                                        if (numLegs > 0)    // Relay
                                         {
-                                            if (radioControl.RadioType == 1) // Skip if radiocontrol is start
-                                                continue;
-                                            int Code = radioControl.Code;    
-                                            if (numLegs == 0 && (Code == 999 || Code == 0))
-                                                continue;       // Skip if not relay and finish or start code
+                                            if (!classN.EndsWith("-"))
+                                                classN += "-";
+                                            classN += Convert.ToString(radioControl.Leg);
+                                            AddforLeg = 10000 * radioControl.Leg;
+                                        }
 
-                                            string classN = className;
-                                            int CodeforCnt = 0; // Code for counter
-                                            int AddforLeg = 0;  // Addition for relay legs
-                                            int nStep = 1;      // Multiplicator used in relay order  
+                                        if (Code < 999 && radioControl.RadioType != 10) // Not 999 and not exchange)
+                                        {
+                                            CodeforCnt = Code + AddforLeg;
+                                            if (!radioCnt.ContainsKey(CodeforCnt))
+                                                radioCnt.Add(CodeforCnt, 0);
+                                            radioCnt[CodeforCnt]++;
 
-                                            if (numLegs > 0 || chaseStart || (m_lapTimes && !isRelay)) // Make ready for pass times
-                                                nStep = 2;
-
-                                            if (numLegs > 0)    // Relay
+                                            // Add codes for ordinary classes and leg based classes
+                                            // sign = -1 for unranked classes
+                                            intermediates.Add(new IntermediateTime
                                             {
-                                                if (!classN.EndsWith("-"))
-                                                    classN += "-";
-                                                classN += Convert.ToString(radioControl.Leg);
-                                                AddforLeg = 10000 * radioControl.Leg;
-                                            }
+                                                ClassName = classN,
+                                                IntermediateName = radioControl.Description,
+                                                Position = sign*(Code + radioCnt[CodeforCnt] * 1000 + AddforLeg),
+                                                Order = nStep*radioControl.Order
+                                            });
 
-                                            if (Code < 999 && radioControl.RadioType != 10) // Not 999 and not exchange)
+                                            // Add leg passing time for relay, chase start and lap times
+                                            if (((numLegs > 0) && (radioControl.Leg > 1)) || chaseStart || (m_lapTimes && !isRelay)) 
                                             {
-                                                CodeforCnt = Code + AddforLeg;
-                                                if (!radioCnt.ContainsKey(CodeforCnt))
-                                                    radioCnt.Add(CodeforCnt, 0);
-                                                radioCnt[CodeforCnt]++;
-
-                                                // Add codes for ordinary classes and leg based classes
-                                                // sign = -1 for unranked classes
                                                 intermediates.Add(new IntermediateTime
                                                 {
                                                     ClassName = classN,
-                                                    IntermediateName = radioControl.Description,
-                                                    Position = sign*(Code + radioCnt[CodeforCnt] * 1000 + AddforLeg),
-                                                    Order = nStep*radioControl.Order
-                                                });
-
-                                                // Add leg passing time for relay, chase start and lap times
-                                                if (((numLegs > 0) && (radioControl.Leg > 1)) || chaseStart || (m_lapTimes && !isRelay)) 
-                                                {
-                                                    intermediates.Add(new IntermediateTime
-                                                    {
-                                                        ClassName = classN,
-                                                        IntermediateName = radioControl.Description + "PassTime",
-                                                        Position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg + 100000,
-                                                        Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
-                                                    });
-                                                }
-
-                                            }
-                                            
-                                            // Add codes for one-line relay classes
-                                            if (numLegs > 0 && m_oneLineRelayRes)  
-                                            {
-                                                string Description = Convert.ToString(radioControl.Leg) +":"+ radioControl.Description;
-                                                int position = 0;
-                                                if (radioControl.RadioType == 10) // Exchange
-                                                    position = 999 + 1000 + AddforLeg;
-                                                else // Normal radio control
-                                                    position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg;
-
-                                                intermediates.Add(new IntermediateTime
-                                                {
-                                                    ClassName = classAll,
-                                                    IntermediateName = Description,
-                                                    Position = position,
-                                                    Order = 2*radioControl.Order
-                                                });
-
-                                                // Passing time
-                                                intermediates.Add(new IntermediateTime
-                                                {
-                                                    ClassName = classAll,
-                                                    IntermediateName = Description + "PassTime",
-                                                    Position = position + 100000,
-                                                    Order = 2*radioControl.Order - 1
+                                                    IntermediateName = radioControl.Description + "PassTime",
+                                                    Position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg + 100000,
+                                                    Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
                                                 });
                                             }
                                         }
+                                            
+                                        // Add codes for one-line relay classes
+                                        if (numLegs > 0 && m_oneLineRelayRes)  
+                                        {
+                                            string Description = Convert.ToString(radioControl.Leg) +":"+ radioControl.Description;
+                                            int position = 0;
+                                            if (radioControl.RadioType == 10) // Exchange
+                                                position = 999 + 1000 + AddforLeg;
+                                            else // Normal radio control
+                                                position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg;
+
+                                            intermediates.Add(new IntermediateTime
+                                            {
+                                                ClassName = classAll,
+                                                IntermediateName = Description,
+                                                Position = position,
+                                                Order = 2*radioControl.Order
+                                            });
+
+                                            // Passing time
+                                            intermediates.Add(new IntermediateTime
+                                            {
+                                                ClassName = classAll,
+                                                IntermediateName = Description + "PassTime",
+                                                Position = position + 100000,
+                                                Order = 2*radioControl.Order - 1
+                                            });
+                                        }
                                     }
                                 }
-                                reader.Close();
                             }
-
-                            foreach (var itime in intermediates)
-                            {
-                                dlg(itime.IntermediateName, itime.Position, itime.ClassName, itime.Order);
-                            }
-
+                            reader.Close();
                         }
+
+                        foreach (var itime in intermediates)
+                        {
+                            dlg(itime.IntermediateName, itime.Position, itime.ClassName, itime.Order);
+                        }               
                     }
 
                     string modulus = (m_MSSQL ? "%" : "MOD");
