@@ -5,7 +5,7 @@ var Messages;
     var AjaxViewer = /** @class */ (function () {
         function AjaxViewer(competitionId) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.compName = "";
             this.compDate = "";

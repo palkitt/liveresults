@@ -130,14 +130,15 @@ else if ($_GET['method'] == 'getmessages')
 			$groupCompleted = $completed;
 			$groupChanged   = $changed;
 		}
-		$bib    = ($message['bib']    != null ? $message['bib'] : 0);
-		$ecard1 = ($message['ecard1'] != null ? $message['ecard1'] : 0);
-		$ecard2 = ($message['ecard2'] != null ? $message['ecard2'] : 0);
-		$start  = ($message['time']   != null ? formatTime($message['time'],0,0,$RunnerStatus) : "");
-		$status = ($message['status'] != null ? $message['status'] : 0);
-		$name   = ($dbid == 0 ? "Generell melding" : ($message['name'] != null ? $message['name'] : ""));
-		$club   = $message['club'];
-		$class  = $message['class'];
+		$bib     = ($message['bib']    != null ? $message['bib'] : 0);
+		$ecard1  = ($message['ecard1'] != null ? $message['ecard1'] : 0);
+		$ecard2  = ($message['ecard2'] != null ? $message['ecard2'] : 0);
+		$start   = ($message['time']   != null ? formatTime($message['time'],0,0,$RunnerStatus) : "");
+		$status  = ($message['status'] != null ? $message['status'] : 0);
+		$name    = ($dbid == 0 ? "Generell melding" : ($message['name'] != null ? $message['name'] : ""));
+		$club    = $message['club'];
+		$class   = $message['class'];
+		$msgtext = str_replace("\\","",$message['message']);
 
 		if ($dbid<0 && $name == "")
 			$name = strval(-$dbid)." UKJENT";
@@ -147,7 +148,7 @@ else if ($_GET['method'] == 'getmessages')
 		if (!$first)
 			$ret .=",$br";
 		$ret .= "{\"messid\": ".$message['messid'].", \"dbid\": ".$dbid.", \"changed\": \"".$changed."\", ";
-		$ret .= "\"groupchanged\": \"".$groupChanged."\", \"message\": \"".$message['message']."\", ";
+		$ret .= "\"groupchanged\": \"".$groupChanged."\", \"message\": \"".$msgtext."\", ";
 		$ret .=	"\"dns\": ".$message['dns'].", \"completed\": ".$completed.", \"groupcompleted\": ".$groupCompleted.", \"name\": \"".$name."\"";
 		$ret .= ", \"bib\": ".$bib.", \"club\": \"".$club."\", \"start\": \"".$start."\", \"status\": ".$status.", \"class\": \"";
 		$ret .= $class."\", \"ecard1\": ".$ecard1.", \"ecard2\": ".$ecard2."}";
@@ -194,7 +195,7 @@ else if ($_GET['method'] == 'getecardchange')
 		$dbid      = $runner['dbid'];
 		$changed   = $runner['changed'];
 		$name      = $runner['name'];
-		$message   = $runner['message'];
+		$message   = str_replace("\\","",$runner['message']);
 
 		if ($name != null)
 			$ecard = (int) filter_var($name, FILTER_SANITIZE_NUMBER_INT);
