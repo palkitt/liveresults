@@ -139,6 +139,7 @@ else if ($_GET['method'] == 'getmessages')
 		$club    = $message['club'];
 		$class   = $message['class'];
 		$msgtext = str_replace("\\","",$message['message']);
+		$msgtext = str_replace("\"","",$msgtext);
 
 		if ($dbid<0 && $name == "")
 			$name = strval(-$dbid)." UKJENT";
@@ -196,6 +197,7 @@ else if ($_GET['method'] == 'getecardchange')
 		$changed   = $runner['changed'];
 		$name      = $runner['name'];
 		$message   = str_replace("\\","",$runner['message']);
+		$message   = str_replace("\"","",$message);
 
 		if ($name != null)
 			$ecard = (int) filter_var($name, FILTER_SANITIZE_NUMBER_INT);

@@ -14,6 +14,7 @@ header('Content-Type: text/html; charset='.$CHARSET);
 $currentComp = new Emma($_GET['comp']);
 $currentCompNo = $_GET['comp'];
 $organizer = $currentComp->Organizer();
+$image = "";
 
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
@@ -305,45 +306,23 @@ function closeTop() {
     <?php if($organizer=="Freidig/Wing/Malvik"){?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
 	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		<tr>
-			<?php if(in_array($_GET['comp'], array("15821","15822","15823"))){?>
-			    <td width="60">
-			    <img src="images/SG19.PNG" height="60" /></td>
-			<?php } elseif(in_array($_GET['comp'], array("15950","15951","15952"))){?>
-			    <td width="60">
-			    <img src="images/OF.png" height="60" /></td>
-			<?php } elseif(in_array($_GET['comp'], array("16235","16241","16284"))){?>
-			    <td width="60">
-			    <img src="images/SB-O.png" height="60" /></td>
-			<?php } elseif(in_array($_GET['comp'], array("16699"))){?>
-			    <td width="70">
-			    <img src="images/MOTTV.png" height="60" /></td>
-			<?php } elseif($organizer=="Freidig"){?>
-			    <td width="60">
-			    <img src="images/Freidig60.png" height="60" /></td>
-			<?php } elseif($organizer=="Porsgrunn OL"){?>
-			    <td width="60">
-			    <img src="images/POL.png" height="60" /></td>
-			<?php } elseif($organizer=="Wing OK"){?>
-			    <td width="60">
-			    <img src="images/Wing.png" height="60" /></td>
-			<?php } elseif($organizer=="Byåsen IL"){?>
-			    <td width="60">
-			    <img src="images/BIL.png" height="60" /></td>
-			<?php } elseif($organizer=="Røros IL"){?>
-			    <td width="60">
-			    <img src="images/roros.png" height="60" ></td>
-			<?php } elseif($organizer=="Freidig/Wing/Malvik"){?>
-			    <td width="60">
-			    <img src="images/NM2020.png" height="60" ></td>
-			<?php } elseif($organizer=="Eiker O-lag"){?>
-			    <td width="60">
-			    <img src="images/Eiker.png" height="60" ></td>
-			<?php } elseif($organizer=="Stokke IL"){?>
-			    <td width="60">
-			    <img src="images/stokke.png" height="60" ></td>
-			<?php } elseif($organizer=="Byaasen Skiklub"){?>
-			    <td width="60">
-			    <img src="images/BSK.png" height="60" ></td>
+			<?php 
+				if (in_array($_GET['comp'], array("15821","15822")))	$image = "images/SG19.PNG";
+				else switch ($organizer)
+				{
+					case "Freidig":	     $image = "images/Freidig60.png"; break;
+					case "Porsgrunn OL": $image = "images/POL.png";	break;
+					case "Wing OK":	     $image = "images/Wing.png"; break;
+					case "Byåsen IL":    $image = "images/BIL.png"; break; 
+					case "Røros IL":     $image = "images/roros.png"; break; 
+					case "Freidig/Wing/Malvik":	$image = "images/NM2020.png"; break;
+					case "Eiker O-lag":  $image ="images/Eiker.png"; break; 
+					case "Stokke IL":    $image = "images/stokke.png"; break; 
+					case "Byaasen Skiklub":	$image = "images/BSK.png"; break;
+					case "Kristiansand OK": $image = "images/KOK_60.jpg"; break;
+				}
+			if ($image != ""){ ?>
+			<td width="60"><img src="<?php echo($image) ?>" height="60" ></td>
 			<?php }?>
 			
 <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
