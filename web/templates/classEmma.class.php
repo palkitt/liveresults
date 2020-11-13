@@ -338,7 +338,8 @@ class Emma
 	function numberOfRunners()
 	{
 		$ret = [];
-		$q = "SELECT COUNT(*) AS num FROM runners where TavId = ". $this->m_CompId;
+		$q = "SELECT COUNT(*) AS num FROM runners WHERE TavId = ". $this->m_CompId." AND Class NOT LIKE 'NOCLAS'";
+				
 		if ($result = mysqli_query($this->m_Conn, $q))
 			$ret = $result;
 		else
@@ -349,7 +350,9 @@ class Emma
 	function numberOfStartedRunners()
 	{
 		$ret = [];
-		$q = "SELECT COUNT(*) AS num FROM results WHERE results.TavId =".$this->m_CompId." AND results.control = 1000 AND results.Status != 1"; 
+		$q = "SELECT COUNT(*) AS num FROM results, runners WHERE results.TavId =".$this->m_CompId." AND runners.TavID = " . $this->m_CompId . " AND results.dbid = runners.dbid ";
+		$q .= "AND runners.Class NOT LIKE 'NOCLAS' AND results.control = 1000 AND results.Status != 1"; 
+
 		if ($result = mysqli_query($this->m_Conn, $q))
 			$ret = $result;
 		else
@@ -360,8 +363,8 @@ class Emma
 	function numberOfFinishedRunners()
 	{
 		$ret = [];
-		$q = "SELECT COUNT(*) AS num FROM results WHERE results.TavId =".$this->m_CompId." AND results.control = 1000 ";
-		$q .= "AND results.Status != 1 AND results.Status != 9 AND results.Status != 10"; 
+		$q = "SELECT COUNT(*) AS num FROM results, runners WHERE results.TavId =".$this->m_CompId." AND runners.TavID = " . $this->m_CompId . " AND results.dbid = runners.dbid ";
+		$q .= "AND runners.Class NOT LIKE 'NOCLAS' AND results.control = 1000 AND results.Status != 1 AND results.Status != 9 AND results.Status != 10"; 
 		if ($result = mysqli_query($this->m_Conn, $q))
 			$ret = $result;
 		else
