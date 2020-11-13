@@ -85,13 +85,9 @@ function resetRow(row)
 <!-- End SUB MENU -->
 
   <tr>
-
     <td class="searchmenu" colspan="2" style="padding: 5px;">
-
        <table border="0" cellpadding="0" cellspacing="0">
-
              <tr>
-
                <td>
 <a href="createComp.php">Create new competition</a><br/>
 <h1 class="categoriesheader">Existing competitions</h1>
@@ -99,14 +95,14 @@ function resetRow(row)
 			<table border="0" cellpadding="0" cellspacing="2" width="100%">
 <tr>
 <td><b>Date</b></td>
-<td><b>Name</b></td>
+<td><b>Competition</b></td>
 <td><b>Organizer</b></td>
 <td><b>CompId</b></td>
 <td><b>Public</b></td>
 <td><b>Edit</b></td>
-<td><b>Results</b></td>
-<td><b>Radio</b></td>
+<td><b>Complete</b></td>
 <td><b>Startlist</b></td>
+<td><b>Radio</b></td>
 <td><b>Messages</b></td>
 </tr>
 
@@ -122,14 +118,14 @@ function resetRow(row)
 	?>
 		<tr id="row<?=$comp["tavid"]?>">
     <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-    <td><?=$comp["compName"]?></td>
+    <td><a href="/followfull.php?comp=<?=$comp['tavid']?>"><?=$comp["compName"]?></a></td>
     <td><?=$comp["organizer"]?></td>
     <td><?=$comp["tavid"]?></td>
     <td><?=$comp["public"] == "1" ? "yes" : "no"?></td>
-    <td><a href="editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></td>
-    <td><a href="/followfull.php?comp=<?=$comp['tavid']?>">Results</td>
-    <td><a href="radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td>
+    <td><a href="/adm/editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></td>
+    <td><a href="/followall.php?comp=<?=$comp["tavid"]?>">Complete</a>
     <td><a href="/startlist.php?comp=<?=$comp["tavid"]?>">Startlist</a></td>
+    <td><a href="/adm/radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td>
     <td><a href="/message.php?comp=<?=$comp["tavid"]?>">Messages</a></td>
     </tr>
 	<?php
