@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -296,19 +296,21 @@ var LiveResults;
         
         // Quality check of radio controls
 		AjaxViewer.prototype.checkRadioControls = function (data) {
-			if (data != null && data.status == "OK" && data.results != null) {               
+			if (data != null && data.status == "OK" && data.results != null) { 
+                this.updateResultVirtualPosition(data.results);
                 var classSplits = data.splitcontrols;
                 const validateLim = -0.333;
                 if (classSplits.length == 0) return;
                 var classSplitsOK = new Array(classSplits.length);
-                var classSplitsFrac = new Array(classSplits.length);
+                var classSplitsUpdated = new Array(classSplits.length).fill(false);
+                var classSplitsFrac = [];
                 var classSplitsStatus = new Array(classSplits.length+1);
                 var classSplitsFracRunner = new Array(classSplits.length+1);
-				for (var i = 0; i < classSplitsStatus.length; i++) {
+                
+                for (var i = 0; i < classSplitsStatus.length; i++) {
                     classSplitsStatus[i] = new Array(1).fill(0);
                     classSplitsFracRunner[i] = new Array(1).fill(0);
                 }
-                    
                 var nextSplitOK;
                 var nextSplit;
                 var runnerOK = new Array(data.results.length);
@@ -330,17 +332,15 @@ var LiveResults;
                     // Status: 0 = bad, 1 = OK, 2 = unknown 
                     {
                         split = parseInt(data.results[j].splits[classSplits[sp].code]);
-                        
+                        var splitFrac;
+                        var prevSplit;
+
                         if (!isNaN(split)) // split exist
                         {
                             classSplitsStatus[sp][j] = 1; // OK
-
-                            var prevSplit = (sp > 0 ? parseInt(data.results[j].splits[classSplits[sp-1].code]) : 0);
-                            var splitFrac = null;
-                            if (nextSplit != null && nextSplit - prevSplit > 0)
-                                splitFrac =  (split-prevSplit)/(nextSplit-prevSplit);
-                            classSplitsFracRunner[sp][j] = splitFrac;
-
+                            prevSplit = (sp > 0 ? parseInt(data.results[j].splits[classSplits[sp-1].code]) : 0);
+                            splitFrac = (nextSplit != null && nextSplit - prevSplit > 0 ? (split-prevSplit)/(nextSplit-prevSplit) : 0);
+                            classSplitsFracRunner[sp][j] = (splitFrac > 0 && splitFrac < 1 ? splitFrac : null);
                             nextSplit = split;
                             nextSplitOK = true;
                         }
@@ -349,7 +349,7 @@ var LiveResults;
                             if (nextSplitOK)
                             {
                                 classSplitsStatus[sp][j] = 0; // Bad
-                                runnerOK[j]=false;
+                                runnerOK[j] = false;
                             }
                             else
                                 classSplitsStatus[sp][j] = 2; // Unknown
@@ -358,28 +358,58 @@ var LiveResults;
                         }
                     }
                 }
+                
                 // Summarize staus
                 for (var sp = 0; sp < classSplits.length; sp++)
                 {
                     var statusSum = 0;
                     var statusN = 0;
                     var statusAvg = 0;
-                    var fracSum = 0;
-                    var fracN = 0;
+                    var count = 0;
+                    var xSum = 0;
+                    var ySum = 0;
+                    var xySum = 0;
+                    var xxSum = 0;
+                    var a = null;
+                    var b = null;
+                    var maxFrac = 0;
+                    var minFrac = 1;
                     for (var j = 0; j < data.results.length ; j++)
+                    {
                         if (classSplitsStatus[sp][j] < 2)
                         {
                             statusSum += classSplitsStatus[sp][j];
                             statusN++;
                             if (classSplitsFracRunner[sp][j] != null)
                             {
-                                fracSum += classSplitsFracRunner[sp][j];
-                                fracN++;
+                                var frac = classSplitsFracRunner[sp][j];
+                                if (frac > maxFrac)
+                                    maxFrac = frac;
+                                if (frac < minFrac)
+                                    minFrac = frac;
+                                // Least squares variables
+                                count++;
+                                xSum  += j;
+                                ySum  += frac;
+                                xxSum += j*j;
+                                xySum += j*frac;
                             }
                         }
+                    }
                     statusAvg = (statusN >= 3 ? statusSum/statusN : 1);
                     classSplitsOK[sp] = (statusAvg > validateLim ? true : false);
-                    classSplitsFrac[sp] = (fracN > 0 ? fracSum/fracN : null);
+                    
+                    if (count > 0)
+                    {
+                        a = (count*xySum - xSum*ySum) / (count*xxSum - xSum*xSum);
+                        b = (ySum - a*xSum)/count;
+                    }
+                    var obj = {avg   : (count > 0 ? ySum/count : null), 
+                                 a   : a, 
+                                 b   : b, 
+                                 max : maxFrac, 
+                                 min : minFrac};
+                    classSplitsFrac.push(obj);
                 }
                 this.curClassSplitsOK = classSplitsOK;
 
@@ -402,39 +432,123 @@ var LiveResults;
                             nextSplit = split;
                         else // split does not exist
                         {
-                            var spi = sp-1;
-                            var splitRefi = splitRef;
-                            var frac = 0;
-                            var fraci;
-                            
-                            do 
+                            var spi = sp;
+                            splitRefi = this.splitRef(spi);
+                            var frac = Math.max(classSplitsFrac[splitRefi].min, Math.min(classSplitsFrac[splitRefi].max, classSplitsFrac[splitRefi].a*j + classSplitsFrac[splitRefi].b));
+                            var fraci = 0;
+                            prevSplit = NaN;
+                            while (isNaN(prevSplit) && spi >= 0) 
                             {
-                                fraci = classSplitsFrac[splitRefi];
-                                splitRefi = this.splitRef(spi);
-                                prevSplit = (sp > 0 ? parseInt(data.results[j].splits[classSplits[this.splitRef(splitRefi)].code]) : 0);
+                                spi--;
+                                splitRefi = (spi >= 0 ? this.splitRef(spi) : -1);
+                                prevSplit = (splitRefi >= 0 ? parseInt(data.results[j].splits[classSplits[splitRefi].code]) : 0);
                                 if(fraci != null)
                                 {
-                                    frac = fraci/(1 - frac + frac*fraci);
+                                    frac = frac/(1 - fraci + frac*fraci);
                                     prevSplit = (splitRefi >= 0 ? parseInt(data.results[j].splits[classSplits[splitRefi].code]) : 0);
                                 }
-                                spi--;
+                                fraci = (splitRefi >= 0 ? classSplitsFrac[splitRefi].avg : NaN);
                             }
-                            while (isNaN(prevSplit) && spi >= 0)
-
+                            
                             if (!isNaN(prevSplit) && nextSplit > 0)
                             {
-                                split = prevSplit + frac*(nextSplit-prevSplit);
+                                split = Math.round(prevSplit + frac*(nextSplit-prevSplit));
                                 data.results[j].splits[classSplits[splitRef].code] = split;
                                 data.results[j].splits[classSplits[splitRef].code  + "_estimate"] = true;
-                                data.results[j].splits[classSplits[splitRef].code  + "_place"] = 9;
-                                data.results[j].splits[classSplits[splitRef].code  + "_timeplus"] = 99;
+                                data.results[j].splits[classSplits[splitRef].code  + "_changed"] = 0;
+                                data.results[j].splits[classSplits[splitRef].code  + "_status"] = 0;                                  
+                                classSplitsUpdated[splitRef] = true;
+                                nextSplit = split;
                             }
                         }
                     }
                 }
+
+                // Update split places
+                for (var sp = 0; sp < this.curClassNumSplits; sp++)
+                {
+                    if (classSplitsUpdated[sp] == false)
+                        continue;
+                    data.results.sort(this.splitSort(sp, classSplits));
+
+                    var splitPlace = 1;
+                    var curSplitPlace = 1;
+                    var curSplitTime = "";
+                    var bestSplitTime = -1;
+                    var bestSplitKey = -1;
+                    var secondBest = false; 
+
+                    for (var j = 0; j < data.results.length ; j++)
+                    {
+                        var spTime = "";
+                        var raceStatus = data.results[j].status;
+                        
+                        if (data.results[j].splits[classSplits[sp].code] != undefined && data.results[j].splits[classSplits[sp].code] != "")
+                        {
+                            spTime = data.results[j].splits[classSplits[sp].code];
+                            if (bestSplitTime < 0 && (raceStatus == 0 || raceStatus == 9 || raceStatus == 10))
+					        {
+						        bestSplitTime = spTime;
+						        bestSplitKey = j;
+					        }
+          		        }
+				        if (spTime != "")
+                        {
+                            data.results[j].splits[classSplits[sp].code + "_timeplus"] = spTime - bestSplitTime;
+                            if (!secondBest && bestSplitKey>-1 && j != bestSplitKey && (raceStatus == 0 || raceStatus == 9 || raceStatus == 10))
+                            {
+                                data.results[bestSplitKey].splits[classSplits[sp].code + "_timeplus"] = bestSplitTime - spTime;
+                                secondBest = true;
+                            }
+                        }
+                        else
+                            data.results[j].splits[classSplits[sp].code + "_timeplus"] = -2;
+
+                        if (curSplitTime != spTime)
+                            curSplitPlace = splitPlace;
+                            
+                        if (raceStatus == 0 || raceStatus == 9 || raceStatus == 10)
+                        {
+                            data.results[j].splits[classSplits[sp].code + "_place"] = curSplitPlace;
+                            splitPlace++;
+                            if (data.results[j].splits[classSplits[sp].code] != undefined && data.results[j].splits[classSplits[sp].code] != "")
+                                curSplitTime = data.results[j].splits[classSplits[sp].code];
+                        }
+                        else if (raceStatus == 13)
+                            data.results[j].splits[classSplits[sp].code + "_place"] = "F";
+                        else
+                        {
+                            data.results[j].splits[classSplits[sp].code + "_place"] = "-";
+                            data.results[j].splits[classSplits[sp].code + "_status"] = raceStatus;
+                        }
+                    }
+                }
 			}
-		};
-				
+		}
+        
+
+        // Sort function for passing times
+        AjaxViewer.prototype.splitSort = function (split, classSplits) { 
+            return function (a, b) {
+                var aUndefined = (a.splits[classSplits[split].code] == undefined || a.splits[classSplits[split].code] == "");
+                var bUndefined = (b.splits[classSplits[split].code] == undefined || b.splits[classSplits[split].code] == "");
+
+                if (aUndefined && !bUndefined)
+                    return 1;
+                if (!aUndefined && bUndefined)
+                    return -1;
+                if (aUndefined && bUndefined)
+                    return 0;
+                if (!aUndefined && !bUndefined)
+                {
+                    if (a.splits[classSplits[split].code] == b.splits[classSplits[split].code])
+                        return 0;
+                    else
+                        return (a.splits[classSplits[split].code] < b.splits[classSplits[split].code] ? -1 : 1); 
+                }
+            }
+        }
+
 		// Update qualification markings
 		AjaxViewer.prototype.updateQualLimMarks = function (results, className) {
 			if (results != null && this.qualLimits != null) 
@@ -1397,13 +1511,13 @@ var LiveResults;
 					{
 						if( table.row(i).child.isShown() )
 							shownId.push(oldData[i].dbid);
-					}
+                    }
+                    this.checkRadioControls(newData);
+                    this.updateClassSplitsBest(newData);
                     this.updateResultVirtualPosition(newData.results);
                     this.predData = $.extend(true,[],newData.results);
                     if (this.qualLimits != null && this.qualLimits.length > 0)
                         this.updateQualLimMarks(newData.results, newData.className); 
-                    this.updateClassSplitsBest(newData);
-                    this.checkRadioControls(newData);
                     this.currentTable.fnClearTable();
                     this.currentTable.fnAddData(newData.results, true);
                     
@@ -1556,12 +1670,13 @@ var LiveResults;
 					else
                         this.curClassNumSplits = this.curClassSplits.length;
 
+                    this.checkRadioControls(data);
+                    this.updateClassSplitsBest(data);
                     this.updateResultVirtualPosition(data.results);
                     this.predData = $.extend(true,[],data.results);
                     if (this.qualLimits != null && this.qualLimits.length > 0)
 						this.updateQualLimMarks(data.results, data.className);
-                    this.updateClassSplitsBest(data);
-                    this.checkRadioControls(data);
+
                     var numberOfRunners = data.results.length;
                     $('#numberOfRunners').html(numberOfRunners);
                     
