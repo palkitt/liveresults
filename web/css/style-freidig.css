@@ -93,11 +93,15 @@ tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-righ
 tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-bottom: 1px solid white; border-top: 5px solid black;}
 tr.green_row_firststarter td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
-/* Yellow row for inside calltime at start and not OK at finish */
+/* Yellow row for inside calltime at start, not OK at finish, highlight for speaker */
 tr.yellow_row { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: none}
 tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: 2px solid grey;}
 tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+
+/* Yellow row highlight for speaker, first non qualifyer */
+tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.yellow_row_fnq td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow and green cells for messages */
 .yellow_cell {color: black; background-color: #FFFF00 !important;}
@@ -136,7 +140,7 @@ table.dataTable td {vertical-align: top;}
 .legtime {color: dimgrey;}
 .besttime {color: red;}
 .bib {color: grey; font-style: normal;}
-.estimate {color: grey; font-style: italic;}
+.estimate {color:grey; font-style: normal;}
 
 /*predicted times  */
 td i { color: grey;}
