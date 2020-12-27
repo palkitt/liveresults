@@ -19,12 +19,13 @@ using Microsoft.CSharp;
 namespace LiveResults.Client
 {
     
-    public class ETimingParser : IExternalSystemResultParser
+    public class ETimingParser : IExternalSystemResultParserEtiming
     {
         private readonly IDbConnection m_connection;
         public event ResultDelegate OnResult;
         public event LogMessageDelegate OnLogMessage;
         public event DeleteIDDelegate OnDeleteID;
+        public event DeleteUnusedIDDelegate OnDeleteUnusedID;
         private bool m_createRadioControls;
         private bool m_continue;
         private int  m_sleepTime;
@@ -74,6 +75,12 @@ namespace LiveResults.Client
             if (OnDeleteID != null)
                 OnDeleteID(runnerID);
         }
+        private void FireOnDeleteUnusedID(List<int> usedIds)
+        {
+            if (OnDeleteUnusedID != null)
+                OnDeleteUnusedID(usedIds);
+        }
+
 
         Thread m_monitorThread;
 
@@ -501,17 +508,18 @@ namespace LiveResults.Client
                     List<int> unknownRunners = new List<int>();
 
                     string lastRunner = "";
-                                      
+                    List<int> usedID = new List<int>();
+
                     cmdSplits.CommandText = baseSplitCommand;
                     ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
 
                     cmdInd.CommandText = baseCommandInd;
-                    ParseReader(cmdInd, ref splitList, false, out lastRunner);
+                    ParseReader(cmdInd, ref splitList, false, usedID, out lastRunner, out usedID);
 
                     if (isRelay)
                     {
                         cmdRelay.CommandText = baseCommandRelay;
-                        ParseReader(cmdRelay, ref splitList, true, out lastRunner);
+                        ParseReader(cmdRelay, ref splitList, true, usedID, out lastRunner, out usedID);
                     }
 
                     FireLogMsg("eTiming Monitor thread started");
@@ -520,22 +528,25 @@ namespace LiveResults.Client
                     WebClient client = new WebClient();
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
-                    int maxSleepTimeMessage = 9;
+                    int maxSleepTimeMessage = 9; // Time between reading messages
                     int sleepTimeMessage = maxSleepTimeMessage;
+                    int maxSleepTimeCleanupID = 60; // Time between cleaning/deleting unused IDs
+                    int sleepTimeCleanupID = maxSleepTimeCleanupID;
 
                     /* ***            Main loop        ***
                     /* ************************************/
-                                          
+
                     while (m_continue)
                     {
                         try
                         {
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
-                            ParseReader(cmdInd, ref splitList, false, out lastRunner);
+                            ParseReader(cmdInd, ref splitList, false, new List<int>(), out lastRunner, out usedID);
                             if (isRelay)
-                                ParseReader(cmdRelay, ref splitList, true, out lastRunner);
+                                ParseReader(cmdRelay, ref splitList, true, usedID, out lastRunner, out usedID);
                             lastRunner = "Finished parsing runners";
                             handleUnknowns(splitList, ref unknownRunners);
+
                             sleepTimeMessage += m_sleepTime;
                             if (m_updateMessage && sleepTimeMessage >= maxSleepTimeMessage)
                             {
@@ -543,6 +554,14 @@ namespace LiveResults.Client
                                 UpdateEcardFromMessages(messageServer, client);
                                 sleepTimeMessage = 0;
                             }
+
+                            sleepTimeCleanupID += m_sleepTime;
+                            if (sleepTimeCleanupID >= maxSleepTimeCleanupID)
+                            {
+                                FireOnDeleteUnusedID(usedID);
+                                sleepTimeCleanupID = 0;
+                            }
+                            
                             Thread.Sleep(1000*m_sleepTime);
                         }
                         catch (Exception ee)
@@ -575,9 +594,10 @@ namespace LiveResults.Client
         }
         
 
-        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, bool isRelay, out string lastRunner)
+        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, bool isRelay, List<int> usedIDin, out string lastRunner, out List<int> usedIDout)
         {
             lastRunner = "";
+            usedIDout = usedIDin;
 
             Dictionary<int, RelayTeam> RelayTeams;
             RelayTeams = new Dictionary<int, RelayTeam>();
@@ -603,6 +623,8 @@ namespace LiveResults.Client
                         else
                             runnerID = eTimeID;
                         runnerID += m_IdOffset;
+
+                        usedIDout.Add(runnerID);
                         
                         status = reader["status"] as string;
                         if ((status == "V") || (status == "C")) // Skip if free or not entered  

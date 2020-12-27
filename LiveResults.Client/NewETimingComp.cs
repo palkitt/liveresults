@@ -36,13 +36,13 @@ namespace LiveResults.Client
             txtSleepTime.Text = "3";
             txtIdOffset.Text = "0";
             txtOsOffset.Text = "0";
-            chkOneLineRelayRes.Checked = false;
-            chkTwoEcards.Checked = false;
+            //chkOneLineRelayRes.Checked = false;
+            //chkTwoEcards.Checked = false;
+            //chkDeleteEmmaIDs.Checked = false;
             chkLapTimes.Checked = false;
             chkEventorID.Checked = false;
             chkUpdateMessage.Checked = false;
             RetreiveSettings();
-            chkDeleteEmmaIDs.Checked = false;
         }
 
         [Serializable]
@@ -368,15 +368,15 @@ namespace LiveResults.Client
             
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
                     SleepTime, 
-                    chkCreateRadioControls.Checked, chkOneLineRelayRes.Checked, MSSQL, chkTwoEcards.Checked, 
+                    chkCreateRadioControls.Checked, false, MSSQL, false, 
                     chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
                     chkUpdateMessage.Checked, CompID, OsOffset);
-            monForm.SetParser(pars as IExternalSystemResultParser);
+            monForm.SetParser(pars as IExternalSystemResultParserEtiming);
             monForm.CompetitionID = CompID;
             monForm.Organizer = cmp.Organizer;
             monForm.CompDate  = cmp.CompDate;
             monForm.useEventorID = chkEventorID.Checked;
-            monForm.deleteEmmaIDs = chkDeleteEmmaIDs.Checked;
+            monForm.deleteEmmaIDs = false; // chkDeleteEmmaIDs.Checked;
             monForm.clientIDpars = cmp.eTimingIDpars;
             monForm.IdOffset = IdOffset;
             monForm.OsOffset = OsOffset;
@@ -438,6 +438,19 @@ namespace LiveResults.Client
 
         }
 
-        
+        private void chkCreateRadioControls_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtCompName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkEventorID_CheckedChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }

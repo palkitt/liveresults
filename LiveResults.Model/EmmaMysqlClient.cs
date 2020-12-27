@@ -131,7 +131,7 @@ namespace LiveResults.Model
         private MySqlConnection m_connection;
         private readonly string m_connStr;
         private int m_compID;
-        private readonly Dictionary<int,Runner> m_runners;
+        public readonly Dictionary<int,Runner> m_runners;
         private readonly Dictionary<string, RadioControl[]> m_classRadioControls;
         private readonly List<DbItem> m_itemsToUpdate;
         private readonly bool m_assignIDsInternally;

@@ -1,6 +1,7 @@
 ﻿using LiveResults.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 #if _CASPARCG_
@@ -11,7 +12,7 @@ namespace LiveResults.Client
 {
     public partial class FrmETimingMonitor : Form
     {
-        IExternalSystemResultParser m_Parser;
+        IExternalSystemResultParserEtiming m_Parser;
         List<EmmaMysqlClient> m_Clients = new List<EmmaMysqlClient>();
 
         public FrmETimingMonitor()
@@ -38,12 +39,13 @@ namespace LiveResults.Client
         public int IdOffset;
         public int OsOffset;
         
-        public void SetParser(IExternalSystemResultParser parser)
+        public void SetParser(IExternalSystemResultParserEtiming parser)
         {
             m_Parser = parser;
             m_Parser.OnLogMessage += new LogMessageDelegate(m_Parser_OnLogMessage);
             m_Parser.OnResult += new ResultDelegate(m_Parser_OnResult);
             m_Parser.OnDeleteID += new DeleteIDDelegate(m_Parser_OnDeleteID);
+            m_Parser.OnDeleteUnusedID += new DeleteUnusedIDDelegate(m_Parser_OnDeleteUnusedID);
             m_Parser.OnRadioControl += (name, code, className, order) =>
             {
                 foreach (EmmaMysqlClient client in m_Clients)
@@ -59,6 +61,22 @@ namespace LiveResults.Client
             {
               client.DeleteID(runnerID);
             }
+        }
+
+        void m_Parser_OnDeleteUnusedID(List<int> usedIds)
+        {
+            if (usedIds == null)
+                return;
+
+            foreach (EmmaMysqlClient client in m_Clients)
+            {
+                var dbRunners = client.m_runners.Values;
+                foreach (var dbRunner in dbRunners.ToList())
+                {
+                    if (!usedIds.Contains(dbRunner.ID))
+                        client.DeleteID(dbRunner.ID);
+                }
+            }           
         }
 
 
