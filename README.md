@@ -7,10 +7,10 @@ This project is forked from Peter Löfås's [liveresults](https://github.com/pet
 
 New/improved features compared to origin project:
 
-* (New) Estimated radio times when missing time for runner. Shifting of radio times of muti pass controls that fits better with average split times of the class. 
-* (New) Auto hiding od radio control if bad quality (less than 1/3 of runners registered)
-* (New) Integration with Torgeir Aunes [ecard check program](https://github.com/Taune/EmiTagCheck)
-* (New) Dedicated speaker web page with bib number search and automatic class selection and runner highlighting
+* :new: Estimated radio times when missing time for runner. Shifting of radio times of muti pass controls that fits better with average split times of the class. 
+* :new: Auto hiding od radio control if bad quality (less than 1/3 of runners registered)
+* :new: Integration with Torgeir Aunes [ecard check program](https://github.com/Taune/EmiTagCheck)
+* :new: Dedicated speaker web page with bib number search and automatic class selection and runner highlighting
 * Interface to eTiming with support of individual, mass start, chase start, relay, lap time race. Radio control setup is read from eTiming and automatically configured. Supports both Access and SQL server 
 * Responsive web design (mobile friendly). Scroll view if too narrow view
 * Shows live rank number on approaching intermediate time and in finish with live difference to current leader
