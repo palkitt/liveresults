@@ -955,8 +955,9 @@ namespace LiveResults.Client
 
                             // Add split code to list
 
-                            lastSplitTime = split.passTime;
                             lastSplitCode = split.controlCode;
+                            if (time < 0 || passTime < time - 300) // Update only last split time when before finish with 3 sec margin
+                                lastSplitTime = split.passTime;
 
                             if (split.controlCode > 0)
                                 iSplitcode = sign * (split.controlCode + 1000);
@@ -1002,7 +1003,7 @@ namespace LiveResults.Client
                             var LegTime = new ResultStruct
                             {
                                 ControlCode = 999,
-                                Time = time - passTime
+                                Time = time - (lastSplitTime - iStartTime)
                             };
                             SplitTimes.Add(LegTime);
                         }
@@ -1141,7 +1142,7 @@ namespace LiveResults.Client
                     FireOnResult(res);
                 }
             }
-            foreach (int ecard in unknownRunnersLast) // Delete those that are still in last arrray
+            foreach (int ecard in unknownRunnersLast) // Delete those that are still in last array
                 FireOnDeleteID(-ecard);
 
             unknownRunnersLast = unknownRunners;  // Set back new list of unknown runners

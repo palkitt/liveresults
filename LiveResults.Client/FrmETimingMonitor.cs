@@ -73,7 +73,7 @@ namespace LiveResults.Client
                 var dbRunners = client.m_runners.Values;
                 foreach (var dbRunner in dbRunners.ToList())
                 {
-                    if (!usedIds.Contains(dbRunner.ID))
+                    if (!usedIds.Contains(dbRunner.ID) && dbRunner.ID >= 0)
                         client.DeleteID(dbRunner.ID);
                 }
             }           
