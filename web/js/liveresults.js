@@ -1880,6 +1880,7 @@ var LiveResults;
 					else
                         this.curClassNumSplits = this.curClassSplits.length;
 
+                    this.curClassSplitsOK = new Array(this.curClassNumSplits).fill(true);
                     this.checkRadioControls(data);
                     this.updateClassSplitsBest(data);
                     this.updateResultVirtualPosition(data.results);
