@@ -623,8 +623,6 @@ namespace LiveResults.Client
                         else
                             runnerID = eTimeID;
                         runnerID += m_IdOffset;
-
-                        usedIDout.Add(runnerID);
                         
                         status = reader["status"] as string;
                         if ((status == "V") || (status == "C")) // Skip if free or not entered  
@@ -633,7 +631,11 @@ namespace LiveResults.Client
                         classN = (reader["cclass"] as string);
                         if (!string.IsNullOrEmpty(classN))
                             classN = classN.Trim();
-                        if (classN == "NOCLAS") continue;   // Skip runner if in NOCLAS
+                        if (classN == "NOCLAS")                // Skip runner if in NOCLAS
+                            continue;   
+
+                        // Continue with adding or updating runner
+                        usedIDout.Add(runnerID);
 
                         club = (reader["tname"] as string);
                         if (!string.IsNullOrEmpty(club))
