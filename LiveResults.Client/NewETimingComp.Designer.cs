@@ -121,7 +121,7 @@
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(267, 13);
             this.label15.TabIndex = 10;
-            this.label15.Text = "Ver 21.01.2021 - https://github.com/palkitt/liveresults";
+            this.label15.Text = "Ver 27.01.2021 - https://github.com/palkitt/liveresults";
             this.label15.Click += new System.EventHandler(this.label15_Click);
             // 
             // panel1

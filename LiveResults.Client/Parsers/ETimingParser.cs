@@ -1388,7 +1388,7 @@ namespace LiveResults.Client
 
                         string status = "", givName = "", famName = "", name = "";
                         int dbid = 0, ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0, numBibs = 0;
-                        bool bibOK = false, ecardOK = true, sameBibEcard = false;
+                        bool bibOK = false, ecardOK = true, sameBibEcard = false, statusOK = false;
 
                         using (IDataReader reader = cmd.ExecuteReader())
                         {
@@ -1417,11 +1417,11 @@ namespace LiveResults.Client
                                     if (reader["ecard4"] != null && reader["ecard4"] != DBNull.Value)
                                         ecard4 = Convert.ToInt32(reader["ecard4"].ToString());
 
-                                    bibOK = (status == "I");
+                                    statusOK = (status == "I");
                                 }
                             }
                             reader.Close();
-                            bibOK = (numBibs == 1 && bibOK);
+                            bibOK = (numBibs == 1 && statusOK);
                         }
 
                         if (bibOK)
@@ -1472,23 +1472,23 @@ namespace LiveResults.Client
                             bool emiTag1 = (ecard1 < 10000 || ecard1 > 1000000);
                             bool emiTag2 = (ecard2 < 10000 || ecard2 > 1000000);
                             int ecardOld = 0;
-                            int cardToChange = 3; // Use tag 3 place if both tag holders are of same type as new tag
+                            int ecardToChange = 3; // Use tag 3 place if both tag holders are of same type as new tag
 
                             if (emiTag && emiTag1 && !emiTag2 || !emiTag && !emiTag1 && emiTag2 || ecard1 == 0)
                             {
-                                cardToChange = 1;
+                                ecardToChange = 1;
                                 ecardOld = ecard1;
                             }
                             else if (emiTag && emiTag2 && !emiTag1 || !emiTag && !emiTag2 && emiTag1 || ecard2 == 0)
                             {
-                                cardToChange = 2;
+                                ecardToChange = 2;
                                 ecardOld = ecard2;
                             }
 
-                            if (cardToChange==1)
+                            if (ecardToChange==1)
                                 cmd.CommandText = string.Format(@"UPDATE name SET ecard={0} WHERE startno={1}", ecard, bib);
                             else
-                                cmd.CommandText = string.Format(@"UPDATE name SET ecard{2}={0} WHERE startno={1}", ecard, bib, cardToChange);
+                                cmd.CommandText = string.Format(@"UPDATE name SET ecard{2}={0} WHERE startno={1}", ecard, bib, ecardToChange);
                             var update = cmd.ExecuteNonQuery();
                             if (update == 1)
                             {
@@ -1502,17 +1502,21 @@ namespace LiveResults.Client
                             {
                                 FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " not possible to change ecard " + ecard);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setecardchange&ecardchange=0&messid=" + messid);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikkenr&dbid=" + dbidMessage);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikke&dbid=" + dbidMessage);
                             }
                         }
-                        else
+                        else // !bibOK || !ecardOK
                         {
                             FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " not possible to change ecard " + ecard);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setecardchange&ecardchange=0&messid=" + messid);
-                            if (sameBibEcard) // Same bib and ecard
+                            if (sameBibEcard)           // Same bib and ecard existing
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID + "&message=Startnummer og brikke var allerede koblet&dbid=" + dbidMessage);
-                            else
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikkenr&dbid=" + dbidMessage);
+                            else if (!statusOK)         // Wrong status
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Brikkenr ikke oppdatert! Løpers status forskjellig fra Påmeldt&dbid=" + dbidMessage);
+                            else if (bibOK && !ecardOK) // ecard used by another
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Brikkenr ikke oppdatert! Brikke allerede i bruk av annen løper?&dbid=" + dbidMessage);
+                            else                        // !bibOK && ecardOK
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Brikkenr ikke oppdatert! Feil startnummer?&dbid=" + dbidMessage);
                         }
                     }
                     catch (Exception ee)
