@@ -606,7 +606,7 @@ var LiveResults;
                             if (nextSplit > 0 && !isNaN(prevSplit)) 
                             {
                                 classSplitsUpdated[spRef] = true;
-                                split = X*nextSplit + (1-X)*prevSplit;
+                                split = Math.round((X*nextSplit + (1-X)*prevSplit)/100)*100;
                                 nextSplit = split;
                                                                
                                 data.results[j].splits[classSplits[spRef].code] = split;
