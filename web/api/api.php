@@ -577,7 +577,25 @@ elseif ($_GET['method'] == 'getclassresults')
 	{
 		echo("{ \"status\": \"OK\",$br \"runners\": [$br$ret$br],$br \"hash\": \"". $hash."\"}");
 	}
-}
+  }
+  elseif ($_GET['method'] == 'getracesplitter')
+  {
+	$currentComp = new Emma($_GET['comp']);
+	$runners = $currentComp->getRunners();
+	$interval = $_GET['interval'];
+	$firststart = $_GET['firststart']; 
+
+	$ret = "Wave number,Racer bib number,First name,Last name,Email,Compensation,Category,Team";
+	foreach ($runners as $runner)
+	{
+		$bib = $runner['bib'];
+		$start = $runner['start'];
+		$wave = 1 + round(($start - $firststart)/$interval);
+		if ($wave > 0 && $bib > 0)
+			$ret .= "\n".$wave.",".$bib.",,".$runner['name'].",,,".$runner['class'].",".$runner['club'];
+	}
+	echo($ret);
+  }
 else
 {
     $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');

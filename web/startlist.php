@@ -34,15 +34,13 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.ba-hashchange.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
-
-
 <script language="javascript" type="text/javascript">
 
 var res = null;
 var Resources = null;
 var runnerStatus = null;
-
 
 $(document).ready(function()
 {
@@ -53,8 +51,8 @@ $(document).ready(function()
 	
 	$('#filterText').on('keyup', function () {
         res.filterTable();
-	}); 	
-            
+	});
+	           
 });
 	
 </script>
@@ -77,7 +75,8 @@ $(document).ready(function()
 	<tr>
 		<td align="left"><b>Startliste</b></td>
 		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-		<td align="right"><input type="text" id="filterText" placeholder="søk..." size="10"></td>
+		<td align="right">
+		<button style="height:18px" onclick="res.raceSplitterDialog();">RaceSplitter CSV</button> <input type="text" id="filterText" placeholder="søk..." size="10"></td>
 	</tr>
 	</table>
 	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >

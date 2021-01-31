@@ -1670,6 +1670,44 @@ var LiveResults;
         }
     };
 
+//Popup window for requesting RaceSplitter file
+AjaxViewer.prototype.raceSplitterDialog = function () {
+    var error = true;
+    var interval = prompt("Start generering av RaceSplitter fil. Legg inn startintervall i sekunder:", 15);
+    if (interval != null)
+    {
+        interval = interval.substring(0,250); // limit number of characters
+        if (interval.match(/\d+/g) != null);
+        {
+            interval = interval*100;
+            var firstStart = prompt("Legg inn første start (format HH:MM:SS)", "11:00:00");
+            var a = firstStart.split(':'); // split it at the colons
+            if (a.length == 3)
+            {
+                var firstStartcs  = 100*((+a[0]) * 3600 + (+a[1]) * 60 + (+a[2]));
+                if (firstStartcs >= 0)
+                {
+                    error = false;
+                    $.ajax({
+                        url: this.apiURL + "?method=getracesplitter", 
+                        data: "&comp=" + this.competitionId + "&firststart=" + firstStartcs + "&interval=" + interval,
+                        success: function (data, status, resp) {
+                            try {
+                                var blob = new Blob([data],{ type: "text/plain;charset=utf-8" });
+                                saveAs(blob,"RaceSplitter.csv")
+                            }
+                            catch (e) {} },
+                        dataType: "html"
+                    });
+                }
+            }       
+        };
+    };
+    if (error)
+        window.alert("Feil input!");
+};
+
+
        //Check for updating of class results 
         AjaxViewer.prototype.checkForClassUpdate = function () {
             var _this = this;
