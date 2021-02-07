@@ -1906,7 +1906,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     // Class properties
                     this.curClassSplits = data.splitcontrols;
                     this.curClassIsRelay = (haveSplitControls && this.curClassSplits[0].code == "0");
-                    this.curClassLapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
+                    this.curClassLapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
                     this.curClassIsUnranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})) || !(data.results.every(function check(el) {return el.status != 13;}));
                     this.curClassHasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
 					if (this.curClassSplits == null)
