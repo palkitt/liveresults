@@ -332,20 +332,27 @@ function closeTop() {
   <td width="100%">
   <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
 	<tr>
-	<td align="left" width="10%">
-	<span id="switchNavClick1" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
+		<td align="left" width="10%">
+		<span id="switchNavClick1" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div></span>
-	<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
+		<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div></span>
-	<span id="setCompactViewText" class="noUnderline">
-	        <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span>
-	</td>
-	<td align="left"><input type="text" id="searchBib" placeholder="Startno..." size="5">
-	<span id="searchRunner">Ukjent startnummer</span></td>
-	<td></td>
-	<td align="right"><a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF"></a>
-<span id="Oslo_z71e"></span></td>
+		<span id="setCompactViewText" class="noUnderline">
+	    <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span>
+		</td>
+		<td align="left"><input type="text" id="searchBib" placeholder="Startno..." size="5">
+		<span id="searchRunner">Ukjent startnummer</span></td>
+		<td></td>
+		<td align="right"><a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF"></a>
+		<span id="Oslo_z71e"></span></td>
 	</tr>
+	<tr>
+	<td colspan="4" align="right"> 
+		<a href="startlist.php?comp=<?=$currentCompNo?>"><?= $_START?></a> | <a href="radio.php?code=-1&comp=<?=$currentCompNo?>">Melde</a> | 
+		<a href="radio.php?code=1000&comp=<?=$currentCompNo?>"><?= $_CONTROLFINISH?></a> | <a href="followall.php?comp=<?=$currentCompNo?>">Alle resultat</a>
+	</td>
+	</tr>
+
   </table></td>
 </tr>
  
