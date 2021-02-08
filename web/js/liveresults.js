@@ -226,6 +226,8 @@ var LiveResults;
 						{
                             className = className.replace('Menn','M');
 							className = className.replace('Kvinner','K');
+                            className = className.replace('Gutter','G');
+                            className = className.replace('Jenter','J');
 							className = className.replace(' Vann','-V');
                             var classNameClean = className.replace(/-\d$/,'');
 							classNameClean = classNameClean.replace(/-All$/,'');
