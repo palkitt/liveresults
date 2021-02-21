@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1458,28 +1458,38 @@ var LiveResults;
                             }
             });
             columns.push({ "sTitle": "St.no", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
-                            "render": function (data,type,row) {
-                                if (type === 'display')
-                                {
-                                    if (data<0) // Relay
-                                        return  (-data/100|0) + "-" + (-data%100);
-                                    else if (data>0)    // Ordinary
-                                        return data;
-                                    else
-                                        return "";
-                                }
-                                else
-                                    return Math.abs(data);
-                            }
+                "render": function (data,type,row) {
+                    if (type === 'display')
+                    {
+                        var res;
+                        if (data<0) // Relay
+                            res = (-data/100|0) + "-" + (-data%100);
+                        else if (data>0)    // Ordinary
+                            res = data;
+                        else
+                            res = "";
+                        if (row.status==1) // DNS
+                            return ("<del>" + res + "</del>");
+                        else
+                            return res;
+                    }
+                    else
+                        return Math.abs(data);
+                }
             });
             columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
-            "render": function (data,type,row) {
+                "render": function (data,type,row) {
                 if (type === 'display')
                 {
+                    var res;                                      
                     if (data.length>_this.maxNameLength)
-                        return _this.nameShort(data);
+                        res = _this.nameShort(data);
                     else
-                        return data;
+                        res = data;
+                    if (row.status==1) // DNS
+                        return ("<del>" + res + "</del>");
+                    else
+                        return res;
                 }
                 else
                     return data;
@@ -1489,12 +1499,15 @@ var LiveResults;
                 "render": function (data,type,row) {
                     if (type === 'display')
                     {
+                        var res; 
                         if (data.length>_this.maxClubLength)
-                        {
-                            return _this.clubShort(data);
-                        }
+                            res = _this.clubShort(data);
                         else
-                            return data;
+                            res = data;
+                        if (row.status==1) // DNS
+                            return ("<del>" + res + "</del>");
+                        else
+                            return res;
                     }
                     else
                         return data;        
@@ -1503,11 +1516,25 @@ var LiveResults;
                 "render": function (data,type,row) {
                         className = row.class;
                         var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
-                        link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
-                        return link;
+                        link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";                        
+                        if (row.status==1) // DNS
+                            return ("<del>" + link + "</del>");
+                        else
+                            return link;
                     }});
                     
-            columns.push({ "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start"});         				
+            columns.push({ "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
+                "render": function (data,type,row) {
+                    if (type === 'display')
+                    {
+                        if (row.status==1) // DNS
+                            return ("<del>" + data + "</del>");
+                        else
+                            return data;
+                    }
+                    else
+                        return data;        
+                    }});        				
           
             columns.push({ "sTitle": "Brikke#1" , "sClass": "center" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
                 "render": function (data,type,row) 
@@ -1743,6 +1770,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 }
             }
         };
+        
         //handle response from class-results-update
         AjaxViewer.prototype.handleUpdateClassResults = function (newData,reqTime) {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
@@ -1750,18 +1778,13 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             if (newData.status == "OK") {
                 if (this.currentTable != null)
 				{
+					var oldData = this.currentTable.fnGetData();
                     var table = this.currentTable.api();
+ 					var shownId = [];
+					var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
+
                     var numberOfRunners = newData.results.length;
                     $('#numberOfRunners').html(numberOfRunners);
-					var oldData = this.currentTable.fnGetData();
-					var shownId = [];
-					
-					var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
-                    for (var i = 0; i < oldData.length; i++) 
-					{
-						if( table.row(i).child.isShown() )
-							shownId.push(oldData[i].dbid);
-                    }
                     this.checkRadioControls(newData);
                     this.updateClassSplitsBest(newData);
                     this.updateResultVirtualPosition(newData.results);
@@ -1770,6 +1793,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                         this.setHighlight(newData.results,this.highlightID); 
                     if (this.qualLimits != null && this.qualLimits.length > 0)
                         this.updateQualLimMarks(newData.results, newData.className);
+
                     this.currentTable.fnClearTable();
                     this.currentTable.fnAddData(newData.results, true);
                     
@@ -1782,21 +1806,16 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                             table.column(colNum).visible( this.curClassSplitsOK[sp] );
                         }
                     }                                                            
-                    for (var i = 0; i < shownId.length; i++) 
-					{
-						let j = newData.results.findIndex(s => s.dbid == shownId[i]);
-						if (j > -1)
-							table.row(j).nodes().to$().find('td:first-child').trigger('click');
-					}
+                    
 					$(table.settings()[0].nScrollBody).scrollLeft( posLeft );
                     this.updatePredictedTimes(true);
                     this.lastClassHash = newData.hash;
-
                 }
             }
             if (_this.isCompToday()) 
                 this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, this.updateInterval);
         };
+
         //Check for update in clubresults
         AjaxViewer.prototype.checkForClubUpdate = function () {
             var _this = this;
@@ -2398,27 +2417,11 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                         }
                     }
                     columns.push({ "sTitle": "VP", "bVisible": false, "aTargets": [col++], "mDataProp": "virtual_position" });
-					
-                   this.currentTable = $('#' + this.resultsDiv).dataTable({
-                        "scrollX": this.scrollView,
-						"fixedColumns": {leftColumns: 2 },
-						"responsive": !(this.scrollView),
-                        "bPaginate": false,
-                        "bLengthChange": false,
-                        "bFilter": false,
-                        "bSort": true,
-                        "bInfo": false,
-                        "bAutoWidth": false,
-                        "aaData": data.results,
-                        "aaSorting": [[col - 1, "asc"]],
-                        "aoColumnDefs": columns,
-                        "fnPreDrawCallback": function (oSettings) {
-                            if (oSettings.aaSorting[0][0] != col - 1) {
-                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\"><img class=\"eR\" style=\"vertical-align: middle\" src=\"images/cleardot.gif\" border=\"0\"/> " + _this.resources["_RESETTODEFAULT"] + "</a>");
-                            }
-                        },
-                        "bDestroy": true
-                    });
+                    $('#' + this.resultsDiv).height(0);
+                    
+                    var newData = $.extend(true,[],data.results);
+                    this.makeResTable(columns, data.results);
+                    this.lastClassHash = data.hash;
 
                     // Scroll to initial view and hide class column if necessary
                     if (this.scrollView && data.results[0].progress != undefined) // Scroll to inital view
@@ -2448,12 +2451,136 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                             }
                         }
                     }
-                    this.lastClassHash = data.hash;
+                    
+                    clearTimeout(this.updatePredictedTimeTimer);
                     this.updatePredictedTimes(true);
+                    _this.animateResultsTable(data.results);
+
+
+                    setTimeout(function(){ 
+                        //_this.makeResTable(columns, newData);
+                        //_this.currentTable.fnClearTable();
+                        //_this.currentTable.fnAddData(newData);
+                        _this.updatePredictedTimes(true);                        
+                        _this.startPredictionUpdate();
+                    }, 500);
+                                
                 }
             }
         };
 
+        AjaxViewer.prototype.makeResTable = function(columns, results){
+            var col = columns.length;
+            this.currentTable = $('#' + this.resultsDiv).dataTable({
+                "scrollX": this.scrollView,
+                "fixedColumns": {leftColumns: 2 },
+                "responsive": !(this.scrollView),
+                "bPaginate": false,
+                "bLengthChange": false,
+                "bFilter": false,
+                "bSort": true,
+                "bInfo": false,
+                "bAutoWidth": false,
+                "aaData": results,
+                "aaSorting": [[col - 1, "asc"]],
+                "aoColumnDefs": columns,
+                "fnPreDrawCallback": function (oSettings) {
+                    if (oSettings.aaSorting[0][0] != col - 1) {
+                        $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\"><img class=\"eR\" style=\"vertical-align: middle\" src=\"images/cleardot.gif\" border=\"0\"/> " + _this.resources["_RESETTODEFAULT"] + "</a>");
+                    }
+                },
+                "bDestroy": true
+            });
+        }
+
+
+        AjaxViewer.prototype.animateResultsTable = function(data){
+            // Animate an update to the result table
+            // Based on jQuery Animated Table Sorter 0.2.2 (02/25/2013)
+            // http://www.matanhershberg.com/plugins/jquery-animated-table-sorter/
+            
+            // oldData, newData
+            const animTime = 400;
+            var table = $('#' + this.resultsDiv);
+            var fixedTable = $(table.DataTable().cell(0,0).fixedNode()).parents('table')[0];
+            var height = $(table).outerHeight(true);
+            var width  = $(table).outerWidth(true);
+            var widthFixed = $(fixedTable).outerWidth(true);
+
+            // Set table to position relative
+            $(table).css('position', 'relative');
+            $(fixedTable).css('position', 'relative');
+            
+            // Set each td's width
+            var column_widths = new Array();
+            $(table).find('tr:first-child th').each(function() {column_widths.push($(this).outerWidth(true)-9);});
+            $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
+            $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});;        
+            
+            // Set each row's height and width
+            $(table).find('tr').each(function() { $(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
+            $(fixedTable).find('tr').each(function() { $(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
+         
+            // Set table height and width
+			$(table).height(height).width(width);
+            $(fixedTable).height(height).width(widthFixed);
+
+			// Put all the rows back in place
+            var rowPos = new Array(); // Beginning distance of rows from the table body in pixels
+            $(table).find('tr').each(function(index) {
+                rowPos.push($(this).position().top);
+                $(this).css('top', rowPos[index]);
+            });
+            $(fixedTable).find('tr').each(function(index) {
+                $(this).css('top', rowPos[index]);
+            });
+
+            // Set table cells position to absolute
+            $(table).find('tbody tr').each(function(index,el) {$(this).css('position', 'absolute');});
+            $(fixedTable).find('tbody tr').each(function(index,el) {$(this).css('position', 'absolute');});
+
+            // Animation
+            /*
+            $(table).find('tr').each(function(index) {
+                var row = $(table).find("tbody tr").eq(index); // tableApi.row(3).node();
+                var rowFix = $(fixedTable).find("tbody tr").eq(index);
+                $(row).css('z-index',1).css('top', 0).animate({top : rowPos[index+1]},animTime);
+                $(rowFix).css('z-index',2).css('top', 0).animate({top : rowPos[index+1]},animTime);
+            });
+            */
+            var row1 = $(table).find("tbody tr").eq(2); 
+            var rowFix1 = $(fixedTable).find("tbody tr").eq(2);
+            var row2 = $(table).find("tbody tr").eq(8); 
+            var rowFix2 = $(fixedTable).find("tbody tr").eq(8);
+
+            $(row1).css('z-index',1).css('top', rowPos[9]).animate({top : rowPos[3]},animTime);
+            $(rowFix1).css('z-index',2).css('top', rowPos[9]).animate({top : rowPos[3]},animTime);
+            $(row2).css('z-index',1).css('top', rowPos[3]).animate({top : rowPos[9]},animTime);
+            $(rowFix2).css('z-index',2).css('top', rowPos[3]).animate({top : rowPos[9]},animTime);
+            
+            
+            setTimeout(function(){
+                $(table).find('tr').each(function(index,el) {
+                    $(this).css('position', '');
+                    $(this).css('top', '');
+                });
+                $(fixedTable).find('tr').each(function(index,el) {
+                    $(this).css('position', '');
+                    $(this).css('top', '');
+                });
+                $(table).find('tr td, tr th').each(function() {
+                    $(this).css('min-width','');
+                });
+                $(fixedTable).find('tr td, tr th').each(function() { 
+                    $(this).css('min-width','');
+                });
+                $(table).width('100%');
+            },animTime);                       
+       
+        }
+        
+        
+        
         AjaxViewer.prototype.setHighlight = function(results,highlightID){
             for (var j=0; j<results.length; j++)
             {
