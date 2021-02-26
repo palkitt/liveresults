@@ -38,6 +38,7 @@ var LiveResults;
             this.inactiveTimer = 0;
             this.radioHighTime = 15;
             this.highTime = 60;
+            this.animTime = 900;
             this.classUpdateTimer = null;
             this.passingsUpdateTimer = null;
             this.resUpdateTimeout = null;
@@ -790,7 +791,7 @@ var LiveResults;
         }
 
 		// Updated predicted times
-		AjaxViewer.prototype.updatePredictedTimes = function (refresh = false) {
+		AjaxViewer.prototype.updatePredictedTimes = function (refresh = false, animate = true) {
             if (this.currentTable != null && this.curClassName != null && this.serverTimeDiff && this.updateAutomatically && this.isCompToday()) {
                 try {
                     var dt = new Date();			
@@ -1096,23 +1097,30 @@ var LiveResults;
                             }
                         }
                     }
+                    
                     // Update virtal positions if predRank is on
                     if (predRank && !this.curClassIsMassStart && !this.curClassIsRelay && !this.curClassIsUnranked && !this.curClassLapTimes)
                     {
+                        oldData = $.extend(true,[],data); // Take a copy before updating VP
                         this.updateResultVirtualPosition(tmpPredData, false);
-                        var updateVP = false;
+                        var updatedVP = false;
                         for (var j = 0; j < tmpPredData.length; j++)
                         {
                             if (data[tmpPredData[j].idx].virtual_position != tmpPredData[j].virtual_position)
                             {
-                                updateVP = true;    
+                                updatedVP = true;    
                                 data[tmpPredData[j].idx].virtual_position = tmpPredData[j].virtual_position;
                             }
                         }
-                        if (updateVP && this.qualLimits != null && this.qualLimits.length > 0)                        
+                        if (updatedVP && this.qualLimits != null && this.qualLimits.length > 0)                        
                             this.updateQualLimMarks(data, this.curClassName); 
-                        if (updateVP)
+                        
+                        if (updatedVP)
+                        {
                             table.rows().invalidate().draw();
+                            if (animate)
+                                this.animateResultsTable(oldData, data, this.animTime, true);
+                        }
                     }
                     if (modifiedTable || refresh)
                         table.fixedColumns().update();
@@ -1778,9 +1786,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             if (newData.status == "OK") {
                 if (this.currentTable != null)
 				{
-					var oldData = this.currentTable.fnGetData();
+                    var oldResults = $.extend(true,[],this.currentTable.fnGetData());
                     var table = this.currentTable.api();
- 					var shownId = [];
 					var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
 
                     var numberOfRunners = newData.results.length;
@@ -1805,16 +1812,149 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                             colNum = offset + 2*sp;
                             table.column(colNum).visible( this.curClassSplitsOK[sp] );
                         }
-                    }                                                            
-                    
+                    }     
 					$(table.settings()[0].nScrollBody).scrollLeft( posLeft );
-                    this.updatePredictedTimes(true);
                     this.lastClassHash = newData.hash;
+
+                    clearTimeout(this.updatePredictedTimeTimer);
+                    this.updatePredictedTimes(true, false);
+                    var newResults = this.currentTable.fnGetData();                    
+                    this.animateResultsTable(oldResults, newResults, this.animTime);
+
+                    setTimeout(function(){                    
+                        _this.updatePredictedTimes(true);                        
+                        _this.startPredictionUpdate();
+                    }, _this.animTime);
                 }
             }
             if (_this.isCompToday()) 
                 this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, this.updateInterval);
         };
+
+        AjaxViewer.prototype.animateResultsTable = function(oldResults, newResults, animTime, predRank = false){
+            // Animate an update to the result table
+            // Based on jQuery Animated Table Sorter 0.2.2 (02/25/2013)
+            // http://www.matanhershberg.com/plugins/jquery-animated-table-sorter/
+            
+            var table = $('#' + this.resultsDiv);
+            var tableDT = this.currentTable.api();
+            var order = tableDT.order();
+            var numCol = tableDT.settings().columns()[0].length;
+            if (order[0][0] != numCol-1) // Not sorted on virtual position
+                return; 
+            var fixedTable = $(table.DataTable().cell(0,0).fixedNode()).parents('table')[0];
+            var height = $(table).outerHeight(true);
+            var width  = $(table).outerWidth(true);
+            var widthFixed = $(fixedTable).outerWidth(true);
+
+            // Make list of virtual postions and progress for all runners 
+            var previousVP = new Object();
+            var progress = new  Object();
+            for (var i=0; i<oldResults.length;i++){
+                previousVP[oldResults[i].dbid] = oldResults[i].virtual_position;
+                progress[oldResults[i].dbid] = oldResults[i].progress;
+            }
+
+            var oldVPArray = new Object();     // List of old VPs
+            var updProg    = new Object(); // List of progress change
+            for (var i=0; i<newResults.length;i++){
+                var dbid = newResults[i].dbid;
+                if (previousVP[dbid] == undefined) // New entry
+                {
+                    oldVPArray[newResults[i].virtual_position] = newResults[i].virtual_position; 
+                    updProg[newResults[i].virtual_position] = false;                
+                }
+                else if (previousVP[dbid] != newResults[i].virtual_position)
+                {
+                    oldVPArray[newResults[i].virtual_position] = previousVP[dbid];
+                    updProg[newResults[i].virtual_position] = (progress[newResults[i].dbid] != newResults[i].progress);
+                }
+            }
+            if (Object.keys(oldVPArray).length == 0) // No modifications
+                return;
+
+            // Set table to position relative
+            $(table).css('position', 'relative');
+            $(fixedTable).css('position', 'relative');
+            
+            // Set each td's width
+            var column_widths = new Array();
+            $(table).find('tr:first-child th').each(function() {column_widths.push($(this).outerWidth(true)-9);});
+            $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
+            $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});;        
+            
+            // Set each row's height and width
+            $(table).find('tr').each(function() {$(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
+            $(fixedTable).find('tr').each(function() {$(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
+         
+            // Set table height and width
+			$(table).height(height).width(width);
+            $(fixedTable).height(height).width(widthFixed);
+
+			// Put all the rows back in place
+            var rowPos = new Array(); // Beginning distance of rows from the table body in pixels
+            $(table).find('tr').each(function(index) {
+                var offset = ( $(this).hasClass('new_fnq') || $(this).hasClass('firstnonqualifier') ? -1 : 0)
+                rowPos.push($(this).position().top + offset);
+                $(this).css('top', rowPos[index]);
+            });
+            $(fixedTable).find('tr').each(function(index) {
+                $(this).css('top', rowPos[index]);
+            });
+
+            // Set table cells position to absolute
+            $(table).find('tbody tr').each(function() {
+                $(this).css('position', 'absolute');
+                $(this).css('z-index', '-2');
+            });
+            $(fixedTable).find('tbody tr').each(function() {
+                $(this).css('position', 'absolute');
+                $(this).css('z-index', '-1');
+            });
+
+            // Animation         
+            for (var newVPStr in oldVPArray) {
+                var newVP   = parseInt(newVPStr);
+                var oldVP   = oldVPArray[newVP];
+                var oldPos  = rowPos[oldVP+1];
+                var newPos  = rowPos[newVP+1];
+                var row     = $(table).find("tbody tr").eq(newVP);          
+                var rowFix  = $(fixedTable).find("tbody tr").eq(newVP);   
+                var zind;
+                var zindFix;
+                if (predRank) // Updates from predictions of running times 
+                {
+                    zind    = (newVP > oldVP ? 2 : 0);
+                    zindFix = zind + 1;
+                }
+                else // Updates from new data from server
+                {
+                    zind    = (updProg[newVP] ? 2 : 0);
+                    zindFix = zind + 1;
+                }
+                             
+                $(row).css('top', oldPos).animate({top : newPos},{duration: animTime,start: function(){
+                    $(row).css('z-index',zind);}});
+                $(rowFix).css('top', oldPos).animate({top : newPos},{duration: animTime,start: function(){
+                    $(rowFix).css('z-index',zindFix);}});
+                
+                setTimeout(function(){
+                    $(table).find('tr').each(function() {
+                        $(this).css('position', '');
+                        $(this).css('top', '');
+                        $(this).css('z-index','');
+                        });
+                    $(table).find('tr td, tr th').each(function() { $(this).css('min-width',''); });
+                    $(table).width('100%');
+                    $(fixedTable).find('tr').each(function() {
+                        $(this).css('position', '');
+                        $(this).css('top', '');
+                        $(this).css('z-index','');
+                        });
+                    $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',''); });   
+                    }, animTime);
+            };                 
+        }
 
         //Check for update in clubresults
         AjaxViewer.prototype.checkForClubUpdate = function () {
@@ -1954,7 +2094,6 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     
                     var columns = Array();
                     var col = 0;
-                    var i;
 					var fullView = !this.compactView;
                     var isRelayClass = this.relayClasses.includes(data.className);
 
@@ -2236,7 +2375,6 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                         });
                     }
 
-                    var timecol = col;
                     columns.push({
                         "sTitle": this.resources["_CONTROLFINISH"] + "&nbsp;&nbsp;",
 						"responsivePriority": 2,
@@ -2418,10 +2556,27 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     }
                     columns.push({ "sTitle": "VP", "bVisible": false, "aTargets": [col++], "mDataProp": "virtual_position" });
                     $('#' + this.resultsDiv).height(0);
-                    
-                    var newData = $.extend(true,[],data.results);
-                    this.makeResTable(columns, data.results);
-                    this.lastClassHash = data.hash;
+
+                    this.currentTable = $('#' + this.resultsDiv).dataTable({
+                        "scrollX": this.scrollView,
+                        "fixedColumns": {leftColumns: 2 },
+                        "responsive": !(this.scrollView),
+                        "bPaginate": false,
+                        "bLengthChange": false,
+                        "bFilter": false,
+                        "bSort": true,
+                        "bInfo": false,
+                        "bAutoWidth": false,
+                        "aaData": data.results,
+                        "aaSorting": [[col - 1, "asc"]],
+                        "aoColumnDefs": columns,
+                        "fnPreDrawCallback": function (oSettings) {
+                            if (oSettings.aaSorting[0][0] != col - 1) {
+                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\"><img class=\"eR\" style=\"vertical-align: middle\" src=\"images/cleardot.gif\" border=\"0\"/> " + _this.resources["_RESETTODEFAULT"] + "</a>");
+                            }
+                        },
+                        "bDestroy": true
+                    });
 
                     // Scroll to initial view and hide class column if necessary
                     if (this.scrollView && data.results[0].progress != undefined) // Scroll to inital view
@@ -2451,135 +2606,12 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                             }
                         }
                     }
-                    
-                    clearTimeout(this.updatePredictedTimeTimer);
-                    this.updatePredictedTimes(true);
-                    _this.animateResultsTable(data.results);
 
-
-                    setTimeout(function(){ 
-                        //_this.makeResTable(columns, newData);
-                        //_this.currentTable.fnClearTable();
-                        //_this.currentTable.fnAddData(newData);
-                        _this.updatePredictedTimes(true);                        
-                        _this.startPredictionUpdate();
-                    }, 500);
-                                
+                    this.lastClassHash = data.hash;                    
+                    this.updatePredictedTimes(true,false);
                 }
             }
         };
-
-        AjaxViewer.prototype.makeResTable = function(columns, results){
-            var col = columns.length;
-            this.currentTable = $('#' + this.resultsDiv).dataTable({
-                "scrollX": this.scrollView,
-                "fixedColumns": {leftColumns: 2 },
-                "responsive": !(this.scrollView),
-                "bPaginate": false,
-                "bLengthChange": false,
-                "bFilter": false,
-                "bSort": true,
-                "bInfo": false,
-                "bAutoWidth": false,
-                "aaData": results,
-                "aaSorting": [[col - 1, "asc"]],
-                "aoColumnDefs": columns,
-                "fnPreDrawCallback": function (oSettings) {
-                    if (oSettings.aaSorting[0][0] != col - 1) {
-                        $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\"><img class=\"eR\" style=\"vertical-align: middle\" src=\"images/cleardot.gif\" border=\"0\"/> " + _this.resources["_RESETTODEFAULT"] + "</a>");
-                    }
-                },
-                "bDestroy": true
-            });
-        }
-
-
-        AjaxViewer.prototype.animateResultsTable = function(data){
-            // Animate an update to the result table
-            // Based on jQuery Animated Table Sorter 0.2.2 (02/25/2013)
-            // http://www.matanhershberg.com/plugins/jquery-animated-table-sorter/
-            
-            // oldData, newData
-            const animTime = 400;
-            var table = $('#' + this.resultsDiv);
-            var fixedTable = $(table.DataTable().cell(0,0).fixedNode()).parents('table')[0];
-            var height = $(table).outerHeight(true);
-            var width  = $(table).outerWidth(true);
-            var widthFixed = $(fixedTable).outerWidth(true);
-
-            // Set table to position relative
-            $(table).css('position', 'relative');
-            $(fixedTable).css('position', 'relative');
-            
-            // Set each td's width
-            var column_widths = new Array();
-            $(table).find('tr:first-child th').each(function() {column_widths.push($(this).outerWidth(true)-9);});
-            $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
-            $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});;        
-            
-            // Set each row's height and width
-            $(table).find('tr').each(function() { $(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
-            $(fixedTable).find('tr').each(function() { $(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
-         
-            // Set table height and width
-			$(table).height(height).width(width);
-            $(fixedTable).height(height).width(widthFixed);
-
-			// Put all the rows back in place
-            var rowPos = new Array(); // Beginning distance of rows from the table body in pixels
-            $(table).find('tr').each(function(index) {
-                rowPos.push($(this).position().top);
-                $(this).css('top', rowPos[index]);
-            });
-            $(fixedTable).find('tr').each(function(index) {
-                $(this).css('top', rowPos[index]);
-            });
-
-            // Set table cells position to absolute
-            $(table).find('tbody tr').each(function(index,el) {$(this).css('position', 'absolute');});
-            $(fixedTable).find('tbody tr').each(function(index,el) {$(this).css('position', 'absolute');});
-
-            // Animation
-            /*
-            $(table).find('tr').each(function(index) {
-                var row = $(table).find("tbody tr").eq(index); // tableApi.row(3).node();
-                var rowFix = $(fixedTable).find("tbody tr").eq(index);
-                $(row).css('z-index',1).css('top', 0).animate({top : rowPos[index+1]},animTime);
-                $(rowFix).css('z-index',2).css('top', 0).animate({top : rowPos[index+1]},animTime);
-            });
-            */
-            var row1 = $(table).find("tbody tr").eq(2); 
-            var rowFix1 = $(fixedTable).find("tbody tr").eq(2);
-            var row2 = $(table).find("tbody tr").eq(8); 
-            var rowFix2 = $(fixedTable).find("tbody tr").eq(8);
-
-            $(row1).css('z-index',1).css('top', rowPos[9]).animate({top : rowPos[3]},animTime);
-            $(rowFix1).css('z-index',2).css('top', rowPos[9]).animate({top : rowPos[3]},animTime);
-            $(row2).css('z-index',1).css('top', rowPos[3]).animate({top : rowPos[9]},animTime);
-            $(rowFix2).css('z-index',2).css('top', rowPos[3]).animate({top : rowPos[9]},animTime);
-            
-            
-            setTimeout(function(){
-                $(table).find('tr').each(function(index,el) {
-                    $(this).css('position', '');
-                    $(this).css('top', '');
-                });
-                $(fixedTable).find('tr').each(function(index,el) {
-                    $(this).css('position', '');
-                    $(this).css('top', '');
-                });
-                $(table).find('tr td, tr th').each(function() {
-                    $(this).css('min-width','');
-                });
-                $(fixedTable).find('tr td, tr th').each(function() { 
-                    $(this).css('min-width','');
-                });
-                $(table).width('100%');
-            },animTime);                       
-       
-        }
-        
-        
         
         AjaxViewer.prototype.setHighlight = function(results,highlightID){
             for (var j=0; j<results.length; j++)
