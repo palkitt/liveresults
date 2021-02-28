@@ -50,7 +50,7 @@ table.dataTable th.left {
 
 
 
-table.dataTable tr.odd { background-color: #DFDFDF; }
+table.dataTable tr.odd { background-color: #E6E6E6; }
 table.dataTable tr.even { background-color: white; }
 
 .sorting_asc {
