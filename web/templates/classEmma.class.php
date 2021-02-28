@@ -575,31 +575,36 @@ class Emma
 	
     function getRunners()
     {
-       $ret = Array();
-       $q = "SELECT runners.name, runners.club, runners.class, runners.ecard1, runners.ecard2, runners.bib, results.time, results.dbid, results.control 
-	   FROM runners, results  
-	   WHERE results.dbid = runners.dbid AND runners.tavid = ". $this->m_CompId ." AND results.tavid = ". $this->m_CompId . " AND (results.control=100) 
-	   ORDER BY bib, dbid";
-    
-	   if ($result = mysqli_query($this->m_Conn, $q))
-       {
-	      while($row = mysqli_fetch_array($result))
-	      {   
-		     $dbId = $row['dbid'];
-		     if (!isset($ret[$dbId]))
-		     {
-		        $ret[$dbId] = Array();
-			    $ret[$dbId]["dbid"] = $dbId;
-			    $ret[$dbId]["name"] = $row['name'];
-			    $ret[$dbId]["club"] = $row['club'];
-			    $ret[$dbId]["class"] = $row['class'];
-	 		    $ret[$dbId]["ecard1"] = $row['ecard1'];
-			    $ret[$dbId]["ecard2"] = $row['ecard2'];
-                $ret[$dbId]["bib"] = $row['bib'];
-			    $ret[$dbId]["start"] = "0";
-		     }
-		     if ($row['control']=100)
-			    $ret[$dbId]["start"] = $row['time'];
+		$ret = Array();
+		$q = "SELECT runners.name, runners.club, runners.class, runners.ecard1, runners.ecard2, runners.bib, results.time, results.dbid, results.control, results2.status 
+		FROM runners, results
+		LEFT JOIN results AS results2 ON results.DbID=results2.DbID
+		WHERE results.dbid = runners.dbid AND runners.tavid = ". $this->m_CompId ." AND results.tavid = ". $this->m_CompId . " AND (results.control=100) 
+			  AND results2.tavid = results.tavid AND (results2.control=1000)
+		ORDER BY bib, dbid";
+	 
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+		   while($row = mysqli_fetch_array($result))
+		   {   
+			  $dbId = $row['dbid'];
+			  if (!isset($ret[$dbId]))
+			  {
+				 $ret[$dbId] = Array();
+				 $ret[$dbId]["dbid"] = $dbId;
+				 $ret[$dbId]["name"] = $row['name'];
+				 $ret[$dbId]["club"] = $row['club'];
+				 $ret[$dbId]["class"] = $row['class'];
+				 $ret[$dbId]["ecard1"] = $row['ecard1'];
+				 $ret[$dbId]["ecard2"] = $row['ecard2'];
+				 $ret[$dbId]["bib"] = $row['bib'];
+				 $ret[$dbId]["status"] = "0";
+				 $ret[$dbId]["start"] = "0";
+			  }
+			  if ($row['results.control']=100)
+				 $ret[$dbId]["start"] = $row['time'];
+			  if ($row['results2.control']=1000)
+				 $ret[$dbId]["status"] = $row['status'];
 	      }
 	      mysqli_free_result($result);
        } 

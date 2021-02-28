@@ -565,7 +565,7 @@ elseif ($_GET['method'] == 'getclassresults')
 	{
 		if (!$first)
 			$ret .=",$br";
-		$ret .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".formatTime($runner['start'],0,$RunnerStatus)."\", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
+		$ret .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".formatTime($runner['start'],0,$RunnerStatus)."\", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
 		$first = false;
 	}
 	$hash = MD5($ret);
