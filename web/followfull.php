@@ -53,10 +53,12 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.ba-hashchange.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
@@ -352,8 +354,6 @@ function closeTop() {
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
   	<td align="right" width="16%">
 	  <span class="noUnderline"><a href="images/LiveResGuide.jpg">?</a> 
-	                            <a href="javascript:changeFontSize(1);">&CirclePlus;</a> 
-								<a href="javascript:changeFontSize(-1);">&CircleMinus;</a></span> 
 	<span id="setCompactViewText" class="noUnderline">
 	                            <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
 	</tr>
