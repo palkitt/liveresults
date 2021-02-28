@@ -38,7 +38,7 @@ var LiveResults;
             this.inactiveTimer = 0;
             this.radioHighTime = 15;
             this.highTime = 60;
-            this.animTime = 900;
+            this.animTime = 800;
             this.classUpdateTimer = null;
             this.passingsUpdateTimer = null;
             this.resUpdateTimeout = null;
@@ -812,6 +812,7 @@ var LiveResults;
                     var rank;
                     var timeDiffStr;
                     var elapsedTimeStr;
+                    const predOffset = 0;
                     const predRank = true;
                     
                     var firstOKSplit = this.curClassNumSplits; 
@@ -992,6 +993,16 @@ var LiveResults;
                                             table.cell( i, 6 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(timeDiffStr);
 									}
 									table.cell( i, 4 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(elapsedTimeStr);
+
+                                    // Insert finish time if predict ranking is on
+                                    if (predRank && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
+                                        data[i].progress == 0 && (data[i].status == 0 || data[i].status == 9 || data[i].status == 10))
+                                    {
+                                        tmpPredData[i].result = elapsedTime - predOffset;
+                                        tmpPredData[i].progress = 100;
+                                        tmpPredData[i].place = "p";
+                                        tmpPredData[i].status = 0;
+                                    }
                                 }
                                 else
                                 {
@@ -1056,10 +1067,9 @@ var LiveResults;
                                             table.cell( i, timeDiffCol ).data(timeDiffStr);
                                         
                                         // Update predData: Insert current time if longer than a runner with larger index / virtual position
-                                        const predOffset = 0;
                                         if (predRank && !this.curClassIsRelay && !this.curClassLapTimes)
                                         {
-                                            if (nextSplit == 0 && this.rankedStartlist)
+                                            if (nextSplit == 0 && this.rankedStartlist) // First split
                                                 {   
                                                     tmpPredData[i].splits[this.curClassSplits[0].code] = elapsedTime - predOffset;
                                                     tmpPredData[i].progress = 100.0 * 1/(this.curClassNumSplits + 1);
@@ -1072,7 +1082,7 @@ var LiveResults;
                                                     if (data[j].status != 0 && data[j].status != 9 && data[j].status != 10)
                                                         break                                                
                                                     if (nextSplit == this.curClassNumSplits && data[j].status == 0 && elapsedTime - predOffset > parseInt(data[j].result))
-                                                    {
+                                                    {   // Finish
                                                         tmpPredData[i].result = elapsedTime - predOffset;
                                                         tmpPredData[i].progress = 100;
                                                         tmpPredData[i].place = "p";
@@ -1119,7 +1129,7 @@ var LiveResults;
                         {
                             table.rows().invalidate().draw();
                             if (animate)
-                                this.animateResultsTable(oldData, data, this.animTime, true);
+                                this.animateResultsTable(oldData, data, _this.animTime, true);
                         }
                     }
                     if (modifiedTable || refresh)
@@ -1819,7 +1829,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     clearTimeout(this.updatePredictedTimeTimer);
                     this.updatePredictedTimes(true, false);
                     var newResults = this.currentTable.fnGetData();                    
-                    this.animateResultsTable(oldResults, newResults, this.animTime);
+                    this.animateResultsTable(oldResults, newResults, _this.animTime);
 
                     setTimeout(function(){                    
                         _this.updatePredictedTimes(true);                        
@@ -1828,7 +1838,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 }
             }
             if (_this.isCompToday()) 
-                this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, this.updateInterval);
+                this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, _this.updateInterval);
         };
 
         AjaxViewer.prototype.animateResultsTable = function(oldResults, newResults, animTime, predRank = false){
@@ -1914,12 +1924,14 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
 
             // Animation         
             for (var newVPStr in oldVPArray) {
-                var newVP   = parseInt(newVPStr);
-                var oldVP   = oldVPArray[newVP];
-                var oldPos  = rowPos[oldVP+1];
-                var newPos  = rowPos[newVP+1];
-                var row     = $(table).find("tbody tr").eq(newVP);          
-                var rowFix  = $(fixedTable).find("tbody tr").eq(newVP);   
+                var newVP    = parseInt(newVPStr);
+                var oldVP    = oldVPArray[newVP];
+                var oldPos   = rowPos[oldVP+1];
+                var newPos   = rowPos[newVP+1];
+                var row      = $(table).find("tbody tr").eq(newVP);          
+                var rowFix   = $(fixedTable).find("tbody tr").eq(newVP); 
+                var oldBkCol = (oldVP % 2 == 0 ? '#E6E6E6' : 'white');
+                var newBkCol = (newVP % 2 == 0 ? '#E6E6E6' : 'white');
                 var zind;
                 var zindFix;
                 if (predRank) // Updates from predictions of running times 
@@ -1932,25 +1944,18 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     zind    = (updProg[newVP] ? 2 : 0);
                     zindFix = zind + 1;
                 }
-                             
-                $(row).css('top', oldPos).animate({top : newPos},{duration: animTime,start: function(){
-                    $(row).css('z-index',zind);}});
-                $(rowFix).css('top', oldPos).animate({top : newPos},{duration: animTime,start: function(){
-                    $(rowFix).css('z-index',zindFix);}});
+                $(row).css('background-color',oldBkCol).css('top', oldPos).animate({backgroundColor: newBkCol, top : newPos},
+                    {duration: animTime, start: function(){$(row).css('z-index',zind);}});
+                $(rowFix).css('background-color',oldBkCol).css('top', oldPos).animate({backgroundColor: newBkCol, top : newPos},
+                    {duration: animTime, start: function(){$(rowFix).css('z-index',zindFix);}});
                 
                 setTimeout(function(){
                     $(table).find('tr').each(function() {
-                        $(this).css('position', '');
-                        $(this).css('top', '');
-                        $(this).css('z-index','');
-                        });
+                        $(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
                     $(table).find('tr td, tr th').each(function() { $(this).css('min-width',''); });
                     $(table).width('100%');
                     $(fixedTable).find('tr').each(function() {
-                        $(this).css('position', '');
-                        $(this).css('top', '');
-                        $(this).css('z-index','');
-                        });
+                        $(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
                     $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',''); });   
                     }, animTime);
             };                 
