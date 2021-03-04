@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -955,7 +955,8 @@ var LiveResults;
                         }
 						
 						// *** Update predicted times ***
-						if ((data[i].status == 10 || data[i].status == 9) && data[i].start != "" && data[i].start > 0) { 
+						if ((data[i].status == 10 || data[i].status == 9) && data[i].start != "" && data[i].start > 0) 
+                        { 
 							var elapsedTime = time - data[i].start;
 							if (elapsedTime>=0) 
 							{
@@ -995,7 +996,7 @@ var LiveResults;
 									table.cell( i, 4 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(elapsedTimeStr);
 
                                     // Insert finish time if predict ranking is on
-                                    if (predRank && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
+                                    if (predRank && this.rankedStartlist && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
                                         data[i].progress == 0 && (data[i].status == 0 || data[i].status == 9 || data[i].status == 10))
                                     {
                                         tmpPredData[i].result = elapsedTime - predOffset;
@@ -1129,7 +1130,7 @@ var LiveResults;
                         {
                             table.rows().invalidate().draw();
                             if (animate)
-                                this.animateResultsTable(oldData, data, _this.animTime, true);
+                                this.animateResultsTable(oldData, data, this.animTime, true);
                         }
                     }
                     if (modifiedTable || refresh)
