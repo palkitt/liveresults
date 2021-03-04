@@ -53,10 +53,12 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.7.2.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.ba-hashchange.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
@@ -317,18 +319,17 @@ function closeTop() {
   <td width="100%">
   <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
 	<tr>
-  	<td align="left" width="28%">
+  	<td align="left" width="30%">
 	<span id="switchNavClick" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
 
-	<td align="center" width="28%">
+	<td align="center" width="30%">
 	<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_LASTPASSINGS?></span></td>
 	  
-  	<td align="right"width="28%"><a href="emma/index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
+  	<td align="right"width="30%"><a href="emma/index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
-  	<td align="right" width="16%"><span id="scrollView" class="noUnderline"><a href="javascript:LiveResults.Instance.setScrollView(false);">&#8853;</a></span>&nbsp;&nbsp;
-  	<span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
+  	<td align="right" width="10%"><span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
 	</tr>
   </table></td>
 </tr>

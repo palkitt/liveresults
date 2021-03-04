@@ -96,7 +96,7 @@ class Emma
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
 		hightime,quallimits,qualclasses,multidaystage,multidayparent)
-	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',0,0,0,0,0,60,'','',0,0)") or die(mysqli_error($conn));
+	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,1,60,'','',0,0)") or die(mysqli_error($conn));
 	}
 
 	public static function CreateCompetitionFull($name,$org,$date, $email, $password, $country)

@@ -342,17 +342,17 @@ function closeTop() {
   <td width="100%">
   <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
 	<tr>
-  	<td align="left" width="28%">
+  	<td align="left" width="30%">
 	<span id="switchNavClick1" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
 
-	<td align="center" width="28%">
+	<td align="center" width="30%">
 	<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_LASTPASSINGS?></span></td>
 	  
-  	<td align="right"width="28%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
+  	<td align="right"width="30%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
-  	<td align="right" width="16%">
+  	<td align="right" width="10%">
 	  <span class="noUnderline"><a href="images/LiveResGuide.jpg">?</a> 
 	<span id="setCompactViewText" class="noUnderline">
 	                            <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>

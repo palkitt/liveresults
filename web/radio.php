@@ -28,30 +28,16 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 <link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 
-<?php
-//$debug = isset($_GET['debug']) && $_GET["debug"] == "true";
-$debug = true;
-if ($debug)
-{
-?>
-<!-- DEBUG -->
 <script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.ba-hashchange.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
-<!-- <script language="javascript" type="text/javascript" src="js/LiveResults.debug.js?rnd=<?=time()?>"></script>
--->
-<?php }
-else
-{?>
-<!-- RELEASE-->
-<script language="javascript" type="text/javascript" src="js/liveresults.min.20170627.js"></script>
-
-<?php }?>
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
 <script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
 <script language="javascript" type="text/javascript">
+
 var noSleep = new NoSleep();
 
 function enableNoSleep() {
