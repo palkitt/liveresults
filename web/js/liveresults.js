@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -120,7 +120,7 @@ var LiveResults;
         AjaxViewer.prototype.isCompToday = function () {
             var dt = new Date();
             var compDay = new Date(this.compDate);
-            return (dt.getDate() == compDay.getDate() && dt.getMonth() == compDay.getMonth() || this.local )
+            return (dt.getDate() == compDay.getDate() && dt.getMonth() == compDay.getMonth() || this.compDate == "" || this.local )
         };
 
         //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
@@ -1110,11 +1110,11 @@ var LiveResults;
                     }
                     
                     // Update virtal positions if predRank is on
+                    var updatedVP = false;
                     if (predRank && !this.curClassIsMassStart && !this.curClassIsRelay && !this.curClassIsUnranked && !this.curClassLapTimes)
                     {
                         oldData = $.extend(true,[],data); // Take a copy before updating VP
                         this.updateResultVirtualPosition(tmpPredData, false);
-                        var updatedVP = false;
                         for (var j = 0; j < tmpPredData.length; j++)
                         {
                             if (data[tmpPredData[j].idx].virtual_position != tmpPredData[j].virtual_position)
@@ -1123,21 +1123,18 @@ var LiveResults;
                                 data[tmpPredData[j].idx].virtual_position = tmpPredData[j].virtual_position;
                             }
                         }
-                        if (updatedVP && this.qualLimits != null && this.qualLimits.length > 0)                        
-                            this.updateQualLimMarks(data, this.curClassName); 
-                        
-                        if (updatedVP)
-                        {
-                            table.rows().invalidate().draw();
-                            if (animate)
-                                this.animateResultsTable(oldData, data, this.animTime, true);
-                        }
-                    }
+                    }                    
+                    // Update table if required
+                    if (updatedVP && this.qualLimits != null && this.qualLimits.length > 0)                        
+                        this.updateQualLimMarks(data, this.curClassName); 
+                    if (updatedVP)
+                        table.rows().invalidate().draw();
                     if (modifiedTable || refresh)
                         table.fixedColumns().update();
+                    if (updatedVP && animate)
+                        this.animateResultsTable(oldData, data, this.animTime, true);
                 } 
-                catch (e) {
-                }
+                catch (e) { }
             }
         };
 		
@@ -1775,8 +1772,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                 var reqTime = new Date();
                                 reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.updateInterval);
                             }
-                            catch (e) {
-                            }
+                            catch (e) {  }
                             _this.handleUpdateClassResults(data,reqTime);
                         },
                         error: function () {
@@ -1828,12 +1824,12 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     this.lastClassHash = newData.hash;
 
                     clearTimeout(this.updatePredictedTimeTimer);
-                    this.updatePredictedTimes(true, false);
+                    this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
                     var newResults = this.currentTable.fnGetData();                    
                     this.animateResultsTable(oldResults, newResults, _this.animTime);
 
                     setTimeout(function(){                    
-                        _this.updatePredictedTimes(true);                        
+                        _this.updatePredictedTimes(true); // With refresh                         
                         _this.startPredictionUpdate();
                     }, _this.animTime);
                 }
@@ -1935,9 +1931,9 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 var newBkCol = (newVP % 2 == 0 ? '#E6E6E6' : 'white');
                 var zind;
                 var zindFix;
-                if (predRank) // Updates from predictions of running times 
+                if (predRank) // Update from predictions of running times 
                 {
-                    zind    = (newVP > oldVP ? 2 : 0);
+                    zind    = (newVP == 0 ? 3 : (newVP > oldVP ? 2 : 0));
                     zindFix = zind + 1;
                 }
                 else // Updates from new data from server
@@ -2614,7 +2610,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     }
 
                     this.lastClassHash = data.hash;                    
-                    this.updatePredictedTimes(true,false);
+                    this.updatePredictedTimes(true,false); // Refresh = true; Animate = false
                 }
             }
         };
