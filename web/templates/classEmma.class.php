@@ -466,7 +466,7 @@ class Emma
 			limit 100";		   
 		}
 		elseif ($code == -2) // Left in forest
-			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, runners.ecardchecked,
+			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, runners.ecardchecked, runners.dbid,
 			     results2.Time, results.Status, results.Changed, results.Control, splitcontrols.name AS pname 
 			FROM results 
 			INNER JOIN runners ON results.DbId = runners.DbId 
@@ -478,7 +478,7 @@ class Emma
 			ORDER BY runners.Club, results2.Time, runners.Name";
 		else
 		{
-			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
+			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results.dbid, results.Time, results.Status, results.Changed, 
 			results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
 			left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
 			AND runners.class = splitcontrols.classname) 
