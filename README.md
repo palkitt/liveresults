@@ -37,6 +37,6 @@ New and improved features compared to original project:
    * Qualification or price limit setting
    
 ![Mobile view](Doc/LiveResiPhone.png?raw=true "Example of mobile view")
-![Mobile animated](Doc/AnimatedResults.gif?raw=true "Example of animated mobile view")
+![Mobile animated](Doc/AnimatedResults.gif?raw=true | height=600 "Example of animated mobile view")
 ![Class view](Doc/classview.png?raw=true "Example of class view")
 ![Guide](web/images/LiveResGuide.jpg?raw=true "LiveRes guide")
