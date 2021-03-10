@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1580,7 +1580,7 @@ var LiveResults;
                     var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib/100|0) + "-" + (-row.bib%100) : row.bib ) + ") ");
                     var ecardStr = (row.ecard1 == 0 ? "-" : row.ecard1 );
                     var runnerName = bibStr + row.name;
-                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke#1 fra " 
+                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 1 fra " 
                         + ecardStr + " til '," + row.dbid + ",0,1);\">"+ ecardStr +"</button>";						
                     return link;
                 }});
@@ -1590,7 +1590,7 @@ var LiveResults;
                     var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib/100|0) + "-" + (-row.bib%100) : row.bib ) + ") ");
                     var ecardStr = (row.ecard2 == 0 ? "-" : row.ecard2 );
                     var runnerName = bibStr + row.name;
-                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke#2 fra " 
+                    var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 2 fra " 
                         + ecardStr + " til '," + row.dbid + ",0,1);\">"+ ecardStr +"</button>";						
                     return link;
                 }});
