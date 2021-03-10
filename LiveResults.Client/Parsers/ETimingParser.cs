@@ -558,7 +558,8 @@ namespace LiveResults.Client
                             sleepTimeCleanupID += m_sleepTime;
                             if (sleepTimeCleanupID >= maxSleepTimeCleanupID)
                             {
-                                FireOnDeleteUnusedID(usedID);
+                                if (m_IdOffset == 0) //  Delete only when no offset is used 
+                                    FireOnDeleteUnusedID(usedID);
                                 sleepTimeCleanupID = 0;
                             }
                             
@@ -1000,7 +1001,7 @@ namespace LiveResults.Client
                                 calcStartTime = split.changedTime - split.netTime;
                         }
 
-                        if (time > 0 && (m_lapTimes && !isRelay)) // Add lap time for last lap
+                        if (time>0 && m_lapTimes && !isRelay && lastSplitTime>0) // Add lap time for last lap
                         {
                             var LegTime = new ResultStruct
                             {
