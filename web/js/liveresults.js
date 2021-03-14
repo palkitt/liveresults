@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1875,10 +1875,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 if (order[0][0] != numCol-1) // Not sorted on virtual position
                     return; 
                 var fixedTable = $(table.DataTable().cell(0,0).fixedNode()).parents('table')[0];
-                var widthFixed = $(fixedTable).outerWidth(true);
             }
             var height = $(table).outerHeight(true);
-            var width  = $(table).outerWidth(true);
 
             // Make list of indexes and progress for all runners 
             var prevInd = new Object();
@@ -1921,7 +1919,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             $(table).find('tr').each(function() {$(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
          
             // Set table height and width
-			$(table).height(height).width(width);
+            $(table).height(height).width('100%');
 
 			// Put all the rows back in place
             var rowPos = new Array(); // Beginning distance of rows from the table body in pixels
@@ -1934,7 +1932,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             // Set table cells position to absolute
             $(table).find('tbody tr').each(function() {
                 $(this).css('position', 'absolute');
-                $(this).css('z-index', '-2');
+                $(this).css('z-index', '-4');
             });
             
             if (isResTab)
@@ -1942,11 +1940,11 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 $(fixedTable).css('position', 'relative');
                 $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});;        
                 $(fixedTable).find('tr').each(function() {$(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
-                $(fixedTable).height(height).width(widthFixed);
+                $(fixedTable).height(height).width('100%'); 
                 $(fixedTable).find('tr').each(function(index) { $(this).css('top', rowPos[index]); });
                 $(fixedTable).find('tbody tr').each(function() {
                     $(this).css('position', 'absolute');
-                    $(this).css('z-index', '-1');
+                    $(this).css('z-index', '-3');
                 });
             }
 
@@ -1965,12 +1963,12 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 var zindFix;
                 if (predRank) // Update from predictions of running times 
                 {
-                    zind    = (newInd == 0 ? 3 : (newInd > oldInd ? 2 : 0));
+                    zind    = (newInd == 0 ? 1 : (newInd > oldInd ? 0 : -2));
                     zindFix = zind + 1;
                 }
                 else // Updates from new data from server
                 {
-                    zind    = (updProg[newInd] ? 2 : 0);
+                    zind    = (updProg[newInd] ? 0 : -2);
                     zindFix = zind + 1;
                 }
                 $(row).css('background-color',oldBkCol).css('top', oldPos).animate({backgroundColor: newBkCol, top : newPos},
