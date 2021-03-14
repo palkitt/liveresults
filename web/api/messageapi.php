@@ -125,7 +125,7 @@ else if ($_GET['method'] == 'getmessages')
 		$completed = $message['completed'];
 		$changed   = $message['changed'];
 		
-		if ($dbid != $lastID) // New runner 
+		if ($dbid != $lastID || $dbid == 0) // New group 
 		{
 			$groupCompleted = $completed;
 			$groupChanged   = $changed;

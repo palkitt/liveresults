@@ -36,6 +36,20 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript">
 var noSleep = new NoSleep();
 
+var runnerStatus = Array();
+runnerStatus[0]  = "<?=$_STATUSOK?>";
+runnerStatus[1]  = "<?=$_STATUSDNS?>";
+runnerStatus[2]  = "<?=$_STATUSDNF?>";
+runnerStatus[3]  = "<?=$_STATUSMP?>";
+runnerStatus[4]  = "<?=$_STATUSDSQ?>";
+runnerStatus[5]  = "<?=$_STATUSOT?>";
+runnerStatus[6]  = "<?=$_STATUSNC?>";
+runnerStatus[9]  = "";
+runnerStatus[10]  = "";
+runnerStatus[11] =  "<?=$_STATUSWO?>";
+runnerStatus[12] = "<?=$_STATUSMOVEDUP?>";
+runnerStatus[13] = "<?=$_STATUSFINISHED?>";
+
 function enableNoSleep() {
   noSleep.enable();
   document.removeEventListener('click', enableNoSleep, false);
@@ -64,6 +78,7 @@ $(document).ready(function()
 	mess = new Messages.AjaxViewer(<?= $_GET['comp']?>);
 	mess.compName = "<?=$currentComp->CompName()?>";
 	mess.compDate  = "<?=$currentComp->CompDate()?>";
+	mess.runnerStatus = runnerStatus;
 
 	mess.updateMessages();
 	$('#filterText').on('keyup', function () {

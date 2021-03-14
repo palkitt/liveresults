@@ -11,6 +11,7 @@ var Messages;
             this.compDate = "";
             this.radioUpdateInterval = 5000;
             this.lastRadioPassingsUpdateHash = "";
+            this.runnerStatus = [];
             this.currentTable = null;
             this.radioData = null;
             this.showAllMessages = true;
@@ -78,6 +79,23 @@ var Messages;
             // Insert data from query
             if (data != null && data.status == "OK" && data.messages != null) 
             {
+                
+                // Make list of group times for each bib
+                var groupTimes = new Object();
+                for (var i=0; i<data.messages.length;i++)
+                {
+                    var bib = Math.abs(data.messages[i].bib);
+                    if (groupTimes[bib] != undefined ) continue
+                    groupTimes[bib] = data.messages[i].groupchanged;
+                }
+                // Insert group time for messages with bib number
+                for (var i=0; i<data.messages.length;i++)
+                {
+                    var bibMessage = parseInt(data.messages[i].message);
+                    if (groupTimes[bibMessage] != undefined)
+                        data.messages[i].groupchanged = groupTimes[bibMessage];
+                }
+                
                 this.radioData = data.messages;
                 this.lastRadioPassingsUpdateHash = data.hash;
                 
@@ -177,12 +195,14 @@ var Messages;
                     
                     columns.push({ "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
                             "render": function (data,type,row) {
-                                if (data == 10)
-                                    return "Påmeldt";
+                                if (row.dbid <= 0)
+                                    return ""
                                 else if (data == 9)
-                                    return "Startet";
+                                    return "startet";
+                                else if (data == 10)
+                                    return "påmeldt";
                                 else
-                                    return "";
+                                    return _this.runnerStatus[data];
                             }});
                     
                     columns.push({ "sTitle": "Tidsp.", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "changed",
@@ -236,8 +256,7 @@ var Messages;
             var table = this.currentTable.api();
             var data = this.currentTable.fnGetData();
             var lastID = null;
-            var lastEcard1 = null;
-            var lastEcard2 = null;
+            var lastChanged = null;
 
             table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
                 var data = this.data();
@@ -257,11 +276,11 @@ var Messages;
                 else
                     $(table.row(rowIdx).node()).show();
                 
-                if (data.dbid != lastID && Math.abs(data.dbid) != lastEcard1 && Math.abs(data.dbid) != lastEcard2)
+                //if (data.dbid != lastID && Math.abs(data.dbid) != lastEcard1 && Math.abs(data.dbid) != lastEcard2 && data.groupchanged != lastChanged)
+                if (data.groupchanged != lastChanged && data.dbid != lastID)
                     $(table.row(rowIdx).node()).addClass('firstnonqualifier');
                 lastID =  data.dbid;
-                lastEcard1 = data.ecard1;
-                lastEcard2 = data.ecard2;
+                lastChanged = data.groupchanged;
 
             } );
         };

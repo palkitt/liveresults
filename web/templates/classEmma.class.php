@@ -3,10 +3,10 @@ $CHARSET = 'utf-8';
 
 class Emma
 {
-   public static $db_server = "127.0.0.1";
-   public static $db_database = "liveres";
-   public static $db_user = "root";
-   public static $db_pw= "";
+	public static $db_server = "127.0.0.1";
+	public static $db_database = "liveres";
+	public static $db_user = "root";
+	public static $db_pw= "";
 	
    public static $MYSQL_CHARSET = "utf8";
    var $m_CompId;
@@ -836,10 +836,11 @@ class Emma
     	$ret = Array();
 		$q = "SELECT messages.messid, messages.dbid, messages.changed, messages.message, messages.dns, messages.completed,
 			runners.name, runners.class, runners.club, runners.ecard1, runners.ecard2, runners.bib, 
-			results.control, results.time, results.status
+			results.time, results2.status
 			FROM messages 
 			LEFT JOIN runners ON (runners.dbid=messages.dbid AND runners.tavid=".$this->m_CompId.") 
 			LEFT JOIN results ON (results.dbid=messages.dbid AND results.tavid=".$this->m_CompId." AND results.control=100)
+			LEFT JOIN results AS results2 ON (results2.dbid=messages.dbid AND results2.tavid=".$this->m_CompId." AND results2.control=1000)
 			WHERE messages.tavid = ". $this->m_CompId ." 
 			ORDER BY messages.dbid, messages.completed, messages.changed DESC";
 
