@@ -792,6 +792,7 @@ var LiveResults;
 
 		// Updated predicted times
 		AjaxViewer.prototype.updatePredictedTimes = function (refresh = false, animate = true) {
+            var curClassActive = false;
             if (this.currentTable != null && this.curClassName != null && this.serverTimeDiff && this.updateAutomatically && this.isCompToday()) {
                 try {
                     var dt = new Date();			
@@ -955,152 +956,156 @@ var LiveResults;
                         }
 						
 						// *** Update predicted times ***
-						if ((data[i].status == 10 || data[i].status == 9) && data[i].start != "" && data[i].start > 0) 
-                        { 
-							var elapsedTime = time - data[i].start;
-							if (elapsedTime>=0) 
-							{
-                                if (elapsedTime < 200 || refresh)
+						if (data[i].status == 10 || data[i].status == 9)
+                        {
+                            curClassActive = true;
+                            if (data[i].start != "" && data[i].start > 0) 
+                            { 
+                                var elapsedTime = time - data[i].start;
+                                if (elapsedTime>=0) 
                                 {
-                                    table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
-                                    modifiedTable = true;
-                                }                            
-                                if(this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked)
-                                {
-                                    var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
-                                    var elapsedTotalTimeStr = "<i>(" + this.formatTime(elapsedTotalTime, 0, false) + ")</i>";
-                                    table.cell( i, totalTimeCol).data(elapsedTotalTimeStr);
-                                }  
-
-								elapsedTimeStr = (this.curClassIsRelay && !this.compactView ? "<br/><i>" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
-                                if (this.curClassSplits == null || this.curClassSplits.length == 0){
-                                // No split controls
-                                    if (!this.curClassIsUnranked)
+                                    if (elapsedTime < 200 || refresh)
                                     {
-										if (this.curClassSplitsBests[0][0]>0){
-											rank = this.findRank(this.curClassSplitsBests[0],elapsedTime);
-											if (rank > 1)
-                                                elapsedTimeStr += "<i> (" + rank + ")</i>";
+                                        table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
+                                        modifiedTable = true;
+                                    }                            
+                                    if(this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked)
+                                    {
+                                        var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
+                                        var elapsedTotalTimeStr = "<i>(" + this.formatTime(elapsedTotalTime, 0, false) + ")</i>";
+                                        table.cell( i, totalTimeCol).data(elapsedTotalTimeStr);
+                                    }  
+
+                                    elapsedTimeStr = (this.curClassIsRelay && !this.compactView ? "<br/><i>" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
+                                    if (this.curClassSplits == null || this.curClassSplits.length == 0){
+                                    // No split controls
+                                        if (!this.curClassIsUnranked)
+                                        {
+                                            if (this.curClassSplitsBests[0][0]>0){
+                                                rank = this.findRank(this.curClassSplitsBests[0],elapsedTime);
+                                                if (rank > 1)
+                                                    elapsedTimeStr += "<i> (" + rank + ")</i>";
+                                                else
+                                                    elapsedTimeStr += "<i> (..)</i>";	
+                                                timeDiff = elapsedTime - this.curClassSplitsBests[0][0]; 
+                                                timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
+                                            }
                                             else
-                                                elapsedTimeStr += "<i> (..)</i>";	
-											timeDiff = elapsedTime - this.curClassSplitsBests[0][0]; 
-											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
-										}
-										else
-											timeDiffStr = "<i>(..)<\i>";
-                                        if (this.isMultiDayEvent && !this.compactView)
-                                            elapsedTimeStr += "<br/>" + timeDiffStr;
-                                        else
-                                            table.cell( i, 6 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(timeDiffStr);
-									}
-									table.cell( i, 4 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(elapsedTimeStr);
-
-                                    // Insert finish time if predict ranking is on
-                                    if (predRank && this.rankedStartlist && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
-                                        data[i].progress == 0 && (data[i].status == 0 || data[i].status == 9 || data[i].status == 10))
-                                    {
-                                        tmpPredData[i].result = elapsedTime - predOffset;
-                                        tmpPredData[i].progress = 100;
-                                        tmpPredData[i].place = "p";
-                                        tmpPredData[i].status = 0;
-                                    }
-                                }
-                                else
-                                {
-                                // Have split controls. Find next split to reach
-                                // Insert default value being the first OK split and last OK
-                                    var lastOKSplit = this.curClassNumSplits;
-                                    nextSplit       = firstOKSplit;
-
-                                    for (var sp = this.curClassNumSplits-1; sp >= 0; sp--)
-                                    {
-                                        var spRef = this.splitRef(sp);
-                                        if (!isNaN(parseInt(data[i].splits[this.curClassSplits[spRef].code]))) {
-                                            nextSplit = lastOKSplit;
-                                            break;
+                                                timeDiffStr = "<i>(..)<\i>";
+                                            if (this.isMultiDayEvent && !this.compactView)
+                                                elapsedTimeStr += "<br/>" + timeDiffStr;
+                                            else
+                                                table.cell( i, 6 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(timeDiffStr);
                                         }
-                                        if (this.curClassSplitsOK[sp])
-                                            lastOKSplit = sp;
+                                        table.cell( i, 4 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(elapsedTimeStr);
+
+                                        // Insert finish time if predict ranking is on
+                                        if (predRank && this.rankedStartlist && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
+                                            data[i].progress == 0 && (data[i].status == 0 || data[i].status == 9 || data[i].status == 10))
+                                        {
+                                            tmpPredData[i].result = elapsedTime - predOffset;
+                                            tmpPredData[i].progress = 100;
+                                            tmpPredData[i].place = "p";
+                                            tmpPredData[i].status = 0;
+                                        }
                                     }
-                                    
-									if (this.curClassIsUnranked){
-										table.cell( i, offset + nextSplit*2 ).data(elapsedTimeStr);
-										table.cell( i, offset + this.curClassNumSplits*2 ).data("<i>(..)<\i>");
-									}
                                     else
                                     {
-										if (this.curClassSplitsBests[nextSplit][0]==0)
-										   timeDiffStr = "<i>(..)<\i>";
-										else{
-                                            if (this.curClassIsRelay)
-                                            {
-												timeDiff = time - this.curClassSplitsBests[nextSplit][0];
-												rank = this.findRank(this.curClassSplitsBests[nextSplit],time);
-											}
-                                            else
-                                            {
-												timeDiff = elapsedTime - this.curClassSplitsBests[nextSplit][0];
-                                                rank = this.findRank(this.curClassSplitsBests[nextSplit],elapsedTime);                                                                                                
-											}
-                                            
-                                            var rankStr = "";
-											if (rank > 1)
-                                                rankStr = " <i>(" + rank + ")</i>";
-                                            else
-                                                rankStr = " <i>(..)</i>";											
-											timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
-                                            if (nextSplit==this.curClassNumSplits)
-												elapsedTimeStr += rankStr;
-											else
-                                                timeDiffStr += rankStr;
-                                        }
-										
-										timeDiffCol = offset + nextSplit*2;
-										if (nextSplit==this.curClassNumSplits) // Approach finish
-											timeDiffCol += 2;
-                                        
-                                            // Display elapsed time
-										if (!this.compactView && !this.curClassIsRelay && !this.curClassLapTimes && nextSplit==this.curClassNumSplits)
-                                            elapsedTimeStr += "<br/>" + timeDiffStr;                                      
-										table.cell( i, offset + this.curClassNumSplits*2 ).data(elapsedTimeStr);
-                                        // Display time diff
-										if (this.compactView || this.curClassIsRelay || nextSplit!=this.curClassNumSplits || this.curClassLapTimes)
-                                            table.cell( i, timeDiffCol ).data(timeDiffStr);
-                                        
-                                        // Update predData: Insert current time if longer than a runner with larger index / virtual position
-                                        if (predRank && !this.curClassIsRelay && !this.curClassLapTimes)
+                                    // Have split controls. Find next split to reach
+                                    // Insert default value being the first OK split and last OK
+                                        var lastOKSplit = this.curClassNumSplits;
+                                        nextSplit       = firstOKSplit;
+
+                                        for (var sp = this.curClassNumSplits-1; sp >= 0; sp--)
                                         {
-                                            if (nextSplit == 0 && this.rankedStartlist) // First split
-                                                {   
-                                                    tmpPredData[i].splits[this.curClassSplits[0].code] = elapsedTime - predOffset;
-                                                    tmpPredData[i].progress = 100.0 * 1/(this.curClassNumSplits + 1);
-                                                    tmpPredData[i].place = "";
+                                            var spRef = this.splitRef(sp);
+                                            if (!isNaN(parseInt(data[i].splits[this.curClassSplits[spRef].code]))) {
+                                                nextSplit = lastOKSplit;
+                                                break;
+                                            }
+                                            if (this.curClassSplitsOK[sp])
+                                                lastOKSplit = sp;
+                                        }
+                                        
+                                        if (this.curClassIsUnranked){
+                                            table.cell( i, offset + nextSplit*2 ).data(elapsedTimeStr);
+                                            table.cell( i, offset + this.curClassNumSplits*2 ).data("<i>(..)<\i>");
+                                        }
+                                        else
+                                        {
+                                            if (this.curClassSplitsBests[nextSplit][0]==0)
+                                            timeDiffStr = "<i>(..)<\i>";
+                                            else{
+                                                if (this.curClassIsRelay)
+                                                {
+                                                    timeDiff = time - this.curClassSplitsBests[nextSplit][0];
+                                                    rank = this.findRank(this.curClassSplitsBests[nextSplit],time);
                                                 }
-                                            else
+                                                else
+                                                {
+                                                    timeDiff = elapsedTime - this.curClassSplitsBests[nextSplit][0];
+                                                    rank = this.findRank(this.curClassSplitsBests[nextSplit],elapsedTime);                                                                                                
+                                                }
+                                                
+                                                var rankStr = "";
+                                                if (rank > 1)
+                                                    rankStr = " <i>(" + rank + ")</i>";
+                                                else
+                                                    rankStr = " <i>(..)</i>";											
+                                                timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
+                                                if (nextSplit==this.curClassNumSplits)
+                                                    elapsedTimeStr += rankStr;
+                                                else
+                                                    timeDiffStr += rankStr;
+                                            }
+                                            
+                                            timeDiffCol = offset + nextSplit*2;
+                                            if (nextSplit==this.curClassNumSplits) // Approach finish
+                                                timeDiffCol += 2;
+                                            
+                                                // Display elapsed time
+                                            if (!this.compactView && !this.curClassIsRelay && !this.curClassLapTimes && nextSplit==this.curClassNumSplits)
+                                                elapsedTimeStr += "<br/>" + timeDiffStr;                                      
+                                            table.cell( i, offset + this.curClassNumSplits*2 ).data(elapsedTimeStr);
+                                            // Display time diff
+                                            if (this.compactView || this.curClassIsRelay || nextSplit!=this.curClassNumSplits || this.curClassLapTimes)
+                                                table.cell( i, timeDiffCol ).data(timeDiffStr);
+                                            
+                                            // Update predData: Insert current time if longer than a runner with larger index / virtual position
+                                            if (predRank && !this.curClassIsRelay && !this.curClassLapTimes)
                                             {
-                                                for (var j = i+1; j < data.length; j++) 
-                                                {                                                
-                                                    if (data[j].status != 0 && data[j].status != 9 && data[j].status != 10)
-                                                        break                                                
-                                                    if (nextSplit == this.curClassNumSplits && data[j].status == 0 && elapsedTime - predOffset > parseInt(data[j].result))
-                                                    {   // Finish
-                                                        tmpPredData[i].result = elapsedTime - predOffset;
-                                                        tmpPredData[i].progress = 100;
-                                                        tmpPredData[i].place = "p";
-                                                        tmpPredData[i].status = 0;
-                                                        break;
+                                                if (nextSplit == 0 && this.rankedStartlist) // First split
+                                                    {   
+                                                        tmpPredData[i].splits[this.curClassSplits[0].code] = elapsedTime - predOffset;
+                                                        tmpPredData[i].progress = 100.0 * 1/(this.curClassNumSplits + 1);
+                                                        tmpPredData[i].place = "";
                                                     }
-                                                    if (nextSplit < this.curClassNumSplits && parseInt(data[j].splits[this.curClassSplits[nextSplit].code]) > 0)
-                                                    {
-                                                        if (elapsedTime - predOffset > parseInt(data[j].splits[this.curClassSplits[nextSplit].code]))
-                                                        {
-                                                            tmpPredData[i].splits[this.curClassSplits[nextSplit].code] = elapsedTime - predOffset;
-                                                            tmpPredData[i].progress = 100.0 * (nextSplit + 1) / (this.curClassNumSplits + 1);
-                                                            tmpPredData[i].place = "";
+                                                else
+                                                {
+                                                    for (var j = i+1; j < data.length; j++) 
+                                                    {                                                
+                                                        if (data[j].status != 0 && data[j].status != 9 && data[j].status != 10)
+                                                            break                                                
+                                                        if (nextSplit == this.curClassNumSplits && data[j].status == 0 && elapsedTime - predOffset > parseInt(data[j].result))
+                                                        {   // Finish
+                                                            tmpPredData[i].result = elapsedTime - predOffset;
+                                                            tmpPredData[i].progress = 100;
+                                                            tmpPredData[i].place = "p";
+                                                            tmpPredData[i].status = 0;
+                                                            break;
                                                         }
-                                                        break;
-                                                    }
-                                                }   
+                                                        if (nextSplit < this.curClassNumSplits && parseInt(data[j].splits[this.curClassSplits[nextSplit].code]) > 0)
+                                                        {
+                                                            if (elapsedTime - predOffset > parseInt(data[j].splits[this.curClassSplits[nextSplit].code]))
+                                                            {
+                                                                tmpPredData[i].splits[this.curClassSplits[nextSplit].code] = elapsedTime - predOffset;
+                                                                tmpPredData[i].progress = 100.0 * (nextSplit + 1) / (this.curClassNumSplits + 1);
+                                                                tmpPredData[i].place = "";
+                                                            }
+                                                            break;
+                                                        }
+                                                    }   
+                                                }
                                             }
                                         }                                        
 									}
@@ -1136,6 +1141,10 @@ var LiveResults;
                 } 
                 catch (e) { }
             }
+            
+            // Stop requesting updates if class not active
+            if (!curClassActive)
+                clearTimeout(this.resUpdateTimeout);
         };
 		
 		//Find rank number
@@ -1811,6 +1820,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
         //handle response from class-results-update
         AjaxViewer.prototype.handleUpdateClassResults = function (newData,reqTime) {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+            //if (newData.rt != undefined && newData.rt > 0)
+            //    this.updateInterval = newData.rt*1000;
             var _this = this;
             if (newData.status == "OK") {
                 if (this.currentTable != null)
@@ -1856,8 +1867,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     }, _this.animTime);
                 }
             }
-            if (_this.isCompToday()) 
-                this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, _this.updateInterval);
+            this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, _this.updateInterval);
         };
 
         AjaxViewer.prototype.animateTable = function(oldData, newData, animTime, predRank = false){
