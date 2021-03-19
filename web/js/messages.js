@@ -91,7 +91,8 @@ var Messages;
                 // Insert group time for messages with bib number
                 for (var i=0; i<data.messages.length;i++)
                 {
-                    var bibMessage = parseInt(data.messages[i].message);
+                    var message = (data.messages[i].message).replace('startnummer:', '');
+                    var bibMessage = parseInt(message);
                     if (groupTimes[bibMessage] != undefined)
                         data.messages[i].groupchanged = groupTimes[bibMessage];
                 }
