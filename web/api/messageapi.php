@@ -274,7 +274,7 @@ else if ($_GET['method'] == 'getchanges')
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
 		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 	else
-		echo("{ \"status\": \"OK\",$br \"ecardchange\": [$br$retEcard$br],$br \"dns\": [$br$retDNS$br] \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo("{ \"status\": \"OK\",$br \"ecardchange\": [$br$retEcard$br],$br \"dns\": [$br$retDNS$br],$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 }
 else
 {
