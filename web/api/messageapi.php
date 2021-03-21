@@ -221,6 +221,61 @@ else if ($_GET['method'] == 'getecardchange')
 	else
 		echo("{ \"status\": \"OK\",$br \"ecardchange\": [$br$ret$br],$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 }
+else if ($_GET['method'] == 'getchanges')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime);
+	
+	// Runners with ecard change
+	$runnersEcard = $currentComp->getEcardChange();
+	$retEcard = "";
+	$first = true;
+	foreach ($runnersEcard as $runner)
+	{
+		$messid    = $runner['messid'];
+		$dbid      = $runner['dbid'];
+		$changed   = $runner['changed'];
+		$name      = $runner['name'];
+		$message   = str_replace("\\","",$runner['message']);
+		$message   = str_replace("\"","",$message);
+
+		if ($name != null)
+			$ecard = (int) filter_var($name, FILTER_SANITIZE_NUMBER_INT);
+		else if ($dbid<0)
+		    $ecard = -$dbid;
+
+		$bib   = (int) filter_var($message, FILTER_SANITIZE_NUMBER_INT);
+		if (!$ecard || !$bib)
+			continue;
+
+		if (!$first)
+			$retEcard .=",$br";
+		$retEcard .= "{\"messid\": ".$messid.", \"dbid\": ".$dbid.", \"changed\": \"".$changed."\", \"ecard\": \"".$ecard."\", \"bib\": \"".$bib."\"}";
+		$first = false;
+	}
+	
+	// Runners with DNS
+	$runnersDNS = $currentComp->getDNS();
+	$retDNS = "";
+	$first = true;
+	foreach ($runnersDNS as $runner)
+	{
+		$messid    = $runner['messid'];
+		$dbid      = $runner['dbid'];
+		$changed   = $runner['changed'];
+		if (!$first)
+			$retDNS .=",$br";
+		$retDNS .= "{\"messid\": ".$messid.", \"dbid\": ".$dbid.", \"changed\": \"".$changed."\"}";
+		$first = false;
+	}
+	
+	// Return results
+	$hash = MD5($retEcard.$retDNS);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+	else
+		echo("{ \"status\": \"OK\",$br \"ecardchange\": [$br$retEcard$br],$br \"dns\": [$br$retDNS$br] \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
 else
 {
     insertHeader($refreshTime,false);
