@@ -202,7 +202,7 @@ class Emma
 	public static function GetNumConnect()
 	{
 		$conn = self::openConnection();
-		$sql = "SELECT COUNT(*) AS num FROM connectTimes";
+		$sql = "SELECT COUNT(*) AS num FROM connecttimes";
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -338,7 +338,7 @@ class Emma
 		$window = 60;    // [s] Time window in which number of connects is counted
 		$tFilt  = 120;   // [s] Filter constant for updating updateFactor
 
-		$q = "SELECT numConnect, time, updateFactor FROM lastConnect";
+		$q = "SELECT numConnect, time, updateFactor FROM lastconnect";
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			$last = mysqli_fetch_array($result);
@@ -359,21 +359,21 @@ class Emma
 			$time    = time();
 			
 			// Update this connect and delete outdated
-			$q = "INSERT INTO connectTimes VALUES (".$this->m_CompId.", ".$time.")"; 
+			$q = "INSERT INTO connecttimes VALUES (".$this->m_CompId.", ".$time.")"; 
 			if (!mysqli_query($this->m_Conn, $q))
 			{
 				die(mysqli_error($this->m_Conn));
 				return $UF;
 			}
 			$timeOutdate = $time - $window;
-			$q = "DELETE FROM connectTimes WHERE time < ".$timeOutdate;
+			$q = "DELETE FROM connecttimes WHERE time < ".$timeOutdate;
 			if (!mysqli_query($this->m_Conn, $q))
 			{
 				die(mysqli_error($this->m_Conn));
 				return $UF;
 			}
 
-			$q = "SELECT COUNT(*) AS num FROM connectTimes";	
+			$q = "SELECT COUNT(*) AS num FROM connecttimes";	
 			if ($result = mysqli_query($this->m_Conn, $q))
 			{
 				$array = mysqli_fetch_array($result);
@@ -390,7 +390,7 @@ class Emma
 			$UFi     = $UF0*$targetW/max(1,$num);        // Ideal update factor
 			$UF      = max($UFmin,min($UFmax,$UF0+($UFi-$UF0)*$dt/$tFilt)); // New factor
 
-			$q     = "UPDATE lastConnect SET numConnect=".$num.", updateFactor=".$UF.", time=".$time." WHERE ID = 0";
+			$q     = "UPDATE lastconnect SET numConnect=".$num.", updateFactor=".$UF.", time=".$time." WHERE ID = 0";
 			if (!mysqli_query($this->m_Conn, $q))
 				die(mysqli_error($this->m_Conn));
 			

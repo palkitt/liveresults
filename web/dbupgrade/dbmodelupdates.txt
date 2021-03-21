@@ -47,3 +47,18 @@ alter table login add column rankedstartlist tinyint(1) DEFAULT NULL;
 
 -- addition 2020-09-19
 alter table runners add column ecardchecked tinyint(1) DEFAULT NULL;
+
+-- addition 2021-03-21
+CREATE TABLE `connecttimes` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `time` int(11) NOT NULL DEFAULT 0
+) DEFAULT CHARSET=utf8;
+
+CREATE TABLE `lastconnect` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `updateFactor` FLOAT NOT NULL DEFAULT 1,
+  `numConnect` int(11) NOT NULL DEFAULT 0,
+  `time` int(11) NOT NULL DEFAULT 0
+) DEFAULT CHARSET=utf8;
+
+INSERT INTO `lastconnect` VALUES (DEFAULT, DEFAULT, DEFAULT, DEFAULT);

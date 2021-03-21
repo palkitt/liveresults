@@ -86,3 +86,17 @@ CREATE TABLE `messages` (
   `completed` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`messid`)
 ) DEFAULT CHARSET=utf8;
+
+CREATE TABLE `connecttimes` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `time` int(11) NOT NULL DEFAULT 0
+) DEFAULT CHARSET=utf8;
+
+CREATE TABLE `lastconnect` (
+  `id` int(11) NOT NULL DEFAULT 0,
+  `updateFactor` FLOAT NOT NULL DEFAULT 1,
+  `numConnect` int(11) NOT NULL DEFAULT 0,
+  `time` int(11) NOT NULL DEFAULT 0
+) DEFAULT CHARSET=utf8;
+
+INSERT INTO `lastconnect` VALUES (DEFAULT, DEFAULT, DEFAULT, DEFAULT);
