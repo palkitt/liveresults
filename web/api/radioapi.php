@@ -14,11 +14,6 @@ include_once("../templates/classEmma.class.php");
 
 $RunnerStatus = Array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUSWO, "12" => $_STATUSMOVEDUP, "9" => $_STATUSNOTSTARTED,"0" => $_STATUSOK, "3" => $_STATUSMP, "4" => $_STATUSDSQ, "5" => $_STATUSOT, "9" => "", "10" => "", "13" => $_STATUSFINISHED);
 
-header('content-type: application/json; charset='.$CHARSET);
-header('Access-Control-Allow-Origin: *');
-header('cache-control: max-age='+($refreshTime-1));
-header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($refreshTime-1)));
-
 if (!isset($_GET['method']))
     $_GET['method'] = null;
 
@@ -28,6 +23,7 @@ $br = $pretty ? "\n" : "";
 if ($_GET['method'] == 'getradiopassings')
 {
 	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime); 
 	$code = $_GET['code'];
 	$calltime = $_GET['calltime'];
 	$maxNum = 40; 
@@ -177,22 +173,23 @@ if ($_GET['method'] == 'getradiopassings')
 	{
 		$hash = MD5($ret);
 		if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
-			echo("{ \"status\": \"NOT MODIFIED\"}");
+			echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 		else
-			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$hash\"}");
+			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$hash\", \"rt\": $RT}");
 	}
 	else
 	{
 		if ($num == 0)
-			echo("{ \"status\": \"NOT MODIFIED\"}");
+			echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 		else
-			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$changedTime\"}");
+			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$changedTime\", \"rt\": $RT}"); 
 	}
 }
 
 else
 {
-    $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+    insertHeader($refreshTime,false);
+	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
     header($protocol . ' ' . 400 . ' Bad Request');
 	echo("{ \"status\": \"ERR\", \"message\": \"No method given\"}");
 }
@@ -234,6 +231,26 @@ function formatTime($time,$status,$code,& $RunnerStatus)
          return str_pad("".$minutes,2,"0",STR_PAD_LEFT) .":".str_pad("".$seconds,2,"0",STR_PAD_LEFT);
      }
    }
+}
+
+function insertHeader($refreshTime,$update=true)
+{
+	global $CHARSET;
+	if ($update)
+	{
+		global $currentComp;
+		$UF = $currentComp->GetUpdateFactor();
+		$RT = round($refreshTime/$UF); // Updated refresh time
+	}
+	else
+		$RT = $refreshTime;
+		
+	header('content-type: application/json; charset='.$CHARSET);
+	header('Access-Control-Allow-Origin: *');
+	header('cache-control: max-age='+ ($RT-1));
+	header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($RT-1)));
+
+	return $RT;
 }
 
 function urlRawDecode($raw_url_encoded)

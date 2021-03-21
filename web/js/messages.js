@@ -5,7 +5,7 @@ var Messages;
     var AjaxViewer = /** @class */ (function () {
         function AjaxViewer(competitionId) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.compName = "";
             this.compDate = "";
@@ -75,6 +75,9 @@ var Messages;
                 el.offsetHeight; /* trigger reflow */
                 el.style.animation = null; 
             var _this = this;
+
+            if (data.rt != undefined && data.rt > 0)
+                this.radioUpdateInterval = data.rt*1000;
                  
             // Insert data from query
             if (data != null && data.status == "OK" && data.messages != null) 

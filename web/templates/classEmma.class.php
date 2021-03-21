@@ -199,6 +199,14 @@ class Emma
 		return $ret;
 	}
 
+	public static function GetNumConnect()
+	{
+		$conn = self::openConnection();
+		$sql = "SELECT COUNT(*) AS num FROM connectTimes";
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
+	}
+
 	function Emma($compID)
 	{
 		$this->m_CompId = $compID;
@@ -320,7 +328,77 @@ class Emma
 		return $this->m_QualClasses;
 	}
 
-  	function Classes()
+	function GetUpdateFactor()
+	{
+		// Calculates and returns updated interval factor to ensure number of connects does not violate limit
+		$target = 30000; // Connects per hour (limit)
+		$scale  = 10;    // Scaledown factor
+		$UFmin  = 0.01;  // Smallest update factor
+		$UFmax  = 1.0;   // Largest update factor
+		$window = 60;    // [s] Time window in which number of connects is counted
+		$tFilt  = 120;   // [s] Filter constant for updating updateFactor
+
+		$q = "SELECT numConnect, time, updateFactor FROM lastConnect";
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			$last = mysqli_fetch_array($result);
+			$num0  = $last["numConnect"];
+			$UF0   = $last["updateFactor"];
+			$time0 = $last["time"];
+		}
+		else
+		{
+			die(mysqli_error($this->m_Conn));
+			return 1;
+		}
+
+		if (rand(1,$scale)>1) // Use scaledown factor to pass last value to most queries
+			return $UF0;
+		else // Calculate new update factor
+		{
+			$time    = time();
+			
+			// Update this connect and delete outdated
+			$q = "INSERT INTO connectTimes VALUES (".$this->m_CompId.", ".$time.")"; 
+			if (!mysqli_query($this->m_Conn, $q))
+			{
+				die(mysqli_error($this->m_Conn));
+				return $UF;
+			}
+			$timeOutdate = $time - $window;
+			$q = "DELETE FROM connectTimes WHERE time < ".$timeOutdate;
+			if (!mysqli_query($this->m_Conn, $q))
+			{
+				die(mysqli_error($this->m_Conn));
+				return $UF;
+			}
+
+			$q = "SELECT COUNT(*) AS num FROM connectTimes";	
+			if ($result = mysqli_query($this->m_Conn, $q))
+			{
+				$array = mysqli_fetch_array($result);
+				$num   = $array["num"];
+			}
+			else
+			{
+				die(mysqli_error($this->m_Conn));
+				return $UF;
+			}
+
+			$targetW = $target/3600*$window/$scale;      // Target value for current window
+			$dt      = max(1,min($window,$time-$time0)); // Time since last update 
+			$UFi     = $UF0*$targetW/max(1,$num);        // Ideal update factor
+			$UF      = max($UFmin,min($UFmax,$UF0+($UFi-$UF0)*$dt/$tFilt)); // New factor
+
+			$q     = "UPDATE lastConnect SET numConnect=".$num.", updateFactor=".$UF.", time=".$time." WHERE ID = 0";
+			if (!mysqli_query($this->m_Conn, $q))
+				die(mysqli_error($this->m_Conn));
+			
+			return $UF;
+		}
+	}
+	
+	function Classes()
 	{
 		$ret = Array();
 		$q = "SELECT Class From runners where TavId = ". $this->m_CompId ." AND Class NOT LIKE 'NOCLAS' Group By Class";

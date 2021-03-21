@@ -141,7 +141,10 @@ function resetRow(row)
   </tr>
 </table>
 </div>
-<br/><br/>
+<br/>
+<a href="/api/api.php?method=getnumconnect">#Connections</a>
+
+
 </body>
 
 </html>

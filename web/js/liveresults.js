@@ -188,8 +188,10 @@ var LiveResults;
         };
         AjaxViewer.prototype.handleUpdateClassListResponse = function (data) {
             var _this = this;
+            if (data.rt != undefined && data.rt > 0)
+                this.classUpdateInterval = data.rt*1000;
             if (data != null && data.status == "OK")
-			{
+			{                
                 if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0)
                     $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
                 if (data.classes != null)
@@ -1181,6 +1183,8 @@ var LiveResults;
         //Handle response for updating the last passings
         AjaxViewer.prototype.handleUpdateLastPassings = function (data) {
             var _this = this;
+            if (data.rt != undefined && data.rt > 0)
+                this.updateInterval = data.rt*1000;
             if (data != null && data.status == "OK") {
                 if (data.passings != null) {
                     var str = "";
@@ -1243,6 +1247,8 @@ var LiveResults;
             var updated = false;
 
             // Insert data from query
+            if (data.rt != undefined && data.rt > 0)
+                this.radioUpdateInterval = data.rt*1000;
 			if (data != null && data.status == "OK") {
                 updated = true;
                 if (data.passings != null) 
@@ -1820,8 +1826,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
         //handle response from class-results-update
         AjaxViewer.prototype.handleUpdateClassResults = function (newData,reqTime) {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
-            //if (newData.rt != undefined && newData.rt > 0)
-            //    this.updateInterval = newData.rt*1000;
+            if (newData.rt != undefined && newData.rt > 0)
+                this.updateInterval = newData.rt*1000;
             var _this = this;
             if (newData.status == "OK") {
                 if (this.currentTable != null)
@@ -2036,27 +2042,30 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             var _this = this;
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             clearTimeout(this.resUpdateTimeout);
-            if (data.status == "OK") {
-                if (this.currentTable != null) {
-                    var numberOfRunners = data.results.length;
-                    $('#numberOfRunners').html(numberOfRunners);
-					var posLeft = $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft();
-                    this.currentTable.fnClearTable();
-                    if (data && data.results) {
-                        $.each(data.results, function (idx, res) {
-                            res.placeSortable = res.place;
-                            if (res.place == "-")
-                                res.placeSortable = 999999;
-                            if (res.place == "")
-                                res.placeSortable = 9999;
-							if (res.place == "F")
-                                res.placeSortable = 0;
-                        });
-                    }
-                    this.currentTable.fnAddData(data.results, true);
-					$(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( posLeft );
-                    this.lastClubHash = data.hash;
+            if (data.rt != undefined && data.rt > 0)
+                this.clubUpdateInterval = data.rt*1000;
+            if (data.status == "OK" && this.currentTable != null)
+            { 
+                var numberOfRunners = data.results.length;
+                $('#numberOfRunners').html(numberOfRunners);
+                var posLeft = $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft();
+                this.currentTable.fnClearTable();
+                if (data && data.results) 
+                {
+                    $.each(data.results, function (idx, res) 
+                    {
+                        res.placeSortable = res.place;
+                        if (res.place == "-")
+                            res.placeSortable = 999999;
+                        if (res.place == "")
+                            res.placeSortable = 9999;
+                        if (res.place == "F")
+                            res.placeSortable = 0;
+                    });
                 }
+                this.currentTable.fnAddData(data.results, true);
+                $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( posLeft );
+                this.lastClubHash = data.hash;
             }
             if (_this.isCompToday())
                 this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, this.clubUpdateInterval);
