@@ -566,7 +566,7 @@ elseif ($_GET['method'] == 'getclassresults')
 	{
 		$n = $num["num"]*60*10; // Numbers per hour
 	}
-		echo("Estimated connections last minute [num/h]: ".$num["num"]);
+		echo("Estimated connections last minute [num/h]: ".$n);
   }
 else
 {
