@@ -564,9 +564,9 @@ elseif ($_GET['method'] == 'getclassresults')
 	$nums = Emma::GetNumConnect();	
 	foreach ($nums as $num)
 	{
-		$n = $num["num"]*60*10; // Numbers per hour
+		$n = $num["num"]; // Numbers in buffer
 	}
-		echo("Estimated connections last minute [num/h]: ".$n);
+		echo("Number of connections in buffer (passing rand function) [#/min]: ".$n);
   }
 else
 {
