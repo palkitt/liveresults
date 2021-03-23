@@ -22,7 +22,7 @@ $br = $pretty ? "\n" : "";
 
 if ($_GET['method'] == 'sendmessage')
 {
-	insertHeader($refreshTime,false);
+	insertHeader(1,false);
 	$changed = time();
 	$DNS = 0;
 	$ecardChange = 0;
@@ -48,7 +48,7 @@ if ($_GET['method'] == 'sendmessage')
 }
 else if ($_GET['method'] == 'setcompleted')
 {
-	insertHeader($refreshTime,false);
+	insertHeader(1,false);
 	if (!isset($_GET['messid']))
 		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
 	if (!isset($_GET['completed']))
@@ -62,7 +62,7 @@ else if ($_GET['method'] == 'setcompleted')
 }
 else if ($_GET['method'] == 'setdns')
 {
-	insertHeader($refreshTime,false);
+	insertHeader(1,false);
 	if (!isset($_GET['messid']))
 		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
 	if (!isset($_GET['dns']))
@@ -77,7 +77,7 @@ else if ($_GET['method'] == 'setdns')
 }
 else if ($_GET['method'] == 'setecardchange')
 {
-	insertHeader($refreshTime,false);
+	insertHeader(1,false);
 	if (!isset($_GET['messid']))
 		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
 	elseif (!isset($_GET['ecardchange']))
@@ -93,7 +93,7 @@ else if ($_GET['method'] == 'setecardchange')
 }
 else if ($_GET['method'] == 'setecardchecked')
 {
-	insertHeader($refreshTime,false);
+	insertHeader(1,false);
 	if (!isset($_GET['dbid']) && !isset($_GET['bib']))
 		echo("{\"status\": \"Error\", \"message\": \"dbid or bib not set\"}");
 	elseif (!isset($_GET['comp']))
@@ -278,7 +278,7 @@ else if ($_GET['method'] == 'getchanges')
 }
 else
 {
-    insertHeader($refreshTime,false);
+    insertHeader(1,false);
 	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
     header($protocol . ' ' . 400 . ' Bad Request');
 	echo("{ \"status\": \"ERR\", \"message\": \"No method given\"}");

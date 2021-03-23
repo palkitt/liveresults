@@ -48,11 +48,12 @@ var Messages;
 
         
         //Request data for messages
-        AjaxViewer.prototype.updateMessages = function () {
+        AjaxViewer.prototype.updateMessages = function (refresh = false) {
             var _this = this;
+            var hash = (refresh? (Math.floor(Math.random() * 10000) + 1) : this.lastRadioPassingsUpdateHash);
             $.ajax({
                 url: this.URL,
-                data: "comp=" + this.competitionId + "&method=getmessages&last_hash=" + this.lastRadioPassingsUpdateHash,
+                data: "comp=" + this.competitionId + "&method=getmessages&last_hash=" + hash,
                 success: function (data,status,resp) {
                     _this.handleUpdateMessages(data); },
                 error: function () {
@@ -258,7 +259,6 @@ var Messages;
         {
             _this = this;
             var table = this.currentTable.api();
-            var data = this.currentTable.fnGetData();
             var lastID = null;
             var lastChanged = null;
 
@@ -283,7 +283,7 @@ var Messages;
                 //if (data.dbid != lastID && Math.abs(data.dbid) != lastEcard1 && Math.abs(data.dbid) != lastEcard2 && data.groupchanged != lastChanged)
                 if (data.groupchanged != lastChanged && data.dbid != lastID)
                     $(table.row(rowIdx).node()).addClass('firstnonqualifier');
-                lastID =  data.dbid;
+                lastID = data.dbid;
                 lastChanged = data.groupchanged;
 
             } );
@@ -297,8 +297,8 @@ var Messages;
         $.ajax({
                 url: this.URL + "?method=setcompleted", 
                 data: "&messid=" + messid + "&completed=" + completed,
-                success: function() {_this.updateMessages();}
-                });
+                success: function() {_this.updateMessages(true);}
+        });
     }
 
     // Set message dns status
