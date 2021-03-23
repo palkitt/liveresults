@@ -52,6 +52,7 @@ window.mobilecheck = function() {
 <script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.ba-hashchange.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
 <script language="javascript" type="text/javascript">
@@ -176,10 +177,10 @@ function handleGetClasses(data,compID,first,last) {
 
 							res[j] = new LiveResults.AjaxViewer(compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults,
 							    "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus,false, "", false,"",true);
-							res[j].updateInterval = 120*1000;
-							res[j].highTime = 120;
+							res[j].highTime = 0;
 							res[j].noSplits=true;
 							res[j].chooseClass(className);
+							res[j].compDate = "-1"; // To stop update
 							//res[j].startPredictionUpdate();
                             j++;
                         }
