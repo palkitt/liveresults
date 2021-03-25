@@ -75,10 +75,10 @@ namespace LiveResults.Client
             if (OnDeleteID != null)
                 OnDeleteID(runnerID);
         }
-        private void FireOnDeleteUnusedID(List<int> usedIds)
+        private void FireOnDeleteUnusedID(List<int> usedIds, bool first = false)
         {
             if (OnDeleteUnusedID != null)
-                OnDeleteUnusedID(usedIds);
+                OnDeleteUnusedID(usedIds, first);
         }
 
 
@@ -532,6 +532,7 @@ namespace LiveResults.Client
                     int sleepTimeMessage = maxSleepTimeMessage;
                     int maxSleepTimeCleanupID = 60; // Time between cleaning/deleting unused IDs
                     int sleepTimeCleanupID = maxSleepTimeCleanupID;
+                    bool first = true;
 
                     /* ***            Main loop        ***
                     /* ************************************/
@@ -542,20 +543,27 @@ namespace LiveResults.Client
                         {
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
                             ParseReader(cmdInd, ref splitList, false, new List<int>(), out lastRunner, out usedID);
+
                             if (isRelay)
                                 ParseReader(cmdRelay, ref splitList, true, usedID, out lastRunner, out usedID);
-                            lastRunner = "Finished parsing runners";
-                            handleUnknowns(splitList, ref unknownRunners);
 
+                            lastRunner = "Finished parsing runners";
+
+                            if (first && m_IdOffset==0)
+                                FireOnDeleteUnusedID(usedID, first);
+                            first = false;
+
+                            handleUnknowns(splitList, ref unknownRunners);
                             sleepTimeMessage += m_sleepTime;
+
                             if (m_updateMessage && sleepTimeMessage >= maxSleepTimeMessage)
                             {
-                                UpdateDNSFromMessages(messageServer, client);
-                                UpdateEcardFromMessages(messageServer, client);
+                                UpdateFromMessages(messageServer, client);
                                 sleepTimeMessage = 0;
                             }
 
                             sleepTimeCleanupID += m_sleepTime;
+
                             if (sleepTimeCleanupID >= maxSleepTimeCleanupID)
                             {
                                 if (m_IdOffset == 0) //  Delete only when no offset is used 
@@ -1264,24 +1272,27 @@ namespace LiveResults.Client
             }
         }
 
-        private void UpdateDNSFromMessages(string messageServer, WebClient client)
+        private void UpdateFromMessages(string messageServer, WebClient client)
         {
             string apiResponse = "";
-            // Get and set DNS
+            // Get DNS and ecard changes
             try
             {
-                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=getdns&comp=" + m_compID);
+                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=getchanges&comp=" + m_compID);
             }
             catch (Exception ee)
-            { 
-                FireLogMsg("Bad network? eTiming Message get not stated : " + ee.Message);
+            {
+                FireLogMsg("Bad network? eTiming Message error: " + ee.Message);
             }
-            
+
             var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
             if (objects != null && objects.status == "OK")
             {
-                JArray items = (JArray)objects["dns"];
-                foreach (JObject element in items)
+
+                // DNS
+                // *****************************
+                JArray itemsDNS = (JArray)objects["dns"];
+                foreach (JObject element in itemsDNS)
                 {
                     int messid = (element["messid"]).ToObject<int>();
                     int dbid = (element["dbid"]).ToObject<int>();
@@ -1298,7 +1309,7 @@ namespace LiveResults.Client
                     {
                         IDbCommand cmd = m_connection.CreateCommand();
 
-                        if (kid>0) // use Eventor ID
+                        if (kid > 0) // use Eventor ID
                             cmd.CommandText = string.Format(@"SELECT id, ename, name, status FROM name WHERE kid={0}", kid);
                         else       // use eTiming ID
                             cmd.CommandText = string.Format(@"SELECT id, ename, name, status FROM name WHERE id={0}", dbid);
@@ -1343,7 +1354,7 @@ namespace LiveResults.Client
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere. Status:" + status + "&dbid=" + dbid);
                             }
                         }
-                        else 
+                        else
                         {
                             FireLogMsg("eTiming Message (ID: " + eTimingID + ") " + name + " not posible to set to DNS. Status: " + status);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setdns&dns=0&messid=" + messid);
@@ -1353,29 +1364,13 @@ namespace LiveResults.Client
                     catch (Exception ee)
                     {
                         FireLogMsg("Bad network? eTiming Message DNS: " + ee.Message);
-                    } 
+                    }
                 }
-            }
-        }
 
-        private void UpdateEcardFromMessages(string messageServer, WebClient client)
-        {
-            // Get and set ecard change
-            string apiResponse = "";
-            try
-            {
-                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=getecardchange&comp=" + m_compID);
-            }
-            catch (Exception ee)
-            {
-                FireLogMsg("Bad network? eTiming Message get ecard change: " + ee.Message);
-            }
-            
-            var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
-            if (objects != null && objects.status == "OK")
-            {
-                JArray items = (JArray)objects["ecardchange"];
-                foreach (JObject element in items)
+                // Ecard change
+                // *****************************
+                JArray itemsEcard = (JArray)objects["ecardchange"];
+                foreach (JObject element in itemsEcard)
                 {
                     int dbidMessage = (element["dbid"]).ToObject<int>();
                     int messid = (element["messid"]).ToObject<int>();
@@ -1469,7 +1464,7 @@ namespace LiveResults.Client
 
                         if (bibOK && ecardOK)
                         {
-                            bool emiTag  = (ecard < 10000 || ecard > 1000000);   
+                            bool emiTag = (ecard < 10000 || ecard > 1000000);
                             bool emiTag1 = (ecard1 < 10000 || ecard1 > 1000000);
                             bool emiTag2 = (ecard2 < 10000 || ecard2 > 1000000);
                             int ecardOld = 0;
@@ -1486,14 +1481,14 @@ namespace LiveResults.Client
                                 ecardOld = ecard2;
                             }
 
-                            if (ecardToChange==1)
+                            if (ecardToChange == 1)
                                 cmd.CommandText = string.Format(@"UPDATE name SET ecard={0} WHERE startno={1}", ecard, bib);
                             else
                                 cmd.CommandText = string.Format(@"UPDATE name SET ecard{2}={0} WHERE startno={1}", ecard, bib, ecardToChange);
                             var update = cmd.ExecuteNonQuery();
                             if (update == 1)
                             {
-                                FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " replaced ecard: " + ecardOld + " with: "+ ecard);
+                                FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " replaced ecard: " + ecardOld + " with: " + ecard);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID + "&message=Brikke: " + ecardOld +
                                     " byttet til " + ecard + "&dbid=" + dbid);
@@ -1526,7 +1521,6 @@ namespace LiveResults.Client
                     }
                 }
             }
-
         }
 
         private static int GetRunTime(string runTime)
