@@ -74,7 +74,7 @@ var LiveResults;
             this.radioStart = false;
             this.filterDiv = filterDiv;
             this.predData = Array(0);
-            this.rankedStartlist = false;
+            this.rankedStartlist = true;
             this.relayClasses = [];
             this.runnerList = null;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
@@ -1884,7 +1884,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             var isResTab = (newData[0].virtual_position != undefined);
             var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv) );
             var tableDT = this.currentTable.api();
-            if (isResTab)
+            if (isResTab) // Result table (or radio table)
             {
                 var order = tableDT.order();
                 var numCol = tableDT.settings().columns()[0].length;
@@ -1899,25 +1899,26 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             var progress = new  Object();
             for (var i=0; i<oldData.length;i++)
             {
-                if (prevInd[oldData[i].dbid] != undefined) continue
-                prevInd[oldData[i].dbid] = (isResTab ? oldData[i].virtual_position : i);
-                progress[oldData[i].dbid] = (isResTab ? oldData[i].progress : 100);
+                var oldID = (this.EmmaServer ? oldData[i].name : oldData[i].dbid);
+                if (prevInd[oldID] != undefined) continue
+                prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
+                progress[oldID] = (isResTab ? oldData[i].progress : 100);
             }
 
             var oldIndArray = new Object(); // List of old indexes
             var updProg    = new Object();  // List of progress change
             for (var i=0; i<newData.length;i++){
-                var dbid = newData[i].dbid;
+                var newID = (this.EmmaServer ? newData[i].name : newData[i].dbid);
                 var newInd = (isResTab ? newData[i].virtual_position : i);
-                if (prevInd[dbid] == undefined) // New entry
+                if (prevInd[newID] == undefined) // New entry
                 {
                     oldIndArray[newInd] = newInd; 
                     updProg[newInd] = false;                
                 }
-                else if (prevInd[dbid] != newInd)
+                else if (prevInd[newID] != newInd)
                 {
-                    oldIndArray[newInd] = prevInd[dbid];
-                    updProg[newInd] = (isResTab ? progress[newData[i].dbid] != newData[i].progress : false);
+                    oldIndArray[newInd] = prevInd[newID];
+                    updProg[newInd] = (isResTab ? progress[newID] != newData[i].progress : false);
                 }
             }
             if (Object.keys(oldIndArray).length == 0) // No modifications
