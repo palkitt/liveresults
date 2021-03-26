@@ -1228,8 +1228,6 @@ var LiveResults;
                     },
                     dataType: "json"                   
                 });
-                if (_this.isCompToday())
-                    this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(code,calltime,minBib,maxBib);}, this.radioUpdateInterval);
             }
 
         };
@@ -1453,7 +1451,8 @@ var LiveResults;
                     "orderCellsTop": true
                     });            
             }
-
+            if (_this.isCompToday())
+                this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(code,calltime,minBib,maxBib);}, this.radioUpdateInterval);
         };
         
     // Runner name shortener
@@ -1873,7 +1872,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     }, _this.animTime);
                 }
             }
-            this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, _this.updateInterval);
+            if (this.isCompToday())
+                this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, _this.updateInterval);
         };
 
         AjaxViewer.prototype.animateTable = function(oldData, newData, animTime, predRank = false){
@@ -2102,12 +2102,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 },
                 dataType: "json"
             });
-
-            if (!this.isSingleClass) {
-                window.location.hash = className;
-            }
-            if (_this.isCompToday())
-                this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate();}, this.updateInterval);
+            if (!this.isSingleClass)
+                window.location.hash = className;           
         };
 		
         AjaxViewer.prototype.updateClassResults = function (data,reqTime) {
@@ -2668,6 +2664,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     this.updatePredictedTimes(true,false); // Refresh = true; Animate = false
                 }
             }
+            if (this.isCompToday())
+                this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate();}, this.updateInterval);
         };
         
         AjaxViewer.prototype.setHighlight = function(results,highlightID){
