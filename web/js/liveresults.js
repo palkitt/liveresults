@@ -1220,7 +1220,7 @@ var LiveResults;
                     success: function (data,status,resp) {
                         var reqTime = new Date();
                         reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.radioUpdateInterval);
-                        _this.handleUpdateRadioPassings(data,reqTime); },
+                        _this.handleUpdateRadioPassings(data,reqTime,code,calltime,minBib,maxBib); },
                     error: function () {
                         _this.radioPassingsUpdateTimer = setTimeout(function () {
                             _this.updateRadioPassings();
@@ -1232,7 +1232,7 @@ var LiveResults;
 
         };
         //Handle response for updating the last radio passings..
-        AjaxViewer.prototype.handleUpdateRadioPassings = function (data,reqTime) {
+        AjaxViewer.prototype.handleUpdateRadioPassings = function (data,reqTime,code,calltime,minBib,maxBib) {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             // Make live blinker pulsing
             var el = document.getElementById('liveIndicator');
