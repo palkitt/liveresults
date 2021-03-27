@@ -13,7 +13,6 @@ table {font-size:1em;}
 td{font-family: arial, helvetica, verdana, geneva, sans-serif; font-size:1em; line-height: 1.4em; white-space: nowrap;}
 .wrapok{white-space: normal;}
 th{white-space: normal;}
-tr{border-top: hidden;}
 
 a:link {font-size:1em; color:#F1592A;}
 a:visited {font-size:1em; color:#F1592A;}
@@ -43,10 +42,10 @@ td.submenu table tr td a:hover {text-decoration: underline; color: #F1592A;}
 td.searchmenu { padding-left: 5px;}
 
 /* For compatibility with Emma server */
-tr.new_result {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none}
+tr.new_result {  color: white; background-color: #F1592A !important; }
 tr.new_result a {color: white;}
-tr.new_result td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
-tr.new_result td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.new_result td.sorting_2 { background-color: #F9B7A4 !important;}
+tr.new_result td.sorting_1 { background-color: #F9B7A4 !important; }
 tr.new_result td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.new_result .plustime { color: white;}
 tr.new_result .besttime { color: white;}
@@ -54,10 +53,10 @@ tr.new_result .legtime {color: white;}
 tr.new_result td i { color: white;}
 
 /* Red row marking */
-tr.red_row {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: none} 
+tr.red_row {  color: white; background-color: #F1592A !important; } 
 tr.red_row a {color: white;}
-tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
-tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; }
+tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; }
 tr.red_row td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.red_row .plustime { color: white;}
 tr.red_row .besttime { color: white;}
@@ -78,29 +77,29 @@ tr.red_row .bib {color: white;}
 .red_cell_sqr i { color: white;}
 
 /* New first nonqualifier */
-tr.new_fnq {  color: white; background-color: #F1592A !important;  border-bottom: 1px solid white; border-top: 3px dashed grey;} 
+tr.new_fnq {  color: white; background-color: #F1592A !important; border-top: 3px dashed grey;} 
 tr.new_fnq a {color: white;}
-tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
-tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important; border-bottom: 1px solid white;}
+tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; }
+tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important;}
 tr.new_fnq td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.new_fnq .plustime {color: white;}
 
 /* Green row for OK at start */
-tr.green_row { color: black; background-color: #00FF00 !important;  border-bottom: 1px solid white; border-top: none}
+tr.green_row { color: black; background-color: #00FF00 !important;}
 tr.green_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.green_row_new { color: black; background-color: #00FF00 !important; border-bottom: 1px solid white; border-top: 2px solid grey;}
+tr.green_row_new { color: black; background-color: #00FF00 !important; border-top: 2px solid grey;}
 tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-bottom: 1px solid white; border-top: 5px solid black;}
+tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-top: 5px solid black;}
 tr.green_row_firststarter td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow row for inside calltime at start, not OK at finish, highlight for speaker */
-tr.yellow_row { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: none}
+tr.yellow_row { color: black; background-color: #FFFF00 !important; }
 tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: 2px solid grey;}
+tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-top: 2px solid grey;}
 tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow row highlight for speaker, first non qualifyer */
-tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-bottom: 1px solid white; border-top: 3px dashed grey;}
+tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-top: 3px dashed grey;}
 tr.yellow_row_fnq td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow and green cells for messages */
