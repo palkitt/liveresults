@@ -1247,6 +1247,7 @@ var LiveResults;
             // Insert data from query
             if (data.rt != undefined && data.rt > 0)
                 this.radioUpdateInterval = data.rt*1000;
+            $('#updateinterval').html(this.updateInterval/1000);
 			if (data != null && data.status == "OK") {
                 updated = true;
                 if (data.passings != null) 
@@ -1827,6 +1828,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             if (newData.rt != undefined && newData.rt > 0)
                 this.updateInterval = newData.rt*1000;
+            $('#updateinterval').html(this.updateInterval/1000);
             var _this = this;
             if (newData.status == "OK") {
                 if (this.currentTable != null)
@@ -2115,7 +2117,10 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
 		
         AjaxViewer.prototype.updateClassResults = function (data,reqTime) {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
-            var _this = this;
+            if (data.rt != undefined && data.rt > 0)
+                this.updateInterval = data.rt*1000;
+            $('#updateinterval').html(this.updateInterval/1000);
+            var _this = this;    
             if (data != null && data.status == "OK") {
                 if (data.className != null) {
                     $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
@@ -2372,6 +2377,12 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                             else
                                             {
                                                 var txt = "";
+                                                
+                                                var place = "<span class=\"place\"> ";
+                                                if (row.splits[value.code + "_place"] < 10)
+                                                    place += "&numsp;"
+                                                place += "|" + row.splits[value.code + "_place"] + "|</span>";
+
 												// First line
                                                 if ((!fullView || _this.curClassIsRelay) && (row.splits[value.code + "_place"] != 1) && !_this.curClassIsUnranked && !_this.curClassLapTimes && (value.code > 0))
                                                 // Compact view or relay view, all but first place
@@ -2380,7 +2391,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                                     if ( row.splits[value.code + "_estimate"] )
                                                         txt += "estimate ";
                                                     txt += "tooltip\">+" + _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond) 
-                                                        + " (" + row.splits[value.code + "_place"] + ")<span class=\"tooltiptext\">" 
+                                                        + place + "<span class=\"tooltiptext\">" 
                                                         + _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond) + "</span></div>";
                                                 }
                                                 else 
@@ -2394,7 +2405,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
 														txt += "<span>";
                                                     txt += _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond);
                                                     if (value.code > 0) 
-                                                        txt += " (" + row.splits[value.code + "_place"] + ")</span>";
+                                                        txt += place + "</span>";
                                                 }
 												// Second line
                                                 if ((fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
