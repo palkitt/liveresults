@@ -98,8 +98,8 @@ var LiveResults;
                     else 
                     {
                         cl = decodeURIComponent(hash);
-                        if (cl != _this.curClassName) 
-                            _this.chooseClass(cl);
+                        if (cl != _this.curClassName)
+                            setTimeout(function(){_this.chooseClass(cl);},100); 
                     }
                 }
             });
@@ -1145,7 +1145,7 @@ var LiveResults;
             }
             
             // Stop requesting updates if class not active
-            if (!curClassActive)
+            if (!curClassActive && !this.EmmaServer)
                 clearTimeout(this.resUpdateTimeout);
         };
 		
@@ -1891,9 +1891,10 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 if (order[0][0] != numCol-1) // Not sorted on virtual position
                     return; 
                 var fixedTable = $(table.DataTable().cell(0,0).fixedNode()).parents('table')[0];
+                var widthFixed = $(fixedTable).outerWidth(true);
             }
             var height = $(table).outerHeight(true);
-
+            
             // Make list of indexes and progress for all runners 
             var prevInd = new Object();
             var progress = new  Object();
@@ -1933,7 +1934,10 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
             
             // Set each row's height and width
-            $(table).find('tr').each(function() {$(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
+            $(table).find('tr').each(function(index) {
+                var offset = (index == 1 ? 0 : -1);
+                $(this).width($(this).outerWidth(true)).height($(this).outerHeight(true) + offset);
+            });
          
             // Set table height and width
             $(table).height(height).width('100%');
@@ -1941,7 +1945,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
 			// Put all the rows back in place
             var rowPos = new Array(); // Beginning distance of rows from the table body in pixels
             $(table).find('tr').each(function(index) {
-                var offset = ( $(this).hasClass('new_fnq') || $(this).hasClass('firstnonqualifier') ? -1 : 0)
+                var offset = (index == 1 ? 0 : ($(this).hasClass('new_fnq') || $(this).hasClass('firstnonqualifier') ? -1 : 1));
                 rowPos.push($(this).position().top + offset);
                 $(this).css('top', rowPos[index]);
             });
@@ -1956,8 +1960,11 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
             {
                 $(fixedTable).css('position', 'relative');
                 $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});;        
-                $(fixedTable).find('tr').each(function() {$(this).width($(this).outerWidth(true)).height($(this).outerHeight(true));});
-                $(fixedTable).height(height).width('100%'); 
+                $(fixedTable).find('tr').each(function(index) {
+                    var offset = (index == 1 ? 0 : -1);
+                    $(this).width($(this).outerWidth(true)).height($(this).outerHeight(true) + offset);
+                });
+                $(fixedTable).height(height).width(widthFixed); 
                 $(fixedTable).find('tr').each(function(index) { $(this).css('top', rowPos[index]); });
                 $(fixedTable).find('tbody tr').each(function() {
                     $(this).css('position', 'absolute');
@@ -1999,7 +2006,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                 $(table).find('tr').each(function() {
                     $(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
                 $(table).find('tr td, tr th').each(function() { $(this).css('min-width',''); });
-                $(table).width('100%');
+                $(table).width('100%').height(height);
                 if (isResTab)
                 {
                     $(fixedTable).find('tr').each(function() {
