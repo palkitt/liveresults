@@ -1,4 +1,3 @@
-
 /*------------------------------*/
 /* --- GENERAL TAGS CLASSES --- */
 /*------------------------------*/
@@ -83,6 +82,7 @@ tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important;}
 tr.new_fnq td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.new_fnq .plustime {color: white;}
+tr.new_fnq .bib {color: white;}
 
 /* Green row for OK at start */
 tr.green_row { color: black; background-color: #00FF00 !important;}
@@ -135,6 +135,7 @@ table.dataTable td {vertical-align: top;}
   100% { color: #51ff00; opacity: 0; }
 }
 
+.place {font-size: 0.8em; vertical-align: 5%;}
 .plustime {color: dimgrey;}
 .legtime {color: dimgrey;}
 .besttime {color: red;}

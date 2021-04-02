@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -49,8 +49,9 @@ var LiveResults;
             this.lastRadioPassingsUpdateHash = "";
             this.curClassName = "";
             this.lastClassHash = "";
+            this.curClassNumberOfRunners = 0;
             this.curClassSplits = null;
-            this.curClassSplitsBest = null;
+            this.curClassSplitsBests = null;
             this.curClassSplitsOK = null;
             this.curClassIsMassStart = false;
             this.curClassIsRelay = false;
@@ -765,7 +766,6 @@ var LiveResults;
                         else 
                             results[i].DT_RowClass = "nostyle";
                     }
-                                        
                     if (curPos == "")
                         curPos = "-";	                    					
 				}
@@ -979,21 +979,27 @@ var LiveResults;
                                     }  
 
                                     elapsedTimeStr = (this.curClassIsRelay && !this.compactView ? "<br/><i>" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
-                                    if (this.curClassSplits == null || this.curClassSplits.length == 0){
+                                    if (this.curClassSplits == null || this.curClassSplits.length == 0)
+                                    {
                                     // No split controls
                                         if (!this.curClassIsUnranked)
                                         {
                                             if (this.curClassSplitsBests[0][0]>0){
                                                 rank = this.findRank(this.curClassSplitsBests[0],elapsedTime);
+                                                
+                                                var rankStr = "<span class=\"place\"> ";
+                                                if (this.curClassNumberOfRunners >= 10 && rank < 10)
+                                                    rankStr += "&numsp;"
                                                 if (rank > 1)
-                                                    elapsedTimeStr += "<i> (" + rank + ")</i>";
+                                                    rankStr += "<i>|" + rank + "|<i></span>";
                                                 else
-                                                    elapsedTimeStr += "<i> (..)</i>";	
+                                                    rankStr += "<i>|..|</i></span>";		
+                                                elapsedTimeStr += rankStr;                                                	
                                                 timeDiff = elapsedTime - this.curClassSplitsBests[0][0]; 
                                                 timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
                                             }
                                             else
-                                                timeDiffStr = "<i>(..)<\i>";
+                                                timeDiffStr = "<span class=\"place\"><i>|..|<\i></span>";
                                             if (this.isMultiDayEvent && !this.compactView)
                                                 elapsedTimeStr += "<br/>" + timeDiffStr;
                                             else
@@ -1031,13 +1037,14 @@ var LiveResults;
                                         
                                         if (this.curClassIsUnranked){
                                             table.cell( i, offset + nextSplit*2 ).data(elapsedTimeStr);
-                                            table.cell( i, offset + this.curClassNumSplits*2 ).data("<i>(..)<\i>");
+                                            table.cell( i, offset + this.curClassNumSplits*2 ).data("<i>|..|<\i>");
                                         }
                                         else
                                         {
                                             if (this.curClassSplitsBests[nextSplit][0]==0)
-                                            timeDiffStr = "<i>(..)<\i>";
-                                            else{
+                                                timeDiffStr = "<span class=\"place\"><i>|..|<\i></span>";
+                                            else
+                                            {
                                                 if (this.curClassIsRelay)
                                                 {
                                                     timeDiff = time - this.curClassSplitsBests[nextSplit][0];
@@ -1049,23 +1056,33 @@ var LiveResults;
                                                     rank = this.findRank(this.curClassSplitsBests[nextSplit],elapsedTime);                                                                                                
                                                 }
                                                 
-                                                var rankStr = "";
-                                                if (rank > 1)
-                                                    rankStr = " <i>(" + rank + ")</i>";
-                                                else
-                                                    rankStr = " <i>(..)</i>";											
                                                 timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
+
+                                                var rankStr = "<span class=\"place\"> ";
+                                                if (this.curClassNumberOfRunners >= 10 && rank < 10)
+                                                    rankStr += "&numsp;"
+                                                if (rank > 1)
+                                                    rankStr += "<i>|" + rank + "|<i></span>";
+                                                else
+                                                    rankStr += "<i>|..|</i></span>";											
+                                                                                                
                                                 if (nextSplit==this.curClassNumSplits)
                                                     elapsedTimeStr += rankStr;
                                                 else
+                                                {
                                                     timeDiffStr += rankStr;
+                                                    if (this.curClassNumberOfRunners >= 10)
+                                                        elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                    else
+                                                        elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                                }
                                             }
                                             
                                             timeDiffCol = offset + nextSplit*2;
                                             if (nextSplit==this.curClassNumSplits) // Approach finish
                                                 timeDiffCol += 2;
                                             
-                                                // Display elapsed time
+                                            // Display elapsed time
                                             if (!this.compactView && !this.curClassIsRelay && !this.curClassLapTimes && nextSplit==this.curClassNumSplits)
                                                 elapsedTimeStr += "<br/>" + timeDiffStr;                                      
                                             table.cell( i, offset + this.curClassNumSplits*2 ).data(elapsedTimeStr);
@@ -1837,8 +1854,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     var table = this.currentTable.api();
 					var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
 
-                    var numberOfRunners = newData.results.length;
-                    $('#numberOfRunners').html(numberOfRunners);
+                    this.curClassNumberOfRunners = newData.results.length;
+                    $('#numberOfRunners').html(this.curClassNumberOfRunners);
                     this.checkRadioControls(newData);
                     this.updateClassSplitsBest(newData);
                     this.updateResultVirtualPosition(newData.results);
@@ -2127,7 +2144,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     $('#' + this.resultsControlsDiv).show();
                 }
                 $('#' + this.txtResetSorting).html("");
-                if (data.results != null) {
+                if (data.results != null && data.results.length>0) {
                     var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
                     // Class properties
                     this.curClassSplits = data.splitcontrols;
@@ -2154,8 +2171,8 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                     if (this.qualLimits != null && this.qualLimits.length > 0)
                         this.updateQualLimMarks(data.results, data.className);
                     
-                    var numberOfRunners = data.results.length;
-                    $('#numberOfRunners').html(numberOfRunners);
+                    this.curClassNumberOfRunners = data.results.length;
+                    $('#numberOfRunners').html(this.curClassNumberOfRunners);
                     
                     var columns = Array();
                     var col = 0;
@@ -2322,20 +2339,25 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                 var txt = "";
                                 if (row.splits != undefined && row.splits["0_place"] >= 1)
 								{
+                                    var place = "<span class=\"place\"> ";
+                                    if (row.splits["0_place"] < 10 && _this.curClassNumberOfRunners >= 10)
+                                        place += "&numsp;"
+                                    place += "|" + row.splits["0_place"] + "| </span>" 
+                                    
                                     if (fullView)
                                     {
                                         if (row.splits["0_place"] == 1)
-                                            txt += "<span class=\"besttime\">-" + _this.formatTime(-row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + " (1)</span><br />";
+                                            txt += "<span class=\"besttime\">-" + _this.formatTime(-row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + place + "</span><br />";
                                         else
-                                            txt += "<span>+" + _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + " (" + row.splits["0_place"] + ")</span><br />";
+                                            txt += "<span>+" + _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + place + "</span><br />";
                                     }
                                     if (row.splits["0_place"] == 1)									
-										txt += "<span class=\"besttime\">" +_this.formatTime(row.start, 0, false, true, true);
+										txt += "<span class=\"besttime\">";
 									else 
-										txt += "<span>" + _this.formatTime(row.start, 0, false, true, true);
+										txt += "<span>";
                                     if (!fullView && row.splits["0_place"] >=1)
-                                        txt += " (" + row.splits["0_place"] + ")";
-                                    txt += "</span>";
+                                        txt += place;                                 
+                                    txt += _this.formatTime(row.start, 0, false, true, true) + "</span>";
 								}
 								else
 									txt += _this.formatTime(row.start, 0, false, true, true) 
@@ -2379,7 +2401,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                                 var txt = "";
                                                 
                                                 var place = "<span class=\"place\"> ";
-                                                if (row.splits[value.code + "_place"] < 10)
+                                                if (_this.curClassNumberOfRunners >= 10 && row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-")
                                                     place += "&numsp;"
                                                 place += "|" + row.splits[value.code + "_place"] + "|</span>";
 
@@ -2411,6 +2433,10 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                                 if ((fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
                                                 // Relay passing, second line with leg time to passing 
                                                 {
+                                                    var legplace = "<span class=\"place\"> ";
+                                                    if (_this.curClassNumberOfRunners >= 10 && row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-" )
+                                                        legplace += "&numsp;"
+                                                    legplace += "|" + row.splits[(value.code + 100000) + "_place"] + "|</span>";
                                                     txt += "<br/><span class="
                                                     if (row.splits[value.code + 100000 + "_estimate"] )
                                                         txt += "\"estimate\">";
@@ -2419,7 +2445,7 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                                     else
                                                         txt += "\"legtime\">";
                                                     txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond)
-                                                        + " (" + row.splits[(value.code + 100000) + "_place"] + ")</span>";
+                                                        + legplace + "</span>";
                                                 }
                                                 else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !_this.curClassIsRelay && (value.code > 0))
 												// Second line for ordinary passing (drop if code is negative - unranked)
@@ -2434,6 +2460,10 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                                     else
                                                        txt += "\"plustime\">+";
                                                     txt += _this.formatTime(Math.abs(row.splits[value.code + "_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
+                                                    if (_this.curClassNumberOfRunners >= 10)
+                                                        txt += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                    else
+                                                        txt += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
                                                 }
                                             }
                                             return txt;
@@ -2466,12 +2496,18 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
                             else 
 							{
+                                var place = "<span class=\"place\"> ";
+                                if (_this.curClassNumberOfRunners >= 10 && row.place < 10 || row.place == "-" )
+                                    place += "&numsp;"
+                                place += "|" + row.place + "|</span>";
+                                
                                 if ((haveSplitControls || _this.isMultiDayEvent) && (row.place == 1))
                                     res += "<span class=\"besttime\">";
 								else
 									res += "<span>";
                                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
-                                res += " (" + row.place + ")</span>";
+                                res += place + "</span>";
+                                
                                 if ((haveSplitControls || _this.isMultiDayEvent) && fullView && !(_this.curClassIsRelay) && !(_this.curClassLapTimes) && row.status == 0)
 								{
                                     if (row.place==1)
@@ -2481,20 +2517,28 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                         res += _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                                     }
                                      else
-                                        res += "<br/><span class=\"plustime\">+" 
-                                            + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
+                                        res += "<br/><span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
+                                    if (_this.curClassNumberOfRunners >= 10)
+                                        res += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                    else
+                                        res += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
                                 }
 							}
 							if (haveSplitControls && (fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits["999_place"] != undefined))
 							{
 								if (row.splits[(999)]>0)
 								{
-								res += "<br/><span class=";
-								if (row.splits["999_place"] == 1)
-									res += "\"besttime\">";
-								else
-									res += "\"legtime\">";
-								res += _this.formatTime(row.splits[(999)], 0, _this.showTenthOfSecond) + " (" + row.splits["999_place"] + ")";
+                                    var legplace = "<span class=\"place\"> ";
+                                    if (_this.curClassNumberOfRunners >= 10 && row.splits["999_place"] < 10 || row.splits["999_place"] == "-" )
+                                        legplace += "&numsp;"
+                                    legplace += "|" + row.splits["999_place"] + "|</span>";
+
+                                    res += "<br/><span class=";
+                                    if (row.splits["999_place"] == 1)
+                                        res += "\"besttime\">";
+                                    else
+                                        res += "\"legtime\">";
+                                    res += _this.formatTime(row.splits[(999)], 0, _this.showTenthOfSecond) + legplace + "</span>";
 								}
 							}
                             return res;
@@ -2577,13 +2621,18 @@ AjaxViewer.prototype.raceSplitterDialog = function () {
                                 if (row.totalplace == "-" || row.totalplace == "") {
                                     return _this.formatTime(row.totalresult, row.totalstatus);
                                 }
-                                else {
+                                else 
+                                {
+                                    var totalplace = "<span class=\"place\"> ";
+                                    if (row.totalplace < 10 && _this.curClassNumberOfRunners >= 10)
+                                        totalplace += "&numsp;"
+                                    totalplace += "|" + row.place + "|</span>";
                                     var res = "";
                                     if (row.totalplace == 1)
                                         res += "<span class=\"besttime\">";
                                     else
                                         res += "<span>";
-                                    res += _this.formatTime(row.totalresult, row.totalstatus) + " (" + row.totalplace + ")</span>";
+                                    res += _this.formatTime(row.totalresult, row.totalstatus) + totalplace + "</span>";
                                     if (fullView) 
                                     {
                                         if (row.totalplace == 1)
