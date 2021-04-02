@@ -766,7 +766,7 @@ var LiveResults;
                         else 
                             results[i].DT_RowClass = "nostyle";
                     }
-                    if (curPos == "")
+                    if (curPos == "" || curPos == '<span class="pulsing">&#9679;</span>')
                         curPos = "-";	                    					
 				}
 			}
