@@ -169,6 +169,10 @@ $(document).ready(function()
 		res.startPredictionUpdate();
 	<?php }?>
 
+	// Insert comp name
+	var compName = "<?=$currentComp->CompName()?>";
+	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
+	$("#compname").html(compName);
 
 	// Set full view
 	<?php if ($setFullView || $currentComp->FullView() ){?>
@@ -344,7 +348,7 @@ function closeTop() {
   <tr><td>
   <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
   <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
-  <td align="center"><b><?=$currentComp->CompName()?></b></td>
+  <td align="center"><b><span id="compname">loading comp name...</b></td>
   <td align="right"><?php if (!$isSingleClass && !$isSingleClub) {?><a href="javascript:LiveResults.Instance.newWin()"> <?=$_OPENINNEWWINDOW?></a> <?php }?> <span id="txtResetSorting"></span></td></tr></table></td></tr>
   
    <tr valign="top"><td>
@@ -352,7 +356,8 @@ function closeTop() {
    </td></tr>
   </table>
 
-  <?php if (!$isSingleClass && !$isSingleClub) {?>  
+  <?php if (!$isSingleClass && !$isSingleClub) {?>
+	Antall: <span id="numberOfRunners"></span>  
 	<p align="left"><font color="#AAA" size="0.7em">
   * <?=$_HELPREDRESULTS?><br>
   &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
