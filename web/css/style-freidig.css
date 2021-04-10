@@ -49,6 +49,7 @@ tr.new_result td:last-child { border-top-right-radius: 0px; border-bottom-right-
 tr.new_result .plustime { color: white;}
 tr.new_result .besttime { color: white;}
 tr.new_result .legtime {color: white;}
+tr.new_result .estimate {color: white;}
 tr.new_result td i { color: white;}
 
 /* Red row marking */
@@ -60,6 +61,7 @@ tr.red_row td:last-child { border-top-right-radius: 0px; border-bottom-right-rad
 tr.red_row .plustime { color: white;}
 tr.red_row .besttime { color: white;}
 tr.red_row .legtime {color: white;}
+tr.red_row .estimate {color: white;}
 tr.red_row td i { color: white;}
 tr.red_row .bib {color: white;}
 

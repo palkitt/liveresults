@@ -1043,12 +1043,15 @@ var LiveResults;
                                         
                                         if (this.curClassIsUnranked){
                                             table.cell( i, offset + nextSplit*2 ).data(elapsedTimeStr);
-                                            table.cell( i, offset + this.curClassNumSplits*2 ).data("<i>|..|</i>");
+                                            table.cell( i, offset + this.curClassNumSplits*2 ).data("<span class=\"place\"><i>|..|</i></span>");
                                         }
                                         else
                                         {
                                             if (this.curClassSplitsBests[nextSplit][0]==0)
-                                                timeDiffStr = "<span class=\"place\"><i>|..|</i></span>";
+                                            {
+                                                rank = 0;
+                                                timeDiffStr = "";
+                                            }
                                             else
                                             {
                                                 if (this.curClassIsRelay)
@@ -1060,29 +1063,29 @@ var LiveResults;
                                                 {
                                                     timeDiff = elapsedTime - this.curClassSplitsBests[nextSplit][0];
                                                     rank = this.findRank(this.curClassSplitsBests[nextSplit],elapsedTime);                                                                                                
-                                                }
-                                                
+                                                }                                                
                                                 timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
-
-                                                var rankStr = "<span class=\"place\"> ";
-                                                if (this.curClassNumberOfRunners >= 10 && rank < 10)
-                                                    rankStr += "&numsp;"
-                                                if (rank > 1)
-                                                    rankStr += "<i>|" + rank + "|</i></span>";
-                                                else
-                                                    rankStr += "<i>|..|</i></span>";											
-                                                                                                
-                                                if (nextSplit==this.curClassNumSplits)
-                                                    elapsedTimeStr += rankStr;
-                                                else
-                                                {
-                                                    timeDiffStr += rankStr;
-                                                    if (this.curClassNumberOfRunners >= 10)
-                                                        elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
-                                                    else
-                                                        elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
-                                                }
                                             }
+
+                                            var rankStr = "<span class=\"place\"> ";
+                                            if (this.curClassNumberOfRunners >= 10 && rank < 10)
+                                                rankStr += "&numsp;"
+                                            if (rank > 1)
+                                                rankStr += "<i>|" + rank + "|</i></span>";
+                                            else
+                                                rankStr += "<i>|..|</i></span>";											
+                                                                                        
+                                            if (nextSplit==this.curClassNumSplits)
+                                                elapsedTimeStr += rankStr;
+                                            else
+                                            {
+                                                timeDiffStr += rankStr;
+                                                if (this.curClassNumberOfRunners >= 10)
+                                                    elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                else
+                                                    elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                            }
+                                            
                                             
                                             timeDiffCol = offset + nextSplit*2;
                                             if (nextSplit==this.curClassNumSplits) // Approach finish
@@ -1939,7 +1942,7 @@ var LiveResults;
             var progress = new  Object();
             for (var i=0; i<oldData.length;i++)
             {
-                var oldID = (this.EmmaServer ? oldData[i].name : oldData[i].dbid);
+                var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
                 if (prevInd[oldID] != undefined) continue
                 prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
                 progress[oldID] = (isResTab ? oldData[i].progress : 100);
@@ -1948,7 +1951,7 @@ var LiveResults;
             var oldIndArray = new Object(); // List of old indexes
             var updProg    = new Object();  // List of progress change
             for (var i=0; i<newData.length;i++){
-                var newID = (this.EmmaServer ? newData[i].name : newData[i].dbid);
+                var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
                 var newInd = (isResTab ? newData[i].virtual_position : i);
                 if (prevInd[newID] == undefined) // New entry
                 {
@@ -2422,7 +2425,7 @@ var LiveResults;
                                                 var txt = "";
                                                 
                                                 var place = "<span class=\"place\"> ";
-                                                if (_this.curClassNumberOfRunners >= 10 && row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-")
+                                                if (_this.curClassNumberOfRunners >= 10 && row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-" || row.splits[value.code + "_place"] == "=")
                                                     place += "&numsp;"
                                                 place += "|" + row.splits[value.code + "_place"] + "|</span>";
 
@@ -2518,7 +2521,7 @@ var LiveResults;
                             else 
 							{
                                 var place = "<span class=\"place\"> ";
-                                if (_this.curClassNumberOfRunners >= 10 && row.place < 10 || row.place == "-" )
+                                if (_this.curClassNumberOfRunners >= 10 && row.place < 10 || row.place == "-" || row.place == "=")
                                     place += "&numsp;"
                                 place += "|" + row.place + "|</span>";
                                 
