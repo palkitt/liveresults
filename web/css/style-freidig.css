@@ -27,8 +27,8 @@ h3{font-size:1em; font-weight:normal; margin-bottom: 0px;}
 
 #divClasses {font-size: 1.1em; line-height: 1.4em;}
 
-.firstnonqualifier {border-top: 3px dashed grey;} 
-.firststarter {border-top: 5px solid black;}
+.firstnonqualifier {border-top: 3px dashed grey !important;} 
+.firststarter {border-top: 5px solid black !important;}
 .pre_post_start {background-color: #DFDFDF !important;}
 
 /* Submenu classes */
@@ -76,7 +76,7 @@ tr.red_row .bib {color: white;}
 .red_cell_sqr i { color: white;}
 
 /* New first nonqualifier */
-tr.new_fnq {  color: white; background-color: #F1592A !important; border-top: 3px dashed grey;} 
+tr.new_fnq {  color: white; background-color: #F1592A !important; border-top: 3px dashed grey !important;} 
 tr.new_fnq a {color: white;}
 tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important;}
@@ -87,19 +87,19 @@ tr.new_fnq .bib {color: white;}
 /* Green row for OK at start */
 tr.green_row { color: black; background-color: #00FF00 !important;}
 tr.green_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.green_row_new { color: black; background-color: #00FF00 !important; border-top: 2px solid grey;}
+tr.green_row_new { color: black; background-color: #00FF00 !important; border-top: 2px solid grey !important;}
 tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-top: 5px solid black;}
+tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-top: 5px solid black ;}
 tr.green_row_firststarter td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow row for inside calltime at start, not OK at finish, highlight for speaker */
 tr.yellow_row { color: black; background-color: #FFFF00 !important; }
 tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
-tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-top: 2px solid grey;}
+tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-top: 2px solid grey !important;}
 tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow row highlight for speaker, first non qualifyer */
-tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-top: 3px dashed grey;}
+tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-top: 3px dashed grey !important;}
 tr.yellow_row_fnq td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow and green cells for messages */

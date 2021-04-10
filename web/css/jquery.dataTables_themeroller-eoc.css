@@ -49,8 +49,8 @@ table.dataTable th.left {
 }
 
 
-table.dataTable tr.odd { background-color: #E6E6E6; border-bottom: 1px solid #E6E6E6;} 
-table.dataTable tr.even { background-color: white; border-bottom: 1px solid white;} 
+table.dataTable tr.odd { background-color: #E6E6E6; border-top: 1px solid #E6E6E6;}
+table.dataTable tr.even { background-color: white; border-top: 1px solid white;} 
 
 .sorting_asc {
 	background: url('../images/sort_asc.png') no-repeat center right;

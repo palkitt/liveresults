@@ -57,7 +57,6 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery.ba-hashchange.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
@@ -172,7 +171,7 @@ $(document).ready(function()
 
 	// Insert comp name
 	var compName = "<?=$currentComp->CompName()?>";
-	compName = compName.substring(0,  (res.browserType == 1 ? 30 : 60) )
+	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 	
 	// Set full view
