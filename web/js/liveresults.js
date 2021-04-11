@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -38,9 +38,9 @@ var LiveResults;
             this.inactiveTimer = 0;
             this.radioHighTime = 15;
             this.highTime = 60;
-            this.animTime = 800;
+            this.animTime = 700;
             this.animating = false;
-            this.animTimer = null;
+            this.numAnimElements = 0;
             this.classUpdateTimer = null;
             this.passingsUpdateTimer = null;
             this.resUpdateTimeout = null;
@@ -997,7 +997,7 @@ var LiveResults;
                                                 if (this.curClassNumberOfRunners >= 10 && rank < 10)
                                                     rankStr += "&numsp;"
                                                 if (rank > 1)
-                                                    rankStr += "<i>" + rank + "|</i></span>";
+                                                    rankStr += "<i>|" + rank + "|</i></span>";
                                                 else
                                                     rankStr += "<i>|..|</i></span>";		
                                                 elapsedTimeStr += rankStr;                                                	
@@ -1986,6 +1986,9 @@ var LiveResults;
                 $(this).width($(this).outerWidth(true)).height(rowHeight);
             });
 
+            // Set table height and width
+            $(table).height(height).width('100%');
+
             // Put all the rows back in place
             var rowPosArray = new Array(); 
             $(table).find('tr').each(function(index) {
@@ -1997,20 +2000,20 @@ var LiveResults;
             // Set table cells position to absolute
             $(table).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-4'); });
 
-            // Set table height and width
-            $(table).height(height).width('100%');
-
             if (isResTab)
             {
                 $(fixedTable).css('position', 'relative');
                 $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
                 $(fixedTable).find('tr').each(function(index) {$(this).width($(this).outerWidth(true)).height(rowHeightArray[index]);});
+                $(fixedTable).height(height).width('100%');
                 $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
                 $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-3'); });
             }
             
 
             // Animation
+            this.animating = true;
+            this.numAnimElements = 0;
             for (var newIndStr in oldIndArray) 
             {
                 var newInd   = parseInt(newIndStr);
@@ -2035,30 +2038,43 @@ var LiveResults;
                     zindFix = zind + 1;
                 }
                               
-                $(row).css('background-color',oldBkCol).css('top', oldPos).animate({backgroundColor: newBkCol, top : newPos},
-                    {duration: animTime, start: function(){ $(row).css('z-index',zind);}});
+                $(row).css('background-color',oldBkCol).css('top', oldPos).velocity({backgroundColor: newBkCol, top : newPos},
+                    {duration: animTime, 
+                        begin: function(){ 
+                            _this.numAnimElements++; 
+                            $(row).css('z-index',zind);},
+                        complete: 
+                        function(){_this.numAnimElements--}});
                 if (isResTab)
-                    $(rowFix).css('background-color',oldBkCol).css('top', oldPos).animate({backgroundColor: newBkCol, top : newPos},
-                    {duration: animTime, start: function(){$(rowFix).css('z-index',zindFix);}});
-            } 
+                    $(rowFix).css('background-color',oldBkCol).css('top', oldPos).velocity({backgroundColor: newBkCol, top : newPos},
+                    {duration: animTime, 
+                        begin: function(){
+                            _this.numAnimElements++;
+                            $(rowFix).css('z-index',zindFix);},
+                     complete: function(){
+                         _this.numAnimElements--}});
+            }
+            setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank)},_this.animTime+50);
+        };   
             
-            this.animating = true;          
-            this.animTimer = setTimeout(function()
-            {                     
-                $(table).find('tr').each(function() {
-                    $(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
+        // Reset settings after animation is completed
+        AjaxViewer.prototype.endAnimateTable = function (table,fixedTable,predRank) {
+            if (this.numAnimElements > 0) // Wait for all animations to finish
+                setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank)},50);
+            else
+            {
+                $(table).find('tr').each(function() {$(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
                 $(table).find('tr td, tr th').each(function() { $(this).css('min-width',''); });  
-                if (isResTab)
+                if (fixedTable != null)
                 {
-                    $(fixedTable).find('tr').each(function() {
-                        $(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
+                    $(fixedTable).find('tr').each(function() {$(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
                     $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',''); }); 
                 }
-                _this.animating = false;
+                this.animating = false;
                 if (predRank)
-                 _this.startPredictionUpdate(); 
-            },animTime+100);
-        }
+                    this.startPredictionUpdate(); 
+            }
+        };
 
         //Check for update in clubresults
         AjaxViewer.prototype.checkForClubUpdate = function () {
@@ -2088,6 +2104,7 @@ var LiveResults;
                 }
             }
         };
+
         //handle the response on club-results update
         AjaxViewer.prototype.handleUpdateClubResults = function (data,reqTime) {
             var _this = this;
