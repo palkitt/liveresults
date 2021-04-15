@@ -247,6 +247,7 @@ function insertHeader($refreshTime,$update=true)
 		
 	header('content-type: application/json; charset='.$CHARSET);
 	header('Access-Control-Allow-Origin: *');
+	header('Access-Control-Expose-Headers: Date');
 	header('cache-control: max-age='+ ($RT-1));
 	header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($RT-1)));
 

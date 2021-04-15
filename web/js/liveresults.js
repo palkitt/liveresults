@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -65,7 +65,7 @@ var LiveResults;
             this.curClubName = "";
             this.lastClubHash = "";
             this.currentTable = null;
-            this.serverTimeDiff = 1;
+            this.serverTimeDiff = 0;
             this.eventTimeZoneDiff = 0;
             this.radioData = null;
             this.compName = "";
@@ -388,6 +388,17 @@ var LiveResults;
                         split = parseInt(data.results[j].splits[classSplits[spRef].code]);
                         if (!isNaN(split)) // Split exist, Status: 0=bad, 1=OK, 2=unknown 
                         {
+                            /*if (nextSplit != null && split > nextSplit)
+                                {
+                                    classSplitsStatus[sp][j] = 0; // bad
+                                    runnerOK[j] = false;
+                                    splitFracRunner[sp][j] = null;
+                                    nextSplit = null;
+                                    nextSplitOK = false;
+                                    data.results[j].splits[classSplits[spRef].code] = undefined;
+                                }
+                            else
+                            { */
                             classSplitsStatus[sp][j] = 1; // OK 
                             var spPrevRef = this.splitRef(sp-1);
                             prevSplit = (spPrevRef >= 0 ? parseInt(data.results[j].splits[classSplits[spPrevRef].code]) : startTime);
@@ -395,6 +406,7 @@ var LiveResults;
                             splitFracRunner[sp][j] = (splitFrac > 0 && splitFrac < 1 ? splitFrac : null);
                             nextSplit = split;
                             nextSplitOK = true;
+                            //}
                         }
                         else // Split does not exist
                         {
@@ -801,7 +813,7 @@ var LiveResults;
 		// Updated predicted times
 		AjaxViewer.prototype.updatePredictedTimes = function (refresh = false, animate = true) {
             var curClassActive = false;
-            if (this.currentTable != null && this.curClassName != null && this.serverTimeDiff && this.updateAutomatically && this.isCompToday()) {
+            if (this.currentTable != null && this.curClassName != null && this.updateAutomatically && this.isCompToday()) {
                 try {
                     var dt = new Date();			
 					var data = this.currentTable.fnGetData();
@@ -1245,7 +1257,7 @@ var LiveResults;
                           "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash,
                     success: function (data,status,resp) {
                         var reqTime = new Date();
-                        reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.radioUpdateInterval);
+                        reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.radioUpdateInterval + 1000);
                         _this.handleUpdateRadioPassings(data,reqTime,code,calltime,minBib,maxBib); },
                     error: function () {
                         _this.radioPassingsUpdateTimer = setTimeout(function () {
@@ -1828,17 +1840,26 @@ var LiveResults;
             }
             if (this.updateAutomatically) {
                 if (this.currentTable != null) {
+                    var preTime = new Date().getTime();
                     $.ajax({
                         url: this.apiURL,
                         data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(this.curClassName) + "&nosplits=" + this.noSplits +
 						"&last_hash=" + this.lastClassHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                         success: function (data, status, resp) {
                             try {
-                                var reqTime = new Date();
-                                reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.updateInterval);
+                                var postTime = new Date().getTime();
+                                var varTime = Math.max(1000,postTime-preTime); // Uncertainty in server time. Add 1000 to account for seconds resultion
+                                var reqTime = resp.getResponseHeader("date"); 
+                                if (reqTime) 
+                                { 
+                                    var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
+                                    if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
+                                        _this.serverTimeDiff = newTimeDiff;
+                                }
+                                var expTime = new Date(resp.getResponseHeader("expires")).getTime();
                             }
                             catch (e) {  }
-                            _this.handleUpdateClassResults(data,reqTime);
+                            _this.handleUpdateClassResults(data,expTime);
                         },
                         error: function () {
                             _this.resUpdateTimeout = setTimeout(function () {
@@ -1852,17 +1873,22 @@ var LiveResults;
         };
         
         //handle response from class-results-update
-        AjaxViewer.prototype.handleUpdateClassResults = function (newData,reqTime) {
-            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+        AjaxViewer.prototype.handleUpdateClassResults = function (newData,expTime) {
             if (newData.rt != undefined && newData.rt > 0)
                 this.updateInterval = newData.rt*1000;
             $('#updateinterval').html(this.updateInterval/1000);
+            if (expTime)
+            {
+                var lastUpdate = new Date();
+                lastUpdate.setTime(expTime - this.updateInterval + 1000);
+                $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
+            }
             var _this = this;
             if (newData.status == "OK") {
                 clearTimeout(this.updatePredictedTimeTimer);
                 if (this.animating) // Wait until animation is completed
                 {
-                    setTimeout(function () {_this.handleUpdateClassResults(newData,reqTime);}, 100);
+                    setTimeout(function () {_this.handleUpdateClassResults(newData,expTime);}, 100);
                     return;
                 }
                 if (this.currentTable != null)
@@ -2091,7 +2117,7 @@ var LiveResults;
                         data: "comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club=" + encodeURIComponent(this.curClubName) + "&last_hash=" + this.lastClubHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                         success: function (data,status,resp) {
                             var reqTime = new Date();
-                            reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.clubUpdateInterval);
+                            reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.clubUpdateInterval + 1000);
                             _this.handleUpdateClubResults(data,reqTime); 
                         },
                         error: function () {
@@ -2156,16 +2182,25 @@ var LiveResults;
             this.curClassName = className;
             this.curClubName = null; 
             $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+            var preTime = new Date().getTime();
             $.ajax({
                 url: this.apiURL,
                 data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                 success: function (data, status, resp) {
                     try { 
-                        var reqTime = new Date();
-                        reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.updateInterval);
+                        var postTime = new Date().getTime();
+                        var varTime = Math.max(1000,postTime-preTime); // Uncertainty in server time. Add 1000 to account for seconds resultion
+                        var reqTime = resp.getResponseHeader("date");
+                        if (reqTime) 
+                        { 
+                            var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
+                            if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
+                                _this.serverTimeDiff = newTimeDiff;
+                        }
+                        var expTime = new Date(resp.getResponseHeader("expires")).getTime();
                     }
                     catch (e) { }
-					_this.updateClassResults(data,reqTime);
+					_this.updateClassResults(data,expTime);
                 },
                 dataType: "json"
             });
@@ -2173,11 +2208,16 @@ var LiveResults;
                 window.location.hash = className;           
         };
 		
-        AjaxViewer.prototype.updateClassResults = function (data,reqTime) {
-            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+        AjaxViewer.prototype.updateClassResults = function (data,expTime) {
             if (data.rt != undefined && data.rt > 0)
                 this.updateInterval = data.rt*1000;
             $('#updateinterval').html(this.updateInterval/1000);
+            if (expTime)
+            {
+                var lastUpdate = new Date();
+                lastUpdate.setTime(expTime - this.updateInterval + 1000);
+                $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
+            }
             var _this = this;    
             if (data != null && data.status == "OK") {
                 if (data.className != null) {
@@ -2814,7 +2854,6 @@ var LiveResults;
                 clearTimeout(this.passingsUpdateTimer);
                 clearTimeout(this.classUpdateTimer);
                 $("#" + this.setAutomaticUpdateText).html("<b>" + this.resources["_AUTOUPDATE"] + ":</b> <a href=\"javascript:LiveResults.Instance.setAutomaticUpdate(true);\">" + this.resources["_ON"] + "</a> | " + this.resources["_OFF"] + "");
-                this.serverTimeDiff = null;
                 if (this.currentTable) {
                     $.each(this.currentTable.fnGetNodes(), function (idx, obj) {
                         for (var i = 4; i < obj.childNodes.length; i++) {
