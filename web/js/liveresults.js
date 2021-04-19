@@ -1009,15 +1009,15 @@ var LiveResults;
                                                 if (this.curClassNumberOfRunners >= 10 && rank < 10)
                                                     rankStr += "&numsp;"
                                                 if (rank > 1)
-                                                    rankStr += "<i>|" + rank + "|</i></span>";
+                                                    rankStr += "<i>&#10072;" + rank + "&#10072;</i></span>";
                                                 else
-                                                    rankStr += "<i>|..|</i></span>";		
+                                                    rankStr += "<i>&#10072;..&#10072;</i></span>";		
                                                 elapsedTimeStr += rankStr;                                                	
                                                 timeDiff = elapsedTime - this.curClassSplitsBests[0][0]; 
                                                 timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
                                             }
                                             else
-                                                timeDiffStr = "<span class=\"place\"><i>|..|</i></span>";
+                                                timeDiffStr = "<span class=\"place\"><i>&#10072;..&#10072;</i></span>";
                                             if (this.isMultiDayEvent && !this.compactView)
                                                 elapsedTimeStr += "<br/>" + timeDiffStr;
                                             else
@@ -1055,7 +1055,7 @@ var LiveResults;
                                         
                                         if (this.curClassIsUnranked){
                                             table.cell( i, offset + nextSplit*2 ).data(elapsedTimeStr);
-                                            table.cell( i, offset + this.curClassNumSplits*2 ).data("<span class=\"place\"><i>|..|</i></span>");
+                                            table.cell( i, offset + this.curClassNumSplits*2 ).data("<span class=\"place\"><i>&#10072;..&#10072;</i></span>");
                                         }
                                         else
                                         {
@@ -1083,9 +1083,9 @@ var LiveResults;
                                             if (this.curClassNumberOfRunners >= 10 && rank < 10)
                                                 rankStr += "&numsp;"
                                             if (rank > 1)
-                                                rankStr += "<i>|" + rank + "|</i></span>";
+                                                rankStr += "<i>&#10072;" + rank + "&#10072;</i></span>";
                                             else
-                                                rankStr += "<i>|..|</i></span>";											
+                                                rankStr += "<i>&#10072;..&#10072;</i></span>";											
                                                                                         
                                             if (nextSplit==this.curClassNumSplits)
                                                 elapsedTimeStr += rankStr;
@@ -1947,11 +1947,12 @@ var LiveResults;
             var isResTab = (newData[0].virtual_position != undefined);
             var table = null;
             var fixedTable = null;
+            //this.currentTable.fnAdjustColumnSizing();
+            //tableDT.rows().recalcHeight().draw();
 
             if (isResTab) // Result table
             {
                 table = $('#' + this.resultsDiv);
-                tableDT.rows().recalcHeight().draw();
                 var order = tableDT.order();
                 var numCol = tableDT.settings().columns()[0].length;
                 if (order[0][0] != numCol-1) // Not sorted on virtual position
@@ -1960,16 +1961,18 @@ var LiveResults;
             }
             else // Radio table
                 table = $('#' + this.radioPassingsDiv);
-
-            var height = $(table).outerHeight(true);
-            
+                      
             // Make list of indexes and progress for all runners 
             var prevInd = new Object();
             var progress = new  Object();
             for (var i=0; i<oldData.length;i++)
             {
                 var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
-                if (prevInd[oldID] != undefined) continue
+                if (prevInd[oldID] != undefined) 
+                {
+                    prevInd[oldID] = "noAnimation";
+                    continue
+                }
                 prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
                 progress[oldID] = (isResTab ? oldData[i].progress : 100);
             }
@@ -1979,7 +1982,9 @@ var LiveResults;
             for (var i=0; i<newData.length;i++){
                 var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
                 var newInd = (isResTab ? newData[i].virtual_position : i);
-                if (prevInd[newID] == undefined) // New entry
+                if (prevInd[newID] == "noAnimation")
+                    continue;
+                else if (prevInd[newID] == undefined) // New entry
                 {
                     oldIndArray[newInd] = newInd; 
                     updProg[newInd] = false;                
@@ -1996,27 +2001,16 @@ var LiveResults;
             if (predRank)
                 clearTimeout(this.updatePredictedTimeTimer);
 
-            // Set table to position relative
-            $(table).css('position', 'relative');
-            
             // Set each td's width
             var column_widths = new Array();
             $(table).find('tr:first-child th').each(function() {column_widths.push($(this).outerWidth(true)-9);});
             $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
             
-            // Set each row's height and width
-            var rowHeightArray = new Array();
-            $(table).find('tr').each(function(index) {
-                var rowHeight = $(this).outerHeight(true) + (index > 0 ? -1 : 0);
-                rowHeightArray.push(rowHeight); 
-                $(this).width($(this).outerWidth(true)).height(rowHeight);
-            });
-
             // Set table height and width
-            $(table).height(height).width('100%');
+            var height = $(table).outerHeight()+1;
 
             // Put all the rows back in place
-            var rowPosArray = new Array(); 
+            var rowPosArray = new Array();
             $(table).find('tr').each(function(index) {
                 var rowPos = $(this).position().top + (this.clientTop>1 ? -1 : 0);
                 rowPosArray.push(rowPos);
@@ -2024,14 +2018,13 @@ var LiveResults;
             });
 
             // Set table cells position to absolute
-            $(table).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-4'); });
+            $(table).find('tbody tr').each(function() {
+                $(this).css('position', 'absolute').css('z-index', '-4'); });
+            $(table).height(height);
 
             if (isResTab)
             {
-                $(fixedTable).css('position', 'relative');
                 $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
-                $(fixedTable).find('tr').each(function(index) {$(this).width($(this).outerWidth(true)).height(rowHeightArray[index]);});
-                $(fixedTable).height(height).width('100%');
                 $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
                 $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-3'); });
             }
@@ -2089,16 +2082,14 @@ var LiveResults;
                 setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank)},50);
             else
             {
-                $(table).find('tr').each(function() {$(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
-                $(table).find('tr td, tr th').each(function() { $(this).css('min-width',''); });  
+                $(table).find('tr').each(function() {$(this).css('position', 'relative'); }); 
                 if (fixedTable != null)
-                {
-                    $(fixedTable).find('tr').each(function() {$(this).css('position', '').css('top', '').css('z-index','').css('background-color',''); });
-                    $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',''); }); 
-                }
+                    $(fixedTable).find('tr').each(function() {$(this).css('position', 'relative'); });  
+                $(table).height(0);
+
                 this.animating = false;
                 if (predRank)
-                    this.startPredictionUpdate(); 
+                    this.startPredictionUpdate();
             }
         };
 
@@ -2289,7 +2280,7 @@ var LiveResults;
                                     if (clubShort.length > _this.maxClubLength)
                                         clubShort = _this.clubShort(clubShort);				
 							    }
-                                return link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                                return link = "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                             }
                         });
                         columns.push({
@@ -2311,7 +2302,7 @@ var LiveResults;
                                     if (clubShort.length > _this.maxClubLength)
                                         clubShort = _this.clubShort(clubShort);				
                                 }
-                                var clubLink = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                                var clubLink = "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                                                                                                                                     
                                 return (haveSplitControls && fullView ? clubLink + "<br/>" + nameShort : nameShort);
                             }
@@ -2358,7 +2349,7 @@ var LiveResults;
                                     if (clubShort.length > _this.maxClubLength)
                                         clubShort = _this.clubShort(clubShort);				
                                 }
-                                var link = "<a href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                                var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                                 if ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes))
                                 {
                                     if (row.name.length>_this.maxNameLength)
@@ -2423,7 +2414,7 @@ var LiveResults;
                                     var place = "<span class=\"place\"> ";
                                     if (row.splits["0_place"] < 10 && _this.curClassNumberOfRunners >= 10)
                                         place += "&numsp;"
-                                    place += "|" + row.splits["0_place"] + "| </span>" 
+                                    place += "&#10072;" + row.splits["0_place"] + "&#10072; </span>" 
                                     
                                     if (fullView)
                                     {
@@ -2441,7 +2432,7 @@ var LiveResults;
                                     txt += _this.formatTime(row.start, 0, false, true, true) + "</span>";
 								}
 								else
-									txt += _this.formatTime(row.start, 0, false, true, true) 
+									txt += _this.formatTime(row.start, 0, false, true, true); 
                                 return txt;
                             }
                         }
@@ -2484,7 +2475,7 @@ var LiveResults;
                                                 var place = "<span class=\"place\"> ";
                                                 if (_this.curClassNumberOfRunners >= 10 && row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-" || row.splits[value.code + "_place"] == "=")
                                                     place += "&numsp;"
-                                                place += "|" + row.splits[value.code + "_place"] + "|</span>";
+                                                place += "&#10072;" + row.splits[value.code + "_place"] + "&#10072;</span>";
 
 												// First line
                                                 if ((!fullView || _this.curClassIsRelay) && (row.splits[value.code + "_place"] != 1) && !_this.curClassIsUnranked && !_this.curClassLapTimes && (value.code > 0))
@@ -2580,7 +2571,7 @@ var LiveResults;
                                 var place = "<span class=\"place\"> ";
                                 if (_this.curClassNumberOfRunners >= 10 && row.place < 10 || row.place == "-" || row.place == "=")
                                     place += "&numsp;"
-                                place += "|" + row.place + "|</span>";
+                                place += "&#10072;" + row.place + "&#10072;</span>";
                                 
                                 if ((haveSplitControls || _this.isMultiDayEvent) && (row.place == 1))
                                     res += "<span class=\"besttime\">";
@@ -2612,7 +2603,7 @@ var LiveResults;
                                     var legplace = "<span class=\"place\"> ";
                                     if (_this.curClassNumberOfRunners >= 10 && row.splits["999_place"] < 10 || row.splits["999_place"] == "-" )
                                         legplace += "&numsp;"
-                                    legplace += "|" + row.splits["999_place"] + "|</span>";
+                                    legplace += "&#10072;" + row.splits["999_place"] + "&#10072;</span>";
 
                                     res += "<br/><span class=";
                                     if (row.splits["999_place"] == 1)
@@ -2707,7 +2698,7 @@ var LiveResults;
                                     var totalplace = "<span class=\"place\"> ";
                                     if (row.totalplace < 10 && _this.curClassNumberOfRunners >= 10)
                                         totalplace += "&numsp;"
-                                    totalplace += "|" + row.place + "|</span>";
+                                    totalplace += "&#10072;" + row.place + "&#10072;</span>";
                                     var res = "";
                                     if (row.totalplace == 1)
                                         res += "<span class=\"besttime\">";

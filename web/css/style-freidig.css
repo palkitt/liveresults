@@ -2,6 +2,10 @@
 /* --- GENERAL TAGS CLASSES --- */
 /*------------------------------*/
 
+:root{
+  --livered: #F1592A;
+}
+
 body {background-color: #ffffff; margin: 0; font-size:68.75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
 
 /* html documents within iframes */
@@ -13,8 +17,8 @@ td{font-family: arial, helvetica, verdana, geneva, sans-serif; font-size:1em; li
 .wrapok{white-space: normal;}
 th{white-space: normal;}
 
-a:link {font-size:1em; color:#F1592A;}
-a:visited {font-size:1em; color:#F1592A;}
+a:link {font-size:1em; color: var(--livered); text-decoration:none}
+a:visited {font-size:1em; color: var(--livered);}
 a:hover{color:#FFA02B; text-decoration:underline;}
 
 textarea{font-size: 1.1em; font-family: arial, helvetica, verdana, geneva, sans-serif;}
@@ -27,7 +31,7 @@ h3{font-size:1em; font-weight:normal; margin-bottom: 0px;}
 
 #divClasses {font-size: 1.1em; line-height: 1.4em;}
 
-.firstnonqualifier {border-top: 3px dashed grey !important;} 
+.firstnonqualifier {border-top: 3px solid gray !important;} 
 .firststarter {border-top: 5px solid black !important;}
 .pre_post_start {background-color: #DFDFDF !important;}
 
@@ -36,12 +40,12 @@ h3{font-size:1em; font-weight:normal; margin-bottom: 0px;}
 td.submenu{background: #555556;}
 td.submenu table tr td {color:#DDDDDD; padding:3px 9px 3px 9px; font-weight:bold;}
 td.submenu table tr td a:link, td.submenu table tr td a:visited {color: #FFF; text-decoration: none;}
-td.submenu table tr td a:hover {text-decoration: underline; color: #F1592A;}
+td.submenu table tr td a:hover {text-decoration: underline; color: var(--livered);}
 
 td.searchmenu { padding-left: 5px;}
 
 /* For compatibility with Emma server */
-tr.new_result {  color: white; background-color: #F1592A !important; }
+tr.new_result {  color: white; background-color: var(--livered) !important; }
 tr.new_result a {color: white;}
 tr.new_result td.sorting_2 { background-color: #F9B7A4 !important;}
 tr.new_result td.sorting_1 { background-color: #F9B7A4 !important; }
@@ -50,10 +54,12 @@ tr.new_result .plustime { color: white;}
 tr.new_result .besttime { color: white;}
 tr.new_result .legtime {color: white;}
 tr.new_result .estimate {color: white;}
+tr.new_result .club { color: white;}
+tr.new_result .relayclub { color: white;}
 tr.new_result td i { color: white;}
 
 /* Red row marking */
-tr.red_row {  color: white; background-color: #F1592A !important; } 
+tr.red_row {  color: white; background-color: var(--livered) !important; } 
 tr.red_row a {color: white;}
 tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; }
@@ -64,27 +70,30 @@ tr.red_row .legtime {color: white;}
 tr.red_row .estimate {color: white;}
 tr.red_row td i { color: white;}
 tr.red_row .bib {color: white;}
+tr.red_row .club {color: white;}
+tr.red_row .relayclub {color: white;}
 
 /* Red cell for singel cell marking of new result */
-.red_cell {color: white; background-color: #F1592A !important;  border-bottom-right-radius: 10px}
+.red_cell {color: white; background-color: var(--livered) !important;  border-bottom-right-radius: 10px}
 .red_cell .plustime { color: white;}
 .red_cell .legtime  { color: white;}
 .red_cell .besttime { color: white;}
 .red_cell i { color: white;}
-.red_cell_sqr {color: white; background-color: #F1592A !important;  border-bottom-right-radius: 0px}
+.red_cell_sqr {color: white; background-color: var(--livered) !important;  border-bottom-right-radius: 0px}
 .red_cell_sqr .plustime { color: white;}
 .red_cell_sqr .legtime  { color: white;}
 .red_cell_sqr .besttime { color: white;}
 .red_cell_sqr i { color: white;}
 
 /* New first nonqualifier */
-tr.new_fnq {  color: white; background-color: #F1592A !important; border-top: 3px dashed grey !important;} 
+tr.new_fnq {  color: white; background-color: var(--livered) !important; border-top: 3px solid grey !important;} 
 tr.new_fnq a {color: white;}
 tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important;}
 tr.new_fnq td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.new_fnq .plustime {color: white;}
 tr.new_fnq .bib {color: white;}
+tr.new_fnq .club {color: white;}
 
 /* Green row for OK at start */
 tr.green_row { color: black; background-color: #00FF00 !important;}
@@ -101,7 +110,7 @@ tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-t
 tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow row highlight for speaker, first non qualifyer */
-tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-top: 3px dashed grey !important;}
+tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-top: 3px solid grey !important;}
 tr.yellow_row_fnq td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow and green cells for messages */
@@ -114,7 +123,7 @@ table.dataTable td {vertical-align: top;}
 /* Pulsing dot for live runner */
 .pulsing {
   animation: blinker 1s ease-in-out infinite;
-  color: #F1592A;
+  color: var(--livered);
   font-size: 1.35em;
 }
 
@@ -137,15 +146,17 @@ table.dataTable td {vertical-align: top;}
   100% { color: #51ff00; opacity: 0; }
 }
 
-.place {font-size: 0.8em; vertical-align: 10%;}
+.place {font-size: 0.8em; vertical-align: 5%;}
 .plustime {color: dimgrey;}
 .legtime {color: dimgrey;}
-.besttime {color: red;}
+.besttime {color: #ff00FF;}
 .bib {color: grey; font-style: normal;}
 .estimate {color:grey; font-style: normal;}
+a.club {color: var(--livered); }
+a.relayclub {color: var(--livered); }
 
 /*predicted times  */
-td i { color: grey;}
+td i { color: var(--livered);font-style: normal;}
 
 
 #langchooser { vertical-align: middle; line-height:21px;}
