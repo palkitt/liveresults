@@ -43,6 +43,8 @@ var LiveResults;
             this.numAnimElements = 0;
             this.classUpdateTimer = null;
             this.passingsUpdateTimer = null;
+            this.radioPassingsUpdateTimer = null;
+            this.runnerListTimer = null;
             this.resUpdateTimeout = null;
             this.updatePredictedTimeTimer = null;
             this.lastClassListHash = "";
@@ -156,9 +158,7 @@ var LiveResults;
                         _this.handleUpdateRunnerListResponse(data);
                     },
                     error: function () {
-                        _this.classUpdateTimer = setTimeout(function () {
-                            _this.updateRunnerList();
-                        }, _this.classUpdateInterval);
+                        _this.runnerListTimer = setTimeout(function () {_this.updateRunnerList();}, _this.classUpdateInterval);
                     },
                     dataType: "json"
                 });
@@ -168,8 +168,10 @@ var LiveResults;
             var _this = this;
             if (data != null && data.status == "OK")
 			{
-                _this.runnerList = data;
+                this.runnerList = data;
+                this.lastRunnerListHash = data.hash;
             }
+            this.runnerListTimer = setTimeout(function () {_this.updateRunnerList();}, this.classUpdateInterval);
         }        
         
         // Update the classlist
@@ -185,9 +187,7 @@ var LiveResults;
                         _this.handleUpdateClassListResponse(data);
                     },
                     error: function () {
-                        _this.classUpdateTimer = setTimeout(function () {
-                            _this.updateClassList();
-                        }, _this.classUpdateInterval);
+                        _this.classUpdateTimer = setTimeout(function () {_this.updateClassList();}, _this.classUpdateInterval);
                     },
                     dataType: "json"
                 });
@@ -1223,7 +1223,8 @@ var LiveResults;
             var _this = this;
             if (data.rt != undefined && data.rt > 0)
                 this.updateInterval = data.rt*1000;
-            if (data != null && data.status == "OK") {
+            if (data != null && data.status == "OK") 
+            {
                 if (data.passings != null) {
                     var str = "";
                     $.each(data.passings, function (key, value) {
@@ -1249,6 +1250,7 @@ var LiveResults;
         //Request data for the last radio passings div
         AjaxViewer.prototype.updateRadioPassings = function (code,calltime,minBib,maxBib) {
             var _this = this;
+            clearTimeout(this.radioPassingsUpdateTimer);
             if (this.updateAutomatically) {
                 $.ajax({
                     url: this.radioURL,
@@ -1260,9 +1262,7 @@ var LiveResults;
                         reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.radioUpdateInterval + 1000);
                         _this.handleUpdateRadioPassings(data,reqTime,code,calltime,minBib,maxBib); },
                     error: function () {
-                        _this.radioPassingsUpdateTimer = setTimeout(function () {
-                            _this.updateRadioPassings();
-                        }, _this.radioUpdateInterval);
+                        _this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(); }, _this.radioUpdateInterval);
                     },
                     dataType: "json"                   
                 });
@@ -1286,7 +1286,8 @@ var LiveResults;
             if (data.rt != undefined && data.rt > 0)
                 this.radioUpdateInterval = data.rt*1000;
             $('#updateinterval').html(this.radioUpdateInterval/1000);
-			if (data != null && data.status == "OK") {
+			if (data != null && data.status == "OK") 
+            {
                 updated = true;
                 if (data.passings != null) 
 				{
@@ -1327,7 +1328,7 @@ var LiveResults;
                     }
                     else if (age >= 0 && age <= _this.radioHighTime)
                     {
-                        if (passing.rank == 1 && passing.DT_RowClass != "gree_row")
+                        if (passing.rank == 1 && passing.DT_RowClass != "green_row")
                         {
                             passing.DT_RowClass = "green_row";
                             updated = true;
@@ -1862,9 +1863,7 @@ var LiveResults;
                             _this.handleUpdateClassResults(data,expTime);
                         },
                         error: function () {
-                            _this.resUpdateTimeout = setTimeout(function () {
-                                _this.checkForClassUpdate();
-                            }, _this.updateInterval);
+                            _this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, _this.updateInterval);
                         },
                         dataType: "json"
                     });
@@ -2115,9 +2114,7 @@ var LiveResults;
                             _this.handleUpdateClubResults(data,reqTime); 
                         },
                         error: function () {
-                            _this.resUpdateTimeout = setTimeout(function () {
-                                _this.checkForClubUpdate();
-                            }, _this.clubUpdateInterval);
+                            _this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, _this.clubUpdateInterval);
                         },
                         dataType: "json"
                     });
@@ -2129,7 +2126,6 @@ var LiveResults;
         AjaxViewer.prototype.handleUpdateClubResults = function (data,reqTime) {
             var _this = this;
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
-            clearTimeout(this.resUpdateTimeout);
             if (data.rt != undefined && data.rt > 0)
             {    
                 this.clubUpdateInterval = data.rt*1000;
@@ -2849,6 +2845,7 @@ var LiveResults;
             else {
                 clearTimeout(this.resUpdateTimeout);
                 clearTimeout(this.passingsUpdateTimer);
+                clearTimeout(this.radioPassingsUpdateTimer);
                 clearTimeout(this.classUpdateTimer);
                 $("#" + this.setAutomaticUpdateText).html("<b>" + this.resources["_AUTOUPDATE"] + ":</b> <a href=\"javascript:LiveResults.Instance.setAutomaticUpdate(true);\">" + this.resources["_ON"] + "</a> | " + this.resources["_OFF"] + "");
                 if (this.currentTable) {
