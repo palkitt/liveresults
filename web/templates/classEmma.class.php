@@ -331,7 +331,7 @@ class Emma
 	function GetUpdateFactor()
 	{
 		// Calculates and returns updated interval factor to ensure number of connects does not violate limit
-		$target = 30000; // Connects per hour (limit)
+		$target = 25000; // Connects per hour (limit)
 		$scale  = 10;    // Scaledown factor
 		$UFmin  = 0.01;  // Smallest update factor
 		$UFmax  = 1.0;   // Largest update factor
