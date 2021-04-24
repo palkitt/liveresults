@@ -287,7 +287,7 @@ var LiveResults;
             }
 
             if (_this.isCompToday())
-                this.classUpdateTimer = setTimeout(function () {_this.updateClassList(); }, this.classUpdateInterval);
+                this.classUpdateTimer = setTimeout(function () {_this.updateClassList(); }, _this.classUpdateInterval);
         };
 		
 		// Update best split times
@@ -1183,7 +1183,7 @@ var LiveResults;
             }
             
             // Stop requesting updates if class not active
-            if (!curClassActive && !this.EmmaServer)
+            if (!curClassActive && !this.EmmaServer && this.curClassName != null)
                 clearTimeout(this.resUpdateTimeout);
         };
 		
@@ -1243,7 +1243,7 @@ var LiveResults;
                 }
             }
             if (_this.isCompToday())
-                this.passingsUpdateTimer = setTimeout(function () {_this.updateLastPassings();}, this.updateInterval);
+                this.passingsUpdateTimer = setTimeout(function () {_this.updateLastPassings();}, _this.updateInterval);
         };
 
         //Request data for the last radio passings div
@@ -1285,7 +1285,7 @@ var LiveResults;
             // Insert data from query
             if (data.rt != undefined && data.rt > 0)
                 this.radioUpdateInterval = data.rt*1000;
-            $('#updateinterval').html(this.updateInterval/1000);
+            $('#updateinterval').html(this.radioUpdateInterval/1000);
 			if (data != null && data.status == "OK") {
                 updated = true;
                 if (data.passings != null) 
@@ -1493,7 +1493,7 @@ var LiveResults;
                 }
             }
             if (_this.isCompToday())
-                this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(code,calltime,minBib,maxBib);}, this.radioUpdateInterval);
+                this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(code,calltime,minBib,maxBib);}, _this.radioUpdateInterval);
         };
         
     // Runner name shortener
@@ -1947,8 +1947,8 @@ var LiveResults;
             var isResTab = (newData[0].virtual_position != undefined);
             var table = null;
             var fixedTable = null;
-            //this.currentTable.fnAdjustColumnSizing();
-            //tableDT.rows().recalcHeight().draw();
+            this.currentTable.fnAdjustColumnSizing();
+            tableDT.rows().recalcHeight().draw();
 
             if (isResTab) // Result table
             {
@@ -2000,14 +2000,17 @@ var LiveResults;
 
             if (predRank)
                 clearTimeout(this.updatePredictedTimeTimer);
-
+            
+            // Set table to position relative
+            $(table).css('position', 'relative');
+            
             // Set each td's width
             var column_widths = new Array();
             $(table).find('tr:first-child th').each(function() {column_widths.push($(this).outerWidth(true)-9);});
             $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
             
             // Set table height and width
-            var height = $(table).outerHeight()+1;
+            var height = $(table).outerHeight()+20;
 
             // Put all the rows back in place
             var rowPosArray = new Array();
@@ -2020,15 +2023,15 @@ var LiveResults;
             // Set table cells position to absolute
             $(table).find('tbody tr').each(function() {
                 $(this).css('position', 'absolute').css('z-index', '-4'); });
-            $(table).height(height);
 
             if (isResTab)
             {
+                $(fixedTable).css('position', 'relative');
                 $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
                 $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
                 $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-3'); });
             }
-            
+            $(table).height(height).width('100%');
 
             // Animation
             this.animating = true;
@@ -2056,22 +2059,17 @@ var LiveResults;
                     zind    = (updProg[newInd] ? 0 : -2);
                     zindFix = zind + 1;
                 }
-                              
-                $(row).css('background-color',oldBkCol).css('top', oldPos).velocity({backgroundColor: newBkCol, top : newPos},
-                    {duration: animTime, 
-                        begin: function(){ 
-                            _this.numAnimElements++; 
-                            $(row).css('z-index',zind);},
-                        complete: 
-                        function(){_this.numAnimElements--}});
+                this.numAnimElements++;
+                $(row).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zind);
+                $(row).velocity({backgroundColor: newBkCol, top : newPos}, 
+                    {duration: animTime, complete: function(){_this.numAnimElements--;}});
                 if (isResTab)
-                    $(rowFix).css('background-color',oldBkCol).css('top', oldPos).velocity({backgroundColor: newBkCol, top : newPos},
-                    {duration: animTime, 
-                        begin: function(){
-                            _this.numAnimElements++;
-                            $(rowFix).css('z-index',zindFix);},
-                     complete: function(){
-                         _this.numAnimElements--}});
+                {
+                    this.numAnimElements++;
+                    $(rowFix).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zindFix);
+                    $(rowFix).velocity({backgroundColor: newBkCol, top : newPos}, 
+                       {duration: animTime, complete: function(){_this.numAnimElements--;}});
+                }
             }
             setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank)},_this.animTime+50);
         };   
@@ -2082,11 +2080,16 @@ var LiveResults;
                 setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank)},50);
             else
             {
-                $(table).find('tr').each(function() {$(this).css('position', 'relative'); }); 
+                $(table).css('position', '');
+                $(table).find('tr td, tr th').each(function() {$(this).css('min-width','');});   
+                $(table).find('tr').each(function() {$(this).css('position', ''); });
+                $(table).height(0).width('100%');
                 if (fixedTable != null)
-                    $(fixedTable).find('tr').each(function() {$(this).css('position', 'relative'); });  
-                $(table).height(0);
-
+                {
+                    $(fixedTable).css('position', '');
+                    $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width','');});        
+                    $(fixedTable).find('tr').each(function() {$(this).css('position', ''); });
+                }
                 this.animating = false;
                 if (predRank)
                     this.startPredictionUpdate();
@@ -2128,7 +2131,10 @@ var LiveResults;
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             clearTimeout(this.resUpdateTimeout);
             if (data.rt != undefined && data.rt > 0)
+            {    
                 this.clubUpdateInterval = data.rt*1000;
+                 $('#updateinterval').html(this.clubUpdateInterval/1000);
+            }
             if (data.status == "OK" && this.currentTable != null)
             { 
                 var numberOfRunners = data.results.length;
@@ -2153,7 +2159,7 @@ var LiveResults;
                 this.lastClubHash = data.hash;
             }
             if (_this.isCompToday())
-                this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, this.clubUpdateInterval);
+                this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, _this.clubUpdateInterval);
         };	
 		
 		AjaxViewer.prototype.chooseClass = function (className) {
@@ -2698,7 +2704,7 @@ var LiveResults;
                                     var totalplace = "<span class=\"place\"> ";
                                     if (row.totalplace < 10 && _this.curClassNumberOfRunners >= 10)
                                         totalplace += "&numsp;"
-                                    totalplace += "&#10072;" + row.place + "&#10072;</span>";
+                                    totalplace += "&#10072;" + row.totalplace + "&#10072;</span>";
                                     var res = "";
                                     if (row.totalplace == 1)
                                         res += "<span class=\"besttime\">";
@@ -3205,22 +3211,28 @@ var LiveResults;
             $.ajax({
                 url: this.apiURL,
                 data: "comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club=" + encodeURIComponent(clubName) + (this.isMultiDayEvent ? "&includetotal=true" : ""),
-                success: function (data) {
-                    _this.updateClubResults(data);
+                success: function (data,status,resp) {
+                    var reqTime = new Date();
+                    reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.clubUpdateInterval + 1000);
+                    _this.updateClubResults(data,reqTime);
                 },
                 dataType: "json"
             });
             if (!this.isSingleClass) {
                 window.location.hash = "club::" + clubName;
             }
-            this.resUpdateTimeout = setTimeout(function () {
-                _this.checkForClubUpdate();
-            }, this.updateInterval);
         };
         
-        AjaxViewer.prototype.updateClubResults = function (data) {
+        AjaxViewer.prototype.updateClubResults = function (data,reqTime) {
             var _this = this;
-            if (data != null && data.status == "OK") {
+            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+            if (data.rt != undefined && data.rt > 0)
+            {    
+                this.clubUpdateInterval = data.rt*1000;
+                 $('#updateinterval').html(this.clubUpdateInterval/1000);
+            }
+            if (data != null && data.status == "OK") 
+            {
                 if (data.clubName != null) {
                     $('#' + this.resultsHeaderDiv).html('<b>' + data.clubName + '</b>');
                     $('#' + this.resultsControlsDiv).show();
@@ -3343,6 +3355,8 @@ var LiveResults;
                     this.lastClubHash = data.hash;
                 }
             }
+            if (_this.isCompToday())
+                this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, _this.clubUpdateInterval);
         };
         
         AjaxViewer.prototype.resetSorting = function () {
