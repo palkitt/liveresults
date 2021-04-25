@@ -49,7 +49,6 @@ tr.new_result {  color: white; background-color: var(--livered) !important; }
 tr.new_result a {color: white;}
 tr.new_result td.sorting_2 { background-color: #F9B7A4 !important;}
 tr.new_result td.sorting_1 { background-color: #F9B7A4 !important; }
-tr.new_result td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.new_result .plustime { color: white;}
 tr.new_result .besttime { color: white;}
 tr.new_result .legtime {color: white;}
@@ -63,7 +62,6 @@ tr.red_row {  color: white; background-color: var(--livered) !important; }
 tr.red_row a {color: white;}
 tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; }
-tr.red_row td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.red_row .plustime { color: white;}
 tr.red_row .besttime { color: white;}
 tr.red_row .legtime {color: white;}
@@ -74,12 +72,12 @@ tr.red_row .club {color: white;}
 tr.red_row .relayclub {color: white;}
 
 /* Red cell for singel cell marking of new result */
-.red_cell {color: white; background-color: var(--livered) !important;  border-bottom-right-radius: 10px}
+.red_cell {color: white; background-color: var(--livered) !important; }
 .red_cell .plustime { color: white;}
 .red_cell .legtime  { color: white;}
 .red_cell .besttime { color: white;}
 .red_cell i { color: white;}
-.red_cell_sqr {color: white; background-color: var(--livered) !important;  border-bottom-right-radius: 0px}
+.red_cell_sqr {color: white; background-color: var(--livered) !important; }
 .red_cell_sqr .plustime { color: white;}
 .red_cell_sqr .legtime  { color: white;}
 .red_cell_sqr .besttime { color: white;}
@@ -90,28 +88,22 @@ tr.new_fnq {  color: white; background-color: var(--livered) !important; border-
 tr.new_fnq a {color: white;}
 tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important;}
-tr.new_fnq td:last-child { border-top-right-radius: 0px; border-bottom-right-radius: 10px}
+tr.new_fnq td:last-child { border-top-right-radius: 0px; }
 tr.new_fnq .plustime {color: white;}
 tr.new_fnq .bib {color: white;}
 tr.new_fnq .club {color: white;}
 
 /* Green row for OK at start */
 tr.green_row { color: black; background-color: #00FF00 !important;}
-tr.green_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.green_row_new { color: black; background-color: #00FF00 !important; border-top: 2px solid grey !important;}
-tr.green_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-top: 5px solid black ;}
-tr.green_row_firststarter td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow row for inside calltime at start, not OK at finish, highlight for speaker */
 tr.yellow_row { color: black; background-color: #FFFF00 !important; }
-tr.yellow_row td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-top: 2px solid grey !important;}
-tr.yellow_row_new td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow row highlight for speaker, first non qualifyer */
 tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-top: 3px solid grey !important;}
-tr.yellow_row_fnq td:last-child {border-top-right-radius: 0px; border-bottom-right-radius: 10px}
 
 /* Yellow and green cells for messages */
 .yellow_cell {color: black; background-color: #FFFF00 !important;}
