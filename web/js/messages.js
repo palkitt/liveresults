@@ -5,15 +5,16 @@ var Messages;
     var AjaxViewer = /** @class */ (function () {
         function AjaxViewer(competitionId) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.compName = "";
             this.compDate = "";
-            this.radioUpdateInterval = 5000;
-            this.lastRadioPassingsUpdateHash = "";
+            this.messagesUpdateInterval = 5000;
+            this.messagesUpdateTimer = null;
+            this.lastMessagesUpdateHash = "";
             this.runnerStatus = [];
             this.currentTable = null;
-            this.radioData = null;
+            this.messagesData = null;
             this.showAllMessages = true;
             this.newMessageAudio = new Audio(src="images/maybe-one-day.mp3");
             this.audioMute = true;
@@ -46,26 +47,21 @@ var Messages;
             return (dt.getDate() == compDay.getDate() || this.local ? true : false)
         };
 
-        
         //Request data for messages
         AjaxViewer.prototype.updateMessages = function (refresh = false) {
+            clearTimeout(this.messagesUpdateTimer);
             var _this = this;
-            var hash = (refresh? (Math.floor(Math.random() * 10000) + 1) : this.lastRadioPassingsUpdateHash);
+            var hash = (refresh? (Math.floor(Math.random() * 10000) + 1) : this.lastMessagesUpdateHash);
             $.ajax({
                 url: this.URL,
                 data: "comp=" + this.competitionId + "&method=getmessages&last_hash=" + hash,
                 success: function (data,status,resp) {
                     _this.handleUpdateMessages(data); },
                 error: function () {
-                    _this.radioPassingsUpdateTimer = setTimeout(function () {
-                        _this.updateMessages();
-                    }, _this.radioUpdateInterval);
+                    _this.messagesUpdateTimer = setTimeout(function () {_this.updateMessages();}, _this.messagesUpdateInterval);
                 },
                 dataType: "json"                   
             });
-            clearTimeout(this.radioPassingsUpdateTimer);
-            if (_this.isCompToday())
-                this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateMessages();}, this.radioUpdateInterval);
         };
         
         //Handle response for updating the last radio passings..
@@ -78,12 +74,11 @@ var Messages;
             var _this = this;
 
             if (data.rt != undefined && data.rt > 0)
-                this.radioUpdateInterval = data.rt*1000;
+                this.messagesUpdateInterval = data.rt*1000;
                  
             // Insert data from query
             if (data != null && data.status == "OK" && data.messages != null) 
             {
-                
                 // Make list of group times for each bib
                 var groupTimes = new Object();
                 for (var i=0; i<data.messages.length;i++)
@@ -101,14 +96,14 @@ var Messages;
                         data.messages[i].groupchanged = groupTimes[bibMessage];
                 }
                 
-                this.radioData = data.messages;
-                this.lastRadioPassingsUpdateHash = data.hash;
+                this.messagesData = data.messages;
+                this.lastMessagesUpdateHash = data.hash;
                 
                 if (this.lastNumberOfMessages == null)
-                    this.lastNumberOfMessages = this.radioData.length;
-                else if (this.radioData.length > this.lastNumberOfMessages)
+                    this.lastNumberOfMessages = this.messagesData.length;
+                else if (this.messagesData.length > this.lastNumberOfMessages)
                 {
-                    this.lastNumberOfMessages = this.radioData.length;
+                    this.lastNumberOfMessages = this.messagesData.length;
                     if (!this.audioMute)
                         this.newMessageAudio.play();
                 }
@@ -117,14 +112,14 @@ var Messages;
                 if (this.currentTable != null) 
                 {
                     this.currentTable.fnClearTable();
-                    this.currentTable.fnAddData(this.radioData, true);
+                    this.currentTable.fnAddData(this.messagesData, true);
                     this.filterTable();
                 }
                 
                 // New datatable
                 else 
                 {
-                    if (this.radioData.length==0) return;
+                    if (this.messagesData.length==0) return;
                     var columns = Array();
                     var col = 0;
                     
@@ -240,7 +235,7 @@ var Messages;
                         "bSort": true,
                         "bInfo": false,
                         "bAutoWidth": false,
-                        "aaData": this.radioData,
+                        "aaData": this.messagesData,
                         "aaSorting": [[0, "desc"],[1, "desc"],[2, "desc"]],
                         "aoColumnDefs": columns,
                         "bDestroy": true,
@@ -250,6 +245,8 @@ var Messages;
                 };
                 this.updateMessageMarking();            
             };
+            if (this.isCompToday())
+                this.messagesUpdateTimer = setTimeout(function () { _this.updateMessages();}, this.messagesUpdateInterval);
         };
 
     // Update markings and visibility
@@ -298,10 +295,10 @@ var Messages;
                 url: this.URL + "?method=setcompleted", 
                 data: "&messid=" + messid + "&completed=" + completed,
                 success: function() {_this.updateMessages(true);}
-        });
+                });
     }
 
-    // Set message dns status
+    // Set message DNS status
     AjaxViewer.prototype.setMessageDNS = function (messid,dns) 
     {
         var _this = this;
@@ -339,7 +336,6 @@ var Messages;
     
     // Club name shortener
     AjaxViewer.prototype.clubShort = function (club) {
-        _this = this;
         if(!club)
             return false;
         var shortClub = club.replace('Orienterings', 'O.');
@@ -368,9 +364,9 @@ var Messages;
         var lastDiv = shortClub.lastIndexOf("-");
         var legNoStr = shortClub.substr(lastDiv);
         if(!isNaN(legNoStr) && lastDiv>0)
-            shortClub = shortClub.substring(0, Math.min(lastDiv,_this.maxClubLength)) + legNoStr;
+            shortClub = shortClub.substring(0, Math.min(lastDiv,this.maxClubLength)) + legNoStr;
         else
-            shortClub = shortClub.substring(0, _this.maxClubLength)
+            shortClub = shortClub.substring(0, this.maxClubLength)
         if (del)
             shortClub = "<del>" + shortClub + "</del>";
         
