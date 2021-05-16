@@ -982,13 +982,14 @@ var LiveResults;
                             if (data[i].start != "" && data[i].start > 0) 
                             { 
                                 var elapsedTime = time - data[i].start;
-                                if (elapsedTime>=0) 
+                                if (elapsedTime >= 0) 
                                 {
-                                    if (elapsedTime < 200 || refresh)
+                                    if (table.cell( i, 0 ).node().innerHTML == "")
                                     {
                                         table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
                                         modifiedTable = true;
-                                    }                            
+                                    }                        
+
                                     if(this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked)
                                     {
                                         var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
@@ -1175,7 +1176,10 @@ var LiveResults;
                     if (updatedVP)
                         table.rows().invalidate().draw();
                     if (modifiedTable || refresh)
+                    {
                         table.fixedColumns().update();
+                        table.rows().recalcHeight().draw();
+                    }
                     if (updatedVP && animate)
                         this.animateTable(oldData, data, this.animTime, true);
                 } 
@@ -1288,6 +1292,7 @@ var LiveResults;
             $('#updateinterval').html(this.radioUpdateInterval/1000);
 			if (data != null && data.status == "OK") 
             {
+				this.lastRadioPassingsUpdateHash = data.hash;
                 updated = true;
                 if (data.passings != null) 
 				{
@@ -1300,7 +1305,6 @@ var LiveResults;
 							this.radioData.pop();
 					}
 				}
-				this.lastRadioPassingsUpdateHash = data.hash;
 			
                 if (this.radioData != null && this.radioData.length > 0 && this.radioData[0].timeDiff == -2)
                 {
@@ -1333,7 +1337,7 @@ var LiveResults;
                             passing.DT_RowClass = "green_row";
                             updated = true;
                         }
-                        else if (passing.DT_RowClass != "red_row")
+                        else if (passing.rank > 1 && passing.DT_RowClass != "red_row")
                         {
                             passing.DT_RowClass = "red_row";
                             updated = true;
@@ -1364,7 +1368,6 @@ var LiveResults;
                 {
                     var columns = Array();
                     var col = 0;
-                    var className = "";
                     if (!this.radioStart && !leftInForest)
                     {
                         columns.push({ "sTitle": "Sted", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName"});
@@ -1414,7 +1417,6 @@ var LiveResults;
                         }});
                     columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
                         "render": function (data,type,row) {
-                                className = row.class;
                                 var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
                                 link +=	"\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
                                 return link;
@@ -1449,7 +1451,7 @@ var LiveResults;
                                 if (row.timeDiff >= 0)
                                     res += "+" + _this.formatTime(row.timeDiff, 0, _this.showTenthOfSecond);
                                 else if (row.timeDiff != -1)
-                                    res += "<span class=\"besttime\">-" + _this.formatTime(-row.timeDiff, 0, _this.showTenthOfSecond) +"</span>";
+                                    res += "<i>-" + _this.formatTime(-row.timeDiff, 0, _this.showTenthOfSecond) +"</i>";
                                 return res;
                             }});
                     if (leftInForest)
@@ -1495,8 +1497,8 @@ var LiveResults;
                         });            
                 }
             }
-            if (_this.isCompToday())
-                this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(code,calltime,minBib,maxBib);}, _this.radioUpdateInterval);
+            if (this.isCompToday())
+                this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(code,calltime,minBib,maxBib);}, this.radioUpdateInterval);
         };
         
     // Runner name shortener
@@ -1951,10 +1953,10 @@ var LiveResults;
             var table = null;
             var fixedTable = null;
             this.currentTable.fnAdjustColumnSizing();
-            tableDT.rows().recalcHeight().draw();
 
             if (isResTab) // Result table
             {
+                tableDT.rows().recalcHeight().draw();
                 table = $('#' + this.resultsDiv);
                 var order = tableDT.order();
                 var numCol = tableDT.settings().columns()[0].length;
