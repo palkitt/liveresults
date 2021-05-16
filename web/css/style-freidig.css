@@ -141,14 +141,14 @@ table.dataTable td {vertical-align: top;}
 .place {font-size: 0.8em; vertical-align: 5%;}
 .plustime {color: dimgrey;}
 .legtime {color: dimgrey;}
-.besttime {text-shadow: 0px 0px 2px var(--livered);}
+.besttime {color: var(--livered);}
 .bib {color: grey; font-style: normal;}
 .estimate {color:grey; font-style: normal;}
 a.club {color: var(--livered); }
 a.relayclub {color: var(--livered); }
 
 /*predicted times  */
-td i { color: var(--livered); font-style: normal;}
+td i { color: rgb(170, 0, 170); font-style: normal;}
 
 
 #langchooser { vertical-align: middle; line-height:21px;}
