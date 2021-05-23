@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -2011,7 +2011,7 @@ var LiveResults;
             
             // Set each td's width
             var column_widths = new Array();
-            $(table).find('tr:first-child th').each(function() {column_widths.push($(this).outerWidth(true)-9);});
+            $(table).find('tr:first-child th').each(function() {column_widths.push( $(this)[0].getBoundingClientRect().width-9);});
             $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
             
             // Set table height and width
@@ -2019,8 +2019,9 @@ var LiveResults;
 
             // Put all the rows back in place
             var rowPosArray = new Array();
-            $(table).find('tr').each(function(index) {
-                var rowPos = $(this).position().top + (this.clientTop>1 ? -1 : 0);
+            var tableTop = $(table)[0].getBoundingClientRect().top; 
+            $(table).find('tr').each(function() {
+                var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop>1 ? -1.5 : -0.5);
                 rowPosArray.push(rowPos);
                 $(this).css('top', rowPos);
             });
@@ -2035,6 +2036,7 @@ var LiveResults;
                 $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
                 $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
                 $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-3'); });
+                $(fixedTable).height(height).width('100%');
             }
             $(table).height(height).width('100%');
 
@@ -2094,6 +2096,7 @@ var LiveResults;
                     $(fixedTable).css('position', '');
                     $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width','');});        
                     $(fixedTable).find('tr').each(function() {$(this).css('position', ''); });
+                    $(fixedTable).height(0).width('100%');
                 }
                 this.animating = false;
                 if (predRank)
