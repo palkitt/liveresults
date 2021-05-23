@@ -357,7 +357,7 @@ function closeTop() {
   </table>
 
   <?php if (!$isSingleClass && !$isSingleClub) {?>
-	Antall: <span id="numberOfRunners"></span>  
+	<p align="left">Antall: <span id="numberOfRunners"></span></p>
 	<p align="left"><font color="#AAA" size="0.7em">
   * <?=$_HELPREDRESULTS?><br>
   &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
