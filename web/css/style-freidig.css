@@ -121,7 +121,7 @@ table.dataTable td {vertical-align: top;}
 
 .pulsingLive {
   animation: blinkerCom 1s ease-in-out;
-  animation-iteration-count: 5;
+  animation-iteration-count: 30;
   color: gray;
   font-size: 1.35em;
 }

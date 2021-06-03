@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1364,7 +1364,7 @@ var LiveResults;
             
             else if (this.currentTable == null) // New datatable
             {
-                if (this.radioData.length > 0)
+                if (this.radioData != null && this.radioData.length > 0)
                 {
                     var columns = Array();
                     var col = 0;
