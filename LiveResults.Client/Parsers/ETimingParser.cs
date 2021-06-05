@@ -624,15 +624,14 @@ namespace LiveResults.Client
 
                     try
                     {
-                        eTimeID = Convert.ToInt32(reader["id"].ToString());
-                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
-                            parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
-                        if (m_EventorID)
-                            runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
-                        else
-                            runnerID = eTimeID;
-                        runnerID += m_IdOffset;
-                        
+                        // Check timing type, status and class before proceeding
+                        if (reader["timingtype"] != null && reader["timingtype"] != DBNull.Value)
+                            timingType = Convert.ToInt32(reader["timingtype"].ToString()); 
+                        if (timingType == 3) // 0=normal; 1=not ranked; 2=not show times; 3=not show class 
+                            continue;
+                        if (timingType == 1 || timingType == 2)  
+                            sign = -1;
+
                         status = reader["status"] as string;
                         if ((status == "V") || (status == "C")) // Skip if free or not entered  
                             continue;
@@ -641,9 +640,17 @@ namespace LiveResults.Client
                         if (!string.IsNullOrEmpty(classN))
                             classN = classN.Trim();
                         if (classN == "NOCLAS")                // Skip runner if in NOCLAS
-                            continue;   
+                            continue;
 
                         // Continue with adding or updating runner
+                        eTimeID = Convert.ToInt32(reader["id"].ToString());
+                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
+                            parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
+                        if (m_EventorID)
+                            runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
+                        else
+                            runnerID = eTimeID;
+                        runnerID += m_IdOffset;
                         usedIDout.Add(runnerID);
 
                         club = (reader["tname"] as string);
@@ -674,12 +681,7 @@ namespace LiveResults.Client
                             chaseStart = Convert.ToBoolean(reader["cheaseing"].ToString());
 
                         freeStart = Convert.ToBoolean(reader["freestart"].ToString());
-
-                        if (reader["timingtype"] != null && reader["timingtype"] != DBNull.Value)
-                            timingType = Convert.ToInt32(reader["timingtype"].ToString());
-                        if (timingType == 1 || timingType == 2)  // 0=normal, 1=not ranked, 2=not show times
-                            sign = -1;
-
+                        
                         iStartTime = -1;
                         if (freeStart)
                             iStartTime = -999;
