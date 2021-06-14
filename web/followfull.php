@@ -322,6 +322,7 @@ function closeTop() {
 					case "Stokke IL":    $image = "images/stokke.png"; break; 
 					case "Byaasen Skiklub":	$image = "images/BSK.png"; break;
 					case "Kristiansand OK": $image = "images/KOK_60.jpg"; break;
+					case "OK Moss": $image = "images/OKMoss.png"; break;
 				}
 			if ($image != ""){ ?>
 			<td width="60"><img src="<?php echo($image) ?>" height="60" ></td>
