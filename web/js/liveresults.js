@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1426,11 +1426,15 @@ var LiveResults;
                         columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
                         "render": function (data,type,row) {
                             var ecardstr = "";
+                            if (row.checked == 1)
+                                ecardstr += "&#9989; "; // Green checkmark
+                            else
+                                ecardstr += "&#11036; "; // Empty checkbox
                             if (row.ecard1>0) {
-                                ecardstr = row.ecard1;
+                                ecardstr += row.ecard1;
                                 if (row.ecard2>0) ecardstr += " / " + row.ecard2;}
                             else
-                                if (row.ecard2>0) ecardstr = row.ecard2;
+                                if (row.ecard2>0) ecardstr += row.ecard2;                            
                             return ecardstr;}});
                     }				
                     if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
