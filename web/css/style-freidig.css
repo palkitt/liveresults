@@ -138,7 +138,7 @@ table.dataTable td {vertical-align: top;}
   100% { color: #51ff00; opacity: 0; }
 }
 
-.place {font-size: 0.8em; vertical-align: 5%;}
+.place {font-size: 0.8em; vertical-align: 0%;}
 .plustime {color: dimgrey;}
 .legtime {color: dimgrey;}
 .besttime {color: magenta;}
