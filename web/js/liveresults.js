@@ -1851,6 +1851,7 @@ var LiveResults;
                         data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(this.curClassName) + "&nosplits=" + this.noSplits +
 						"&last_hash=" + this.lastClassHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                         success: function (data, status, resp) {
+                            var expTime = false;
                             try {
                                 var postTime = new Date().getTime();
                                 var varTime = Math.max(1000,postTime-preTime); // Uncertainty in server time. Add 1000 to account for seconds resultion
@@ -1861,7 +1862,7 @@ var LiveResults;
                                     if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
                                         _this.serverTimeDiff = newTimeDiff;
                                 }
-                                var expTime = new Date(resp.getResponseHeader("expires")).getTime();
+                                expTime = new Date(resp.getResponseHeader("expires")).getTime();
                             }
                             catch (e) {  }
                             _this.handleUpdateClassResults(data,expTime);
@@ -1877,64 +1878,67 @@ var LiveResults;
         
         //handle response from class-results-update
         AjaxViewer.prototype.handleUpdateClassResults = function (newData,expTime) {
-            if (newData.rt != undefined && newData.rt > 0)
-                this.updateInterval = newData.rt*1000;
-            $('#updateinterval').html(this.updateInterval/1000);
-            if (expTime)
-            {
-                var lastUpdate = new Date();
-                lastUpdate.setTime(expTime - this.updateInterval + 1000);
-                $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
-            }
-            var _this = this;
-            if (newData.status == "OK") {
-                clearTimeout(this.updatePredictedTimeTimer);
-                if (this.animating) // Wait until animation is completed
+            try{
+                if (newData.rt != undefined && newData.rt > 0)
+                    this.updateInterval = newData.rt*1000;
+                $('#updateinterval').html(this.updateInterval/1000);
+                if (expTime)
                 {
-                    setTimeout(function () {_this.handleUpdateClassResults(newData,expTime);}, 100);
-                    return;
+                    var lastUpdate = new Date();
+                    lastUpdate.setTime(expTime - this.updateInterval + 1000);
+                    $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
                 }
-                if (this.currentTable != null)
-				{
-                    var oldResults = $.extend(true,[],this.currentTable.fnGetData());
-                    var table = this.currentTable.api();
-					var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
-                    var scrollDown = window.scrollY;
-
-                    this.curClassNumberOfRunners = newData.results.length;
-                    $('#numberOfRunners').html(this.curClassNumberOfRunners);
-                    this.checkRadioControls(newData);
-                    this.updateClassSplitsBest(newData);
-                    this.updateResultVirtualPosition(newData.results);
-                    this.predData = $.extend(true,[],newData.results);
-                    if (this.highlightID != null)
-                        this.setHighlight(newData.results,this.highlightID); 
-                    if (this.qualLimits != null && this.qualLimits.length > 0)
-                        this.updateQualLimMarks(newData.results, newData.className);
-
-                    this.currentTable.fnClearTable();
-                    this.currentTable.fnAddData(newData.results, true);
-                    
-                    // Hide columns if split is BAD
-                    if (this.curClassSplits != null && this.curClassSplits.length > 0)
+                var _this = this;
+                if (newData.status == "OK") {
+                    clearTimeout(this.updatePredictedTimeTimer);
+                    if (this.animating) // Wait until animation is completed
                     {
-                        var offset = 3 + (this.curClassHasBibs? 1 : 0) + ((this.curClassIsUnranked || (this.compactView && !this.curClassLapTimes)) ? 1 : 0);
-                        for (var sp = 0; sp < this.curClassNumSplits; sp++){
-                            colNum = offset + 2*sp;
-                            table.column(colNum).visible( this.curClassSplitsOK[sp] );
-                        }
-                    }     
-					$(table.settings()[0].nScrollBody).scrollLeft( posLeft );
-                    window.scrollTo(0,scrollDown);
-                    this.lastClassHash = newData.hash;
+                        setTimeout(function () {_this.handleUpdateClassResults(newData,expTime);}, 100);
+                        return;
+                    }
+                    if (this.currentTable != null)
+                    {
+                        var oldResults = $.extend(true,[],this.currentTable.fnGetData());
+                        var table = this.currentTable.api();
+                        var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
+                        var scrollDown = window.scrollY;
 
-                    this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
-                    var newResults = this.currentTable.fnGetData();                    
-                    this.animateTable(oldResults, newResults, this.animTime);
+                        this.curClassNumberOfRunners = newData.results.length;
+                        $('#numberOfRunners').html(this.curClassNumberOfRunners);
+                        this.checkRadioControls(newData);
+                        this.updateClassSplitsBest(newData);
+                        this.updateResultVirtualPosition(newData.results);
+                        this.predData = $.extend(true,[],newData.results);
+                        if (this.highlightID != null)
+                            this.setHighlight(newData.results,this.highlightID); 
+                        if (this.qualLimits != null && this.qualLimits.length > 0)
+                            this.updateQualLimMarks(newData.results, newData.className);
 
-                    setTimeout(function(){_this.startPredictionUpdate();}, _this.animTime+200);
+                        this.currentTable.fnClearTable();
+                        this.currentTable.fnAddData(newData.results, true);
+                        
+                        // Hide columns if split is BAD
+                        if (this.curClassSplits != null && this.curClassSplits.length > 0)
+                        {
+                            var offset = 3 + (this.curClassHasBibs? 1 : 0) + ((this.curClassIsUnranked || (this.compactView && !this.curClassLapTimes)) ? 1 : 0);
+                            for (var sp = 0; sp < this.curClassNumSplits; sp++){
+                                colNum = offset + 2*sp;
+                                table.column(colNum).visible( this.curClassSplitsOK[sp] );
+                            }
+                        }     
+                        $(table.settings()[0].nScrollBody).scrollLeft( posLeft );
+                        window.scrollTo(0,scrollDown);
+                        this.lastClassHash = newData.hash;
+
+                        this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
+                        var newResults = this.currentTable.fnGetData();                    
+                        this.animateTable(oldResults, newResults, this.animTime);
+
+                        setTimeout(function(){_this.startPredictionUpdate();}, _this.animTime+200);
+                    }
                 }
             }
+            catch (e) {}
             if (this.isCompToday())
                 this.resUpdateTimeout = setTimeout(function () {_this.checkForClassUpdate();}, _this.updateInterval);
         };
@@ -1946,145 +1950,149 @@ var LiveResults;
             
             if (this.animating)
                 return
-
-            var _this = this;
-            var tableDT = this.currentTable.api();
-            var isResTab = (newData[0].virtual_position != undefined);
-            var table = null;
-            var fixedTable = null;
-            this.currentTable.fnAdjustColumnSizing();
-
-            if (isResTab) // Result table
+            try
             {
-                tableDT.rows().recalcHeight().draw();
-                table = $('#' + this.resultsDiv);
-                var order = tableDT.order();
-                var numCol = tableDT.settings().columns()[0].length;
-                if (order[0][0] != numCol-1) // Not sorted on virtual position
-                    return; 
-                fixedTable = $(table.DataTable().cell(0,0).fixedNode()).parents('table')[0];
-            }
-            else // Radio table
-                table = $('#' + this.radioPassingsDiv);
-                      
-            // Make list of indexes and progress for all runners 
-            var prevInd = new Object();
-            var progress = new  Object();
-            for (var i=0; i<oldData.length;i++)
-            {
-                var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
-                if (prevInd[oldID] != undefined) 
+                var _this = this;
+                var tableDT = this.currentTable.api();
+                var isResTab = (newData[0].virtual_position != undefined);
+                var table = null;
+                var fixedTable = null;
+                this.currentTable.fnAdjustColumnSizing();
+
+                if (isResTab) // Result table
                 {
-                    prevInd[oldID] = "noAnimation";
-                    continue
+                    tableDT.rows().recalcHeight().draw();
+                    table = $('#' + this.resultsDiv);
+                    var order = tableDT.order();
+                    var numCol = tableDT.settings().columns()[0].length;
+                    if (order[0][0] != numCol-1) // Not sorted on virtual position
+                        return; 
+                    fixedTable = $(table.DataTable().cell(0,0).fixedNode()).parents('table')[0];
                 }
-                prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
-                progress[oldID] = (isResTab ? oldData[i].progress : 100);
-            }
-
-            var oldIndArray = new Object(); // List of old indexes
-            var updProg    = new Object();  // List of progress change
-            for (var i=0; i<newData.length;i++){
-                var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
-                var newInd = (isResTab ? newData[i].virtual_position : i);
-                if (prevInd[newID] == "noAnimation")
-                    continue;
-                else if (prevInd[newID] == undefined) // New entry
+                else // Radio table
+                    table = $('#' + this.radioPassingsDiv);
+                        
+                // Make list of indexes and progress for all runners 
+                var prevInd = new Object();
+                var progress = new  Object();
+                for (var i=0; i<oldData.length;i++)
                 {
-                    oldIndArray[newInd] = newInd; 
-                    updProg[newInd] = false;                
+                    var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
+                    if (prevInd[oldID] != undefined) 
+                    {
+                        prevInd[oldID] = "noAnimation";
+                        continue
+                    }
+                    prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
+                    progress[oldID] = (isResTab ? oldData[i].progress : 100);
                 }
-                else if (prevInd[newID] != newInd)
-                {
-                    oldIndArray[newInd] = prevInd[newID];
-                    updProg[newInd] = (isResTab ? progress[newID] != newData[i].progress : false);
+
+                var oldIndArray = new Object(); // List of old indexes
+                var updProg    = new Object();  // List of progress change
+                for (var i=0; i<newData.length;i++){
+                    var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
+                    var newInd = (isResTab ? newData[i].virtual_position : i);
+                    if (prevInd[newID] == "noAnimation")
+                        continue;
+                    else if (prevInd[newID] == undefined) // New entry
+                    {
+                        oldIndArray[newInd] = newInd; 
+                        updProg[newInd] = false;                
+                    }
+                    else if (prevInd[newID] != newInd)
+                    {
+                        oldIndArray[newInd] = prevInd[newID];
+                        updProg[newInd] = (isResTab ? progress[newID] != newData[i].progress : false);
+                    }
                 }
-            }
-            if (Object.keys(oldIndArray).length == 0) // No modifications
-                return;
+                if (Object.keys(oldIndArray).length == 0) // No modifications
+                    return;
 
-            if (predRank)
-                clearTimeout(this.updatePredictedTimeTimer);
-            
-            // Set table to position relative
-            $(table).css('position', 'relative');
-            
-            // Set each td's width
-            var column_widths = new Array();
-            $(table).find('tr:first-child th').each(function() {column_widths.push( $(this)[0].getBoundingClientRect().width-9);});
-            $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
-            
-            // Set table height and width
-            var height = $(table).outerHeight()+20;
+                if (predRank)
+                    clearTimeout(this.updatePredictedTimeTimer);
+                
+                // Set table to position relative
+                $(table).css('position', 'relative');
+                
+                // Set each td's width
+                var column_widths = new Array();
+                $(table).find('tr:first-child th').each(function() {column_widths.push( $(this)[0].getBoundingClientRect().width-9);});
+                $(table).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});
+                
+                // Set table height and width
+                var height = $(table).outerHeight()+20;
 
-            // Put all the rows back in place
-            var rowPosArray = new Array();
-            var tableTop = $(table)[0].getBoundingClientRect().top; 
-            $(table).find('tr').each(function() {
-                var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop>1 ? -1.5 : -0.5);
-                rowPosArray.push(rowPos);
-                $(this).css('top', rowPos);
-            });
+                // Put all the rows back in place
+                var rowPosArray = new Array();
+                var tableTop = $(table)[0].getBoundingClientRect().top; 
+                $(table).find('tr').each(function() {
+                    var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop>1 ? -1.5 : -0.5);
+                    rowPosArray.push(rowPos);
+                    $(this).css('top', rowPos);
+                });
 
-            // Set table cells position to absolute
-            $(table).find('tbody tr').each(function() {
-                $(this).css('position', 'absolute').css('z-index', '-4'); });
+                // Set table cells position to absolute
+                $(table).find('tbody tr').each(function() {
+                    $(this).css('position', 'absolute').css('z-index', '-4'); });
 
-            if (isResTab)
-            {
-                $(fixedTable).css('position', 'relative');
-                $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
-                $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
-                $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-3'); });
-                $(fixedTable).height(height).width('100%');
-            }
-            $(table).height(height).width('100%');
-
-            // Animation
-            this.animating = true;
-            this.numAnimElements = 0;
-            for (var newIndStr in oldIndArray) 
-            {
-                var newInd   = parseInt(newIndStr);
-                var oldInd   = oldIndArray[newInd];
-                var oldPos   = rowPosArray[oldInd+1];
-                var newPos   = rowPosArray[newInd+1];
-                var row      = $(table).find("tbody tr").eq(newInd);
-                if (isResTab)         
-                    var rowFix   = $(fixedTable).find("tbody tr").eq(newInd); 
-                var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : 'white');
-                var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : 'white');
-                var zind;
-                var zindFix;
-                if (predRank) // Update from predictions of running times 
-                {
-                    zind    = (newInd == 0 ? 1 : (newInd > oldInd ? 0 : -2));
-                    zindFix = zind + 1;
-                }
-                else // Updates from new data from server
-                {
-                    zind    = (updProg[newInd] ? 0 : -2);
-                    zindFix = zind + 1;
-                }
-                this.numAnimElements++;
-                $(row).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zind);
-                $(row).velocity({backgroundColor: newBkCol, top : newPos}, 
-                    {duration: animTime, complete: function(){_this.numAnimElements--;}});
                 if (isResTab)
                 {
-                    this.numAnimElements++;
-                    $(rowFix).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zindFix);
-                    $(rowFix).velocity({backgroundColor: newBkCol, top : newPos}, 
-                       {duration: animTime, complete: function(){_this.numAnimElements--;}});
+                    $(fixedTable).css('position', 'relative');
+                    $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
+                    $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
+                    $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-3'); });
+                    $(fixedTable).height(height).width('100%');
                 }
+                $(table).height(height).width('100%');
+
+                // Animation
+                this.animating = true;
+                this.numAnimElements = 0;
+                for (var newIndStr in oldIndArray) 
+                {
+                    var newInd   = parseInt(newIndStr);
+                    var oldInd   = oldIndArray[newInd];
+                    var oldPos   = rowPosArray[oldInd+1];
+                    var newPos   = rowPosArray[newInd+1];
+                    var row      = $(table).find("tbody tr").eq(newInd);
+                    if (isResTab)         
+                        var rowFix   = $(fixedTable).find("tbody tr").eq(newInd); 
+                    var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : 'white');
+                    var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : 'white');
+                    var zind;
+                    var zindFix;
+                    if (predRank) // Update from predictions of running times 
+                    {
+                        zind    = (newInd == 0 ? 1 : (newInd > oldInd ? 0 : -2));
+                        zindFix = zind + 1;
+                    }
+                    else // Updates from new data from server
+                    {
+                        zind    = (updProg[newInd] ? 0 : -2);
+                        zindFix = zind + 1;
+                    }
+                    this.numAnimElements++;
+                    $(row).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zind);
+                    $(row).velocity({backgroundColor: newBkCol, top : newPos}, 
+                        {duration: animTime, complete: function(){_this.numAnimElements--;}});
+                    if (isResTab)
+                    {
+                        this.numAnimElements++;
+                        $(rowFix).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zindFix);
+                        $(rowFix).velocity({backgroundColor: newBkCol, top : newPos}, 
+                        {duration: animTime, complete: function(){_this.numAnimElements--;}});
+                    }
+                }
+                setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank,true)},_this.animTime+100);
             }
-            setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank)},_this.animTime+50);
+            catch (e) {}
         };   
             
         // Reset settings after animation is completed
-        AjaxViewer.prototype.endAnimateTable = function (table,fixedTable,predRank) {
-            if (this.numAnimElements > 0) // Wait for all animations to finish
-                setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank)},50);
+        AjaxViewer.prototype.endAnimateTable = function (table,fixedTable,predRank,first) {
+            var _this = this;
+            if (this.numAnimElements > 0 && first ) // Wait for all animations to finish
+                setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank,false)},_this.animTime);
             else
             {
                 $(table).css('position', '');
@@ -2191,6 +2199,7 @@ var LiveResults;
                 url: this.apiURL,
                 data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                 success: function (data, status, resp) {
+                    var expTime = false;
                     try { 
                         var postTime = new Date().getTime();
                         var varTime = Math.max(1000,postTime-preTime); // Uncertainty in server time. Add 1000 to account for seconds resultion
@@ -2201,7 +2210,7 @@ var LiveResults;
                             if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
                                 _this.serverTimeDiff = newTimeDiff;
                         }
-                        var expTime = new Date(resp.getResponseHeader("expires")).getTime();
+                        expTime = new Date(resp.getResponseHeader("expires")).getTime();
                     }
                     catch (e) { }
 					_this.updateClassResults(data,expTime);
