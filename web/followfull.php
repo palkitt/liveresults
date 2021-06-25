@@ -309,7 +309,7 @@ function closeTop() {
 	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		<tr>
 			<?php 
-				if (in_array($_GET['comp'], array("15821","15822")))	$image = "images/SG19.PNG";
+				if (in_array($_GET['comp'], array("10098","10099","10100","10101")))	$image = "images/SG21.png";
 				else switch ($organizer)
 				{
 					case "Freidig":	     $image = "images/Freidig60.png"; break;
