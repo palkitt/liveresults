@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1426,7 +1426,7 @@ var LiveResults;
                         columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
                         "render": function (data,type,row) {
                             var ecardstr = "";
-                            if (row.checked == 1)
+                            if (row.checked == 1 || row.status==9)
                                 ecardstr += "&#9989; "; // Green checkmark
                             else
                                 ecardstr += "&#11036; "; // Empty checkbox
