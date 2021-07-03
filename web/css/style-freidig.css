@@ -54,6 +54,8 @@ tr.new_result .besttime { color: white;}
 tr.new_result .legtime {color: white;}
 tr.new_result .estimate {color: white;}
 tr.new_result .club { color: white;}
+tr.new_result .place { color: white;}
+tr.new_result .bestplace { color: white;}
 tr.new_result .relayclub { color: white;}
 tr.new_result td i { color: white;}
 
@@ -62,10 +64,12 @@ tr.red_row {  color: white; background-color: var(--livered) !important; }
 tr.red_row a {color: white;}
 tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; }
-tr.red_row .plustime { color: white;}
+tr.red_row .plustime { color: white; }
 tr.red_row .besttime { color: white;}
 tr.red_row .legtime {color: white;}
 tr.red_row .estimate {color: white;}
+tr.red_row .place {color: white;}
+tr.red_row .bestplace {color: white;}
 tr.red_row td i { color: white;}
 tr.red_row .bib {color: white;}
 tr.red_row .club {color: white;}
@@ -76,11 +80,16 @@ tr.red_row .relayclub {color: white;}
 .red_cell .plustime { color: white;}
 .red_cell .legtime  { color: white;}
 .red_cell .besttime { color: white;}
+.red_cell .place { color: white;}
+.red_cell .bestplace { color: white;}
 .red_cell i { color: white;}
+
 .red_cell_sqr {color: white; background-color: var(--livered) !important; }
 .red_cell_sqr .plustime { color: white;}
 .red_cell_sqr .legtime  { color: white;}
 .red_cell_sqr .besttime { color: white;}
+.red_cell_sqr .place { color: white;}
+.red_cell_sqr .bestplace { color: white;}
 .red_cell_sqr i { color: white;}
 
 /* New first nonqualifier */
@@ -91,6 +100,8 @@ tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important;}
 tr.new_fnq td:last-child { border-top-right-radius: 0px; }
 tr.new_fnq .plustime {color: white;}
 tr.new_fnq .bib {color: white;}
+tr.new_fnq .place {color: white;}
+tr.new_fnq .bestplace {color: white;}
 tr.new_fnq .club {color: white;}
 
 /* Green row for OK at start */
@@ -138,17 +149,18 @@ table.dataTable td {vertical-align: top;}
   100% { color: #51ff00; opacity: 0; }
 }
 
-.place {font-size: 0.8em; vertical-align: 0%;}
+.besttime {color: magenta;}
+.bestplace {color: magenta;}
+.place {color: dimgrey;}
 .plustime {color: dimgrey;}
 .legtime {color: dimgrey;}
-.besttime {color: magenta;}
 .bib {color: grey; font-style: normal;}
 .estimate {color:grey; font-style: normal;}
 a.club {color: var(--livered); }
 a.relayclub {color: var(--livered); }
 
 /*predicted times  td i { color: rgb(170, 0, 170); font-style: normal;} */
-td i { color: var(--livered);}
+td i { color: var(--livered); font-style: normal;}
 
 
 #langchooser { vertical-align: middle; line-height:21px;}
