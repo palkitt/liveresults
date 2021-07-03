@@ -565,8 +565,9 @@ elseif ($_GET['method'] == 'getclassresults')
 	foreach ($nums as $num)
 	{
 		$n = $num["num"]; // Numbers in buffer
+		$UF = $num["UF"]; // Update factor
 	}
-		echo("Number of connections in buffer (passing rand function) [#/min]: ".$n);
+		echo("Number of connections in buffer (passing rand function) [#/min]: ".$n. ". Update factor: ".$UF);
   }
 else
 {
@@ -583,7 +584,7 @@ function insertHeader($refreshTime,$update=true)
 	{
 		global $currentComp;
 		$UF = $currentComp->GetUpdateFactor();
-		$RT = round($refreshTime/$UF); // Updated refresh time
+		$RT = round($refreshTime/$UF + 0.4); // Updated refresh time
 	}
 	else
 		$RT = $refreshTime;

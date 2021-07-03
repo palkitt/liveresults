@@ -291,7 +291,7 @@ function insertHeader($refreshTime,$update=true)
 	{
 		global $currentComp;
 		$UF = $currentComp->GetUpdateFactor();
-		$RT = round($refreshTime/$UF); // Updated refresh time
+		$RT = round($refreshTime/$UF + 0.4); // Updated refresh time
 	}
 	else
 		$RT = $refreshTime;

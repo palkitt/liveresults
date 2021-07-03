@@ -202,7 +202,7 @@ class Emma
 	public static function GetNumConnect()
 	{
 		$conn = self::openConnection();
-		$sql = "SELECT COUNT(*) AS num FROM connecttimes";
+		$sql = "SELECT numConnect AS num, updateFactor AS UF FROM lastconnect";
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -336,7 +336,7 @@ class Emma
 		$UFmin  = 0.01;  // Smallest update factor
 		$UFmax  = 1.0;   // Largest update factor
 		$window = 60;    // [s] Time window in which number of connects is counted
-		$tFilt  = 120;   // [s] Filter constant for updating updateFactor
+		$tFilt  = 300;   // [s] Filter constant for updating updateFactor
 
 		$q = "SELECT numConnect, time, updateFactor FROM lastconnect";
 		if ($result = mysqli_query($this->m_Conn, $q))
@@ -387,7 +387,7 @@ class Emma
 
 			$targetW = $target/3600*$window/$scale;      // Target value for current window
 			$dt      = max(1,min($window,$time-$time0)); // Time since last update 
-			$UFi     = $UF0*$targetW/max(1,$num);        // Ideal update factor
+			$UFi     = min(1.01,$UF0*$targetW/max(1,$num));    // Ideal update factor
 			$UF      = max($UFmin,min($UFmax,$UF0+($UFi-$UF0)*$dt/$tFilt)); // New factor
 
 			$q     = "UPDATE lastconnect SET numConnect=".$num.", updateFactor=".$UF.", time=".$time." WHERE ID = 0";
@@ -886,6 +886,7 @@ class Emma
 		usort($sres,'timeSorter');
 
 		$pl = 0;
+		$no = 0;
 		$lastTime = -1;
 		$bestTime = -1;
 
@@ -893,10 +894,14 @@ class Emma
 		{
 			if ($tr['Status'] == 0)
 			{
+				$no++;
 				if ($bestTime == -1)
 					$bestTime = $tr['Time'];
 				if ($tr['Time'] > $lastTime)
-					$pl++;
+				{
+					$pl = $no;
+                    $lastTime = $tr['Time'];
+				}
 				$ret[$tr['DbId']]["Place"] = $pl;
 				$ret[$tr['DbId']]["TotalPlus"] = $tr['Time'] - $bestTime;
 			}
