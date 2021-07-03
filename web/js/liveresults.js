@@ -993,7 +993,11 @@ var LiveResults;
                                     if(this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked)
                                     {
                                         var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
-                                        var elapsedTotalTimeStr = "<i>(" + this.formatTime(elapsedTotalTime, 0, false) + ")</i>";
+                                        var elapsedTotalTimeStr = "<i>&#10092;" + this.formatTime(elapsedTotalTime, 0, false) + "&#10093;</i>";
+                                        if (this.curClassNumberOfRunners >= 10)
+                                            elapsedTotalTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;</span>";
+                                        else
+                                            elapsedTotalTimeStr += "<span class=\"place\">&nbsp;&nbsp;</span>";
                                         table.cell( i, totalTimeCol).data(elapsedTotalTimeStr);
                                     }  
 
@@ -1020,7 +1024,12 @@ var LiveResults;
                                             else
                                                 timeDiffStr = "<span class=\"place\"><i>&#10072;..&#10072;</i></span>";
                                             if (this.isMultiDayEvent && !this.compactView)
-                                                elapsedTimeStr += "<br/>" + timeDiffStr;
+                                            {
+                                                if (this.curClassNumberOfRunners >= 10)
+                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                else
+                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                            }                                     
                                             else
                                                 table.cell( i, 6 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(timeDiffStr);
                                         }
@@ -1106,7 +1115,12 @@ var LiveResults;
                                             
                                             // Display elapsed time
                                             if (!this.compactView && !this.curClassIsRelay && !this.curClassLapTimes && nextSplit==this.curClassNumSplits)
-                                                elapsedTimeStr += "<br/>" + timeDiffStr;                                      
+                                            {
+                                                if (this.curClassNumberOfRunners >= 10)
+                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                else
+                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";                                     
+                                            }
                                             table.cell( i, offset + this.curClassNumSplits*2 ).data(elapsedTimeStr);
                                             // Display time diff
                                             if (this.compactView || this.curClassIsRelay || nextSplit!=this.curClassNumSplits || this.curClassLapTimes)
@@ -2037,14 +2051,14 @@ var LiveResults;
 
                 // Set table cells position to absolute
                 $(table).find('tbody tr').each(function() {
-                    $(this).css('position', 'absolute').css('z-index', '-4'); });
+                    $(this).css('position', 'absolute').css('z-index', '6'); });
 
                 if (isResTab)
                 {
                     $(fixedTable).css('position', 'relative');
                     $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
                     $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
-                    $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '-3'); });
+                    $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '7'); });
                     $(fixedTable).height(height).width('100%');
                 }
                 $(table).height(height).width('100%');
@@ -2067,12 +2081,12 @@ var LiveResults;
                     var zindFix;
                     if (predRank) // Update from predictions of running times 
                     {
-                        zind    = (newInd == 0 ? 1 : (newInd > oldInd ? 0 : -2));
+                        zind    = (newInd == 0 ? 11 : (newInd > oldInd ? 10 : 8));
                         zindFix = zind + 1;
                     }
                     else // Updates from new data from server
                     {
-                        zind    = (updProg[newInd] ? 0 : -2);
+                        zind    = (updProg[newInd] ? 10 : 8);
                         zindFix = zind + 1;
                     }
                     this.numAnimElements++;
@@ -2437,7 +2451,11 @@ var LiveResults;
                                 var txt = "";
                                 if (row.splits != undefined && row.splits["0_place"] >= 1)
 								{
-                                    var place = "<span class=\"place\"> ";
+                                    var place = "";
+                                    if (row.splits["0_place"] == 1)
+                                        place += "<span class=\"bestplace\"> ";
+                                    else
+                                        place += "<span class=\"place\"> ";
                                     if (row.splits["0_place"] < 10 && _this.curClassNumberOfRunners >= 10)
                                         place += "&numsp;"
                                     place += "&#10072;" + row.splits["0_place"] + "&#10072; </span>" 
@@ -2497,8 +2515,11 @@ var LiveResults;
                                             else
                                             {
                                                 var txt = "";
-                                                
-                                                var place = "<span class=\"place\"> ";
+                                                var place = "";
+                                                if ( !row.splits[value.code + "_estimate"] && row.splits[value.code + "_place"] == 1)
+                                                    place += "<span class=\"bestplace\"> ";
+                                                else
+                                                    place += "<span class=\"place\"> ";
                                                 if (_this.curClassNumberOfRunners >= 10 && (row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-" || row.splits[value.code + "_place"] == "="))
                                                     place += "&numsp;"
                                                 place += "&#10072;" + row.splits[value.code + "_place"] + "&#10072;</span>";
@@ -2531,17 +2552,27 @@ var LiveResults;
                                                 if ((fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
                                                 // Relay passing, second line with leg time to passing 
                                                 {
-                                                    var legplace = "<span class=\"place\"> ";
+                                                    txt += "<br/><span class=";
+                                                    var legplace = "";
+                                                    
+                                                    if (row.splits[value.code + 100000 + "_estimate"] )
+                                                    {
+                                                        txt += "\"estimate\">";
+                                                        legplace += "<span class=\"place\"> ";
+                                                    }
+                                                    else if (row.splits[(value.code + 100000) + "_place"] == 1)
+                                                    {
+                                                        txt += "\"besttime\">";
+                                                        legplace += "<span class=\"bestplace\"> ";
+                                                    }
+                                                    else
+                                                    {
+                                                        txt += "\"legtime\">";
+                                                        legplace += "<span class=\"place\"> ";
+                                                    }
                                                     if (_this.curClassNumberOfRunners >= 10 && (row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-") )
                                                         legplace += "&numsp;"
                                                     legplace += "|" + row.splits[(value.code + 100000) + "_place"] + "|</span>";
-                                                    txt += "<br/><span class="
-                                                    if (row.splits[value.code + 100000 + "_estimate"] )
-                                                        txt += "\"estimate\">";
-                                                    else if (row.splits[(value.code + 100000) + "_place"] == 1)
-                                                        txt += "\"besttime\">";
-                                                    else
-                                                        txt += "\"legtime\">";
                                                     txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond)
                                                         + legplace + "</span>";
                                                 }
@@ -2594,15 +2625,21 @@ var LiveResults;
                                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
                             else 
 							{
-                                var place = "<span class=\"place\"> ";
+                                var place = "";
+                                if ((haveSplitControls || _this.isMultiDayEvent) && (row.place == 1))
+                                {
+                                    res += "<span class=\"besttime\">";
+                                    place += "<span class=\"bestplace\"> ";
+                                }
+                                else
+								{
+                                    res += "<span>";
+                                    place += "<span class=\"place\"> ";
+                                }
                                 if (_this.curClassNumberOfRunners >= 10 && (row.place < 10 || row.place == "-" || row.place == "="))
                                     place += "&numsp;"
                                 place += "&#10072;" + row.place + "&#10072;</span>";
-                                
-                                if ((haveSplitControls || _this.isMultiDayEvent) && (row.place == 1))
-                                    res += "<span class=\"besttime\">";
-								else
-									res += "<span>";
+                            
                                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
                                 res += place + "</span>";
                                 
@@ -2611,10 +2648,10 @@ var LiveResults;
                                     if (row.place==1)
                                     {
                                         res += "<br/><span class=\"besttime\">";
-                                        res += (haveSplitControls ? "-" : "+");
+                                        res += ((haveSplitControls || _this.isMultiDayEvent) ? "-" : "+");
                                         res += _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                                     }
-                                     else
+                                    else
                                         res += "<br/><span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                                     if (_this.curClassNumberOfRunners >= 10)
                                         res += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
@@ -2626,16 +2663,21 @@ var LiveResults;
 							{
 								if (row.splits[(999)]>0)
 								{
-                                    var legplace = "<span class=\"place\"> ";
+                                    var legplace = "";
+                                    res += "<br/><span class=";
+                                    if (row.splits["999_place"] == 1)
+                                    {
+                                        res += "\"besttime\">";
+                                        legplace += "<span class=\"bestplace\"> ";
+                                    }
+                                    else
+                                    {
+                                        res += "\"legtime\">";
+                                        legplace += "<span class=\"place\"> ";
+                                    }
                                     if (_this.curClassNumberOfRunners >= 10 && (row.splits["999_place"] < 10 || row.splits["999_place"] == "-") )
                                         legplace += "&numsp;"
                                     legplace += "&#10072;" + row.splits["999_place"] + "&#10072;</span>";
-
-                                    res += "<br/><span class=";
-                                    if (row.splits["999_place"] == 1)
-                                        res += "\"besttime\">";
-                                    else
-                                        res += "\"legtime\">";
                                     res += _this.formatTime(row.splits[(999)], 0, _this.showTenthOfSecond) + legplace + "</span>";
 								}
 							}
@@ -2662,7 +2704,7 @@ var LiveResults;
 								var res = "";
                                 if (row.status == 0)
                                 {
-                                    if (row.timeplus <= 0 && haveSplitControls)
+                                    if (row.timeplus <= 0 && (haveSplitControls || _this.isMultiDayEvent))
                                         res += "<span class=\"besttime\">+";
                                     else
                                         res += "<span class=\"plustime\">+";
@@ -2714,37 +2756,45 @@ var LiveResults;
                             "bUseRendered": false,
                             "mDataProp": "totalresult",
                             "render": function (data,type,row) {
-								if (isNaN(parseInt(data)))
+								if (type=="sort")
+								    return parseInt(data);
+                                if (isNaN(parseInt(data)))
 									return data;
                                 if (row.totalplace == "-" || row.totalplace == "") {
                                     return _this.formatTime(row.totalresult, row.totalstatus);
                                 }
                                 else 
                                 {
-                                    var totalplace = "<span class=\"place\"> ";
+                                    var totalplace = "";
+                                    var totalres = "";
+                                    if (row.totalplace==1)
+                                    {
+                                        totalres += "<span class=\"besttime\">";
+                                        totalplace += "<span class=\"bestplace\"> ";
+                                    }
+                                    else
+                                    {
+                                        totalres += "<span>";
+                                        totalplace +=" <span class=\"place\"> ";
+                                    }
                                     if (row.totalplace < 10 && _this.curClassNumberOfRunners >= 10)
                                         totalplace += "&numsp;"
-                                    totalplace += "&#10072;" + row.totalplace + "&#10072;</span>";
-                                    var res = "";
-                                    if (row.totalplace == 1)
-                                        res += "<span class=\"besttime\">";
-                                    else
-                                        res += "<span>";
-                                    res += _this.formatTime(row.totalresult, row.totalstatus) + totalplace + "</span>";
+                                    totalplace += "&#10072;" + row.totalplace + "&#10072;</span>";                             
+                                    totalres += _this.formatTime(row.totalresult, row.totalstatus) + totalplace + "</span>";
                                     if (fullView) 
                                     {
                                         if (row.totalplace == 1)
-                                            res += "<br/><span class=\"besttime\">+";
+                                            totalres += "<br/><span class=\"besttime\">+";
                                         else
-                                            res += "<br/><span class=\"plustime\">+";
-                                        res += _this.formatTime(row.totalplus, row.totalstatus) + "</span>";
+                                            totalres += "<br/><span class=\"plustime\">+";
+                                        totalres += _this.formatTime(row.totalplus, row.totalstatus) + "</span>";
 
                                         if (_this.curClassNumberOfRunners >= 10)
-                                            res += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                            totalres += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
                                         else
-                                            res += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                            totalres += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
                                     }
-                                    return res;
+                                    return totalres;
                                 }
                             }
                         });
@@ -3304,10 +3354,10 @@ var LiveResults;
                         "render": function (data,type,row) {
                             if (type === 'display')
                             {
-                                if (data<0) // Relay
-                                    return "<span class=\"bib\">" + (-data/100|0) + "</span>";
-                                else if(data>0)       // Ordinary
-                                    return "<span class=\"bib\">" + data + "</span>";
+                                if (row.bib<0) // Relay
+                                    return "<span class=\"bib\">" + (-row.bib/100|0) + "</span>";
+                                else if(row.bib>0)       // Ordinary
+                                    return "<span class=\"bib\">" + row.bib + "</span>";
                                 else
                                     return "";
                             }
