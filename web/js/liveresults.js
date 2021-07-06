@@ -860,10 +860,16 @@ var LiveResults;
                     for (var i = 0; i < data.length; i++) 
                     {   
                         tmpPredData.push(this.predData[i]);
-                        if (!this.EmmaServer){ 
-                            if (this.curClassNumSplits==0 || (this.curClassIsUnranked && this.curClassNumSplits==1) ) // Single-result classes. Highlight whole line
-                            {
-                                var row = table.row(i).node();
+                        var row = table.row(i).node();
+
+                        // Single-result classes. Highlight whole line
+                        if (this.curClassNumSplits==0 || (this.curClassIsUnranked && this.curClassNumSplits==1) ) 
+                        {
+                            if (this.EmmaServer)
+                                if($(row).hasClass('new_result'))
+                                    $(row).addClass('red_row');
+                            else
+                            { 
                                 highlight = false;
                                 if (data[i].changed != "" && data[i].progress==100){ 
                                     age = timeServer - data[i].changed;
@@ -887,90 +893,107 @@ var LiveResults;
                                     $(row).removeClass('new_fnq');
                                 }
                             }
-                            else  // Classes with split times
+                        }
+                        else  // Classes with split times
+                        {                            
+                            // Highlight finish-time
+                            highlight = false;
+                            var highlightEmma = false;
+                            if (this.EmmaServer && $(row).hasClass('new_result') && data[i].progress==100)
                             {
-                                var spRef = 0;
-                                var colNum = 0;
-                                // Highlight split times
-                                for (var sp = 0; sp < this.curClassNumSplits; sp++){
-                                    spRef = this.splitRef(sp);
-                                    colNum = offset + 2*sp;
-                                    highlight = false;
-                                    if (data[i].splits[this.curClassSplits[spRef].code + "_changed"] != "")
-                                    {
-                                        age = timeServer - data[i].splits[this.curClassSplits[spRef].code + "_changed"];
-                                        highlight = (age < this.highTime);
-                                    }
-                                    if (highlight && !$( table.cell(i,colNum).node() ).hasClass('red_cell'))
-                                    {
-                                        modifiedTable = true;
-                                        $( table.cell(i,colNum).node() ).addClass('red_cell');
-                                    }
-                                    else if (!highlight && $( table.cell(i,colNum).node() ).hasClass('red_cell'))
+                                highlight = true;
+                                highlightEmma = true;
+                            } 
+                            else if (data[i].changed != "" && data[i].progress==100){ 
+                                age = timeServer - data[i].changed;
+                                highlight = (age < this.highTime);
+                            }                            
+                            
+                            if (highlight)
+                            {
+                                if (this.compactView || this.curClassIsRelay || this.curClassLapTimes)
+                                {
+                                    if (!$( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).hasClass('red_cell_sqr'))
                                     {
                                         modifiedTable = true;
-                                        $( table.cell(i,colNum).node() ).removeClass('red_cell');
+                                        $( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).addClass('red_cell_sqr');
+                                        $( table.cell(i,(offset + this.curClassNumSplits*2 + 2)).node() ).addClass('red_cell');
+                                        if (this.isMultiDayEvent)
+                                        {
+                                            $( table.cell(i,(offset + this.curClassNumSplits*2 + 3)).node() ).addClass('red_cell_sqr');
+                                            $( table.cell(i,(offset + this.curClassNumSplits*2 + 5)).node() ).addClass('red_cell');
+                                        }
                                     }
                                 }
-                                // Highlight finish-time
+                                else
+                                {
+                                    if (!$( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).hasClass('red_cell'))
+                                    {
+                                        modifiedTable = true;
+                                        $( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).addClass('red_cell');
+                                        if (this.isMultiDayEvent)
+                                            $( table.cell(i,(offset + this.curClassNumSplits*2 + 2)).node() ).addClass('red_cell');
+                                    }
+                                }
+                            }
+                            else // Not highlight
+                            {	
+                                if (this.compactView || this.curClassIsRelay || this.curClassLapTimes)
+                                {
+                                    if ($( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).hasClass('red_cell_sqr'))
+                                    {
+                                        modifiedTable = true;
+                                        $( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).removeClass('red_cell_sqr');
+                                        $( table.cell(i,(offset + this.curClassNumSplits*2 + 2)).node() ).removeClass('red_cell');
+                                        if (this.isMultiDayEvent)
+                                        {
+                                            $( table.cell(i,(offset + this.curClassNumSplits*2 + 3)).node() ).removeClass('red_cell_sqr');
+                                            $( table.cell(i,(offset + this.curClassNumSplits*2 + 5)).node() ).removeClass('red_cell');
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    if ($( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).hasClass('red_cell'))
+                                    {
+                                        modifiedTable = true;
+                                        $( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).removeClass('red_cell');
+                                        if (this.isMultiDayEvent)
+                                            $( table.cell(i,(offset + this.curClassNumSplits*2 + 2)).node() ).removeClass('red_cell');
+                                    }
+                                }
+                            }
+                            
+                            // Highlight split times
+                            var spRef = 0;
+                            var colNum = 0;
+                            for (var sp = this.curClassNumSplits-1; sp >=0; sp--){
+                                if (highlightEmma)
+                                    break;
+                                spRef = this.splitRef(sp);
+                                colNum = offset + 2*sp;
+                                
                                 highlight = false;
-                                if (data[i].changed != "" && data[i].progress==100){ 
-                                    age = timeServer - data[i].changed;
+                                if (this.EmmaServer && $(row).hasClass('new_result') && data[i].splits[this.curClassSplits[spRef].code] > 0)
+                                {
+                                    $( table.cell(i,colNum).node() ).addClass('red_cell');
+                                    highlightEmma = true;
+                                    highlight = true;
+                                }
+                                else if (data[i].splits[this.curClassSplits[spRef].code + "_changed"] != "")
+                                {
+                                    age = timeServer - data[i].splits[this.curClassSplits[spRef].code + "_changed"];
                                     highlight = (age < this.highTime);
                                 }
-                                if (highlight)
+                                if (highlight && !$( table.cell(i,colNum).node() ).hasClass('red_cell'))
                                 {
-                                    if (this.compactView || this.curClassIsRelay || this.curClassLapTimes)
-                                    {
-                                        if (!$( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).hasClass('red_cell_sqr'))
-                                        {
-                                            modifiedTable = true;
-                                            $( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).addClass('red_cell_sqr');
-                                            $( table.cell(i,(offset + this.curClassNumSplits*2 + 2)).node() ).addClass('red_cell');
-                                            if (this.isMultiDayEvent)
-                                            {
-                                                $( table.cell(i,(offset + this.curClassNumSplits*2 + 3)).node() ).addClass('red_cell_sqr');
-                                                $( table.cell(i,(offset + this.curClassNumSplits*2 + 5)).node() ).addClass('red_cell');
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (!$( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).hasClass('red_cell'))
-                                        {
-                                            modifiedTable = true;
-                                            $( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).addClass('red_cell');
-                                            if (this.isMultiDayEvent)
-                                                $( table.cell(i,(offset + this.curClassNumSplits*2 + 2)).node() ).addClass('red_cell');
-                                        }
-                                    }
+                                    modifiedTable = true;
+                                    $( table.cell(i,colNum).node() ).addClass('red_cell');
                                 }
-                                else // Not highlight
-                                {	
-                                    if (this.compactView || this.curClassIsRelay || this.curClassLapTimes)
-                                    {
-                                        if ($( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).hasClass('red_cell_sqr'))
-                                        {
-                                            modifiedTable = true;
-                                            $( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).removeClass('red_cell_sqr');
-                                            $( table.cell(i,(offset + this.curClassNumSplits*2 + 2)).node() ).removeClass('red_cell');
-                                            if (this.isMultiDayEvent)
-                                            {
-                                                $( table.cell(i,(offset + this.curClassNumSplits*2 + 3)).node() ).removeClass('red_cell_sqr');
-                                                $( table.cell(i,(offset + this.curClassNumSplits*2 + 5)).node() ).removeClass('red_cell');
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if ($( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).hasClass('red_cell'))
-                                        {
-                                            modifiedTable = true;
-                                            $( table.cell(i,(offset + this.curClassNumSplits*2)).node() ).removeClass('red_cell');
-                                            if (this.isMultiDayEvent)
-                                                $( table.cell(i,(offset + this.curClassNumSplits*2 + 2)).node() ).removeClass('red_cell');
-                                        }
-                                    }
+                                else if (!highlight && $( table.cell(i,colNum).node() ).hasClass('red_cell'))
+                                {
+                                    modifiedTable = true;
+                                    $( table.cell(i,colNum).node() ).removeClass('red_cell');
                                 }
                             }
                         }
@@ -1007,10 +1030,10 @@ var LiveResults;
                                     // No split controls
                                         if (!this.curClassIsUnranked)
                                         {
-                                            if (this.curClassSplitsBests[0][0]>0){
+                                            if (this.curClassSplitsBests[0][0]>0)
+                                            {
                                                 rank = this.findRank(this.curClassSplitsBests[0],elapsedTime);
-                                                
-                                                var rankStr = "<span class=\"place\"> ";
+                                                var rankStr = "<span class=\"place\"> ";                                                
                                                 if (this.curClassNumberOfRunners >= 10 && rank < 10)
                                                     rankStr += "&numsp;"
                                                 if (rank > 1)
@@ -1021,8 +1044,15 @@ var LiveResults;
                                                 timeDiff = elapsedTime - this.curClassSplitsBests[0][0]; 
                                                 timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
                                             }
-                                            else
+                                            else // No best time
+                                            {
                                                 timeDiffStr = "<span class=\"place\"><i>&#10072;..&#10072;</i></span>";
+                                                if (this.isMultiDayEvent && !this.compactView)
+                                                {
+                                                    timeDiffStr = "";
+                                                    elapsedTimeStr += "<span class=\"place\"> <i>&#10072;..&#10072;</i></span>";
+                                                }
+                                            }
                                             if (this.isMultiDayEvent && !this.compactView)
                                             {
                                                 if (this.curClassNumberOfRunners >= 10)
@@ -2030,7 +2060,7 @@ var LiveResults;
                     clearTimeout(this.updatePredictedTimeTimer);
                 
                 // Set table to position relative
-                $(table).css('position', 'relative');
+                //$(table).css('position', 'relative');
                 
                 // Set each td's width
                 var column_widths = new Array();
@@ -2051,14 +2081,14 @@ var LiveResults;
 
                 // Set table cells position to absolute
                 $(table).find('tbody tr').each(function() {
-                    $(this).css('position', 'absolute').css('z-index', '6'); });
+                    $(this).css('position', 'absolute').css('z-index', '91'); });
 
                 if (isResTab)
                 {
-                    $(fixedTable).css('position', 'relative');
+                    //$(fixedTable).css('position', 'relative');
                     $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
                     $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
-                    $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '7'); });
+                    $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '92'); });
                     $(fixedTable).height(height).width('100%');
                 }
                 $(table).height(height).width('100%');
@@ -2081,12 +2111,12 @@ var LiveResults;
                     var zindFix;
                     if (predRank) // Update from predictions of running times 
                     {
-                        zind    = (newInd == 0 ? 11 : (newInd > oldInd ? 10 : 8));
+                        zind    = (newInd == 0 ? 96 : (newInd > oldInd ? 95 : 93));
                         zindFix = zind + 1;
                     }
                     else // Updates from new data from server
                     {
-                        zind    = (updProg[newInd] ? 10 : 8);
+                        zind    = (updProg[newInd] ? 95 : 93);
                         zindFix = zind + 1;
                     }
                     this.numAnimElements++;
@@ -2113,13 +2143,13 @@ var LiveResults;
                 setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank,false)},_this.animTime);
             else
             {
-                $(table).css('position', '');
+                //$(table).css('position', '');
                 $(table).find('tr td, tr th').each(function() {$(this).css('min-width','');});   
                 $(table).find('tr').each(function() {$(this).css('position', ''); });
                 $(table).height(0).width('100%');
                 if (fixedTable != null)
                 {
-                    $(fixedTable).css('position', '');
+                    //$(fixedTable).css('position', '');
                     $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width','');});        
                     $(fixedTable).find('tr').each(function() {$(this).css('position', ''); });
                     $(fixedTable).height(0).width('100%');
