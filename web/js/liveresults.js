@@ -588,6 +588,7 @@ var LiveResults;
                                                 bestFitDev = splitDevSpj;
                                             }
                                         }
+
                                         if (bestFitSpi == sp ) // Best fit is to move split time to current split
                                         {
                                             data.results[j].splits[splitCode] = data.results[j].splits[splitCodei];
@@ -605,14 +606,12 @@ var LiveResults;
 
                     for (var sp = this.curClassNumSplits-1; sp >= 0; sp--) 
                     {
-                        if (splitsPar[sp].b == null)
-                            continue;
                         var prevSplit = NaN;
                         var spRef = this.splitRef(sp);
                         split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-                        if (!isNaN(split)) // Split exist
+                        if (!isNaN(split))                  // Split exist
                             nextSplit = split;
-                        else  // Split does not exist
+                        else if (splitsPar[sp].b != null)  // Split does not exist, and estimat parameter exist
                         {
                             var x = [];
                             var spPrev = sp;                            
@@ -866,8 +865,10 @@ var LiveResults;
                         if (this.curClassNumSplits==0 || (this.curClassIsUnranked && this.curClassNumSplits==1) ) 
                         {
                             if (this.EmmaServer)
-                                if($(row).hasClass('new_result'))
+                            {
+                                if ($(row).hasClass('new_result'))
                                     $(row).addClass('red_row');
+                            }
                             else
                             { 
                                 highlight = false;
