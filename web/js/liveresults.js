@@ -2603,7 +2603,7 @@ var LiveResults;
                                                     }
                                                     if (_this.curClassNumberOfRunners >= 10 && (row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-") )
                                                         legplace += "&numsp;"
-                                                    legplace += "|" + row.splits[(value.code + 100000) + "_place"] + "|</span>";
+                                                    legplace += "&#10072;" + row.splits[(value.code + 100000) + "_place"] + "&#10072;</span>";
                                                     txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond)
                                                         + legplace + "</span>";
                                                 }
