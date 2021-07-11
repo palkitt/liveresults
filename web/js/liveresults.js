@@ -1974,7 +1974,7 @@ var LiveResults;
                                 colNum = offset + 2*sp;
                                 table.column(colNum).visible( this.curClassSplitsOK[sp] );
                             }
-                        }     
+                        } 
                         $(table.settings()[0].nScrollBody).scrollLeft( posLeft );
                         window.scrollTo(0,scrollDown);
                         this.lastClassHash = newData.hash;
@@ -1982,6 +1982,7 @@ var LiveResults;
                         this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
                         var newResults = this.currentTable.fnGetData();                    
                         this.animateTable(oldResults, newResults, this.animTime);
+                        this.currentTable.fnAdjustColumnSizing();    
 
                         setTimeout(function(){_this.startPredictionUpdate();}, _this.animTime+200);
                     }
@@ -2158,6 +2159,7 @@ var LiveResults;
                 this.animating = false;
                 if (predRank)
                     this.startPredictionUpdate();
+                this.currentTable.fnAdjustColumnSizing();
             }
         };
 
@@ -2913,6 +2915,7 @@ var LiveResults;
 
                     this.lastClassHash = data.hash;                    
                     this.updatePredictedTimes(true,false); // Refresh = true; Animate = false
+                    this.currentTable.fnAdjustColumnSizing();
                 }
             }
             if (this.isCompToday())
