@@ -121,6 +121,7 @@ var LiveResults;
         
         AjaxViewer.prototype.startPredictionUpdate = function () {
             var _this = this;
+            clearInterval(this.updatePredictedTimeTimer);
             this.updatePredictedTimeTimer = setInterval(function () { _this.updatePredictedTimes(); }, 1000);
             this.updatePredictedTimes();
         };
@@ -1939,7 +1940,7 @@ var LiveResults;
                 }
                 var _this = this;
                 if (newData.status == "OK") {
-                    clearTimeout(this.updatePredictedTimeTimer);
+                    clearInterval(this.updatePredictedTimeTimer);
                     if (this.animating) // Wait until animation is completed
                     {
                         setTimeout(function () {_this.handleUpdateClassResults(newData,expTime);}, 100);
@@ -1982,7 +1983,6 @@ var LiveResults;
                         this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
                         var newResults = this.currentTable.fnGetData();                    
                         this.animateTable(oldResults, newResults, this.animTime);
-                        this.currentTable.fnAdjustColumnSizing();    
 
                         setTimeout(function(){_this.startPredictionUpdate();}, _this.animTime+200);
                     }
@@ -2059,7 +2059,7 @@ var LiveResults;
                     return;
 
                 if (predRank)
-                    clearTimeout(this.updatePredictedTimeTimer);
+                    clearInterval(this.updatePredictedTimeTimer);
                 
                 // Set table to position relative
                 //$(table).css('position', 'relative');
@@ -2145,13 +2145,11 @@ var LiveResults;
                 setTimeout(function(){_this.endAnimateTable(table,fixedTable,predRank,false)},_this.animTime);
             else
             {
-                //$(table).css('position', '');
                 $(table).find('tr td, tr th').each(function() {$(this).css('min-width','');});   
                 $(table).find('tr').each(function() {$(this).css('position', ''); });
                 $(table).height(0).width('100%');
                 if (fixedTable != null)
                 {
-                    //$(fixedTable).css('position', '');
                     $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width','');});        
                     $(fixedTable).find('tr').each(function() {$(this).css('position', ''); });
                     $(fixedTable).height(0).width('100%');
@@ -2159,7 +2157,8 @@ var LiveResults;
                 this.animating = false;
                 if (predRank)
                     this.startPredictionUpdate();
-                this.currentTable.fnAdjustColumnSizing();
+                this.currentTable.api().columns.adjust();
+                this.currentTable.api().rows().recalcHeight().draw;
             }
         };
 
@@ -2223,6 +2222,7 @@ var LiveResults;
                 $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( posLeft );
                 window.scrollTo(0,scrollDown)
                 this.lastClubHash = data.hash;
+                this.currentTable.fnAdjustColumnSizing();
             }
             if (_this.isCompToday())
                 this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, _this.clubUpdateInterval);
@@ -3456,7 +3456,7 @@ var LiveResults;
                         },
                         "bDestroy": true
                     });
-					
+                    this.currentTable.fnAdjustColumnSizing();
                     this.lastClubHash = data.hash;
                 }
             }
