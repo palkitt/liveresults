@@ -1224,7 +1224,7 @@ var LiveResults;
                     if (modifiedTable || refresh)
                     {
                         table.fixedColumns().update();
-                        table.rows().recalcHeight().draw();
+                        table.draw();
                     }
                     if (updatedVP && animate)
                         this.animateTable(oldData, data, this.animTime, true);
@@ -2011,7 +2011,7 @@ var LiveResults;
 
                 if (isResTab) // Result table
                 {
-                    tableDT.rows().recalcHeight().draw();
+                    tableDT.draw();
                     table = $('#' + this.resultsDiv);
                     var order = tableDT.order();
                     var numCol = tableDT.settings().columns()[0].length;
@@ -2056,7 +2056,10 @@ var LiveResults;
                     }
                 }
                 if (Object.keys(oldIndArray).length == 0) // No modifications
+                {
+                    this.currentTable.api().draw();
                     return;
+                }
 
                 if (predRank)
                     clearInterval(this.updatePredictedTimeTimer);
@@ -2154,11 +2157,10 @@ var LiveResults;
                     $(fixedTable).find('tr').each(function() {$(this).css('position', ''); });
                     $(fixedTable).height(0).width('100%');
                 }
-                this.animating = false;
+                this.currentTable.api().draw();
                 if (predRank)
-                    this.startPredictionUpdate();
-                this.currentTable.api().columns.adjust();
-                this.currentTable.api().rows().recalcHeight().draw;
+                    setTimeout(function(){_this.startPredictionUpdate();},(1000-100-_this.animTime));
+                this.animating = false;
             }
         };
 
@@ -2865,7 +2867,7 @@ var LiveResults;
 
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
                         "scrollX": this.scrollView,
-                        "fixedColumns": {leftColumns: 2 },
+                        "fixedColumns": {leftColumns: 2, heightMatch: 'auto'},
                         "responsive": !(this.scrollView),
                         "bPaginate": false,
                         "bLengthChange": false,
@@ -3438,7 +3440,7 @@ var LiveResults;
                     });
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
 						"scrollX": this.scrollView,
-						"fixedColumns": {leftColumns: 3},
+						"fixedColumns": {leftColumns: 3, heightMatch: 'auto'},
 						"responsive": !(this.scrollView),
 						"bPaginate": false,
                         "bLengthChange": false,
