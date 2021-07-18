@@ -352,15 +352,18 @@ var LiveResults;
                 if (classSplits.length == 0) return;
              
                 var classSplitsStatus = new Array(this.curClassNumSplits+1);
-                var splitFracRunner = new Array(this.curClassNumSplits+1);
+                var splitFracRunner = new Array(this.curClassNumSplits+1); // Fraction of next split - prev split
+                var splitFracTotal = new Array(this.curClassNumSplits+1); // Fraction of next split
                 
                 for (var sp = 0; sp < this.curClassNumSplits; sp++) {
                     classSplitsStatus[sp] = new Array(1).fill(0);
                     splitFracRunner[sp] = new Array(1).fill(0);
+                    splitFracTotal[sp] = new Array(1).fill(0);
                 }
                 var nextSplitOK;
                 var nextSplit;
                 var splitFrac;
+                var splitFracTot;
                 var prevSplit;
                 var startTime;
                 var runnerOK = new Array(data.results.length);
@@ -405,6 +408,10 @@ var LiveResults;
                             prevSplit = (spPrevRef >= 0 ? parseInt(data.results[j].splits[classSplits[spPrevRef].code]) : startTime);
                             splitFrac = (nextSplit != null && nextSplit - prevSplit > 0 ? (split-prevSplit)/(nextSplit-prevSplit) : 0);
                             splitFracRunner[sp][j] = (splitFrac > 0 && splitFrac < 1 ? splitFrac : null);
+                            
+                            splitFracTot = (nextSplit != null && nextSplit - startTime > 0 ? (split-startTime)/(nextSplit-startTime) : 0);
+                            splitFracTotal[sp][j] = (splitFracTot > 0 && splitFracTot < 1 ? splitFracTot : null); 
+                            
                             nextSplit = split;
                             nextSplitOK = true;
                             //}
@@ -435,8 +442,10 @@ var LiveResults;
                     var statusN = 0;
                     var statusAvg = 0;
                     var count = 0;
+                    var countTotal = 0;
                     var xSum = 0;
                     var ySum = 0;
+                    var ySumTotal = 0;
                     var xySum = 0;
                     var xxSum = 0;
                     var a = 0;
@@ -449,20 +458,28 @@ var LiveResults;
                     // Average
                     for (var j = 0; j < data.results.length ; j++)
                     {
-                        if (classSplitsStatus[sp][j] <= 1 && splitFracRunner[sp][j] != null) 
+                        if (classSplitsStatus[sp][j] <= 1 && splitFracRunner[sp][j] > 0) 
                         {
                             var frac = splitFracRunner[sp][j];
                             count++;
                             ySum  += frac;
                         }
+                        if (classSplitsStatus[sp][j] <= 1 && splitFracTotal[sp][j] > 0) 
+                        {
+                            var fracTotal = splitFracTotal[sp][j];
+                            countTotal++;
+                            ySumTotal  += fracTotal;
+                        }
                     }
-                    var avg = (count > 0 ? ySum/count : null)
+                    var avg = (count > 0 ? ySum/count : null);
+                    var avgTotal = (countTotal > 0 ? ySumTotal/countTotal : null);
+                    
+                    // Standard deviation
                     ySum = 0;
                     count = 0;
-                    // Standard deviation
                     for (var j = 0; j < data.results.length ; j++)
                     {
-                        if (classSplitsStatus[sp][j] <= 1 && splitFracRunner[sp][j] != null) 
+                        if (classSplitsStatus[sp][j] <= 1 && splitFracRunner[sp][j] > 0) 
                         {
                             var frac = splitFracRunner[sp][j];
                             count++;
@@ -470,17 +487,17 @@ var LiveResults;
                         }
                     }
                     var std = (count > 1 ? Math.sqrt(ySum/(count-1)) : 1)
+                    
+                    // Linear estimation
                     ySum = 0;
                     count = 0;
-
-                    // Linear estimation
                     for (var j = 0; j < data.results.length ; j++)
                     {
                         if (classSplitsStatus[sp][j] <= 1) // OK or BAD
                         {
                             statusSum += classSplitsStatus[sp][j];
                             statusN++;
-                            if (splitFracRunner[sp][j] != null)
+                            if (splitFracRunner[sp][j] > 0)
                             {
                                 var frac = splitFracRunner[sp][j];
                                 if (frac > maxFrac)
@@ -502,15 +519,27 @@ var LiveResults;
                     statusAvg = (statusN >= minNum ? statusSum/statusN : 1);
                     classSplitsOK[sp] = (statusAvg > validateLim ? true : false);
 
-                    // Calculate estimation parameters
-                    if (count >= 2)
-                        a = (count*xySum - xSum*ySum) / (count*xxSum - xSum*xSum);
+                    // Calculate estimation parameters>
+                    var totPar = false;
                     if (count >= 1)
+                    {
+                        totPar = false;
                         b = (ySum - a*xSum)/count;
+                        if (count >= 2)
+                            a = (count*xySum - xSum*ySum) / (count*xxSum - xSum*xSum);
+                    }
+                    else if (countTotal > 0)
+                    {
+                        totPar = true;
+                        b = avgTotal;
+                        maxFrac = 1;
+                        minFrac = 0;
+                    }
                     
                     var obj = {avg   : (count > 0 ? ySum/count : null), 
                                  a   : a, 
-                                 b   : b, 
+                                 b   : b,
+                                 totPar: totPar, 
                                  max : maxFrac, 
                                  min : minFrac};
                     splitsPar.push(obj);
@@ -552,7 +581,6 @@ var LiveResults;
                                 var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
                                 if (isNaN(split) && sp > 0) // Split does not exist
                                 {
-                                    //var nomSplit = splitFracNom[sp]*finishTime;
                                     var splitCode = classSplits[spRef].code;
                                     
                                     // Find nearest, existing split
@@ -615,19 +643,27 @@ var LiveResults;
                         else if (splitsPar[sp].b != null)  // Split does not exist, and estimat parameter exist
                         {
                             var x = [];
-                            var spPrev = sp;                            
+                            var spPrev = sp;
                             while (isNaN(prevSplit) && spPrev >= 0) // Find first of previous splits that exist
                             {
                                 x.push(Math.max(splitsPar[spPrev].min, Math.min(splitsPar[spPrev].max, splitsPar[spPrev].a*j + splitsPar[spPrev].b)));   
-                                spPrev--;
-                                var spPrevRef = this.splitRef(spPrev);
-                                prevSplit = (spPrevRef >= 0 ? parseInt(data.results[j].splits[classSplits[spPrevRef].code]) : startTime);
+                                if (splitsPar[spPrev].totPar) // Use fraction from starttime to next split
+                                {
+                                    spPrev = -1;
+                                    prevSplit = startTime;
+                                }
+                                else
+                                {
+                                    spPrev--;
+                                    var spPrevRef = this.splitRef(spPrev);
+                                    prevSplit = (spPrevRef >= 0 ? parseInt(data.results[j].splits[classSplits[spPrevRef].code]) : startTime);
+                                }
                             }
                             var X = x[x.length-1];
                             for (var i = x.length-2; i >=0; i--)
                                 X = x[i]/(1 - X*(1- x[i])); // Recursive formula for aggregated fraction
                             
-                            if (nextSplit > 0 && !isNaN(prevSplit)) 
+                            if (nextSplit > 0 && !isNaN(prevSplit) && X>0) 
                             {
                                 classSplitsUpdated[spRef] = true;
                                 split = Math.round((X*nextSplit + (1-X)*prevSplit)/100)*100;
@@ -1139,7 +1175,6 @@ var LiveResults;
                                                 else
                                                     elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
                                             }
-                                            
                                             
                                             timeDiffCol = offset + nextSplit*2;
                                             if (nextSplit==this.curClassNumSplits) // Approach finish
@@ -2064,9 +2099,6 @@ var LiveResults;
                 if (predRank)
                     clearInterval(this.updatePredictedTimeTimer);
                 
-                // Set table to position relative
-                //$(table).css('position', 'relative');
-                
                 // Set each td's width
                 var column_widths = new Array();
                 $(table).find('tr:first-child th').each(function() {column_widths.push( $(this)[0].getBoundingClientRect().width-9);});
@@ -2090,7 +2122,6 @@ var LiveResults;
 
                 if (isResTab)
                 {
-                    //$(fixedTable).css('position', 'relative');
                     $(fixedTable).find('tr td, tr th').each(function() {$(this).css('min-width',column_widths[$(this).index()]);});        
                     $(fixedTable).find('tr').each(function(index) {$(this).css('top', rowPosArray[index]); });
                     $(fixedTable).find('tbody tr').each(function() {$(this).css('position', 'absolute').css('z-index', '92'); });
@@ -2158,9 +2189,9 @@ var LiveResults;
                     $(fixedTable).height(0).width('100%');
                 }
                 this.currentTable.api().draw();
-                if (predRank)
-                    setTimeout(function(){_this.startPredictionUpdate();},(1000-100-_this.animTime));
                 this.animating = false;
+                if (predRank)
+                    setTimeout(function(){_this.startPredictionUpdate();},100);
             }
         };
 
