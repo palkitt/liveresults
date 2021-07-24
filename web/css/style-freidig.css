@@ -44,22 +44,6 @@ td.submenu table tr td a:hover {text-decoration: underline; color: var(--livered
 
 td.searchmenu { padding-left: 5px;}
 
-/* For compatibility with Emma server 
-tr.new_result {  color: white; background-color: var(--livered) !important; }
-tr.new_result a {color: white;}
-tr.new_result td.sorting_2 { background-color: #F9B7A4 !important;}
-tr.new_result td.sorting_1 { background-color: #F9B7A4 !important; }
-tr.new_result .plustime { color: white;}
-tr.new_result .besttime { color: white;}
-tr.new_result .legtime {color: white;}
-tr.new_result .estimate {color: white;}
-tr.new_result .club { color: white;}
-tr.new_result .place { color: white;}
-tr.new_result .bestplace { color: white;}
-tr.new_result .relayclub { color: white;}
-tr.new_result td i { color: white;}
-*/
-
 /* Red row marking */
 tr.red_row {  color: white; background-color: var(--livered) !important; } 
 tr.red_row a {color: white;}
@@ -122,7 +106,7 @@ tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-t
 .green_cell  {color: black; background-color: #00FF00 !important;} 
 
 
-table.dataTable td {vertical-align: top;}
+table.dataTable td {vertical-align: middle;}
 
 /* Pulsing dot for live runner */
 .pulsing {
@@ -153,6 +137,7 @@ table.dataTable td {vertical-align: top;}
 .besttime {color: magenta;}
 .bestplace {color: magenta;}
 .place {color: dimgrey;}
+.hideplace {opacity: 0;}
 .plustime {color: dimgrey;}
 .legtime {color: dimgrey;}
 .bib {color: grey; font-style: normal;}

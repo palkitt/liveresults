@@ -1056,9 +1056,9 @@ var LiveResults;
                                         var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
                                         var elapsedTotalTimeStr = "<i>&#10092;" + this.formatTime(elapsedTotalTime, 0, false) + "&#10093;</i>";
                                         if (this.curClassNumberOfRunners >= 10)
-                                            elapsedTotalTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;</span>";
+                                            elapsedTotalTimeStr += "<span class=\"hideplace\">&nbsp;<i>..&#10072;</i></span>";
                                         else
-                                            elapsedTotalTimeStr += "<span class=\"place\">&nbsp;&nbsp;</span>";
+                                            elapsedTotalTimeStr += "<span class=\"hideplace\"><i>..&#10072;</i></span>";
                                         table.cell( i, totalTimeCol).data(elapsedTotalTimeStr);
                                     }  
 
@@ -1094,9 +1094,9 @@ var LiveResults;
                                             if (this.isMultiDayEvent && !this.compactView)
                                             {
                                                 if (this.curClassNumberOfRunners >= 10)
-                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                                                 else
-                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\"> <i>&#10072;..&#10072;</i></span>";
                                             }                                     
                                             else
                                                 table.cell( i, 6 + MDoffset + (this.curClassHasBibs? 1 : 0)).data(timeDiffStr);
@@ -1171,9 +1171,9 @@ var LiveResults;
                                             {
                                                 timeDiffStr += rankStr;
                                                 if (this.curClassNumberOfRunners >= 10)
-                                                    elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                    elapsedTimeStr += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                                                 else
-                                                    elapsedTimeStr += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                                    elapsedTimeStr += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
                                             }
                                             
                                             timeDiffCol = offset + nextSplit*2;
@@ -1184,9 +1184,9 @@ var LiveResults;
                                             if (!this.compactView && !this.curClassIsRelay && !this.curClassLapTimes && nextSplit==this.curClassNumSplits)
                                             {
                                                 if (this.curClassNumberOfRunners >= 10)
-                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                                                 else
-                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";                                     
+                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";                                     
                                             }
                                             table.cell( i, offset + this.curClassNumSplits*2 ).data(elapsedTimeStr);
                                             // Display time diff
