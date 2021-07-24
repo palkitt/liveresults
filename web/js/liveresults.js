@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -2011,14 +2011,15 @@ var LiveResults;
                                 table.column(colNum).visible( this.curClassSplitsOK[sp] );
                             }
                         } 
+                        
+                        this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
                         $(table.settings()[0].nScrollBody).scrollLeft( posLeft );
                         window.scrollTo(0,scrollDown);
-                        this.lastClassHash = newData.hash;
 
-                        this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
                         var newResults = this.currentTable.fnGetData();                    
                         this.animateTable(oldResults, newResults, this.animTime);
-
+                        
+                        this.lastClassHash = newData.hash;
                         setTimeout(function(){_this.startPredictionUpdate();}, _this.animTime+200);
                     }
                 }
@@ -3507,8 +3508,231 @@ var LiveResults;
             this.currentTable.fnSort([[idxCol, 'asc']]);
             $("#" + this.txtResetSorting).html("");
         };
+
+    //Request data for result viewer
+    AjaxViewer.prototype.updateResultView = function (className,place,first,last) {
+        var _this = this;
+        $.ajax({
+            url: this.apiURL,
+            data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className),
+            success: function (data,status,resp) {_this.handleUpdateResultViews(data,className,place,first,last); },
+            error: function () {  },
+            dataType: "json"                   
+        });
+    };
+
+    //Handle response for updating the last radio passings..
+    AjaxViewer.prototype.handleUpdateResultViews = function (data,className,place,first,last) {
+        var _this = this;    
+        if (data != null && data.status == "OK") 
+        {
+            if (data.className != null)
+                $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
+            if (data.results != null && data.results.length>0) 
+            {
+                var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
+                this.curClassSplits = data.splitcontrols;
+                this.curClassIsRelay = (haveSplitControls && this.curClassSplits[0].code == "0");
+                this.curClassIsUnranked = !(this.curClassSplits.every(function check(el) {return el.code != "-999";})) || !(data.results.every(function check(el) {return el.status != 13;}));
+                this.curClassHasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
+                var isRelayClass = this.relayClasses.includes(data.className);
+
+                if (this.curClassSplits == null)
+                    this.curClassNumSplits = 0;
+                else if (this.curClassIsRelay)
+                    this.curClassNumSplits = this.curClassSplits.length/2-1;
+                else if (this.curClassLapTimes)
+                    this.curClassNumSplits = (this.curClassSplits.length-1)/2;
+                else
+                    this.curClassNumSplits = this.curClassSplits.length;
+
+                this.curClassSplitsOK = new Array(this.curClassNumSplits).fill(true);
+                this.checkRadioControls(data);
+                this.updateClassSplitsBest(data);
+                this.updateResultVirtualPosition(data.results);
+
+
+                // Select data for display
+                var results = [];
+                var minPlace = 1;
+                var maxPlace = 10;
+                
+                for (var i = 0; i< data.results.length; i++)
+				{
+                    if (data.results[i].place >= minPlace && data.results[i].place <= maxPlace)
+                    {
+                        results.push(data.results[i]);
+                    }
+                }
+
+                         
+                var columns = Array();
+                var col = 0;
+
+                columns.push({
+                    "sTitle": "#",
+                    "sClass": "right",
+                    "bSortable": false,
+                    "aTargets": [col++],
+                    "mDataProp": "place",
+                    "width": "5%"
+                });
+
+                if (_this.curClassHasBibs)
+                {
+                    columns.push({
+                        "sTitle": "No",
+                        "sClass": "right",
+                        "bSortable": false,
+                        "aTargets": [col++],
+                        "mDataProp": "bib",
+                        "width": "5%",
+                        "render": function (data,type,row) {
+                            if (type === 'display')
+                            {
+                                if (data<0) // Relay
+                                    return "(" + (-data/100|0) + ")";
+                                else if (data>0)    // Ordinary
+                                    return "("  + data + ")";
+                                else
+                                    return "";                                        
+                            }
+                            else
+                                return Math.abs(data);
+                        }
+                    });
+                }
+
+                if (isRelayClass)
+                {
+                    columns.push({
+                        "sTitle": this.resources["_CLUB"],
+                        "sClass": "left",
+                        "bSortable": false,
+                        "aTargets": [col++],
+                        "mDataProp": "club",
+                        "width": "20%",
+                        "render": function (data,type,row) {
+                            var param = row.club;
+                            var clubShort = row.club;
+                            if (param && param.length > 0)
+                            {
+                                param = param.replace('\'', '\\\'');
+                                if (clubShort.length > _this.maxClubLength)
+                                    clubShort = _this.clubShort(clubShort);				
+                            }
+                            return clubShort;
+                        }});
+
+                    columns.push({
+                        "sTitle": this.resources["_NAME"],
+                        "sClass": "left",
+                        "bSortable": false,
+                        "aTargets": [col++],
+                        "mDataProp": "name",
+                        "width": "20%",
+                        "render": function (data,type,row) {
+                            var nameShort = row.name;
+                            if (row.name.length>_this.maxNameLength)
+                                nameShort = _this.nameShort(row.name);                                                                                                                    
+                            return nameShort;
+                        }
+                    });
+                }
+                else // Not this.curClassIsRelay
+                {
+                    columns.push({
+                        "sTitle": this.resources["_NAME"],
+                        "sClass": "left",
+                        "bSortable": false,
+                        "aTargets": [col++],
+                        "mDataProp": "name",
+                        "width": "20%",
+                        "render": function (data,type,row) {
+                            var nameShort = row.name;
+                            if (row.name.length>_this.maxNameLength)
+                                nameShort = _this.nameShort(row.name);
+
+                            return nameShort;
+                        }
+                    });
+                    
+                    columns.push({
+                        "sTitle": this.resources["_CLUB"],
+                        "sClass": "left",
+                        "bSortable": false,
+                        "aTargets": [col++],
+                        "mDataProp": "club",
+                        "width": "20%",
+                        "render": function (data,type,row) {
+                            var param = row.club;
+                            var clubShort = row.club;
+                            if (param && param.length > 0)
+                            {
+                                param = param.replace('\'', '\\\'');
+                                if (clubShort.length > _this.maxClubLength)
+                                    clubShort = _this.clubShort(clubShort);				
+                            }
+                            return clubShort;
+                        }
+                    });
+                }
+
+                columns.push({
+                    "sTitle": "Tid",
+                    "sClass": "right",
+                    "sType": "numeric",
+                    "bSortable": false,
+                    "aTargets": [col++],
+                    "bUseRendered": false,
+                    "width": "10%",
+                    "render": function (data,type,row) {
+                        if (type=="sort")
+                            return parseInt(data);
+                        var res = "";
+                        res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
+                        return res;
+                    }
+                });
+                    
+                columns.push({
+                    "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
+                    "sClass": "right",
+                    "bSortable": false,
+                    "aTargets": [col++],
+                    "mDataProp": "timeplus",
+                    "width": "10%" ,
+                    "render": function (data,type,row) {
+                        var res = "";
+                        if (row.status == 0)
+                        {
+                            res += "<span class=\"plustime\">+";
+                            res += _this.formatTime(Math.max(0,row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
+                        }
+                        return res;
+                    }
+                });
+                
+                columns.push({ "sTitle": "sort", "bVisible": false, "aTargets": [col++], "mDataProp": "place" });
+
+                this.currentTable = $('#' + this.resultsDiv).dataTable({
+                    "bPaginate": false,
+                    "bLengthChange": false,
+                    "bFilter": false,
+                    "bSort": true,
+                    "bInfo": false,
+                    "bAutoWidth": false,
+                    "aaData": results,
+                    "aaSorting": [[col-1, "asc"]],
+                    "aoColumnDefs": columns,
+                    "bDestroy": true
+                    });
+            }  
+        }
+    };  
+
         
-        // ReSharper disable once InconsistentNaming
+    // ReSharper disable once InconsistentNaming
         AjaxViewer.VERSION = "2016-08-06-01";
         return AjaxViewer;
     }());
