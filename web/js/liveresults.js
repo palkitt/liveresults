@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -524,13 +524,13 @@ var LiveResults;
                     if (count >= 1)
                     {
                         totPar = false;
+                        a = (count >= 2 ? (count*xySum - xSum*ySum) / (count*xxSum - xSum*xSum) : 0 );
                         b = (ySum - a*xSum)/count;
-                        if (count >= 2)
-                            a = (count*xySum - xSum*ySum) / (count*xxSum - xSum*xSum);
                     }
                     else if (countTotal > 0)
                     {
                         totPar = true;
+                        a = 0;
                         b = avgTotal;
                         maxFrac = 1;
                         minFrac = 0;
