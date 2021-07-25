@@ -175,7 +175,6 @@ function handleGetClasses(data,compID,first,last) {
 							document.body.appendChild(divR);
 							divR.style = ""
                             divR.id = divResults;
-                            divR
 
 							res[j] = new LiveResults.AjaxViewer(compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults,
 							    "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus,false, "", false,"",true);
@@ -236,20 +235,26 @@ $(document).ready(function()
                     error: function () {},
                     dataType: "json"
                 });
-
+  
+	setTimeout(function(){
+		var divText = document.createElement('text');
+		document.body.appendChild(divText);
+		divText.style = "margin-top: 20px; font-size: 20px";
+		divText.innerHTML = "<p>...</p>";
+	},1000); 			
 });
 
 </script>
 <script language="javascript" type="text/javascript">
-var delayTime = 50;
+var delayTime = 25;
 var stepSize = 1;
 function pageScroll() {
-	var currentY = window.pageYOffset;
+	var currentY = window.scrollY;
 	var bodyHeight = document.body.offsetHeight;
 	var yPos = currentY + window.innerHeight;
 	var scroller = setTimeout('pageScroll()',delayTime);
 	currentY += stepSize;
-	if (yPos > bodyHeight+1){
+	if (yPos >= bodyHeight){  
 		clearTimeout(scroller);
 		scroller = setTimeout(() => {
 			window.scroll(0,0);
@@ -264,6 +269,6 @@ setTimeout('pageScroll()', 5000);
 
 </head>
 <body>
-
+  
 </body>
 </html>
