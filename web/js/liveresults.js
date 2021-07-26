@@ -2478,7 +2478,7 @@ var LiveResults;
                             "sTitle": "&#8470;&nbsp;&nbsp;",
 						    "responsivePriority": 1,
 						    "sClass": "right",
-                            "bSortable": true,
+                            "bSortable": !_this.fixedTable,
                             "aTargets": [col++],
                             "mDataProp": "bib",
                             "width": (_this.fixedTable ? "5%" : null),
@@ -2502,6 +2502,7 @@ var LiveResults;
                         "sTitle": this.resources["_START"] + "&nbsp;&nbsp;",
 						"responsivePriority": 4,
                         "sClass": "right",
+                        "bSortable": !_this.fixedTable,
                         "sType": "numeric",
                         "aDataSort": [col],
                         "aTargets": [col],
@@ -2657,9 +2658,9 @@ var LiveResults;
                                                        txt += "\"plustime\">+";
                                                     txt += _this.formatTime(Math.abs(row.splits[value.code + "_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
                                                     if (_this.curClassNumberOfRunners >= 10)
-                                                        txt += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                                        txt += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                                                     else
-                                                        txt += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                                        txt += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";                                                        
                                                 }
                                             }
                                             return txt;
@@ -2680,6 +2681,7 @@ var LiveResults;
                         "aDataSort": [col + 1, col, 0],
                         "aTargets": [col],
                         "bUseRendered": false,
+                        "bSortable": !_this.fixedTable,
                         "mDataProp": "result",
                         "width": (_this.fixedTable ? "10%" : null),
                         "render": function (data,type,row) {
@@ -2721,9 +2723,9 @@ var LiveResults;
                                     else
                                         res += "<br/><span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                                     if (_this.curClassNumberOfRunners >= 10)
-                                        res += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                        res += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                                     else
-                                        res += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                        res += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
                                 }
 							}
 							if (haveSplitControls && (fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits["999_place"] != undefined))
@@ -2855,11 +2857,10 @@ var LiveResults;
                                         else
                                             totalres += "<br/><span class=\"plustime\">+";
                                         totalres += _this.formatTime(row.totalplus, row.totalstatus) + "</span>";
-
                                         if (_this.curClassNumberOfRunners >= 10)
-                                            totalres += "<span class=\"place\">&nbsp;&numsp;&nbsp;&numsp;&nbsp;</span>";
+                                            totalres += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                                         else
-                                            totalres += "<span class=\"place\">&nbsp;&numsp;&nbsp;&nbsp;</span>";
+                                            totalres += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
                                     }
                                     return totalres;
                                 }

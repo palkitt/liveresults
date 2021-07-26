@@ -188,7 +188,7 @@ function handleGetClasses(data,compID,first,last) {
 		                    res[j].startPredictionUpdate();
 
                             <?php if($currentComp->MassStartSorting() ){?>
-		                    res[j]curClassIsMassStart = true; <?php }?>
+		                    	res[j].curClassIsMassStart = true; <?php }?>
 	
                             <?php if($currentComp->ShowTenthOfSeconds() ){?>
                                 res[j].setShowTenth(true); <?php }?>
@@ -241,7 +241,7 @@ $(document).ready(function()
 		document.body.appendChild(divText);
 		divText.style = "margin-top: 20px; font-size: 20px";
 		divText.innerHTML = "<p>...</p>";
-	},1000); 			
+	},10000); 			
 });
 
 </script>
