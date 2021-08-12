@@ -1434,12 +1434,13 @@ var LiveResults;
 			
             if (this.currentTable != null && updated) // Existing datatable
             {
-                var scrollDown = window.scrollY;
+                var scrollX = window.scrollX;
+                var scrollY = window.scrollY;
                 var oldData = $.extend(true,[],this.currentTable.fnGetData());
                 this.currentTable.fnClearTable();
                 this.currentTable.fnAddData(this.radioData, true);
                 this.filterTable();
-                window.scrollTo(0,scrollDown);
+                window.scrollTo(scrollX, scrollY);
                 this.animateTable(oldData, this.radioData, this.animTime);
             }
             
@@ -1986,7 +1987,8 @@ var LiveResults;
                         var oldResults = $.extend(true,[],this.currentTable.fnGetData());
                         var table = this.currentTable.api();
                         var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
-                        var scrollDown = window.scrollY;
+                        var scrollX = window.scrollX;
+                        var scrollY = window.scrollY;
 
                         this.curClassNumberOfRunners = newData.results.length;
                         $('#numberOfRunners').html(this.curClassNumberOfRunners);
@@ -2014,7 +2016,7 @@ var LiveResults;
                         
                         this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
                         $(table.settings()[0].nScrollBody).scrollLeft( posLeft );
-                        window.scrollTo(0,scrollDown);
+                        window.scrollTo(scrollX, scrollY);
 
                         var newResults = this.currentTable.fnGetData();                    
                         this.animateTable(oldResults, newResults, this.animTime);
@@ -2237,7 +2239,8 @@ var LiveResults;
                 var numberOfRunners = data.results.length;
                 $('#numberOfRunners').html(numberOfRunners);
                 var posLeft = $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft();
-                var scrollDown = window.scrollY;
+                var scrollX = window.scrollX;
+                var scrollY = window.scrollY;
                 this.currentTable.fnClearTable();
                 if (data && data.results) 
                 {
@@ -2254,7 +2257,7 @@ var LiveResults;
                 }
                 this.currentTable.fnAddData(data.results, true);
                 $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft( posLeft );
-                window.scrollTo(0,scrollDown)
+                window.scrollTo(scrollX, scrollY)
                 this.lastClubHash = data.hash;
                 this.currentTable.fnAdjustColumnSizing();
             }
