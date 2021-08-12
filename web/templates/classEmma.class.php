@@ -11,8 +11,9 @@ class Emma
    public static $MYSQL_CHARSET = "utf8";
    var $m_CompId;
    var $m_CompName;
-
    var $m_CompDate;
+   var $m_Organizer;
+   var $m_RankedStartList;
    var $m_TimeDiff = 0;
    var $m_HighTime = 60;
    var $m_IsMultiDayEvent = false;
