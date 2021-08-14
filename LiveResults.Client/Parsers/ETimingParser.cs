@@ -673,7 +673,11 @@ namespace LiveResults.Client
 
                         time = -2;
                         if (reader["times"] != null && reader["times"] != DBNull.Value)
-                            time = GetRunTime((reader["times"].ToString()).Trim());
+                        {
+                            int timeRead = GetRunTime((reader["times"].ToString()).Trim());
+                            if (timeRead > 0)
+                                time = timeRead;
+                        }
 
                         if (isRelay)
                             chaseStart = false;
