@@ -2361,6 +2361,8 @@ var LiveResults;
 					var fullView = !this.compactView;
                     var isRelayClass = this.relayClasses.includes(data.className);
 
+                    const vertLine = "<span class=\"hideplace\">&#10072;</span>";
+
                     columns.push({
                         "sTitle": "#",
 						"responsivePriority": 1,
@@ -2368,31 +2370,39 @@ var LiveResults;
                         "bSortable": false,
                         "aTargets": [col++],
                         "mDataProp": "place",
-                        "width": (_this.fixedTable ? "5%" : null)
+                        "width": (_this.fixedTable ? "5%" : null),
+                        "render": function (data,type,row) {
+                            if (type === 'display' && data != "")
+                                return vertLine + data;
+                            else
+                                return data;
+                        }
+
                     });
 
                     if (isRelayClass)
                     {
                         if (!haveSplitControls || !fullView )
-                        columns.push({
-                            "sTitle": this.resources["_CLUB"],
-						    "responsivePriority": 1,
-                            "sClass": "left",
-                            "bSortable": false,
-                            "aTargets": [col++],
-                            "mDataProp": "club",
-                            "render": function (data,type,row) {
-                                var param = row.club;
-							    var clubShort = row.club;
-                                if (param && param.length > 0)
-                                {
-                                    param = param.replace('\'', '\\\'');
-                                    if (clubShort.length > _this.maxClubLength)
-                                        clubShort = _this.clubShort(clubShort);				
-							    }
-                                return link = "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
-                            }
-                        });
+                            columns.push({
+                                "sTitle": this.resources["_CLUB"],
+                                "responsivePriority": 1,
+                                "sClass": "left",
+                                "bSortable": false,
+                                "aTargets": [col++],
+                                "mDataProp": "club",
+                                "render": function (data,type,row) {
+                                    var param = row.club;
+                                    var clubShort = row.club;
+                                    if (param && param.length > 0)
+                                    {
+                                        param = param.replace('\'', '\\\'');
+                                        if (clubShort.length > _this.maxClubLength)
+                                            clubShort = _this.clubShort(clubShort);				
+                                    }
+                                    return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>" + vertLine;
+                                    
+                                }
+                            });
                         columns.push({
                             "sTitle": (haveSplitControls && fullView ) ? this.resources["_CLUB"] + " / " + this.resources["_NAME"] : this.resources["_NAME"],
                             "sClass": "left",
@@ -2413,12 +2423,11 @@ var LiveResults;
                                         clubShort = _this.clubShort(clubShort);				
                                 }
                                 var clubLink = "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
-                                                                                                                                    
-                                return (haveSplitControls && fullView ? clubLink + "<br/>" + nameShort : nameShort);
+                                return (haveSplitControls && fullView ? clubLink + vertLine + "<br/>" + nameShort : nameShort + vertLine) ;
                             }
                         });
                     }
-                    else // Not this.curClassIsRelay
+                    else // Not curClassIsRelay
                     {
                         if (!(haveSplitControls || _this.isMultiDayEvent)|| _this.curClassIsUnranked || (!fullView && !_this.curClassLapTimes))
                             columns.push({
@@ -2431,12 +2440,7 @@ var LiveResults;
                                 "width": (_this.fixedTable ? "30%" : null),
                                 "render": function (data,type,row) {
                                     if (type === 'display')
-                                    {
-                                        if (data.length>_this.maxNameLength)
-                                            return _this.nameShort(data);
-                                        else
-                                            return data;
-                                    }
+                                        return (data.length>_this.maxNameLength ? _this.nameShort(data) : data ) + vertLine;
                                     else
                                         return data;
                                 }
@@ -2461,16 +2465,11 @@ var LiveResults;
                                 }
                                 var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                                 if ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes))
-                                {
-                                    if (row.name.length>_this.maxNameLength)
-                                            return _this.nameShort(row.name) + "<br/>" + link;
-                                        else
-                                            return row.name + "<br/>" + link;
-                                }
+                                    return (row.name.length>_this.maxNameLength ? _this.nameShort(row.name) : row.name) + vertLine + "<br/>" + link;
                                 else if (_this.fixedTable)
-                                    return clubShort;
+                                    return clubShort + vertLine;
                                 else
-                                    return link;
+                                    return link + vertLine;
                             }
                         });
                     }
@@ -2488,12 +2487,12 @@ var LiveResults;
                             "render": function (data,type,row) {
                                 if (type === 'display')
                                 {
-                                    if (data<0) // Relay
-                                        return "<span class=\"bib\">" + (-data/100|0) + "</span>";
-                                    else if (data>0)    // Ordinary
-                                        return "<span class=\"bib\">"  + data + "</span>";
-                                    else
-                                        return "";                                        
+                                    var txt = vertLine;
+                                    if (data<0)       // Relay
+                                        txt += "<span class=\"bib\">" + (-data/100|0) + "</span>";
+                                    else if (data>0)  // Ordinary
+                                        txt += "<span class=\"bib\">"  + data + "</span>";
+                                    return txt;
                                 }
                                 else
                                     return Math.abs(data);
@@ -2538,6 +2537,7 @@ var LiveResults;
                                         else
                                             txt += "<span>+" + _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + place + "</span><br />";
                                     }
+                                    txt += vertLine;
                                     if (row.splits["0_place"] == 1)									
 										txt += "<span class=\"besttime\">";
 									else 
@@ -2547,7 +2547,7 @@ var LiveResults;
                                     txt += _this.formatTime(row.start, 0, false, true, true) + "</span>";
 								}
 								else
-									txt += _this.formatTime(row.start, 0, false, true, true); 
+									txt += vertLine + _this.formatTime(row.start, 0, false, true, true); 
                                 return txt;
                             }
                         }
@@ -2773,7 +2773,7 @@ var LiveResults;
                             "render": function (data,type,row) {
                                 if (isNaN(parseInt(data)))
 									return data;
-								var res = "";
+								var res = vertLine;
                                 if (row.status == 0)
                                 {
                                     if (row.timeplus <= 0 && (haveSplitControls || _this.isMultiDayEvent))
@@ -2798,20 +2798,19 @@ var LiveResults;
                             "render": function (data,type,row) {
 								if (isNaN(parseInt(data)))
 									return data;
-                                var res = "";
+                                var res = vertLine;
                                 if (row.status == 0)
                                 {
                                     if (row.place == 1)
-                                        res += "<span class=\"besttime\">-"
-                                            + _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span><br />";
+                                        res += "<span class=\"besttime\">-" + _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) ;
                                     else
-                                        res += "<span>+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span><br />";
+                                        res += "<span>+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond);
+                                    
+                                    res += "</span><br />" + vertLine;
                                     if (row.splits["999_place"] == 1)
-                                        res += "<span class=\"besttime\">-"
-                                            + _this.formatTime(-row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                        res += "<span class=\"besttime\">-" + _this.formatTime(-row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                     else
-                                        res += "<span class=\"legtime\">+"
-                                            +_this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                        res += "<span class=\"legtime\">+" +_this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                 }
                                 return res;
                             }
@@ -2886,7 +2885,7 @@ var LiveResults;
                                         return "";
                                     else
                                     {
-                                        var res = "";
+                                        var res = vertLine;
                                         if (row.totalplace == 1)
                                             res += "<span class=\"besttime\">+";
                                         else
