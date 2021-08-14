@@ -57,7 +57,7 @@ el.style.backgroundColor = "";
 </div>
 <div class="maindiv" style="padding-left: 5px;">
 <br>
-Results from liveresultat.orientering.se can be found <a href='emma/index.php'>here</a>.<br>
+<a href='emma/index.php'>Results from liveresultat.orientering.se</a><br>
 <br>
 <b>Choose language</b><br>
 <a href=indexs.php?lang=no style='text-decoration: none'><img src='images/no.png?a' border='0' alt='Norsk'></a>&nbsp

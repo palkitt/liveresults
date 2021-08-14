@@ -58,7 +58,7 @@ el.style.backgroundColor = "";
 
 <div class="maindiv" style="padding-left: 5px;">
 <br>
-Results from LiveRes Freidig orientering can be found <a href='../index.php'>here</a>.<br>
+<a href='../index.php'>Results from LiveRes Freidig orientering</a><br>
 <br>
 <b>Choose language</b><br>
 <a href=index.php?lang=no style='text-decoration: none'><img src='../images/no.png?a' border='0' alt='Norsk'></a>&nbsp
