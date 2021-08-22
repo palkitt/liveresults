@@ -171,7 +171,7 @@ class Emma
 		if ($dbid > 0)
 			$sql = "update runners set ecardchecked=1 where tavid=".$compid." AND dbid=".$dbid;
 		else
-			$sql = "update runners set ecardchecked=1 where tavid=".$compid." AND bib=".$bib;	
+			$sql = "update runners set ecardchecked=1 where tavid=".$compid." AND (bib=".$bib." OR bib=-".$bib.")";	
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
