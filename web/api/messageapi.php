@@ -23,28 +23,34 @@ $br = $pretty ? "\n" : "";
 if ($_GET['method'] == 'sendmessage')
 {
 	insertHeader(1,false);
-	$changed = time();
-	$DNS = 0;
-	$ecardChange = 0;
-	$completed = 0;
 	if (!isset($_GET['comp']))
 		echo("{\"status\": \"Error\", \"message\": \"comp not set\"}");
-	if (!isset($_GET['dbid']))
+	elseif (!isset($_GET['dbid']))
 		echo("{\"status\": \"Error\", \"message\": \"dbid not set\"}");
-	if (!isset($_GET['message']))
+	elseif (!isset($_GET['message']))
 		echo("{\"status\": \"Error\", \"message\": \"message not set\"}");
-	if (isset($_GET['dns']))
-		$DNS = $_GET['dns'];
-	if (isset($_GET['ecardchange']))
-		$ecardChange = $_GET['ecardchange'];
-	if (isset($_GET['completed']))
-		$completed = $_GET['completed'];
-	$ret = Emma::SendMessage($_GET['comp'],$_GET['dbid'],$changed,$_GET['message'],$DNS,$ecardChange,$completed);
-
-	if ($ret > 0)
-		echo("{\"status\": \"OK\"}");
 	else
-		echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
+	{
+		$changed = time();
+		$DNS = 0;
+		$ecardChange = 0;
+		$completed = 0;
+		if (isset($_GET['dns']))
+			$DNS = $_GET['dns'];
+		if (isset($_GET['ecardchange']))
+			$ecardChange = $_GET['ecardchange'];
+		if (isset($_GET['completed']))
+			$completed = $_GET['completed'];
+		$ret = Emma::SendMessage($_GET['comp'],$_GET['dbid'],$changed,$_GET['message'],$DNS,$ecardChange,$completed);
+
+		if ($ret > 0 && $ecardChange && isset($_GET['bib']))
+			$ret = Emma::SetMessageEcardChecked($_GET['comp'],0,$_GET['bib']);
+		
+		if ($ret > 0)	
+			echo("{\"status\": \"OK\"}");
+		else
+			echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
+	}
 }
 else if ($_GET['method'] == 'setcompleted')
 {
