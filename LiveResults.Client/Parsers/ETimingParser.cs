@@ -215,7 +215,7 @@ namespace LiveResults.Client
                     {
                         // radiotype, 2=finish/finish-passing, 4 = normal, 10 = exchange
                         cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, description, etappe, radiorundenr, live 
-                                            FROM radiopost WHERE radioday={0}",day);
+                                            FROM radiopost WHERE radioday={0} ORDER BY radiorundenr", day);
                         var RadioPosts = new Dictionary<int, List<RadioStruct>>();
 
                         using (IDataReader reader = cmd.ExecuteReader())
