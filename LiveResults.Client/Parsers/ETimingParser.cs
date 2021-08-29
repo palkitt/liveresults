@@ -532,6 +532,8 @@ namespace LiveResults.Client
                     int sleepTimeMessage = maxSleepTimeMessage;
                     int maxSleepTimeCleanupID = 60; // Time between cleaning/deleting unused IDs
                     int sleepTimeCleanupID = maxSleepTimeCleanupID;
+                    bool failedLast = false;
+                    bool failedThis;
                     bool first = true;
 
                     /* ***            Main loop        ***
@@ -558,7 +560,8 @@ namespace LiveResults.Client
 
                             if (m_updateMessage && sleepTimeMessage >= maxSleepTimeMessage)
                             {
-                                UpdateFromMessages(messageServer, client);
+                                UpdateFromMessages(messageServer, client, failedLast, out failedThis);
+                                failedLast = failedThis;
                                 sleepTimeMessage = 0;
                             }
 
@@ -1278,8 +1281,9 @@ namespace LiveResults.Client
             }
         }
 
-        private void UpdateFromMessages(string messageServer, WebClient client)
+        private void UpdateFromMessages(string messageServer, WebClient client, bool failedLast, out bool failedThis)
         {
+            failedThis = false;
             string apiResponse = "";
             // Get DNS and ecard changes
             try
@@ -1353,19 +1357,23 @@ namespace LiveResults.Client
                                 FireLogMsg("eTiming Message (ID: " + eTimingID + ") " + name + " set to DNS");
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
                             }
-                            else
+                            else if (failedLast)
                             {
                                 FireLogMsg("eTiming Message (ID: " + eTimingID + ") " + name + " not possible to set to DNS");
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setdns&dns=0&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere. Status:" + status + "&dbid=" + dbid);
                             }
+                            else
+                                 failedThis = true;
                         }
-                        else
+                        else if (failedLast)
                         {
                             FireLogMsg("eTiming Message (ID: " + eTimingID + ") " + name + " not posible to set to DNS. Status: " + status);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setdns&dns=0&messid=" + messid);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere. Status:" + status + "&dbid=" + dbid);
                         }
+                        else
+                             failedThis = true;
                     }
                     catch (Exception ee)
                     {
@@ -1500,14 +1508,16 @@ namespace LiveResults.Client
                                     " byttet til " + ecard + "&dbid=" + dbid);
 
                             }
-                            else
+                            else if (failedLast)
                             {
                                 FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " not possible to change ecard " + ecard);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setecardchange&ecardchange=0&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikke&dbid=" + dbidMessage);
                             }
+                            else
+                                 failedThis = true;
                         }
-                        else // !bibOK || !ecardOK
+                        else if (failedLast) // !bibOK || !ecardOK
                         {
                             FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " not possible to change ecard " + ecard);
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setecardchange&ecardchange=0&messid=" + messid);
@@ -1520,6 +1530,8 @@ namespace LiveResults.Client
                             else                        // !bibOK && ecardOK
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Brikkenr ikke oppdatert! Feil startnummer?&dbid=" + dbidMessage);
                         }
+                        else
+                            failedThis = true;
                     }
                     catch (Exception ee)
                     {
