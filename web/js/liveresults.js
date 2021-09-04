@@ -820,7 +820,7 @@ var LiveResults;
                         else 
                             results[i].DT_RowClass = "nostyle";
                     }
-                    if (curPos == "" || curPos == '<span class="pulsing">&#9679;</span>')
+                    if (curPos == "" || curPos == '<span class="pulsing">◉</span>')
                         curPos = "-";	                    					
 				}
 			}
@@ -1047,7 +1047,7 @@ var LiveResults;
                                 {
                                     if (table.cell( i, 0 ).node().innerHTML == "")
                                     {
-                                        table.cell( i, 0 ).data("<span class=\"pulsing\">&#9679;</span>");
+                                        table.cell( i, 0 ).data("<span class=\"pulsing\">◉</span>");
                                         modifiedTable = true;
                                     }                        
 
@@ -1268,7 +1268,7 @@ var LiveResults;
             }
             
             // Stop requesting updates if class not active
-            if (!curClassActive && !this.EmmaServer && this.curClassName != null)
+            if (!curClassActive && !this.EmmaServer && this.curClassName != null && !this.noSplits)
                 clearTimeout(this.resUpdateTimeout);
         };
 		

@@ -112,14 +112,12 @@ table.dataTable td {vertical-align: top;}
 .pulsing {
   animation: blinker 1s ease-in-out infinite;
   color: var(--livered);
-  font-size: 1.35em;
 }
 
 .pulsingLive {
   animation: blinkerCom 1s ease-in-out;
   animation-iteration-count: 30;
   color: gray;
-  font-size: 1.35em;
 }
 
 @keyframes blinker { 
