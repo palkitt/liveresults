@@ -311,19 +311,21 @@ function closeTop() {
 		<tr>
 			<?php 
 				if (in_array($_GET['comp'], array("10098","10099","10100","10101")))	$image = "images/SG21.png";
+				else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.png";
 				else switch ($organizer)
 				{
-					case "Freidig":	     $image = "images/Freidig60.png"; break;
-					case "Porsgrunn OL": $image = "images/POL.png";	break;
-					case "Wing OK":	     $image = "images/Wing.png"; break;
-					case "Byåsen IL":    $image = "images/BIL.png"; break; 
-					case "Røros IL":     $image = "images/roros.png"; break; 
+					case "Freidig":	        $image = "images/Freidig60.png"; break;
+					case "Porsgrunn OL":    $image = "images/POL.png";	break;
+					case "Wing OK":	        $image = "images/Wing.png"; break;
+					case "Byåsen IL":       $image = "images/BIL.png"; break; 
+					case "Røros IL":        $image = "images/roros.png"; break; 
 					case "Freidig/Wing/Malvik":	$image = "images/NM2020.png"; break;
-					case "Eiker O-lag":  $image ="images/Eiker.png"; break; 
-					case "Stokke IL":    $image = "images/stokke.png"; break; 
+					case "Eiker O-lag":     $image ="images/Eiker.png"; break; 
+					case "Stokke IL":       $image = "images/stokke.png"; break; 
 					case "Byaasen Skiklub":	$image = "images/BSK.png"; break;
 					case "Kristiansand OK": $image = "images/KOK_60.jpg"; break;
-					case "OK Moss": $image = "images/OKMoss.png"; break;
+					case "OK Moss":         $image = "images/OKMoss.png"; break;
+					case "Halden SK":       $image = "images/haldensk.png"; break;
 				}
 			if ($image != ""){ ?>
 			<td width="60"><img src="<?php echo($image) ?>" height="60" ></td>
