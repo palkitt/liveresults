@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1507,16 +1507,22 @@ var LiveResults;
                     {				
                         columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
                         "render": function (data,type,row) {
-                            var ecardstr = "";
+                            var ecards = "";
+                            if (row.ecard1>0) {
+                                ecards += row.ecard1;
+                                if (row.ecard2>0) ecards += " / " + row.ecard2;}
+                            else
+                                if (row.ecard2>0) ecards += row.ecard2;
+                            var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;
+                                    runnerName = runnerName.replace("<del>","");
+                                    runnerName = runnerName.replace("</del>","");
+                            var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + runnerName + "','" + ecards + "');\">";
                             if (row.checked == 1 || row.status==9)
                                 ecardstr += "&#9989; "; // Green checkmark
                             else
                                 ecardstr += "&#11036; "; // Empty checkbox
-                            if (row.ecard1>0) {
-                                ecardstr += row.ecard1;
-                                if (row.ecard2>0) ecardstr += " / " + row.ecard2;}
-                            else
-                                if (row.ecard2>0) ecardstr += row.ecard2;                            
+                            ecardstr += ecards;
+                            ecardstr += "</div>";
                             return ecardstr;}});
                     }				
                     if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
@@ -1557,7 +1563,7 @@ var LiveResults;
                         columns.push({ "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
                             "render": function (data,type,row) 
                             {
-                                    var defaultDNS = (row.dbid > 0 ? 1 : 0);
+                                    var defaultDNS =  (row.dbid > 0 ? (code == -999 ? -1 : 1) : 0);
                                     var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;
                                     runnerName = runnerName.replace("<del>","");
                                     runnerName = runnerName.replace("</del>","");
@@ -1844,12 +1850,21 @@ var LiveResults;
         }
     };
 
+    //Popup window for setting ecard to checked
+    AjaxViewer.prototype.popupCheckedEcard = function (dbid,name,ecards) {
+        var message = "Bekreft brikke: " + name + " - " + ecards ;
+        var OK = confirm(message);
+        if (OK)
+            $.ajax({url: this.messageURL + "?method=setecardchecked", data: "&comp=" + this.competitionId + "&dbid=" + dbid });        
+    }
 	
     //Popup window for messages to message center
     AjaxViewer.prototype.popupDialog = function (promptText,dbid,defaultDNS,startListChange = -1) {
         var defaultText ="";
-        if (defaultDNS)
+        if (defaultDNS==1)
             defaultText = "ikke startet";
+        else if (defaultDNS==-1)
+            defaultText = "startet";
         else if (dbid<0)
             defaultText = "startnummer:";
         var message = prompt(promptText, defaultText);
