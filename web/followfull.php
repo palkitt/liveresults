@@ -206,7 +206,7 @@ $(document).ready(function()
 	
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
-		if (res.browserType == 1 && <?=($organizer=="Freidig/Wing/Malvik"?0:1)?>)
+		if (res.browserType == 1 && <?=(in_array($_GET['comp'], array("10118","10119","10120","10121"))?0:1)?>)
 			closeTop();
 		else
 		{
@@ -307,11 +307,12 @@ function closeTop() {
   <tr valign="top">
   <td colspan="2" align="center"><div id="topBar" style="overflow: hidden">
     <?php if($organizer=="Freidig/Wing/Malvik"){?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
+	<?php if(in_array($_GET['comp'], array("10118","10119","10120","10121"))){?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
 	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		<tr>
 			<?php 
 				if (in_array($_GET['comp'], array("10098","10099","10100","10101")))	$image = "images/SG21.png";
-				else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.png";
+				else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
 				else switch ($organizer)
 				{
 					case "Freidig":	        $image = "images/Freidig60.png"; break;
