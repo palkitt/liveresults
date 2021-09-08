@@ -351,80 +351,105 @@ var LiveResults;
                 var classSplits = data.splitcontrols;
                 if (classSplits.length == 0) return;
              
-                var classSplitsStatus = new Array(this.curClassNumSplits+1);
                 var splitFracRunner = new Array(this.curClassNumSplits+1); // Fraction of next split - prev split
-                var splitFracTotal = new Array(this.curClassNumSplits+1); // Fraction of next split
                 
-                for (var sp = 0; sp < this.curClassNumSplits; sp++) {
-                    classSplitsStatus[sp] = new Array(1).fill(0);
+                for (var sp = 0; sp < this.curClassNumSplits; sp++) 
                     splitFracRunner[sp] = new Array(1).fill(0);
-                    splitFracTotal[sp] = new Array(1).fill(0);
-                }
                 var nextSplitOK;
                 var nextSplit;
                 var splitFrac;
-                var splitFracTot;
                 var prevSplit;
                 var startTime;
-                var runnerOK = new Array(data.results.length);
+                var runnerOK = new Array(data.results.length).fill(true);
+                var raceOK = true;
                 
+                // Check quality of split controls
+                var classSplitsOK = new Array(this.curClassNumSplits);
+                for (var sp = this.curClassNumSplits-1; sp >= 0; sp--)
+                {
+                    var statusSum = 0;
+                    var statusN = 0;
+                    for (var j = 0; j < data.results.length ; j++)
+                    {
+                        if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
+                            continue;                                           
+                        nextSplitOK = false;
+                        nextSplit = null;
+
+                        // Starttime
+                        startTime = (this.curClassIsRelay ? parseInt(data.results[j].splits[0]) : 0);
+                        // Finish time
+                        if(data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
+                        {
+                            nextSplit = parseInt(data.results[j].result);
+                            nextSplitOK = true;
+                        }
+                        
+                         //  Set status: 0=bad, 1=OK, 2=unknown 
+                        var spRef = this.splitRef(sp);
+                        split = parseInt(data.results[j].splits[classSplits[spRef].code]);
+                        if (!isNaN(split)) // Split exist
+                        {                            
+                            statusSum++; // OK
+                            statusN++; 
+                            nextSplit = split;
+                            nextSplitOK = true;
+                        }
+                        else // Split does not exist
+                        {
+                            nextSplit = null;
+                            if (nextSplitOK) // Bad split detected
+                            {
+                                statusN++; 
+                                runnerOK[j] = false;
+                                raceOK = false;
+                            }
+                        }
+                    }
+                    var statusAvg = (statusN >= minNum ? statusSum/statusN : 1);
+                    classSplitsOK[sp] = (statusAvg > validateLim ? true : false);
+                }
+                this.curClassSplitsOK = classSplitsOK;
+
+                if (raceOK) // No bad splits detected
+                    return;
+
+                // Calculate split fractions per runner
                 for (var j = 0; j < data.results.length ; j++)
                 {
-                    runnerOK[j] = true;
                     if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
                         continue;
                                         
                     nextSplitOK = false;
                     nextSplit = null;
-
+                    // Starttime
+                    startTime = (this.curClassIsRelay ? parseInt(data.results[j].splits[0]) : 0);
                     // Finish time
                     if(data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
                     {
                         nextSplit = parseInt(data.results[j].result);
                         nextSplitOK = true;
                     }
-                    // Starttime
-                    startTime = (this.curClassIsRelay ? parseInt(data.results[j].splits[0]) : 0);
-                    
                     for (var sp = this.curClassNumSplits-1; sp >= 0; sp--)
                     {
+                        if (!classSplitsOK[sp]) // Bad split
+                            continue;
                         var spRef = this.splitRef(sp);
                         split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-                        if (!isNaN(split)) // Split exist, Status: 0=bad, 1=OK, 2=unknown 
+                        if (!isNaN(split)) // Split exist
                         {
-                            /*if (nextSplit != null && split > nextSplit)
-                                {
-                                    classSplitsStatus[sp][j] = 0; // bad
-                                    runnerOK[j] = false;
-                                    splitFracRunner[sp][j] = null;
-                                    nextSplit = null;
-                                    nextSplitOK = false;
-                                    data.results[j].splits[classSplits[spRef].code] = undefined;
-                                }
-                            else
-                            { */
-                            classSplitsStatus[sp][j] = 1; // OK 
-                            var spPrevRef = this.splitRef(sp-1);
+                            var spPrev = sp - 1;
+                            while (!classSplitsOK[spPrev] && spPrev>=0)
+                                spPrev--;
+                            var spPrevRef = this.splitRef(spPrev);
                             prevSplit = (spPrevRef >= 0 ? parseInt(data.results[j].splits[classSplits[spPrevRef].code]) : startTime);
                             splitFrac = (nextSplit != null && nextSplit - prevSplit > 0 ? (split-prevSplit)/(nextSplit-prevSplit) : 0);
                             splitFracRunner[sp][j] = (splitFrac > 0 && splitFrac < 1 ? splitFrac : null);
-                            
-                            splitFracTot = (nextSplit != null && nextSplit - startTime > 0 ? (split-startTime)/(nextSplit-startTime) : 0);
-                            splitFracTotal[sp][j] = (splitFracTot > 0 && splitFracTot < 1 ? splitFracTot : null); 
-                            
                             nextSplit = split;
                             nextSplitOK = true;
-                            //}
                         }
                         else // Split does not exist
                         {
-                            if (nextSplitOK)
-                            {
-                                classSplitsStatus[sp][j] = 0; // Bad split detected
-                                runnerOK[j] = false;
-                            }
-                            else
-                                classSplitsStatus[sp][j] = 2; // Unknown
                             nextSplit = null;
                             splitFracRunner[sp][j] = null;
                         }
@@ -433,132 +458,107 @@ var LiveResults;
                 
                 // Summarize status and make correlation for split estimates
                 var splitsPar = [];
-                var classSplitsOK = new Array(this.curClassNumSplits);
                 var classSplitsUpdated = new Array(classSplits.length).fill(false);
                
                 for (var sp = 0; sp < this.curClassNumSplits; sp++)
                 {
-                    var statusSum = 0;
-                    var statusN = 0;
-                    var statusAvg = 0;
-                    var count = 0;
-                    var countTotal = 0;
-                    var xSum = 0;
-                    var ySum = 0;
-                    var ySumTotal = 0;
-                    var xySum = 0;
-                    var xxSum = 0;
-                    var a = 0;
-                    var b = null;
-                    var maxFrac = 0;
-                    var minFrac = 1;
-                    var std;
+                    if (!classSplitsOK[sp]) // Bad split
+                    {
+                        splitsPar.push(null);
+                        continue;
+                    }
                     
-                    // Two passes. First pass to calculate mean and st deviation
+                    // Two passes. First pass to calculate mean and standard deviation
                     // Average
+                    var count = 0;
+                    var ySum = 0;
                     for (var j = 0; j < data.results.length ; j++)
                     {
-                        if (classSplitsStatus[sp][j] <= 1 && splitFracRunner[sp][j] > 0) 
+                        if (splitFracRunner[sp][j] > 0) 
                         {
-                            var frac = splitFracRunner[sp][j];
                             count++;
-                            ySum  += frac;
-                        }
-                        if (classSplitsStatus[sp][j] <= 1 && splitFracTotal[sp][j] > 0) 
-                        {
-                            var fracTotal = splitFracTotal[sp][j];
-                            countTotal++;
-                            ySumTotal  += fracTotal;
+                            ySum  += splitFracRunner[sp][j];
                         }
                     }
                     var avg = (count > 0 ? ySum/count : null);
-                    var avgTotal = (countTotal > 0 ? ySumTotal/countTotal : null);
                     
                     // Standard deviation
                     ySum = 0;
                     count = 0;
                     for (var j = 0; j < data.results.length ; j++)
                     {
-                        if (classSplitsStatus[sp][j] <= 1 && splitFracRunner[sp][j] > 0) 
+                        if (splitFracRunner[sp][j] > 0) 
                         {
-                            var frac = splitFracRunner[sp][j];
                             count++;
-                            ySum  += (frac-avg)*(frac-avg);
+                            ySum  += (splitFracRunner[sp][j]-avg)*(splitFracRunner[sp][j]-avg);
                         }
                     }
-                    var std = (count > 1 ? Math.sqrt(ySum/(count-1)) : 1)
+                    var std = (count > 1 ? Math.sqrt(ySum/(count-1)) : 1);
                     
                     // Linear estimation
+                    var xSum = 0;
+                    var xySum = 0;
+                    var xxSum = 0;
+                    var maxFrac = 0;
+                    var minFrac = 1;
                     ySum = 0;
                     count = 0;
                     for (var j = 0; j < data.results.length ; j++)
                     {
-                        if (classSplitsStatus[sp][j] <= 1) // OK or BAD
+                        if (splitFracRunner[sp][j] > 0)
                         {
-                            statusSum += classSplitsStatus[sp][j];
-                            statusN++;
-                            if (splitFracRunner[sp][j] > 0)
+                            var frac = splitFracRunner[sp][j];
+                            // Least squares variables
+                            if (Math.abs(frac - avg)<2*std)
                             {
-                                var frac = splitFracRunner[sp][j];
                                 if (frac > maxFrac)
                                     maxFrac = frac;
                                 if (frac < minFrac)
                                     minFrac = frac;
-                                // Least squares variables
-                                if (Math.abs(frac - avg)<2*std)
-                                {
-                                    count++;
-                                    xSum  += j;
-                                    ySum  += frac;
-                                    xxSum += j*j;
-                                    xySum += j*frac;
-                                }
+                                count++;
+                                xSum  += j;
+                                ySum  += frac;
+                                xxSum += j*j;
+                                xySum += j*frac;
                             }
                         }
                     }
-                    statusAvg = (statusN >= minNum ? statusSum/statusN : 1);
-                    classSplitsOK[sp] = (statusAvg > validateLim ? true : false);
-
-                    // Calculate estimation parameters>
-                    var totPar = false;
+                    
+                    // Calculate estimation parameters
+                    var a = 0;
+                    var b = null;
                     if (count >= 1)
                     {
-                        totPar = false;
                         a = (count >= 2 ? (count*xySum - xSum*ySum) / (count*xxSum - xSum*xSum) : 0 );
                         b = (ySum - a*xSum)/count;
                     }
-                    else if (countTotal > 0)
-                    {
-                        totPar = true;
-                        a = 0;
-                        b = avgTotal;
-                        maxFrac = 1;
-                        minFrac = 0;
-                    }
-                    
                     var obj = {avg   : (count > 0 ? ySum/count : null), 
                                  a   : a, 
                                  b   : b,
-                                 totPar: totPar, 
                                  max : maxFrac, 
                                  min : minFrac};
                     splitsPar.push(obj);
                 }
-                this.curClassSplitsOK = classSplitsOK;
 
                 // Calculate nominal split fractions as fraction of total time
                 var splitFracNom = new Array(this.curClassNumSplits);
                 var lastFrac = 1;
                 for (var sp = this.curClassNumSplits-1; sp >= 0; sp--) 
                 {
+                    if (!classSplitsOK[sp]) 
+                        continue;
                     var X = splitsPar[sp].avg;
                     for (var spi = sp-1; spi>=0; spi--)
+                    {
+                        if (!classSplitsOK[spi]) // Bad split
+                            continue;
                         X = splitsPar[spi].avg/(1 - X*(1- splitsPar[spi].avg));
+                    }
                     splitFracNom[sp] = X*lastFrac;
                     lastFrac = splitFracNom[sp];
                 }          
                 
-                // Loop through all runners and insert estimated times when needed
+                // Loop through all runners and insert estimated times where needed
                 for (var j = 0; j < data.results.length ; j++)
                 {                                                          
                     if (runnerOK[j])
@@ -577,6 +577,8 @@ var LiveResults;
                         {
                             for (var sp = this.curClassNumSplits-1; sp >= 0; sp--) 
                             {
+                                if (!classSplitsOK[sp]) // Bad split
+                                    continue;
                                 var spRef = this.splitRef(sp);
                                 var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
                                 if (isNaN(split) && sp > 0) // Split does not exist
@@ -633,12 +635,15 @@ var LiveResults;
                         }
                     }
 
+                    // Insert estimated splits
                     for (var sp = this.curClassNumSplits-1; sp >= 0; sp--) 
                     {
+                        if (!classSplitsOK[sp]) // Bad split
+                            continue;
                         var prevSplit = NaN;
                         var spRef = this.splitRef(sp);
                         split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-                        if (!isNaN(split))                  // Split exist
+                        if (!isNaN(split))                 // Split exist
                             nextSplit = split;
                         else if (splitsPar[sp].b != null)  // Split does not exist, and estimat parameter exist
                         {
@@ -646,18 +651,11 @@ var LiveResults;
                             var spPrev = sp;
                             while (isNaN(prevSplit) && spPrev >= 0) // Find first of previous splits that exist
                             {
-                                x.push(Math.max(splitsPar[spPrev].min, Math.min(splitsPar[spPrev].max, splitsPar[spPrev].a*j + splitsPar[spPrev].b)));   
-                                if (splitsPar[spPrev].totPar) // Use fraction from starttime to next split
-                                {
-                                    spPrev = -1;
-                                    prevSplit = startTime;
-                                }
-                                else
-                                {
-                                    spPrev--;
-                                    var spPrevRef = this.splitRef(spPrev);
-                                    prevSplit = (spPrevRef >= 0 ? parseInt(data.results[j].splits[classSplits[spPrevRef].code]) : startTime);
-                                }
+                                if (classSplitsOK[spPrev])
+                                    x.push(Math.max(splitsPar[spPrev].min, Math.min(splitsPar[spPrev].max, splitsPar[spPrev].a*j + splitsPar[spPrev].b)));
+                                spPrev--;
+                                var spPrevRef = this.splitRef(spPrev);
+                                prevSplit = (spPrevRef >= 0 ? parseInt(data.results[j].splits[classSplits[spPrevRef].code]) : startTime);
                             }
                             var X = x[x.length-1];
                             for (var i = x.length-2; i >=0; i--)
@@ -752,22 +750,23 @@ var LiveResults;
         // Sort function for passing times
         AjaxViewer.prototype.splitSort = function (split, classSplits) { 
             return function (a, b) {
-                var aUndefined = (a.splits[classSplits[split].code] == undefined || a.splits[classSplits[split].code] == "");
-                var bUndefined = (b.splits[classSplits[split].code] == undefined || b.splits[classSplits[split].code] == "");
-
+                var aVal = a.splits[classSplits[split].code];
+                var bVal = b.splits[classSplits[split].code];
+                var aUndefined = (aVal == undefined || aVal == "");
+                var bUndefined = (bVal == undefined || bVal == "");
+                if (!aUndefined && !bUndefined)
+                {
+                    if (aVal != bVal)
+                        return (aVal < bVal ? -1 : 1); 
+                    else
+                        return 0;                        
+                }
                 if (aUndefined && !bUndefined)
                     return 1;
                 if (!aUndefined && bUndefined)
                     return -1;
                 if (aUndefined && bUndefined)
                     return 0;
-                if (!aUndefined && !bUndefined)
-                {
-                    if (a.splits[classSplits[split].code] == b.splits[classSplits[split].code])
-                        return 0;
-                    else
-                        return (a.splits[classSplits[split].code] < b.splits[classSplits[split].code] ? -1 : 1); 
-                }
             }
         }
 
