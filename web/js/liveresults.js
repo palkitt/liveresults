@@ -1164,11 +1164,12 @@ var LiveResults;
                                             else
                                                 rankStr += "<i>&#10072;..&#10072;</i></span>";											
                                                                                         
-                                            if (nextSplit==this.curClassNumSplits)
+                                            if (nextSplit==this.curClassNumSplits && !this.curClassIsRelay)
                                                 elapsedTimeStr += rankStr;
                                             else
                                             {
-                                                timeDiffStr += rankStr;
+                                                if (!this.compactView || !this.curClassIsRelay || nextSplit!=this.curClassNumSplits)
+                                                    timeDiffStr += rankStr;
                                                 if (this.curClassNumberOfRunners >= 10)
                                                     elapsedTimeStr += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                                                 else
@@ -1178,6 +1179,12 @@ var LiveResults;
                                             timeDiffCol = offset + nextSplit*2;
                                             if (nextSplit==this.curClassNumSplits) // Approach finish
                                                 timeDiffCol += 2;
+
+                                            // Display time diff
+                                            if (this.compactView || nextSplit!=this.curClassNumSplits || this.curClassLapTimes)
+                                                table.cell( i, timeDiffCol ).data(timeDiffStr);
+                                            else if (this.curClassIsRelay && !this.compactView )
+                                                elapsedTimeStr = timeDiffStr + elapsedTimeStr;
                                             
                                             // Display elapsed time
                                             if (!this.compactView && !this.curClassIsRelay && !this.curClassLapTimes && nextSplit==this.curClassNumSplits)
@@ -1188,10 +1195,7 @@ var LiveResults;
                                                     elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";                                     
                                             }
                                             table.cell( i, offset + this.curClassNumSplits*2 ).data(elapsedTimeStr);
-                                            // Display time diff
-                                            if (this.compactView || this.curClassIsRelay || nextSplit!=this.curClassNumSplits || this.curClassLapTimes)
-                                                table.cell( i, timeDiffCol ).data(timeDiffStr);
-                                            
+
                                             // Update predData: Insert current time if longer than a runner with larger index / virtual position
                                             if (predRank && !this.curClassIsRelay && !this.curClassLapTimes)
                                             {
