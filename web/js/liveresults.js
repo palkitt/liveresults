@@ -351,15 +351,7 @@ var LiveResults;
                 var classSplits = data.splitcontrols;
                 if (classSplits.length == 0) return;
              
-                var splitFracRunner = new Array(this.curClassNumSplits+1); // Fraction of next split - prev split
-                
-                for (var sp = 0; sp < this.curClassNumSplits; sp++) 
-                    splitFracRunner[sp] = new Array(1).fill(0);
-                var nextSplitOK;
-                var nextSplit;
-                var splitFrac;
-                var prevSplit;
-                var startTime;
+                var nextSplitOKj = new Array(data.results.length);;
                 var runnerOK = new Array(data.results.length).fill(true);
                 var raceOK = true;
                 
@@ -372,38 +364,33 @@ var LiveResults;
                     for (var j = 0; j < data.results.length ; j++)
                     {
                         if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
-                            continue;                                           
-                        nextSplitOK = false;
-                        nextSplit = null;
-
-                        // Starttime
-                        startTime = (this.curClassIsRelay ? parseInt(data.results[j].splits[0]) : 0);
-                        // Finish time
-                        if(data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
-                        {
-                            nextSplit = parseInt(data.results[j].result);
-                            nextSplitOK = true;
-                        }
+                            continue;   
+                        
+                        // Finish
+                        if (sp == (this.curClassNumSplits-1))
+                            if (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
+                                nextSplitOKj[j] = true;
+                            else
+                                nextSplitOKj[j] = false;
                         
                          //  Set status: 0=bad, 1=OK, 2=unknown 
                         var spRef = this.splitRef(sp);
-                        split = parseInt(data.results[j].splits[classSplits[spRef].code]);
+                        var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
                         if (!isNaN(split)) // Split exist
                         {                            
                             statusSum++; // OK
                             statusN++; 
-                            nextSplit = split;
-                            nextSplitOK = true;
+                            nextSplitOKj[j] = true;
                         }
                         else // Split does not exist
                         {
-                            nextSplit = null;
-                            if (nextSplitOK) // Bad split detected
+                            if (nextSplitOKj[j]) // Bad split detected
                             {
                                 statusN++; 
                                 runnerOK[j] = false;
                                 raceOK = false;
                             }
+                            nextSplitOKj[j] = false;
                         }
                     }
                     var statusAvg = (statusN >= minNum ? statusSum/statusN : 1);
@@ -411,18 +398,24 @@ var LiveResults;
                 }
                 this.curClassSplitsOK = classSplitsOK;
 
-                if (raceOK) // No bad splits detected
-                    return;
+                if (raceOK) return;
 
                 // Calculate split fractions per runner
+                var splitFracRunner = new Array(this.curClassNumSplits+1); // Fraction of next split - prev split
+                for (var sp = 0; sp < this.curClassNumSplits; sp++) 
+                    splitFracRunner[sp] = new Array(1).fill(0);
+                var splitFrac;
+                var prevSplit;
+                var nextSplit;
+                var nextSplitOK;
+                var startTime;
                 for (var j = 0; j < data.results.length ; j++)
                 {
-                    if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
+                    if (runnerOK[j] || (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10))
                         continue;
                                         
                     nextSplitOK = false;
                     nextSplit = null;
-                    // Starttime
                     startTime = (this.curClassIsRelay ? parseInt(data.results[j].splits[0]) : 0);
                     // Finish time
                     if(data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
@@ -2178,13 +2171,13 @@ var LiveResults;
                     }
                     this.numAnimElements++;
                     $(row).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zind);
-                    $(row).velocity({backgroundColor: newBkCol, top : newPos}, 
+                    $(row).velocity({translateZ: 0, backgroundColor: newBkCol, top : newPos}, 
                         {duration: animTime, complete: function(){_this.numAnimElements--;}});
                     if (isResTab)
                     {
                         this.numAnimElements++;
                         $(rowFix).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zindFix);
-                        $(rowFix).velocity({backgroundColor: newBkCol, top : newPos}, 
+                        $(rowFix).velocity({translateZ: 0, backgroundColor: newBkCol, top : newPos}, 
                         {duration: animTime, complete: function(){_this.numAnimElements--;}});
                     }
                 }
