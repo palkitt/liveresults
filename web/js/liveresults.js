@@ -345,46 +345,48 @@ var LiveResults;
 		AjaxViewer.prototype.checkRadioControls = function (data) {
             if (data != null && data.status == "OK" && data.results != null && !this.curClassIsLapTimes && !this.curClassIsUnranked)
             { 
+                var classSplits = data.splitcontrols;
+                if (classSplits.length == 0) 
+                    return;
+                
                 const validateLim = 0.333;
                 const minNum = 3; // Minimum numbers of runners to set split to BAD
                 this.updateResultVirtualPosition(data.results);
-                var classSplits = data.splitcontrols;
-                if (classSplits.length == 0) return;
-             
                 var nextSplitOKj = new Array(data.results.length);;
                 var runnerOK = new Array(data.results.length).fill(true);
                 var raceOK = true;
                 
                 // Check quality of split controls
+                var OKSum; 
+                var statusN;
                 var classSplitsOK = new Array(this.curClassNumSplits);
                 for (var sp = this.curClassNumSplits-1; sp >= 0; sp--)
                 {
-                    var statusSum = 0;
-                    var statusN = 0;
+                    OKSum = 0;
+                    statusN = 0;
                     for (var j = 0; j < data.results.length ; j++)
                     {
                         if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
                             continue;   
                         
-                        // Finish
-                        if (sp == (this.curClassNumSplits-1))
+                        if (sp == (this.curClassNumSplits-1))  // Finish
                             if (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
                                 nextSplitOKj[j] = true;
                             else
                                 nextSplitOKj[j] = false;
                         
-                         //  Set status: 0=bad, 1=OK, 2=unknown 
+                        //  Set status: 0=bad, 1=OK, 2=unknown 
                         var spRef = this.splitRef(sp);
                         var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
                         if (!isNaN(split)) // Split exist
                         {                            
-                            statusSum++; // OK
+                            OKSum++; // OK
                             statusN++; 
                             nextSplitOKj[j] = true;
                         }
                         else // Split does not exist
                         {
-                            if (nextSplitOKj[j]) // Bad split detected
+                            if (nextSplitOKj[j]) // Missing split detected
                             {
                                 statusN++; 
                                 runnerOK[j] = false;
@@ -393,12 +395,13 @@ var LiveResults;
                             nextSplitOKj[j] = false;
                         }
                     }
-                    var statusAvg = (statusN >= minNum ? statusSum/statusN : 1);
+                    var statusAvg = (statusN >= minNum ? OKSum/statusN : 1);
                     classSplitsOK[sp] = (statusAvg > validateLim ? true : false);
                 }
                 this.curClassSplitsOK = classSplitsOK;
 
-                if (raceOK) return;
+                if (raceOK)
+                    return;
 
                 // Calculate split fractions per runner
                 var splitFracRunner = new Array(this.curClassNumSplits+1); // Fraction of next split - prev split
@@ -411,15 +414,14 @@ var LiveResults;
                 var startTime;
                 for (var j = 0; j < data.results.length ; j++)
                 {
-                    if (runnerOK[j] || (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10))
+                    if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
                         continue;
                                         
                     nextSplitOK = false;
                     nextSplit = null;
                     startTime = (this.curClassIsRelay ? parseInt(data.results[j].splits[0]) : 0);
-                    // Finish time
                     if(data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
-                    {
+                    {  // Finish time
                         nextSplit = parseInt(data.results[j].result);
                         nextSplitOK = true;
                     }
@@ -449,7 +451,7 @@ var LiveResults;
                     }
                 }
                 
-                // Summarize status and make correlation for split estimates
+                // Make correlation for split estimates
                 var splitsPar = [];
                 var classSplitsUpdated = new Array(classSplits.length).fill(false);
                
@@ -462,33 +464,29 @@ var LiveResults;
                     }
                     
                     // Two passes. First pass to calculate mean and standard deviation
-                    // Average
-                    var count = 0;
+                    // Mean
                     var ySum = 0;
+                    var count = 0;
                     for (var j = 0; j < data.results.length ; j++)
-                    {
                         if (splitFracRunner[sp][j] > 0) 
                         {
                             count++;
-                            ySum  += splitFracRunner[sp][j];
+                            ySum += splitFracRunner[sp][j];
                         }
-                    }
                     var avg = (count > 0 ? ySum/count : null);
                     
                     // Standard deviation
                     ySum = 0;
                     count = 0;
                     for (var j = 0; j < data.results.length ; j++)
-                    {
                         if (splitFracRunner[sp][j] > 0) 
                         {
                             count++;
-                            ySum  += (splitFracRunner[sp][j]-avg)*(splitFracRunner[sp][j]-avg);
+                            ySum += (splitFracRunner[sp][j]-avg)*(splitFracRunner[sp][j]-avg);
                         }
-                    }
                     var std = (count > 1 ? Math.sqrt(ySum/(count-1)) : 1);
                     
-                    // Linear estimation
+                    // Linear estimation (least squares)
                     var xSum = 0;
                     var xySum = 0;
                     var xxSum = 0;
@@ -501,13 +499,10 @@ var LiveResults;
                         if (splitFracRunner[sp][j] > 0)
                         {
                             var frac = splitFracRunner[sp][j];
-                            // Least squares variables
-                            if (Math.abs(frac - avg)<2*std)
+                            if (Math.abs(frac - avg)<2*std)  
                             {
-                                if (frac > maxFrac)
-                                    maxFrac = frac;
-                                if (frac < minFrac)
-                                    minFrac = frac;
+                                if (frac > maxFrac) maxFrac = frac;
+                                if (frac < minFrac) minFrac = frac;
                                 count++;
                                 xSum  += j;
                                 ySum  += frac;
@@ -577,7 +572,6 @@ var LiveResults;
                                 if (isNaN(split) && sp > 0) // Split does not exist
                                 {
                                     var splitCode = classSplits[spRef].code;
-                                    
                                     // Find nearest, existing split
                                     var spliti = NaN;
                                     var spi = sp-1;
@@ -675,6 +669,8 @@ var LiveResults;
                                 }
                             }
                         }
+                        else // Split does not exist, and estimat parameter does exist
+                            nextSplit = 0; 
                     }
                 }                
 
@@ -1956,7 +1952,7 @@ var LiveResults;
                                 if (reqTime) 
                                 { 
                                     var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
-                                    if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
+                                    if (Math.abs(newTimeDiff - _this.serverTimeDiff) > 1.5*varTime)
                                         _this.serverTimeDiff = newTimeDiff;
                                 }
                                 expTime = new Date(resp.getResponseHeader("expires")).getTime();
@@ -2171,13 +2167,13 @@ var LiveResults;
                     }
                     this.numAnimElements++;
                     $(row).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zind);
-                    $(row).velocity({translateZ: 0, backgroundColor: newBkCol, top : newPos}, 
+                    $(row).velocity({translateZ: 0, backgroundColor: newBkCol, top: newPos}, 
                         {duration: animTime, complete: function(){_this.numAnimElements--;}});
                     if (isResTab)
                     {
                         this.numAnimElements++;
                         $(rowFix).css('background-color',oldBkCol).css('top', oldPos).css('z-index',zindFix);
-                        $(rowFix).velocity({translateZ: 0, backgroundColor: newBkCol, top : newPos}, 
+                        $(rowFix).velocity({translateZ: 0, backgroundColor: newBkCol, top: newPos}, 
                         {duration: animTime, complete: function(){_this.numAnimElements--;}});
                     }
                 }
@@ -2306,7 +2302,7 @@ var LiveResults;
                         if (reqTime) 
                         { 
                             var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
-                            if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
+                            if (Math.abs(newTimeDiff - _this.serverTimeDiff) > 1.5*varTime)
                                 _this.serverTimeDiff = newTimeDiff;
                         }
                         expTime = new Date(resp.getResponseHeader("expires")).getTime();
