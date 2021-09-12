@@ -82,6 +82,7 @@ var LiveResults;
             this.rankedStartlist = true;
             this.relayClasses = [];
             this.runnerList = null;
+            this.speakerView = false;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
@@ -1304,13 +1305,15 @@ var LiveResults;
             {
                 if (data.passings != null) {
                     var str = "";
-                    $.each(data.passings, function (key, value) {
-                        var runnerName = (value.runnerName.length > _this.maxNameLength ? _this.nameShort(value.runnerName) : value.runnerName);
+                    $.each(data.passings, function (key, value) {var runnerName = (value.runnerName.length > _this.maxNameLength ? _this.nameShort(value.runnerName) : value.runnerName);
                         var cl = value["class"];
                         var status = value["status"];
                         if (cl && cl.length > 0)
                             cl = cl.replace('\'', '\\\'');
-                        str += value.passtime + ": " + runnerName 
+                        var bibStr = "";
+                        if (_this.speakerView)
+                            bibStr = " (<a href=\"javascript:LiveResults.Instance.searchBib(" + value["bib"] + ")\">" + value["bib"] + "</a>) "; 
+                        str += value.passtime + ": " + bibStr + runnerName 
                         + " (<a href=\"javascript:LiveResults.Instance.chooseClass('" + cl + "')\">" + value["class"] + "</a>) " 
                         + (value.control == 1000 && status > 0 && status < 7 ? _this.resources["_NEWSTATUS"] :
                         (value.control == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"]) 
@@ -1804,6 +1807,12 @@ var LiveResults;
         var table = this.currentTable.api();
         table.search($('#' + this.filterDiv)[0].value).draw()
     };
+
+    // Insert bib and search (speaker view)
+    AjaxViewer.prototype.searchBib = function (bib) {
+        $('#searchBib').val(bib);
+        this.searchRunner();
+    }
 
     // Search runner in speaker view
     AjaxViewer.prototype.searchRunner = function () {

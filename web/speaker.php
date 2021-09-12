@@ -150,6 +150,7 @@ $(document).ready(function()
 	
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		Resources, <?= ($currentComp->IsMultiDayEvent() ? "true" : "false")?>, <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", false);
+	res.speakerView = true;
 	<?php if ($isSingleClass){?>
 		res.chooseClass('<?=$singleClass?>');
 	<?php }
@@ -227,9 +228,11 @@ $(document).ready(function()
 	// Initial view is with open class list
 	openNav();
 
-	// Search for runner
+	// Search for runner (wait 0.5s after last keyup before searching)
+	var searchTimer = null;
 	$('#searchBib').on('keyup', function () {
-        res.searchRunner();
+		clearTimeout(searchTimer); 
+		searchTimer = setTimeout(function(){ res.searchRunner(); }, 500);
 	}); 
 
 });

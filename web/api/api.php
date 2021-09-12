@@ -103,6 +103,7 @@ elseif ($_GET['method'] == 'getlastpassings')
 				$ret .=",$br";
 			$ret .= "{\"passtime\": \"".date("H:i:s",strtotime($pass['Changed']))."\",
 					\"runnerName\": \"".$pass['Name']."\",
+					\"bib\": \"".$pass['bib']."\",
 					\"class\": \"".$pass['class']."\",
 					\"control\": ".$pass['Control'].",
 					\"controlName\" : \"".$pass['pname']."\",
