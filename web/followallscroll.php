@@ -51,7 +51,6 @@ window.mobilecheck = function() {
 
 <script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery.ba-hashchange.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
@@ -197,7 +196,7 @@ function handleGetClasses(data,compID,first,last) {
                                 res[j].highTime = <?=$currentComp->HighTime(); ?> <?php }?>
 
                             // Set ranked startlist
-                            <?php if($currentComp->RankedStartlist() ){?> 
+                            <?php if($currentComp->RankedStartlist()>-1 ){?> 
                                 res[j].rankedStartlist = <?=$currentComp->RankedStartlist(); ?> <?php }?>
                             
                             // Qualification limits and classes (last limit is default)
