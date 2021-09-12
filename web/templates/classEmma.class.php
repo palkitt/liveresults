@@ -491,7 +491,7 @@ class Emma
   	function getLastPassings($num)
   	{
     	$ret = Array();
-		$q = "SELECT runners.Name, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
+		$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
 	      results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
 		  left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=".$this->m_CompId." 
 		  and runners.class = splitcontrols.classname) where results.TavId =".$this->m_CompId." 
@@ -521,11 +521,18 @@ class Emma
 	function getRadioPassings($code,$calltime,$lastUpdate,$maxNum,$minBib,$maxBib)
   	{
 		$ret = Array();
-		if ($code == 0) // Start
+		if ($code == 0 || $code == -999) // Start
 		{
 			$currTime = (date('H')*3600 + date('i')*60 + date('s') + $this->m_TimeDiff)*100;
 			$preTime  = ($calltime+1)*60*100;
 			$postTime = 5*60*100;
+
+			if ($code == -999) // Free start with start time -999
+			{
+				$preTime = -$currTime - 998;
+				$postTime = $currTime + 1000;
+			}
+			
 			$postTimeAbs = time()-5*60;
 			$postTimeText = date("Y-m-d H:i:s", $postTimeAbs);
 			
@@ -542,7 +549,7 @@ class Emma
 			AND ( ( results.Time-".$currTime." < ".$preTime ." AND ".$currTime."-results.Time < ".$postTime." ) 
 					OR (results2.Status = 9 AND results2.Changed > '".$postTimeText."' ) ) 		 
 			ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.bib DESC, runners.Name
-			limit 100";		   
+			limit 100";	   	
 		}
 		elseif ($code == -2) // Left in forest
 			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, runners.ecardchecked, runners.dbid,
@@ -592,7 +599,7 @@ class Emma
 				}
 				if ($code == -2)    // Left in forest
 					$ret[sizeof($ret)-1]["pname"] = "I skogen";
-				if ($code == 0)    // Start
+				if ($code == 0 || $code == -999)    // Start
 					$ret[sizeof($ret)-1]["pname"] = "Start";
 				if ($code == 1000) // Finish
 					$ret[sizeof($ret)-1]["pname"] = "Mål";

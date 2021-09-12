@@ -77,7 +77,7 @@ $(document).ready(function()
 	res.compName = "<?=$currentComp->CompName()?>";
 	res.compDate = "<?=$currentComp->CompDate()?>";
 	
-	if (<?= $_GET['code']?>==0)
+	if (<?= $_GET['code']?>==0 || <?= $_GET['code']?>==-999)
 	{ 
 		var clockElement = document.getElementById( "clock" );
 		function updateClock ( clock ) 
@@ -129,18 +129,25 @@ $(document).ready(function()
 	<td> 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
 	<tr>
-		<td><span class="pulsingLive" id="liveIndicator">&#9679;</span>
+		<td><span class="pulsingLive" id="liveIndicator">◉</span>
 		<b>
    			<?php if ($_GET['code']==0){?> Start <?php }
+			    else if ($_GET['code']==-999){?> Fristart <?php }
 	  			else if ($_GET['code']==1000){?> Mål <?php }
 	  			else if ($_GET['code']==-1){?> Meldepost: Alle <?php }
 	  			else if ($_GET['code']==-2){?> Ute i løypa <?php }
 	  			else {?> Meldepost: <?= $_GET['code']?> <?php } ?>
-			</b>
+		<?php if ($_GET['code']==0){ ?> 
+			<td align="center"><a href="radio.php?comp=<?= $_GET['comp']?>&code=-999<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Fristart</a></td>
+		<?php } ?>
+		<?php if ($_GET['code']==-999){ ?> 
+			<td align="center"><a href="radio.php?comp=<?= $_GET['comp']?>&code=0<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Tidsstart</a></td>
+		<?php } ?>
+		</b>
 		</td>
 		<td align="center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
 		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-		<?php if ($_GET['code']==0){?> <td align="right"><b>(<span id="clock"></span></b>)&nbsp&nbsp</td><?php }?>
+		<?php if ($_GET['code']==0 || $_GET['code']==-999){?> <td align="right"><b>(<span id="clock">00:00:00</span></b>)&nbsp&nbsp</td><?php }?>
 		<td align="right"><a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF">Time.is:</a>
 <span id="Oslo_z71e"></span></td>
 	</tr>
@@ -155,6 +162,7 @@ $(document).ready(function()
 	<tr>
 		<td><b>
    			<?php if ($_GET['code2']==0){?> Start <?php }
+			    else if ($_GET['code2']==-999){?> Fristart <?php }
 	  			else if ($_GET['code2']==1000){?> Mål <?php }
 	  			else if ($_GET['code2']==-1){?> Meldepost: Alle <?php }
 	  			else if ($_GET['code2']==-2){?> Ute i løypa <?php }

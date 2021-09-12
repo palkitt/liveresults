@@ -26,7 +26,7 @@ if ($_GET['method'] == 'getradiopassings')
 	$RT = insertHeader($refreshTime); 
 	$code = $_GET['code'];
 	$calltime = $_GET['calltime'];
-	$maxNum = 40; 
+	$maxNum = 100; 
 
 	if (isset($_GET['last_hash']))
 		$lastUpdate = $_GET['last_hash']; // Use last hash to contain last update time
@@ -89,7 +89,7 @@ if ($_GET['method'] == 'getradiopassings')
 				\"status\" : \"".$pass['Status']."\",
 				\"compName\": \"".$pass['compName']."\"";
 		// Start
-		if ($code==0) 	
+		if ($code==0 || $code==-999) 	
 		{
 			$ret .= ", \"ecard1\": ".$pass['ecard1'].", \"ecard2\": ".$pass['ecard2'].", \"bib\": ".$pass['bib'].", \"dbid\": ".$pass['dbid'].",\"checked\": ".($pass["ecardchecked"] == 1 ? 1 : 0);
 			$currTime = (date('H')*3600 + date('i')*60 + date('s'))*100;
@@ -156,7 +156,7 @@ if ($_GET['method'] == 'getradiopassings')
 		$first = false;
 	}
 			
-	if ($code == 0 || $code == -2)
+	if ($code == 0 || $code == -999 || $code == -2)
 	{
 		$hash = MD5($ret);
 		if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
@@ -186,7 +186,7 @@ function formatTime($time,$status,$code,& $RunnerStatus)
   global $lang;
   global $_FREESTART;
   
-  if ( ($code != 0) && ($status != "0") && ($status != "9") && ($status != "10"))
+  if ( ($code != 0 && $code != -999 ) && ($status != "0") && ($status != "9") && ($status != "10"))
     return $RunnerStatus[$status]; //$status;
 
   if ($time == -999)
