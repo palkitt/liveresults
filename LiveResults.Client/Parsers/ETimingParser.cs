@@ -888,7 +888,6 @@ namespace LiveResults.Client
                             ecard4 = Convert.ToInt32(reader["ecard4"].ToString());
 
                         var splits = new List<SplitRawStruct>();
-                        var numEcards = 0; // Number of ecards with splits
                         var numStart = 0;  // Number of ecards with 0 (start) registered
                         if (splitList.ContainsKey(ecard1))
                         {
@@ -896,7 +895,6 @@ namespace LiveResults.Client
                                 numStart += 1;
                             splits.AddRange(splitList[ecard1]);
                             splitList.Remove(ecard1);
-                            numEcards += 1;
                         }
                         if (splitList.ContainsKey(ecard2))
                         {
@@ -904,7 +902,6 @@ namespace LiveResults.Client
                                 numStart += 1;
                             splits.AddRange(splitList[ecard2]);
                             splitList.Remove(ecard2);
-                            numEcards += 1;
                         }
                         if (splitList.ContainsKey(ecard3))
                         {
@@ -916,8 +913,7 @@ namespace LiveResults.Client
                             splits.AddRange(splitList[ecard4]);
                             splitList.Remove(ecard4);
                         }
-                        if (numEcards > 1)
-                            splits = splits.OrderBy(s => s.passTime).ToList();
+                        splits = splits.OrderBy(s => s.passTime).ToList();
 
                         var lsplitCodes = new List<int>();
                         int calcStartTime = -2;
@@ -1027,9 +1023,8 @@ namespace LiveResults.Client
                             };
                             SplitTimes.Add(LegTime);
                         }
-                        
 
-                        if (m_twoEcards && numEcards < 2 && (status == "S"))
+                        if (m_twoEcards && numStart < 2 && (status == "S"))
                             status = "I"; // Set status to "Entered" if only one eCard at start when 2 required 
 
                         if (freeStart && (calcStartTime > 0) && (Math.Abs(calcStartTime - iStartTime) > 3000))  // Update starttime if deviation more than 30 sec
@@ -1236,6 +1231,8 @@ namespace LiveResults.Client
                         {
                             if (reader["iplace"] != null && reader["iplace"] != DBNull.Value)
                                 code = Convert.ToInt32(reader["iplace"].ToString());
+                            if (code < 0)
+                                continue;
                             if (code > 1000)
                                 code = code / 100; // Take away last to digits if code 1000+
                         }
