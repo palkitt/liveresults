@@ -3300,7 +3300,7 @@ var LiveResults;
             }
             if (a.place != "" && b.place != "") {
                 if (aStatus != bStatus)
-					if(aStatus == 0)
+					if (aStatus == 0)
 						return -1
 					else if (bStatus == 0)
 						return 1
@@ -3308,15 +3308,14 @@ var LiveResults;
 						return bStatus - aStatus;
 				else {
                     if (a.result == b.result) {
-                        if (a.place == "=" && b.place != "=") {
+                        if (a.place == "=" && b.place != "=") 
                             return 1;
-                        }
-                        else if (b.place == "=" && a.place != "=") {
+                        else if (b.place == "=" && a.place != "=")
                             return -1;
-                        }                 
-                        else {
+                        else if (a.dbid != undefined && b.dbid != undefined)
+                            return a.dbid-b.dbid;
+                        else
                             return 0;
-                        }
                     }
                     else {
                         return a.result - b.result;

@@ -607,6 +607,8 @@ function sortByResult($a,$b)
      return 1;
   else if ($a["Status"] != $b["Status"])
      return $a["Status"] - $b["Status"];
+  else if ($a["Time"] == $b["Time"])
+	 return $a["DbId"] - $b["DbId"];
   else
      return $a["Time"] - $b["Time"];
 }
