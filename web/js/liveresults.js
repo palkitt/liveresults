@@ -83,6 +83,7 @@ var LiveResults;
             this.relayClasses = [];
             this.runnerList = null;
             this.speakerView = false;
+            this.shortSprint = false;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
@@ -352,6 +353,7 @@ var LiveResults;
                 
                 const validateLim = 0.333;
                 const minNum = 3; // Minimum numbers of runners to set split to BAD
+                const sprintTimeLim = 90; // Shorter sprint times trigger shortSprint setting (seconds)
                 this.updateResultVirtualPosition(data.results);
                 var nextSplitOKj = new Array(data.results.length);;
                 var runnerOK = new Array(data.results.length).fill(true);
@@ -404,7 +406,7 @@ var LiveResults;
                 if (raceOK)
                     return;
 
-                // Calculate split fractions per runner
+                // Calculate split fractions and sprint times per runner
                 var splitFracRunner = new Array(this.curClassNumSplits+1); // Fraction of next split - prev split
                 for (var sp = 0; sp < this.curClassNumSplits; sp++) 
                     splitFracRunner[sp] = new Array(1).fill(0);
@@ -413,6 +415,9 @@ var LiveResults;
                 var nextSplit;
                 var nextSplitOK;
                 var startTime;
+                var sprintTimeSum = 0;
+                var sprintTimeNum = 0;
+
                 for (var j = 0; j < data.results.length ; j++)
                 {
                     if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
@@ -434,6 +439,11 @@ var LiveResults;
                         split = parseInt(data.results[j].splits[classSplits[spRef].code]);
                         if (!isNaN(split)) // Split exist
                         {
+                            if (sp==this.curClassNumSplits-1 && nextSplit !=null && nextSplit>split) // last split time
+                            {
+                                sprintTimeSum += nextSplit-split;
+                                sprintTimeNum++;
+                            }
                             var spPrev = sp - 1;
                             while (!classSplitsOK[spPrev] && spPrev>=0)
                                 spPrev--;
@@ -453,6 +463,14 @@ var LiveResults;
                 }
                 
                 // Make correlation for split estimates
+                if (sprintTimeNum > 0)
+                {
+                    var sprintTimeAvg = sprintTimeSum/sprintTimeNum;
+                    this.shortSprint = (sprintTimeAvg > 0 && sprintTimeAvg < sprintTimeLim*100);
+                }
+                else
+                    this.shortSprint = false;
+                
                 var splitsPar = [];
                 var classSplitsUpdated = new Array(classSplits.length).fill(false);
                
@@ -1201,7 +1219,7 @@ var LiveResults;
                                                     {                                                
                                                         if (data[j].status != 0 && data[j].status != 9 && data[j].status != 10)
                                                             break                                                
-                                                        if (nextSplit == this.curClassNumSplits && data[j].status == 0 && elapsedTime - predOffset > parseInt(data[j].result))
+                                                        if (!this.shortSprint && nextSplit == this.curClassNumSplits && data[j].status == 0 && elapsedTime - predOffset > parseInt(data[j].result))
                                                         {   // Finish
                                                             tmpPredData[i].result = elapsedTime - predOffset;
                                                             tmpPredData[i].progress = 100;
