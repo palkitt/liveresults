@@ -1069,7 +1069,7 @@ var LiveResults;
                                         table.cell( i, totalTimeCol).data(elapsedTotalTimeStr);
                                     }  
 
-                                    elapsedTimeStr = (this.curClassIsRelay && !this.compactView ? "<br/><i>" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
+                                    elapsedTimeStr = (this.curClassIsRelay && !this.compactView ? "<br/><i>⟳" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
                                     if (this.curClassSplits == null || this.curClassSplits.length == 0)
                                     {
                                     // No split controls
@@ -2675,6 +2675,8 @@ var LiveResults;
                                                         txt += "\"legtime\">";
                                                         legplace += "<span class=\"place\"> ";
                                                     }
+                                                    if (_this.curClassIsRelay) 
+                                                        txt += "⟳";
                                                     if (_this.curClassNumberOfRunners >= 10 && (row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-") )
                                                         legplace += "&numsp;"
                                                     legplace += "&#10072;" + row.splits[(value.code + 100000) + "_place"] + "&#10072;</span>";
@@ -2781,6 +2783,8 @@ var LiveResults;
                                         res += "\"legtime\">";
                                         legplace += "<span class=\"place\"> ";
                                     }
+                                    if (_this.curClassIsRelay) 
+                                        res += "⟳";
                                     if (_this.curClassNumberOfRunners >= 10 && (row.splits["999_place"] < 10 || row.splits["999_place"] == "-") )
                                         legplace += "&numsp;"
                                     legplace += "&#10072;" + row.splits["999_place"] + "&#10072;</span>";
@@ -2823,7 +2827,7 @@ var LiveResults;
 					else
 						if (_this.curClassIsRelay && fullView){
 							columns.push({
-                            "sTitle": "Tot<br/><span class=\"legtime\">Etp</span>",
+                            "sTitle": "Total<br/><span class=\"legtime\">⟳Etp</span>",
 						    "responsivePriority": 2000,
                             "sClass": "right",
                             "bSortable": false,
