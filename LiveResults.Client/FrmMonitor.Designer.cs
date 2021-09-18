@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMonitor));
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnStartSTop = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
@@ -93,8 +94,9 @@
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmMonitor";
-            this.Text = "Monitor upload";
+            this.Text = "eTming to LiveRes upload";
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);

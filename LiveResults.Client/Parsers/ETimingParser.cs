@@ -1391,11 +1391,11 @@ namespace LiveResults.Client
                     try
                     {
                         IDbCommand cmd = m_connection.CreateCommand();
-                        cmd.CommandText = string.Format(@"SELECT id, ename, name, ecard, ecard2, ecard3, ecard4, status FROM name WHERE startno={0}", bib);
+                        cmd.CommandText = string.Format(@"SELECT id, kid, ename, name, ecard, ecard2, ecard3, ecard4, status FROM name WHERE startno={0}", bib);
 
                         string status = "", givName = "", famName = "", name = "";
-                        int dbid = 0, ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0, numBibs = 0;
-                        bool bibOK = false, ecardOK = true, sameBibEcard = false, statusOK = false;
+                        int EventorID = 0, eTimingID = 0, dbid = 0, ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0, numBibs = 0;
+                        bool parseOK = false, bibOK = false, ecardOK = true, sameBibEcard = false, statusOK = false;
 
                         using (IDataReader reader = cmd.ExecuteReader())
                         {
@@ -1408,7 +1408,16 @@ namespace LiveResults.Client
                                     famName = reader["ename"] as string;
                                     givName = reader["name"] as string;
                                     if (reader["id"] != null && reader["id"] != DBNull.Value)
-                                        dbid = Convert.ToInt32(reader["id"].ToString());
+                                    {
+                                        eTimingID = Convert.ToInt32(reader["id"].ToString());
+                                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
+                                            parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
+                                        if (m_EventorID)
+                                            dbid = (EventorID > 0 ? EventorID : eTimingID + 1000000);
+                                        else
+                                            dbid = eTimingID;
+                                        dbid += m_IdOffset;
+                                    }
                                     if (!string.IsNullOrEmpty(famName))
                                         famName = famName.Trim();
                                     if (!string.IsNullOrEmpty(famName))
