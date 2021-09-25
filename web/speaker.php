@@ -203,7 +203,7 @@ $(document).ready(function()
 	    res.highTime = <?=$currentComp->HighTime(); ?> <?php }?>
 
 	// Set ranked startlist
-	<?php if($currentComp->RankedStartlist() ){?> 
+	<?php if($currentComp->RankedStartlist()>-1 ){?> 
 	    res.rankedStartlist = <?=$currentComp->RankedStartlist(); ?> <?php }?>
 	
 	// Qualification limits and classes (last limit is default)
