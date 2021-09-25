@@ -206,7 +206,7 @@ $(document).ready(function()
 	
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
-		if (res.browserType == 1 && <?=(in_array($_GET['comp'], array("10118","10119","10120","10121"))?0:1)?>)
+		if (res.browserType == 1 && <?=(in_array($_GET['comp'], array("10110","10111","10112"))?0:1)?>)
 			closeTop();
 		else
 		{
@@ -308,6 +308,7 @@ function closeTop() {
   <td colspan="2" align="center"><div id="topBar" style="overflow: hidden">
     <?php if($organizer=="Freidig/Wing/Malvik"){?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
 	<?php if(in_array($_GET['comp'], array("10118","10119","10120","10121"))){?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
+	<?php if(in_array($_GET['comp'], array("10110","10111","10112"))){?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
 	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		<tr>
 			<?php 
