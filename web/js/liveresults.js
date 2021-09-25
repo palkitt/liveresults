@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -3334,6 +3334,8 @@ var LiveResults;
                             return 1;
                         else if (b.place == "=" && a.place != "=")
                             return -1;
+                        else if (a.bib != undefined && b.bib != undefined)
+                            return a.bib-b.bib;
                         else if (a.dbid != undefined && b.dbid != undefined)
                             return a.dbid-b.dbid;
                         else
