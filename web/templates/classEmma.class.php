@@ -794,12 +794,15 @@ class Emma
 		else
 			die(mysqli_error($this->m_Conn));
 
-		function timeSorter($a,$b)
+		if (!function_exists("timeSorter"))
 		{
-			if ($a['Status'] != $b['Status'])
-				return $a['Status'] - $b['Status'];
-			else
-				return $a['Time'] - $b['Time'];
+			function timeSorter($a,$b)
+			{
+				if ($a['Status'] != $b['Status'])
+					return $a['Status'] - $b['Status'];
+				else
+					return $a['Time'] - $b['Time'];
+			}
 		}
 
 		usort($ret,'timeSorter');

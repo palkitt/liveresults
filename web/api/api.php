@@ -250,133 +250,227 @@ elseif ($_GET['method'] == 'getsplitcontrols')
 }
 elseif ($_GET['method'] == 'getclassresults')
 {
-		$class = $_GET['class'];
-		$currentComp = new Emma($_GET['comp']);
-		$RT = insertHeader($refreshTime);
-		$results = $currentComp->getAllSplitsForClass($class);
-		if (isset($_GET['nosplits']) && $_GET['nosplits'] == "true")
-			$splits = null;
-		else
-			$splits = $currentComp->getSplitControlsForClass($class);
+	$class = $_GET['class'];
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime);
+	$res = classresults($class,false);
+	$ret = $res[0];
+	$splitJSON = $res[1];
 
-		$total = null;
-		$retTotal = false;
-		if (isset($_GET['includetotal']) && $_GET['includetotal'] == "true")
+	$hash = MD5($ret);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+	{
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+	}
+	else
+	{
+		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br]");
+		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+	}
+}
+elseif ($_GET['method'] == 'getrunners')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime);
+	$runners = $currentComp->getRunners();
+	$ret = "";
+	$first = true;
+	foreach ($runners as $runner)
+	{
+		if (!$first)
+			$ret .=",$br";
+		$ret .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".formatTime($runner['start'],0,$RunnerStatus)."\", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
+		$first = false;
+	}
+	$hash = MD5($ret);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+	else
+		echo("{ \"status\": \"OK\",$br \"runners\": [$br$ret$br],$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
+elseif ($_GET['method'] == 'getracesplitter')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime); //
+	$runners = $currentComp->getRunners();
+	$interval = $_GET['interval'];
+	$firststart = $_GET['firststart']; 
+
+	$ret = "Wave number,Racer bib number,First name,Last name,Email,Compensation,Category,Team";
+	foreach ($runners as $runner)
+	{
+		$bib = $runner['bib'];
+		$start = $runner['start'];
+		$wave = 1 + round(($start - $firststart)/$interval);
+		if ($wave > 0 && $bib > 0)
+			$ret .= "\n".$wave.",".$bib.",,".$runner['name'].",,,".$runner['class'].",".$runner['club'];
+	}
+	echo($ret);
+ }
+ elseif ($_GET['method'] == 'getnumconnect')
+ {
+	insertHeader($refreshTime,false);
+	$nums = Emma::GetNumConnect();	
+	foreach ($nums as $num)
+	{
+		$n = $num["num"]; // Numbers in buffer
+		$UF = $num["UF"]; // Update factor
+	}
+		echo("Number of connections in buffer (passing rand function) [#/min]: ".$n. ". Update factor: ".$UF);
+ }
+ elseif ($_GET['method'] == 'getplainresults')
+ {
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime);	
+	$classes = $currentComp->Classes();
+	$first = true;
+	foreach ($classes as $class)
+	{
+		if (!$first)
+			echo("\n");
+		$first = false;
+		$className = $class['Class'];
+		echo ($className."\n");
+		$res = classresults($className,true);
+		echo($res[0]);
+	}		
+}
+else
+{
+	insertHeader($refreshTime,false);
+	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+    header($protocol . ' ' . 400 . ' Bad Request');
+	echo("{ \"status\": \"ERR\", \"message\": \"No method given\"}");
+}
+
+function classResults($class,$plain)
+{
+	global $RunnerStatus;
+	global $currentComp;
+	$results = $currentComp->getAllSplitsForClass($class);
+	if (isset($_GET['nosplits']) && $_GET['nosplits'] == "true" || $plain)
+		$splits = null;
+	else
+		$splits = $currentComp->getSplitControlsForClass($class);
+
+	$total = null;
+	$retTotal = false;
+	if (isset($_GET['includetotal']) && $_GET['includetotal'] == "true")
+	{
+		$retTotal = true;
+		$total = $currentComp->getTotalResultsForClass($class);
+
+		foreach ($results as $key=>$res)
 		{
-			$retTotal = true;
-			$total = $currentComp->getTotalResultsForClass($class);
+			$id = $res['DbId'];
 
-			foreach ($results as $key=>$res)
-			{
-				$id = $res['DbId'];
-
-				$results[$key]["totaltime"] = $total[$id]["Time"];
-				$results[$key]["totalstatus"] = $total[$id]["Status"];
-				$results[$key]["totalplace"] = $total[$id]["Place"];
-				$results[$key]["totalplus"] = $total[$id]["TotalPlus"];
-			}
+			$results[$key]["totaltime"] = $total[$id]["Time"];
+			$results[$key]["totalstatus"] = $total[$id]["Status"];
+			$results[$key]["totalplace"] = $total[$id]["Place"];
+			$results[$key]["totalplus"] = $total[$id]["TotalPlus"];
 		}
-		$ret = "";
-		$first = true;
-		$place = 1;
-		$count = 1;
-		$lastTime = -9999;
-		$winnerTime = 0;
-		$resultsAsArray = false;
-		$unformattedTimes = false;
-		$firstNonQualifierSet = false;
+	}
+	$ret = "";
+	$first = true;
+	$place = 1;
+	$count = 1;
+	$lastTime = -9999;
+	$winnerTime = 0;
+	$resultsAsArray = false;
+	$unformattedTimes = false;
+	$firstNonQualifierSet = false;
 
-		if (isset($_GET['resultsAsArray']))
-			$resultsAsArray  = true;
+	if (isset($_GET['resultsAsArray']))
+		$resultsAsArray  = true;
 
-		if (isset($_GET['unformattedTimes']) && $_GET['unformattedTimes'] == "true")
-			$unformattedTimes = true;
+	if (isset($_GET['unformattedTimes']) && $_GET['unformattedTimes'] == "true")
+		$unformattedTimes = true;
 
-		$splitJSON = "[$br";
-		foreach ($splits as $split)
+	$splitJSON = "[$br";
+	foreach ($splits as $split)
+	{
+		if (!$first)
+			$splitJSON .=",$br";
+		$splitJSON .= "{ \"code\": ".$split['code'] .", \"name\": \"".$split['name']."\"}";
+		$first = false;
+
+		usort($results, function ($a,$b) use($split)
 		{
-			if (!$first)
-				$splitJSON .=",$br";
-			$splitJSON .= "{ \"code\": ".$split['code'] .", \"name\": \"".$split['name']."\"}";
-			$first = false;
-	  
-			usort($results, function ($a,$b) use($split) 
+			if (!isset($a[$split['code']."_time"]) && isset($b[$split['code']."_time"]))
+				return 1;
+			if (isset($a[$split['code']."_time"]) && !isset($b[$split['code']."_time"]))
+				return -1;
+			if (!isset($a[$split['code']."_time"]) && !isset($b[$split['code']."_time"]))
+				return 0;
+			if (isset($a[$split['code']."_time"]) && isset($b[$split['code']."_time"]))
 			{
-				if (!isset($a[$split['code']."_time"]) && isset($b[$split['code']."_time"]))
-					return 1;
-				if (isset($a[$split['code']."_time"]) && !isset($b[$split['code']."_time"]))
-					return -1;
-				if (!isset($a[$split['code']."_time"]) && !isset($b[$split['code']."_time"]))
+				if ($b[$split['code']."_time"] == $a[$split['code']."_time"])
 					return 0;
-        		if (isset($a[$split['code']."_time"]) && isset($b[$split['code']."_time"]))
-        		{
-          			if ($b[$split['code']."_time"] == $a[$split['code']."_time"])
-            			return 0;
-          			else
-						return $a[$split['code']."_time"] < $b[$split['code']."_time"] ? -1 : 1;
-				}
-			});
-      		$splitplace = 1;
-      		$cursplitplace = 1;
-      		$cursplittime = "";
-			$bestsplittime = -1;
-			$bestsplitkey = -1;
-			$secondbest = false;  
+				else
+					return $a[$split['code']."_time"] < $b[$split['code']."_time"] ? -1 : 1;
+			}
+		});
+		$splitplace = 1;
+		$cursplitplace = 1;
+		$cursplittime = "";
+		$bestsplittime = -1;
+		$bestsplitkey = -1;
+		$secondbest = false;
 
-      		foreach ($results as $key => $res)
-      		{
-        		$sp_time = "";
-        		$raceTime = $res['Time'];
-        		$raceStatus = $res['Status'];
-        		if ($raceTime == "")
-					$raceStatus = 9;
+		foreach ($results as $key => $res)
+		{
+			$sp_time = "";
+			$raceTime = $res['Time'];
+			$raceStatus = $res['Status'];
+			if ($raceTime == "")
+				$raceStatus = 9;
 
-				if (isset($res[$split['code']."_time"]))
-          		{
-            		$sp_time = $res[$split['code']."_time"];
-					if ($bestsplittime < 0 && ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10))
-					{
-						$bestsplittime = $sp_time;
-						$bestsplitkey = $key;
-					}
-          		}
-				if ($sp_time != "")
+			if (isset($res[$split['code']."_time"]))
+			{
+				$sp_time = $res[$split['code']."_time"];
+				if ($bestsplittime < 0 && ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10))
 				{
-					$results[$key][$split['code']."_timeplus"] = $sp_time - $bestsplittime;
-					if (!$secondbest && $bestsplitkey>-1 && $key != $bestsplitkey && ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10))
-					{
-						$results[$bestsplitkey][$split['code']."_timeplus"] = $bestsplittime - $sp_time;
-						$secondbest = true;
-					}
+					$bestsplittime = $sp_time;
+					$bestsplitkey = $key;
 				}
-          		else
-            		$results[$key][$split['code']."_timeplus"] = -1;
+			}
+			if ($sp_time != "")
+			{
+				$results[$key][$split['code']."_timeplus"] = $sp_time - $bestsplittime;
+				if (!$secondbest && $bestsplitkey>-1 && $key != $bestsplitkey && ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10))
+				{
+					$results[$bestsplitkey][$split['code']."_timeplus"] = $bestsplittime - $sp_time;
+					$secondbest = true;
+				}
+			}
+			else
+				$results[$key][$split['code']."_timeplus"] = -1;
 
-          		if ($cursplittime != $sp_time)
-					$cursplitplace = $splitplace;
-					
-          		if ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10)
-          		{
-            		$results[$key][$split['code']."_place"] = $cursplitplace;
-            		$splitplace++;
-            		if (isset($res[$split['code']."_time"]))
-              			$cursplittime = $res[$split['code']."_time"];
-          		}
-          		elseif ($raceStatus == 13)
-            		$results[$key][$split['code']."_place"] = "\"F\"";
-		  		else
-            		$results[$key][$split['code']."_place"] = "\"-\"";
-            }
+			if ($cursplittime != $sp_time)
+				$cursplitplace = $splitplace;
+				
+			if ($raceStatus == 0 || $raceStatus == 9 || $raceStatus == 10)
+			{
+				$results[$key][$split['code']."_place"] = $cursplitplace;
+				$splitplace++;
+				if (isset($res[$split['code']."_time"]))
+					$cursplittime = $res[$split['code']."_time"];
+			}
+			elseif ($raceStatus == 13)
+				$results[$key][$split['code']."_place"] = "\"F\"";
+			else
+				$results[$key][$split['code']."_place"] = "\"-\"";
 		}
+	}
 
 	usort($results,"sortByResult");
-	
+ 
 	$splitJSON .= "$br]";
 	$first = true;
 	$keys = array_keys($results);
 	foreach ($results as $res)
 	{
-		if (!$first)
+		if (!$first && !$plain)
 			$ret .=",";
 		$time = $res['Time'];
 
@@ -449,7 +543,6 @@ elseif ($_GET['method'] == 'getclassresults')
 		{
 			$time = formatTime($res['Time'],$res['Status'],$RunnerStatus);
 			$timeplus = "+".formatTime($timeplus,$res['Status'],$RunnerStatus);
-
 		}
 
 		$tot = "";
@@ -464,8 +557,17 @@ elseif ($_GET['method'] == 'getclassresults')
 				$changed = strtotime($res['Changed']);
 			else
 				$changed = "0";
-			
-			$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"bib\": ".$res['Bib'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
+			if ($plain)
+			{
+				if ($progress<100)
+					continue;
+				$ret .= $cp.". ".$res['Name'].", ".str_replace("\"","'",$res['Club']).", ".$time;
+				if (!$first && $res['Status']==0)
+					$ret .=" (".$timeplus.")";
+				$ret .= "\n";
+			}
+			else
+				$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"bib\": ".$res['Bib'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
 
 			if (count($splits) > 0)
 			{
@@ -495,88 +597,25 @@ elseif ($_GET['method'] == 'getclassresults')
 
 				$ret .="}";
 			}
-
-			if (isset($res["start"]))
-				$ret .= ",$br \"start\": ".$res["start"];
-			else
-				$ret .= ",$br \"start\": \"\"";
+			if (!$plain)
+			{
+				if (isset($res["start"]))
+					$ret .= ",$br \"start\": ".$res["start"];
+				else
+					$ret .= ",$br \"start\": \"\"";
 			
-			$ret .= "$br}";
+				$ret .= "$br}";
+			}
 		}
 		$first = false;
 		$count++;
 		$lastTime = $time;
 	}
-
-	$hash = MD5($ret);
-	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
-	{
-		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
-	}
-	else
-	{
-		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br]");
-		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
-	}
+	$res[0] = $ret;
+	$res[1] = $splitJSON;
+	return $res;
 }
-   elseif ($_GET['method'] == 'getrunners')
-   {
-	$currentComp = new Emma($_GET['comp']);
-	$RT = insertHeader($refreshTime);
-	$runners = $currentComp->getRunners();
-	$ret = "";
-	$first = true;
-	foreach ($runners as $runner)
-	{
-		if (!$first)
-			$ret .=",$br";
-		$ret .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".formatTime($runner['start'],0,$RunnerStatus)."\", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
-		$first = false;
-	}
-	$hash = MD5($ret);
-	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
-		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
-	else
-		echo("{ \"status\": \"OK\",$br \"runners\": [$br$ret$br],$br \"hash\": \"". $hash."\", \"rt\": $RT}");
-  }
 
-  elseif ($_GET['method'] == 'getracesplitter')
-  {
-	$currentComp = new Emma($_GET['comp']);
-	$RT = insertHeader($refreshTime); //
-	$runners = $currentComp->getRunners();
-	$interval = $_GET['interval'];
-	$firststart = $_GET['firststart']; 
-
-	$ret = "Wave number,Racer bib number,First name,Last name,Email,Compensation,Category,Team";
-	foreach ($runners as $runner)
-	{
-		$bib = $runner['bib'];
-		$start = $runner['start'];
-		$wave = 1 + round(($start - $firststart)/$interval);
-		if ($wave > 0 && $bib > 0)
-			$ret .= "\n".$wave.",".$bib.",,".$runner['name'].",,,".$runner['class'].",".$runner['club'];
-	}
-	echo($ret);
-  }
-  elseif ($_GET['method'] == 'getnumconnect')
-  {
-	insertHeader($refreshTime,false);
-	$nums = Emma::GetNumConnect();	
-	foreach ($nums as $num)
-	{
-		$n = $num["num"]; // Numbers in buffer
-		$UF = $num["UF"]; // Update factor
-	}
-		echo("Number of connections in buffer (passing rand function) [#/min]: ".$n. ". Update factor: ".$UF);
-  }
-else
-{
-	insertHeader($refreshTime,false);
-	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
-    header($protocol . ' ' . 400 . ' Bad Request');
-	echo("{ \"status\": \"ERR\", \"message\": \"No method given\"}");
-}
 
 function insertHeader($refreshTime,$update=true)
 {
@@ -615,7 +654,6 @@ function sortByResult($a,$b)
 
 
 function formatTime($time,$status,& $RunnerStatus)
-
 {
   global $lang;
   global $_FREESTART;

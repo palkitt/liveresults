@@ -101,6 +101,7 @@ function resetRow(row)
 <td><b>Public</b></td>
 <td><b>Edit</b></td>
 <td><b>All</b></td>
+<td><b>Text</b></td>
 <td><b>Startlist</b></td>
 <td><b>Start</b></td>
 <td><b>Speaker</b></td>
@@ -126,6 +127,7 @@ function resetRow(row)
     <td><?=$comp["public"] == "1" ? "yes" : "no"?></td>
     <td><a href="/adm/editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></td>
     <td><a href="/followall.php?comp=<?=$comp["tavid"]?>">All</a>
+    <td><a href="/api/api.php?method=getplainresults&comp=<?=$comp["tavid"]?>">Text</a>
     <td><a href="/startlist.php?comp=<?=$comp["tavid"]?>">Startlist</a></td>
     <td><a href="/radio.php?comp=<?=$comp["tavid"]?>&code=0">Start</a>
     <td><a href="/speaker.php?comp=<?=$comp["tavid"]?>">Speaker</a></td>
