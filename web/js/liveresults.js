@@ -2569,7 +2569,7 @@ var LiveResults;
                                     if (fullView)
                                     {
                                         if (row.splits["0_place"] == 1)
-                                            txt += "<span class=\"besttime\">-" + _this.formatTime(-row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + place + "</span><br />";
+                                            txt += "<span class=\"besttime\">+" + _this.formatTime(0, 0, _this.showTenthOfSecond) + place + "</span><br />";
                                         else
                                             txt += "<span>+" + _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + place + "</span><br />";
                                     }
@@ -2849,13 +2849,13 @@ var LiveResults;
                                 if (row.status == 0)
                                 {
                                     if (row.place == 1)
-                                        res += "<span class=\"besttime\">-" + _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) ;
+                                        res += "<span class=\"besttime\">+" + _this.formatTime(0, row.status, _this.showTenthOfSecond) ;
                                     else
                                         res += "<span>+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond);
                                     
                                     res += "</span><br />" + vertLine;
                                     if (row.splits["999_place"] == 1)
-                                        res += "<span class=\"besttime\">-" + _this.formatTime(-row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                                        res += "<span class=\"besttime\">+" + _this.formatTime(0, 0, _this.showTenthOfSecond) + "</span>";
                                     else
                                         res += "<span class=\"legtime\">+" +_this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                                 }
