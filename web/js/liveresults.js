@@ -237,11 +237,13 @@ var LiveResults;
 						param = className.replace('\'', '\\\'');
 						if (className && className.length > 0)
 						{
-                            className = className.replace('Menn','M');
-							className = className.replace('Kvinner','K');
-                            className = className.replace('Gutter','G');
-                            className = className.replace('Jenter','J');
-							className = className.replace(' Vann','-V');
+                            className = className.replace(/menn/i,'M');
+							className = className.replace(/kvinner/i,'K');
+                            className = className.replace(/gutter/i,'G');
+                            className = className.replace(/jenter/i,'J');
+                            className = className.replace(/veteraner/i,'Vet');
+                            className = className.replace(/veteran/i,'Vet');
+							className = className.replace(' Vann','V');
                             var classNameClean = className.replace(/-\d$/,'');
 							classNameClean = classNameClean.replace(/-All$/,'');
 							if (i<(nClass-1))
@@ -2675,13 +2677,20 @@ var LiveResults;
                                                         txt += "\"legtime\">";
                                                         legplace += "<span class=\"place\"> ";
                                                     }
-                                                    if (_this.curClassIsRelay) 
-                                                        txt += "⟳";
                                                     if (_this.curClassNumberOfRunners >= 10 && (row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-") )
                                                         legplace += "&numsp;"
                                                     legplace += "&#10072;" + row.splits[(value.code + 100000) + "_place"] + "&#10072;</span>";
-                                                    txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond)
-                                                        + legplace + "</span>";
+                                                    if (_this.curClassIsRelay)
+                                                    { 
+                                                        txt += "⟳";
+                                                        if (row.splits[(value.code + 100000) + "_place"] == 1)
+                                                            txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
+                                                        else
+                                                            txt += "+" + _this.formatTime(row.splits[(value.code + 100000) + "_timeplus"], 0, _this.showTenthOfSecond);
+                                                    }
+                                                    else
+                                                        txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
+                                                    txt += legplace + "</span>";
                                                 }
                                                 else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !_this.curClassIsRelay && (value.code > 0))
 												// Second line for ordinary passing (drop if code is negative - unranked)
