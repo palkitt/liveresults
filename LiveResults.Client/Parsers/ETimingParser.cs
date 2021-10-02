@@ -145,6 +145,7 @@ namespace LiveResults.Client
             public int Code;
             public string Description;
             public int RadioType;
+            public string TimingPoint;
             public int Leg;
             public int Order;
         };
@@ -214,7 +215,7 @@ namespace LiveResults.Client
                     if (dlg != null)
                     {
                         // radiotype, 2=finish/finish-passing, 4 = normal, 10 = exchange
-                        cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, description, etappe, radiorundenr, live 
+                        cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, timingpointtype, description, etappe, radiorundenr, live 
                                             FROM radiopost WHERE radioday={0} ORDER BY radiorundenr", day);
                         var RadioPosts = new Dictionary<int, List<RadioStruct>>();
 
@@ -222,12 +223,22 @@ namespace LiveResults.Client
                         {
                             while (reader.Read())
                             {
-                                int cource = 0, code = 0, radiotype = 0, leg = 0, order = 0;
+                                int cource = 0, code = 0, radiotype = -1, leg = 0, order = 0;
                                 bool live = false;
 
                                 if (reader["live"] != null && reader["live"] != DBNull.Value)
                                     live = Convert.ToBoolean(reader["live"].ToString());
                                 if (!live) continue;
+
+                                string timingpoint = reader["timingpointtype"] as string;
+                                if (!string.IsNullOrEmpty(timingpoint))
+                                {
+                                    timingpoint = timingpoint.Trim();
+                                    if (timingpoint != "IM" && timingpoint != "VK")
+                                        continue;
+                                }
+                                else
+                                    continue;
 
                                 if (reader["code"] != null && reader["code"] != DBNull.Value)
                                     code = Convert.ToInt32(reader["code"].ToString());
@@ -256,6 +267,7 @@ namespace LiveResults.Client
                                     Code        = code,         
                                     Description = description,
                                     RadioType   = radiotype,
+                                    TimingPoint = timingpoint,
                                     Order       = order,
                                     Leg         = leg
                                 };
@@ -389,7 +401,7 @@ namespace LiveResults.Client
                                     Dictionary<int, int> radioCnt = new Dictionary<int, int>();
                                     foreach (var radioControl in RadioPosts[cource])
                                     {
-                                        if (radioControl.RadioType == 1) // Skip if radiocontrol is start
+                                        if (radioControl.TimingPoint == "ST") // Skip if radiocontrol is start
                                             continue;
                                         int Code = radioControl.Code;    
                                         if (numLegs == 0 && (Code == 999 || Code == 0))
@@ -411,7 +423,7 @@ namespace LiveResults.Client
                                             AddforLeg = 10000 * radioControl.Leg;
                                         }
 
-                                        if (Code < 999 && radioControl.RadioType != 10) // Not 999 and not exchange)
+                                        if (Code < 999 && radioControl.TimingPoint != "VK") // Not 999 and not exchange)
                                         {
                                             CodeforCnt = Code + AddforLeg;
                                             if (!radioCnt.ContainsKey(CodeforCnt))
@@ -446,7 +458,7 @@ namespace LiveResults.Client
                                         {
                                             string Description = Convert.ToString(radioControl.Leg) +":"+ radioControl.Description;
                                             int position = 0;
-                                            if (radioControl.RadioType == 10) // Exchange
+                                            if (radioControl.TimingPoint == "VK") // Exchange
                                                 position = 999 + 1000 + AddforLeg;
                                             else // Normal radio control
                                                 position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg;
@@ -698,6 +710,7 @@ namespace LiveResults.Client
                         if (isRelay)
                             teambib = bib / 100; // Team bib no
 
+                        int TeamTimePre = 0;
                         if (isRelay)
                         {   //RelayTeams
                             leg = bib % 100;   // Leg number
@@ -834,10 +847,11 @@ namespace LiveResults.Client
 
                             if (leg > 1 && RelayTeams[teambib].TeamMembers[leg - 1].TotalTime > 0)
                             {
+                                TeamTimePre = RelayTeams[teambib].TeamMembers[leg - 1].TotalTime;
                                 var ExchangeTime = new ResultStruct
                                 {
                                     ControlCode = 0,  // Note code 0 for change-over!
-                                    Time = RelayTeams[teambib].TeamMembers[leg - 1].TotalTime
+                                    Time = TeamTimePre
                                 };
                                 SplitTimes.Add(ExchangeTime);
                             }
@@ -948,9 +962,8 @@ namespace LiveResults.Client
                                 passTime = split.netTime;
                             else if (isRelay)
                             {
-                                passTime = split.passTime - iStartClass;     // Absolute pass time
-                                //if (leg > 1)                               // Leg based pass time
                                 passLegTime = split.passTime - Math.Max(iStartTime, iStartClass); // In case ind. start time not set
+                                passTime = passLegTime + Math.Max(TeamTimePre, iStartTime - iStartClass); // Absolute pass time
                             }
                             else if (chaseStart)
                             {
