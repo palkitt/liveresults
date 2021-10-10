@@ -40,6 +40,7 @@
             this.lblInfo = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label15 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -196,11 +197,22 @@
             this.flowLayoutPanel2.TabIndex = 4;
             this.flowLayoutPanel2.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel2_Paint);
             // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.ForeColor = System.Drawing.SystemColors.ControlDark;
+            this.label15.Location = new System.Drawing.Point(370, 9);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(261, 13);
+            this.label15.TabIndex = 11;
+            this.label15.Text = "Ver 10.10.2021 - https://github.com/palkitt/liveresults";
+            // 
             // FrmNewCompetition
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(643, 406);
+            this.Controls.Add(this.label15);
             this.Controls.Add(this.flowLayoutPanel2);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -232,5 +244,6 @@
         private System.Windows.Forms.Button button4;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button6;
+        private System.Windows.Forms.Label label15;
     }
 }

@@ -937,7 +937,7 @@ namespace LiveResults.Client
                         int passTime = -2;
                         foreach (var split in splits)
                         {
-                            if (split.controlCode == 0)
+                            if (split.controlCode == 0) // Registering at start
                             {
                                 if (status == "I" || status == "N") // Change code of entered and not started (by mistake) runners
                                     status = "S";
@@ -1236,25 +1236,8 @@ namespace LiveResults.Client
                         else
                             continue;
 
-                        if (reader["stasjon"] != null && reader["stasjon"] != DBNull.Value)
-                            station = Convert.ToInt32(reader["stasjon"].ToString());
-                        if (station == 0)
-                            code = 0;
-                        else
-                        {
-                            if (reader["iplace"] != null && reader["iplace"] != DBNull.Value)
-                                code = Convert.ToInt32(reader["iplace"].ToString());
-                            if (code < 0)
-                                continue;
-                            if (code > 1000)
-                                code = code / 100; // Take away last to digits if code 1000+
-                        }
-
                         if (reader["mintime"] != null && reader["mintime"] != DBNull.Value)
                             passTime = ConvertFromDay2cs(Convert.ToDouble(reader["mintime"]));
-
-                        if (reader["nettotid"] != null && reader["nettotid"] != DBNull.Value)
-                            netTime = ConvertFromDay2cs(Convert.ToDouble(reader["nettotid"]));
 
                         if (reader["nettotid"] != null && reader["nettotid"] != DBNull.Value)
                             netTime = ConvertFromDay2cs(Convert.ToDouble(reader["nettotid"]));
@@ -1264,6 +1247,27 @@ namespace LiveResults.Client
                             changedTimeD = Convert.ToDouble(reader["timechanged"].ToString());
                             changedTime = ConvertFromDay2cs(changedTimeD % 1);
                         }
+
+                        if (reader["stasjon"] != null && reader["stasjon"] != DBNull.Value)
+                            station = Convert.ToInt32(reader["stasjon"].ToString());
+                        if (station == 0)
+                        {
+                            if (netTime > 0)
+                                continue;
+                            else
+                                code = 0;
+                        }
+                        else
+                        {
+                            if (reader["iplace"] != null && reader["iplace"] != DBNull.Value)
+                                code = Convert.ToInt32(reader["iplace"].ToString());
+                            if (code < -999)
+                                continue;
+                            if (code > 1000)
+                                code = code / 100; // Take away last to digits if code 1000+
+                        }
+
+                        
 
                         var res = new SplitRawStruct
                         {
