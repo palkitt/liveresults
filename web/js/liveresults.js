@@ -116,7 +116,7 @@ var LiveResults;
             
             $(window).on('resize', function () 
             {
-                if (_this.currentTable != null)
+                if (_this.currentTable != null && _this.curClassName != "plainresults")
                     _this.currentTable.fnAdjustColumnSizing();
             } );
         }
@@ -225,9 +225,8 @@ var LiveResults;
 						if (x[0] > x[1]) {return 1;}
 						return 0;
 					});
-					var str = "";
+                    var str = "";
 					var nClass = classes.length;
-					
 					var relayNext = false;
 					var leg = 0;
 					for (var i=0; i<nClass; i++)
@@ -281,6 +280,9 @@ var LiveResults;
 								str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + className + "</a><br/>";							
 						}
                     };
+                    str += "<hr>"
+                    if (!this.EmmaServer)
+                        str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresults')\" style=\"text-decoration: none\">Alle</a>";
                     str += "</nowrap>";
                     $("#" + this.classesDiv).html(str);
                     $("#numberOfRunnersTotal").html(data.numberOfRunners);
@@ -876,8 +878,6 @@ var LiveResults;
                     var offset = 3 + (this.curClassHasBibs? 1 : 0) + ((this.curClassIsUnranked || (this.compactView && !this.curClassLapTimes)) ? 1 : 0);
                     var MDoffset = (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
                     var rank;
-                    var timeDiffStr;
-                    var elapsedTimeStr;
                     const predOffset = 0;
                     const predRank = true;
                     
@@ -1070,8 +1070,8 @@ var LiveResults;
                                             elapsedTotalTimeStr += "<span class=\"hideplace\"><i>..&#10072;</i></span>";
                                         table.cell( i, totalTimeCol).data(elapsedTotalTimeStr);
                                     }  
-
-                                    elapsedTimeStr = (this.curClassIsRelay && !this.compactView ? "<br/><i>⟳" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
+                                    var timeDiffStr = "";
+                                    var elapsedTimeStr = (this.curClassIsRelay ? "<i>⟳" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
                                     if (this.curClassSplits == null || this.curClassSplits.length == 0)
                                     {
                                     // No split controls
@@ -1128,6 +1128,7 @@ var LiveResults;
                                     // Insert default value being the first OK split and last OK
                                         var lastOKSplit = this.curClassNumSplits;
                                         nextSplit       = firstOKSplit;
+                                        var extraSpace = "<span class=\"hideplace\"> " + (this.curClassNumberOfRunners >= 10 ? "&numsp;":"") + "<i>&#10072;..&#10072;</i></span>";
 
                                         for (var sp = this.curClassNumSplits-1; sp >= 0; sp--)
                                         {
@@ -1146,10 +1147,13 @@ var LiveResults;
                                         }
                                         else
                                         {
+                                            var rankStr = "";
                                             if (this.curClassSplitsBests[nextSplit][0]==0)
                                             {
                                                 rank = 0;
-                                                timeDiffStr = "";
+                                                rankStr += "<i>&#10072;..&#10072;</i></span>";		
+                                                if (nextSplit!=this.curClassNumSplits && !this.curClassIsRelay)
+                                                    timeDiffStr = elapsedTimeStr;
                                             }
                                             else
                                             {
@@ -1162,48 +1166,53 @@ var LiveResults;
                                                 {
                                                     timeDiff = elapsedTime - this.curClassSplitsBests[nextSplit][0];
                                                     rank = this.findRank(this.curClassSplitsBests[nextSplit],elapsedTime);                                                                                                
-                                                }                                                
+                                                }
+                                                rankStr += "<i>&#10072;" + rank + "&#10072;</i></span>";                                                
                                                 timeDiffStr = "<i>" + (timeDiff<0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
                                             }
-
-                                            var rankStr = "<span class=\"place\"> ";
-                                            if (this.curClassNumberOfRunners >= 10 && rank < 10)
-                                                rankStr += "&numsp;"
-                                            if (rank > 1)
-                                                rankStr += "<i>&#10072;" + rank + "&#10072;</i></span>";
-                                            else
-                                                rankStr += "<i>&#10072;..&#10072;</i></span>";											
+                                            rankStr = "<span class=\"place\"> " + (this.curClassNumberOfRunners >= 10 && rank < 10 ? "&numsp;" : "") + rankStr;
                                                                                         
-                                            if (nextSplit==this.curClassNumSplits && !this.curClassIsRelay)
-                                                elapsedTimeStr += rankStr;
+                                            if (this.curClassIsRelay)
+                                            {
+                                                elapsedTimeStr += extraSpace;
+                                                if (!this.compactView)
+                                                {
+                                                    timeDiffStr += rankStr;
+                                                    if (nextSplit==this.curClassNumSplits)
+                                                    {
+                                                        elapsedTimeStr = timeDiffStr + "<br>" + elapsedTimeStr;
+                                                        timeDiffStr = "";
+                                                    }
+                                                    else
+                                                    {
+                                                        timeDiffStr = timeDiffStr + "<br>" + elapsedTimeStr;
+                                                        elapsedTimeStr = "";
+                                                    }
+                                                }
+                                                else if (nextSplit!=this.curClassNumSplits)
+                                                    timeDiffStr += rankStr;
+                                            }
                                             else
                                             {
-                                                if (!this.compactView || !this.curClassIsRelay || nextSplit!=this.curClassNumSplits)
-                                                    timeDiffStr += rankStr;
-                                                if (this.curClassNumberOfRunners >= 10)
-                                                    elapsedTimeStr += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
+                                                if (nextSplit==this.curClassNumSplits)
+                                                    elapsedTimeStr += rankStr;
                                                 else
-                                                    elapsedTimeStr += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
+                                                {
+                                                    timeDiffStr += rankStr;
+                                                    elapsedTimeStr += extraSpace;
+                                                }
                                             }
                                             
-                                            timeDiffCol = offset + nextSplit*2;
-                                            if (nextSplit==this.curClassNumSplits) // Approach finish
-                                                timeDiffCol += 2;
-
                                             // Display time diff
                                             if (this.compactView || nextSplit!=this.curClassNumSplits || this.curClassLapTimes)
+                                            {
+                                                timeDiffCol = offset + nextSplit*2 + (nextSplit==this.curClassNumSplits ? 2 : 0);
                                                 table.cell( i, timeDiffCol ).data(timeDiffStr);
-                                            else if (this.curClassIsRelay && !this.compactView )
-                                                elapsedTimeStr = timeDiffStr + elapsedTimeStr;
-                                            
+                                            }
+                                                                                        
                                             // Display elapsed time
                                             if (!this.compactView && !this.curClassIsRelay && !this.curClassLapTimes && nextSplit==this.curClassNumSplits)
-                                            {
-                                                if (this.curClassNumberOfRunners >= 10)
-                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
-                                                else
-                                                    elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";                                     
-                                            }
+                                                elapsedTimeStr += "<br/>" + timeDiffStr + extraSpace;
                                             table.cell( i, offset + this.curClassNumSplits*2 ).data(elapsedTimeStr);
 
                                             // Update predData: Insert current time if longer than a runner with larger index / virtual position
@@ -2319,9 +2328,14 @@ var LiveResults;
             this.curClubName = null; 
             $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
             var preTime = new Date().getTime();
+            var callStr;
+            if (className == "plainresults")
+                callStr = "&method=getplainresults";
+            else
+                callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (this.isMultiDayEvent ? "&includetotal=true" : "");
             $.ajax({
                 url: this.apiURL,
-                data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (this.isMultiDayEvent ? "&includetotal=true" : ""),
+                data: "comp=" + this.competitionId + callStr,
                 success: function (data, status, resp) {
                     var expTime = false;
                     try { 
@@ -2358,11 +2372,39 @@ var LiveResults;
             var _this = this;    
             if (data != null && data.status == "OK") {
                 if (data.className != null) {
-                    $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
+                    if (data.className == "plainresults")
+                        $('#' + this.resultsHeaderDiv).html('<b>Alle</b>');
+                    else
+                        $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
                     $('#' + this.resultsControlsDiv).show();
                 }
                 $('#' + this.txtResetSorting).html("");
-                if (data.results != null && data.results.length>0) {
+                if (data.className == "plainresults")
+                {
+                    var res = "";
+                    for (var i=0; i < data.results.length; i++)
+                    {
+                        res += "<tr><td colspan=5><b>&nbsp;" + data.results[i].className + "<b></td></tr>";
+                        for (var j=0; j < data.results[i].results.length; j++)
+                        {
+                            var name = data.results[i].results[j].name;
+                            if (name.length> this.maxNameLength)
+                                name = this.nameShort(name);
+                            var club = data.results[i].results[j].club;
+                            if (club.length > this.maxClubLength)
+                                club = this.clubShort(club);	
+                            res += "<tr><td align=\"right\">" + data.results[i].results[j].place + "</td>";
+                            res += "<td>" + name + "</td>";
+                            res += "<td>" + club + "</td>";
+                            res += "<td align=\"right\">" + data.results[i].results[j].result + "</td>";
+                            res += "<td align=\"right\">" + data.results[i].results[j].timeplus + "</td></tr>";
+                        }
+                        res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
+                    }
+                    $('#' + this.resultsDiv).html(res);
+                    $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
+                }               
+                else if (data.results != null && data.results.length>0) {
                     var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
                     // Class properties
                     this.curClassSplits = data.splitcontrols;

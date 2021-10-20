@@ -8,8 +8,9 @@ if (isset($_GET['lang']))
 $hightime = 60;
 if (!isset($_GET['method']))
     $_GET['method'] = null;
-
-if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults')
+if ($_GET['method'] == 'getplainresults')
+	$refreshTime = 120;
+else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults')
 	$refreshTime = 60;
 else
 	$refreshTime = 5;
@@ -316,24 +317,27 @@ elseif ($_GET['method'] == 'getracesplitter')
 		$n = $num["num"]; // Numbers in buffer
 		$UF = $num["UF"]; // Update factor
 	}
-		echo("Number of connections in buffer (passing rand function) [#/min]: ".$n. ". Update factor: ".$UF);
+	echo("Number of connections in buffer (passing rand function) [#/min]: ".$n. ". Update factor: ".$UF);
  }
  elseif ($_GET['method'] == 'getplainresults')
  {
 	$currentComp = new Emma($_GET['comp']);
-	$RT = insertHeader($refreshTime);	
+	$RT = insertHeader($refreshTime);
 	$classes = $currentComp->Classes();
+	$ret = "";
 	$first = true;
 	foreach ($classes as $class)
 	{
 		if (!$first)
-			echo("\n");
+			$ret .= ", ";
 		$first = false;
 		$className = $class['Class'];
-		echo ($className."\n");
 		$res = classresults($className,true);
-		echo($res[0]);
-	}		
+		$ret .= "{\"className\": \"$className\", \"results\": [".$res[0]."]}";
+	}
+	$hash = MD5($ret);
+	echo("{ \"status\": \"OK\",$br \"className\": \"plainresults\",$br \"results\": [$br$ret$br]");
+	echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 }
 else
 {
@@ -561,10 +565,14 @@ function classResults($class,$plain)
 			{
 				if ($progress<100)
 					continue;
-				$ret .= $cp.". ".$res['Name'].", ".str_replace("\"","'",$res['Club']).", ".$time;
+				if (!$first)
+					$ret .=",";
+				$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"timeplus\": "; 
 				if (!$first && $res['Status']==0)
-					$ret .=" (".$timeplus.")";
-				$ret .= "\n";
+				   $ret .= "\"$timeplus\"";
+				else
+					$ret .= "\"\"";
+				$ret .= "$br}";
 			}
 			else
 				$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"bib\": ".$res['Bib'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
@@ -632,24 +640,36 @@ function insertHeader($refreshTime,$update=true)
 	header('content-type: application/json; charset='.$CHARSET);
 	header('Access-Control-Allow-Origin: *');
 	header('Access-Control-Expose-Headers: Date');
-	header('cache-control: max-age='+ ($RT-1));
+	header('Cache-Control: max-age='.($RT-1));
 	header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($RT-1)));
 
 	return $RT;
 }
 
+
 function sortByResult($a,$b)
 {
-  if ($a["Status"] == 0 && $b["Status"] != 0)
-     return -1;
-  else if ($a["Status"] != 0 && $b["Status"] == 0)
-     return 1;
-  else if ($a["Status"] != $b["Status"])
-     return $a["Status"] - $b["Status"];
-  else if ($a["Time"] == $b["Time"])
-	 return $a["DbId"] - $b["DbId"];
-  else
-     return $a["Time"] - $b["Time"];
+	$aStatus = $a["Status"];
+	$bStatus = $b["Status"];
+    if ($aStatus == 13)	
+		$aStatus = 0;
+	else if ($aStatus == 1)
+		$aStatus = 100;
+	if ($bStatus == 13)	
+		$bStatus = 0;
+	else if ($bStatus == 1)
+		$bStatus = 100;
+	
+	if ($aStatus == 0 && $bStatus != 0)
+     	return -1;
+  	else if ($aStatus != 0 && $bStatus == 0)
+     	return 1;
+  	else if ($aStatus != $bStatus)
+     	return $aStatus - $bStatus;
+  	else if ($a["Time"] == $b["Time"])
+	 	return $a["DbId"] - $b["DbId"];
+  	else
+     	return $a["Time"] - $b["Time"];
 }
 
 

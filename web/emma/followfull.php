@@ -19,6 +19,7 @@ $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
 $setFullView = isset($_GET['fullview']);
 $setNotScroll = isset($_GET['notscroll']);
+$beta = isset($_GET['beta']);
 $showPath = true;
 
 if (isset($_GET['showpath']) && $_GET['showpath'] == "false")
@@ -62,7 +63,11 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
+<?php if ($beta){?>
+	<script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script> 
+<?php } else {?>
+	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
+<?php }?>
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
 
 

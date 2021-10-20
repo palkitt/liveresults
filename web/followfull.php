@@ -20,6 +20,7 @@ $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
 $setFullView = isset($_GET['fullview']);
 $setNotScroll = isset($_GET['notscroll']);
+$beta = isset($_GET['beta']);
 $showPath = true;
 
 if (isset($_GET['showpath']) && $_GET['showpath'] == "false")
@@ -63,10 +64,12 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
+<?php if ($beta){?>
+	<script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script> 
+<?php } else {?>
+	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
+<?php }?>
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
-
-
 <script language="javascript" type="text/javascript">
 
 var noSleep = new NoSleep();
@@ -250,7 +253,7 @@ function switchTop(x) {
 
 
 function openNav() {
-  if(res.currentTable != null)
+  if(res.currentTable != null && res.curClassName != "plainresults")
   {
 	$(".firstCol").width("75px");  
   	$('#divResults').DataTable()
@@ -264,7 +267,7 @@ function openNav() {
 }
 
 function closeNav() {
-  if(res.currentTable != null)
+  if(res.currentTable != null && res.curClassName != "plainresults")
   {
 		$(".firstCol").width("0px");  
 		$('#divResults').DataTable()
@@ -368,7 +371,7 @@ function closeTop() {
  
  <tr>
   <td class="firstCol" valign="top" style="background-color:#FFF; color:#000"><div id="divClasses"></div>
-    <br>Totalt: <span id="numberOfRunnersTotal"></span>
+    Totalt: <span id="numberOfRunnersTotal"></span>
 	<br><?=$_START?>: <span id="numberOfRunnersStarted"></span>
 	<br><?=$_CONTROLFINISH?>: <span id="numberOfRunnersFinished"></span>
   </td>
