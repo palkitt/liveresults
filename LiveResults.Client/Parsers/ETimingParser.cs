@@ -950,8 +950,11 @@ namespace LiveResults.Client
                                 }
                                 continue;         
                             }
-                                
-                            if (split.passTime < iStartTime || (split.passTime - lastSplitTime < 3000 && split.controlCode == lastSplitCode))
+                            int splitPassTime = split.passTime;
+                            if (splitPassTime - iStartTime < - 86400 * 100 * 0.5) // Passing midnight
+                                splitPassTime += 86400 * 100;
+
+                            if (splitPassTime < iStartTime || (splitPassTime - lastSplitTime < 3000 && split.controlCode == lastSplitCode))
                                 continue;         // Neglect passing before starttime, passing less than 3 s from last when the same splitCode
                             if (m_lapTimes && !isRelay && split.controlCode < 0) 
                                 continue;         // Do not accept negative control codes in cases where lap times are to be calculated
@@ -962,16 +965,16 @@ namespace LiveResults.Client
                                 passTime = split.netTime;
                             else if (isRelay)
                             {
-                                passLegTime = split.passTime - Math.Max(iStartTime, iStartClass); // In case ind. start time not set
+                                passLegTime = splitPassTime - Math.Max(iStartTime, iStartClass); // In case ind. start time not set
                                 passTime = passLegTime + Math.Max(TeamTimePre, iStartTime - iStartClass); // Absolute pass time
                             }
                             else if (chaseStart)
                             {
-                                passTime    = split.passTime - iStartTime + totalTime;  
-                                passLegTime = split.passTime - iStartTime; 
+                                passTime    = splitPassTime - iStartTime + totalTime;  
+                                passLegTime = splitPassTime - iStartTime; 
                             }
                             else
-                                passTime = split.passTime - iStartTime;
+                                passTime = splitPassTime - iStartTime;
                             if (passTime < 1000)  // Neglect pass times less than 10 s from start
                                 continue;
                             if (m_lapTimes && !isRelay)
@@ -979,14 +982,14 @@ namespace LiveResults.Client
                                 if (lastSplitTime < 0) // First pass
                                     passLegTime = passTime;
                                 else
-                                    passLegTime = split.passTime - lastSplitTime;
+                                    passLegTime = splitPassTime - lastSplitTime;
                             }
 
                             // Add split code to list
 
                             lastSplitCode = split.controlCode;
                             if (time < 0 || passTime < time - 300) // Update only last split time when before finish with 3 sec margin
-                                lastSplitTime = split.passTime;
+                                lastSplitTime = splitPassTime;
 
                             if (split.controlCode > 0)
                                 iSplitcode = sign * (split.controlCode + 1000);
@@ -1225,7 +1228,6 @@ namespace LiveResults.Client
                 while (reader.Read())
                 {
                     int ecard = 0, code = 0, station = 0, passTime = -2, netTime = -2, changedTime = 0;
-                    double changedTimeD = 0.0;
                     try
                     {
                         if (reader["mecard"] != null && reader["mecard"] != DBNull.Value)
@@ -1243,10 +1245,7 @@ namespace LiveResults.Client
                             netTime = ConvertFromDay2cs(Convert.ToDouble(reader["nettotid"]));
 
                         if (reader["timechanged"] != null && reader["timechanged"] != DBNull.Value)
-                        {
-                            changedTimeD = Convert.ToDouble(reader["timechanged"].ToString());
-                            changedTime = ConvertFromDay2cs(changedTimeD % 1);
-                        }
+                            changedTime = ConvertFromDay2cs(Convert.ToDouble(reader["timechanged"]));
 
                         if (reader["stasjon"] != null && reader["stasjon"] != DBNull.Value)
                             station = Convert.ToInt32(reader["stasjon"].ToString());
@@ -1607,7 +1606,7 @@ namespace LiveResults.Client
         private static int ConvertFromDay2cs(double timeD)
         {
             int timecs;
-            timecs = Convert.ToInt32(100.0 * 86400.0 * timeD);
+            timecs = Convert.ToInt32(100.0 * 86400.0 * (timeD % 1));
             return timecs;
         }
 
