@@ -128,11 +128,12 @@ var LiveResults;
             this.updatePredictedTimes();
         };
 
-        // Function to detect if comp date is today
+        // Function to detect if comp date is today or max 6 hours into next day
         AjaxViewer.prototype.isCompToday = function () {
-            var dt = new Date();
+            var now = new Date();
             var compDay = new Date(this.compDate);
-            return (dt.getDate() == compDay.getDate() && dt.getMonth() == compDay.getMonth() || this.compDate == "" || this.local )
+            var dDays = (now-compDay)/1000/86400;
+            return  (dDays>0 && dDays<1.25 || this.compDate == "" || this.local )
         };
 
         //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
@@ -253,7 +254,7 @@ var LiveResults;
 								{
 									if (!relay) // First class in relay  
 									{
-										str += "<b>" + classNameClean + "</b><br/>&nbsp";
+										str += "<b>" + classNameClean + "</b><br/>&nbsp;";
 										leg = 0;
 									}
 									relay = true;
@@ -267,7 +268,8 @@ var LiveResults;
                                 this.relayClasses.push(classes[i].className);
                                 var legText = "";
 								leg += 1;
-								// var relayLeg = className.replace(classNameClean,'Etappe');
+                                if (leg>1 && (leg-1)%3==0) // Line shift every 3 legs
+                                    str += "<br/>&nbsp;"
 								if (className.replace(classNameClean,'') == "-All")
 									legText = "<font size=\"+0\">&#" + (9398) +"</font>"
 								else
@@ -312,9 +314,12 @@ var LiveResults;
 				{
 					if(data.results[i].place != undefined && data.results[i].place > 0 || data.results[i].place == "=")
 					{
-						if (this.curClassIsRelay) // start time + leg time 
-							classSplitsBest[this.curClassNumSplits][j] = data.results[i].start + data.results[i].splits[classSplits[classSplits.length-1].code];
-						else
+						if (this.curClassIsRelay) // start time + leg time (add 24 h if starttime between 00:00 and 06:00)
+                        { 
+							var startTime = data.results[i].start + (data.results[i].start < 6*3600*100 ? 24*3600*100 : 0);
+                            classSplitsBest[this.curClassNumSplits][j] = startTime + data.results[i].splits[classSplits[classSplits.length-1].code];
+                        }  
+                        else
 							classSplitsBest[this.curClassNumSplits][j] = parseInt(data.results[i].result);
 						j++;
 					}
@@ -334,8 +339,12 @@ var LiveResults;
                             && data.results[i].splits[classSplits[spRef].code] != "")
 							{
 								if (this.curClassIsRelay) // If relay, store pass time stamp instead of used time. Using leg time and start time
-									classSplitsBest[sp][j]  = data.results[i].start + data.results[i].splits[classSplits[spRef-1].code];
-								else
+                                // (add 24 h if starttime between 00:00 and 06:00)
+                                {
+                                    var startTime = data.results[i].start + (data.results[i].start < 6*3600*100 ? 24*3600*100 : 0);
+                                    classSplitsBest[sp][j]  = startTime + data.results[i].splits[classSplits[spRef-1].code];
+                                }
+                                else
 									classSplitsBest[sp][j]  = data.results[i].splits[classSplits[spRef].code];
 								j++;
 							}
@@ -359,7 +368,7 @@ var LiveResults;
                 const minNum = 3; // Minimum numbers of runners to set split to BAD
                 const sprintTimeLim = 90; // Shorter sprint times trigger shortSprint setting (seconds)
                 this.updateResultVirtualPosition(data.results);
-                var nextSplitOKj = new Array(data.results.length);;
+                var laterSplitOKj = new Array(data.results.length).fill(false);
                 var runnerOK = new Array(data.results.length).fill(true);
                 var raceOK = true;
                 
@@ -374,32 +383,26 @@ var LiveResults;
                     for (var j = 0; j < data.results.length ; j++)
                     {
                         if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
-                            continue;   
-                        
-                        if (sp == (this.curClassNumSplits-1))  // Finish
-                            if (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
-                                nextSplitOKj[j] = true;
-                            else
-                                nextSplitOKj[j] = false;
+                            continue;
+
+                        // Finish
+                        if (sp == (this.curClassNumSplits-1) && data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
+                            laterSplitOKj[j] = true;
                         
                         //  Set status: 0=bad, 1=OK, 2=unknown 
                         var spRef = this.splitRef(sp);
                         var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
                         if (!isNaN(split)) // Split exist
                         {                            
-                            OKSum++; // OK
+                            OKSum++; 
                             statusN++; 
-                            nextSplitOKj[j] = true;
+                            laterSplitOKj[j] = true;
                         }
-                        else // Split does not exist
+                        else if (laterSplitOKj[j]) // Split does not exist and missing split detected
                         {
-                            if (nextSplitOKj[j]) // Missing split detected
-                            {
-                                statusN++; 
-                                runnerOK[j] = false;
-                                raceOK = false;
-                            }
-                            nextSplitOKj[j] = false;
+                            statusN++; 
+                            runnerOK[j] = false;
+                            raceOK = false;
                         }
                     }
                     var statusAvg = (statusN >= minNum ? OKSum/statusN : 1);
@@ -1052,6 +1055,8 @@ var LiveResults;
                             if (data[i].start != "" && data[i].start > 0) 
                             { 
                                 var elapsedTime = time - data[i].start;
+                                if (elapsedTime < -18*3600*100) // Time passed midnight (between 00:00 and 06:00)
+                                    elapsedTime += 24*3600*100;
                                 if (elapsedTime >= 0) 
                                 {
                                     if (table.cell( i, 0 ).node().innerHTML == "")
@@ -1158,9 +1163,10 @@ var LiveResults;
                                             else
                                             {
                                                 if (this.curClassIsRelay)
-                                                {
-                                                    timeDiff = time - this.curClassSplitsBests[nextSplit][0];
-                                                    rank = this.findRank(this.curClassSplitsBests[nextSplit],time);
+                                                {   // Add 24 h if time passed midnight (between 00:00 and 06:00)
+                                                    timeRelay = time + (time < 6*3600*100 ? 24*3600*100 : 0);
+                                                    timeDiff = timeRelay - this.curClassSplitsBests[nextSplit][0];
+                                                    rank = this.findRank(this.curClassSplitsBests[nextSplit],timeRelay);
                                                 }
                                                 else
                                                 {
@@ -2384,7 +2390,7 @@ var LiveResults;
                     var res = "";
                     for (var i=0; i < data.results.length; i++)
                     {
-                        res += "<tr><td colspan=5><b>&nbsp;" + data.results[i].className + "<b></td></tr>";
+                        res += "<tr style=\"background-color:#E6E6E6\"><td colspan=5><b>&nbsp;" + data.results[i].className + "<b></td></tr>";
                         for (var j=0; j < data.results[i].results.length; j++)
                         {
                             var name = data.results[i].results[j].name;
