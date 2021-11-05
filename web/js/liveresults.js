@@ -244,11 +244,11 @@ var LiveResults;
                             className = className.replace(/veteraner/i,'Vet');
                             className = className.replace(/veteran/i,'Vet');
 							className = className.replace(' Vann','V');
-                            var classNameClean = className.replace(/-\d$/,'');
+                            var classNameClean = className.replace(/-[0-9]{1,2}$/,'');
 							classNameClean = classNameClean.replace(/-All$/,'');
 							if (i<(nClass-1))
 							{
-								var classNameCleanNext = classes[i+1].className.replace(/-\d$/,'');
+								var classNameCleanNext = classes[i+1].className.replace(/-[0-9]{1,2}$/,'');
 								classNameCleanNext = classNameCleanNext.replace(/-All$/,'');
 								if (classNameClean == classNameCleanNext) // Relay trigger
 								{
