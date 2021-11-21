@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -245,12 +245,16 @@ var LiveResults;
                             className = className.replace(/veteran/i,'Vet');
 							className = className.replace(' Vann','V');
                             var classNameClean = className.replace(/-[0-9]{1,2}$/,'');
+                            var LegNoStr = className.match(/-[0-9]{1,2}$/);
+                            var LegNo = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
 							classNameClean = classNameClean.replace(/-All$/,'');
 							if (i<(nClass-1))
 							{
 								var classNameCleanNext = classes[i+1].className.replace(/-[0-9]{1,2}$/,'');
 								classNameCleanNext = classNameCleanNext.replace(/-All$/,'');
-								if (classNameClean == classNameCleanNext) // Relay trigger
+                                var LegNoStr = classes[i+1].className.match(/-[0-9]{1,2}$/);
+                                var LegNoNext = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
+								if (classNameClean == classNameCleanNext && LegNoNext == LegNo + 1) // Relay trigger
 								{
 									if (!relay) // First class in relay  
 									{
