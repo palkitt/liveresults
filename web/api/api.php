@@ -567,7 +567,7 @@ function classResults($class,$plain)
 					continue;
 				if (!$first)
 					$ret .=",";
-				$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"timeplus\": "; 
+				$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": "; 
 				if (!$first && $res['Status']==0)
 				   $ret .= "\"$timeplus\"";
 				else

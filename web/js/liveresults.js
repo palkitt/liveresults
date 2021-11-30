@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -221,6 +221,10 @@ var LiveResults;
                             x[i] = x[i].replace(' ','');
                             x[i] = x[i].replace('-','');
                             x[i] = x[i].replace('+','');
+                            x[i] = x[i].replace('prolog','a');
+                            x[i] = x[i].replace('kvart' ,'b');
+                            x[i] = x[i].replace('semi'  ,'c');
+                            x[i] = x[i].replace('finale','d');
 						}
 						if (x[0] < x[1]) {return -1;}
 						if (x[0] > x[1]) {return 1;}
@@ -230,9 +234,12 @@ var LiveResults;
 					var nClass = classes.length;
 					var relayNext = false;
 					var leg = 0;
+                    var sprintNext = false;
+                    var shiftHeat = false;
 					for (var i=0; i<nClass; i++)
 					{
 						var relay = relayNext;
+                        var sprint = sprintNext;
 						var className = classes[i].className;
 						param = className.replace('\'', '\\\'');
 						if (className && className.length > 0)
@@ -244,17 +251,20 @@ var LiveResults;
                             className = className.replace(/veteraner/i,'Vet');
                             className = className.replace(/veteran/i,'Vet');
 							className = className.replace(' Vann','V');
+                            
                             var classNameClean = className.replace(/-[0-9]{1,2}$/,'');
                             var LegNoStr = className.match(/-[0-9]{1,2}$/);
                             var LegNo = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
-							classNameClean = classNameClean.replace(/-All$/,'');
+							classNameClean = classNameClean.replace(/-All$/,'');                            
+
 							if (i<(nClass-1))
 							{
-								var classNameCleanNext = classes[i+1].className.replace(/-[0-9]{1,2}$/,'');
-								classNameCleanNext = classNameCleanNext.replace(/-All$/,'');
+								// Relay
+                                var classNameCleanNext = classes[i+1].className.replace(/-[0-9]{1,2}$/,'');
                                 var LegNoStr = classes[i+1].className.match(/-[0-9]{1,2}$/);
                                 var LegNoNext = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
-								if (classNameClean == classNameCleanNext && LegNoNext == LegNo + 1) // Relay trigger
+								
+                                if (classNameClean == classNameCleanNext && LegNoNext == LegNo + 1) // Relay trigger
 								{
 									if (!relay) // First class in relay  
 									{
@@ -265,9 +275,36 @@ var LiveResults;
 									relayNext = true;
 								}
 								else
+                                {
 									relayNext = false;	
+                                    // Sprint
+                                    if (className.includes('| Prolog') || className.includes('| Kvart') || className.includes('| Semi') || className.includes('| Finale'))
+                                    { 
+                                        var classNameCleanSprint = className.replace(' | ','');
+                                        classNameCleanSprint = classNameCleanSprint.replace('Prolog','');
+                                        classNameCleanSprint = classNameCleanSprint.replace(/Kvart [0-9]/,'');
+                                        classNameCleanSprint = classNameCleanSprint.replace(/Semi [0-9]/,'');
+                                        classNameCleanSprint = classNameCleanSprint.replace(/Finale [0-9]/,'');
+                                        
+                                        var classNameCleanSprintNext = classes[i+1].className.replace(' | ','');
+                                        classNameCleanSprintNext = classNameCleanSprintNext.replace(/Kvart [0-9]/,'');
+                                        classNameCleanSprintNext = classNameCleanSprintNext.replace(/Semi [0-9]/,'');
+                                        classNameCleanSprintNext = classNameCleanSprintNext.replace(/Finale [0-9]/,'');
+                                        
+                                        if (!sprint) // First class in sprint or new class  
+                                            str += "<b>" + classNameCleanSprint + "</b><br/>&nbsp;";
+                                        sprint = true;
+                                        sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
+                                        if (className.includes('| Prolog') ||
+                                            className.includes('| Kvart')  && !classes[i+1].className.includes('| Kvart') ||
+                                            className.includes('| Semi')   && !classes[i+1].className.includes('| Semi'))
+                                            shiftHeat = true;
+                                        else
+                                            shiftHeat = false;
+                                    }
+                                }
 							}
-							if (relay)
+                            if (relay)
 							{
                                 this.relayClasses.push(classes[i].className);
                                 var legText = "";
@@ -281,7 +318,27 @@ var LiveResults;
 								str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\" style=\"text-decoration: none\"> " + legText + "</a>";
 								if (!relayNext)
 									str += "<br/>";
-							}	
+							}
+                            else if (sprint)
+                            {
+                                var heatStr = className.match(/ [0-9]$/); 
+                                var heat = parseInt( (heatStr != null ? heatStr[0] : 0),10);
+                                if (heat>1 && (heat-1)%3==0) // Line shift every 3 heat
+                                    str += "<br/>&nbsp;"
+                                if (className.includes('| Prolog'))
+                                    heatText = "Prolog";
+                                else if (className.includes('| Kvart'))
+                                    heatText = "K" + heat;
+                                else if (className.includes('| Semi'))
+                                    heatText = "S" + heat;
+                                else
+                                    heatText = "F" + heat;
+								str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\" style=\"text-decoration: none\"> " + heatText + "</a>";
+                                if (!sprintNext)
+									str += "<br/>";
+                                else if (shiftHeat)
+                                    str += "<br/>&nbsp;";
+                            }
 							else	
 								str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + className + "</a><br/>";							
 						}
@@ -2340,7 +2397,7 @@ var LiveResults;
             var preTime = new Date().getTime();
             var callStr;
             if (className == "plainresults")
-                callStr = "&method=getplainresults";
+                callStr = "&method=getplainresults&unformattedTimes=true";
             else
                 callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (this.isMultiDayEvent ? "&includetotal=true" : "");
             $.ajax({
@@ -2406,8 +2463,11 @@ var LiveResults;
                             res += "<tr><td align=\"right\">" + data.results[i].results[j].place + "</td>";
                             res += "<td>" + name + "</td>";
                             res += "<td>" + club + "</td>";
-                            res += "<td align=\"right\">" + data.results[i].results[j].result + "</td>";
-                            res += "<td align=\"right\">" + data.results[i].results[j].timeplus + "</td></tr>";
+                            res += "<td align=\"right\">" + this.formatTime(data.results[i].results[j].result,data.results[i].results[j].status,_this.showTenthOfSecond) + "</td>";
+                            res += "<td align=\"right\"><span class=plustime>"
+                            if (data.results[i].results[j].status == 0)
+                                res += "+" + this.formatTime(data.results[i].results[j].timeplus,data.results[i].results[j].status,_this.showTenthOfSecond) + "</td></tr>";
+                            res += "</span></td></tr>";
                         }
                         res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
                     }
