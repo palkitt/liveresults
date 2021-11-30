@@ -168,6 +168,7 @@ namespace LiveResults.Client
 
                     /*Detect event type*/
                     bool isRelay = false;
+                    bool isSprint = false;
                     day = 1;
                     cmd.CommandText = "SELECT kid, sub FROM arr";
                     using (IDataReader reader = cmd.ExecuteReader())
@@ -178,7 +179,12 @@ namespace LiveResults.Client
                             {
                                 string eventType;
                                 int kid = Convert.ToInt16(reader["kid"]);
-                                if (kid == 3 || kid == 6)
+                                if (kid == 2)
+                                {
+                                    isSprint = true;
+                                    eventType = " (Sprint)";
+                                }
+                                else if (kid == 3 || kid == 6)
                                 {
                                     isRelay = true;
                                     eventType = " (Relay)";
@@ -283,8 +289,6 @@ namespace LiveResults.Client
 
                         // Class table
                         cmd.CommandText = @"SELECT code, cource, class, purmin, timingtype, cheaseing FROM class";
-                        var classTable = new Dictionary<string,ClassStruct>();
-
                         using (IDataReader reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
@@ -323,7 +327,6 @@ namespace LiveResults.Client
                                         Position = -999,
                                         Order = 999
                                     });
-
                                     
                                 // Add starttime and leg times for chase start
                                 if (chaseStart)
@@ -408,6 +411,9 @@ namespace LiveResults.Client
                                             continue;       // Skip if not relay and finish or start code
 
                                         string classN = className;
+                                        if (isSprint)
+                                            classN += " | Prolog";
+                                        
                                         int CodeforCnt = 0; // Code for counter
                                         int AddforLeg = 0;  // Addition for relay legs
                                         int nStep = 1;      // Multiplicator used in relay order  
@@ -505,8 +511,8 @@ namespace LiveResults.Client
                             ORDER BY N.startno", modulus);
 
                     string baseCommandInd = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
-                            N.place, N.status, N.cource, N.starttime, N.races, N.ecard, N.ecard2, N.ecard3, N.ecard4,
-                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, C.cheaseing
+                            N.place, N.status, N.cource, N.starttime, N.races, N.heat, N.ecard, N.ecard2, N.ecard3, N.ecard4,
+                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, C.cheaseing, C.purmin
                             FROM Name N, Class C, Team T
                             WHERE N.class=C.code AND T.code=N.team {0}", purmin);
 
@@ -526,12 +532,12 @@ namespace LiveResults.Client
                     ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
 
                     cmdInd.CommandText = baseCommandInd;
-                    ParseReader(cmdInd, ref splitList, false, usedID, out lastRunner, out usedID);
+                    ParseReader(cmdInd, ref splitList, false, isSprint, usedID, out lastRunner, out usedID);
 
                     if (isRelay)
                     {
                         cmdRelay.CommandText = baseCommandRelay;
-                        ParseReader(cmdRelay, ref splitList, true, usedID, out lastRunner, out usedID);
+                        ParseReader(cmdRelay, ref splitList, true, false, usedID, out lastRunner, out usedID);
                     }
 
                     FireLogMsg("eTiming Monitor thread started");
@@ -550,20 +556,17 @@ namespace LiveResults.Client
 
                     /* ***            Main loop        ***
                     /* ************************************/
-
                     while (m_continue)
                     {
                         try
                         {
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
-                            ParseReader(cmdInd, ref splitList, false, new List<int>(), out lastRunner, out usedID);
-
+                            ParseReader(cmdInd, ref splitList, false, isSprint, new List<int>(), out lastRunner, out usedID);
                             if (isRelay)
-                                ParseReader(cmdRelay, ref splitList, true, usedID, out lastRunner, out usedID);
-
+                                ParseReader(cmdRelay, ref splitList, true, false, usedID, out lastRunner, out usedID);
                             lastRunner = "Finished parsing runners";
 
-                            if (first && m_IdOffset==0)
+                            if (first && m_IdOffset==0 && !isSprint)
                                 FireOnDeleteUnusedID(usedID, first);
                             first = false;
 
@@ -581,7 +584,7 @@ namespace LiveResults.Client
 
                             if (sleepTimeCleanupID >= maxSleepTimeCleanupID)
                             {
-                                if (m_IdOffset == 0) //  Delete only when no offset is used 
+                                if (m_IdOffset == 0 && !isSprint) //  Delete only when no offset is used and not sprint
                                     FireOnDeleteUnusedID(usedID);
                                 sleepTimeCleanupID = 0;
                             }
@@ -618,7 +621,7 @@ namespace LiveResults.Client
         }
         
 
-        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, bool isRelay, List<int> usedIDin, out string lastRunner, out List<int> usedIDout)
+        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, bool isRelay, bool isSprint, List<int> usedIDin, out string lastRunner, out List<int> usedIDout)
         {
             lastRunner = "";
             usedIDout = usedIDin;
@@ -631,7 +634,7 @@ namespace LiveResults.Client
                 while (reader.Read())
                 {
                     int time = 0, runnerID = 0, eTimeID = 0, EventorID = 0, iStartTime = 0, iStartClass = 0, totalTime = 0;
-                    int bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1;
+                    int bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1, heat = 0, stage = 0, sprintOffset = 0;
                     int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
                     string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", name = "", shortName = "-";
                     bool chaseStart = false, freeStart = false, parseOK = false;
@@ -657,6 +660,39 @@ namespace LiveResults.Client
                         if (classN == "NOCLAS")                // Skip runner if in NOCLAS
                             continue;
 
+                        // Sprint class definition
+                        if (isSprint)
+                        {
+                            if (reader["purmin"] != null && reader["purmin"] != DBNull.Value)
+                            {
+                                stage = Convert.ToInt32(reader["purmin"].ToString());
+                                if (stage > 0 && reader["heat"] != null && reader["heat"] != DBNull.Value)
+                                    heat = Convert.ToInt32(reader["heat"].ToString());
+                            }                            
+                            if (stage == 0) // Prolog
+                                classN += " | Prolog";
+                            else
+                            {
+                                if (heat == 0)
+                                    continue;   // Skip runners not in heat when heats are ongoing
+                                if (stage == 1)
+                                {
+                                    classN += " | Kvart " + heat;
+                                    sprintOffset = 10000;
+                                }
+                                if (stage == 2)
+                                {
+                                    classN += " | Semi " + heat;
+                                    sprintOffset = 20000;
+                                }
+                                if (stage >= 3)
+                                {
+                                    classN += " | Finale " + heat;
+                                    sprintOffset = 30000;
+                                }
+                            }
+                        }
+
                         // Continue with adding or updating runner
                         eTimeID = Convert.ToInt32(reader["id"].ToString());
                         if (reader["kid"] != null && reader["kid"] != DBNull.Value)
@@ -665,7 +701,7 @@ namespace LiveResults.Client
                             runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
                         else
                             runnerID = eTimeID;
-                        runnerID += m_IdOffset;
+                        runnerID += m_IdOffset + sprintOffset;
                         usedIDout.Add(runnerID);
 
                         club = (reader["tname"] as string);
@@ -800,8 +836,6 @@ namespace LiveResults.Client
                                         Time = RelayTeams[teambib].TeamMembers[legs].LegTime
                                     };
                                     RelayTeams[teambib].SplitTimes.Add(LegTime);
-
-
                                 }
 
                                 // Accumulated status
@@ -986,7 +1020,6 @@ namespace LiveResults.Client
                             }
 
                             // Add split code to list
-
                             lastSplitCode = split.controlCode;
                             if (time < 0 || passTime < time - 300) // Update only last split time when before finish with 3 sec margin
                                 lastSplitTime = splitPassTime;
@@ -1090,7 +1123,6 @@ namespace LiveResults.Client
                             Bib = (isRelay? -bib : bib),
                             SplitTimes = SplitTimes
                         };
-
                         FireOnResult(res);
                     }
                 }
@@ -1135,13 +1167,10 @@ namespace LiveResults.Client
                             Status = rstatus,
                             SplitTimes = Team.Value.SplitTimes
                         };
-
                         FireOnResult(res);
                     }
                 }
             }
-
-            
         }
 
         private void handleUnknowns(Dictionary<int, List<SplitRawStruct>> splitList, ref List<int> unknownRunnersLast)
@@ -1266,8 +1295,6 @@ namespace LiveResults.Client
                                 code = code / 100; // Take away last to digits if code 1000+
                         }
 
-                        
-
                         var res = new SplitRawStruct
                         {
                             controlCode = code,
@@ -1290,7 +1317,6 @@ namespace LiveResults.Client
                     }
                 }
                 reader.Close();
-
             }
         }
 
