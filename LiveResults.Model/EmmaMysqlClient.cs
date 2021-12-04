@@ -911,7 +911,9 @@ namespace LiveResults.Model
                                         cmd.Parameters.AddWithValue("?ecard2", r.Ecard2);
                                         cmd.Parameters.AddWithValue("?bib", r.Bib);
                                         cmd.Parameters.AddWithValue("?id", r.ID);
-                                        cmd.CommandText = "REPLACE INTO runners (tavid,name,club,class,brick,dbid,ecard1,ecard2,bib) VALUES (?compid,?name,?club,?class,0,?id,?ecard1,?ecard2,?bib)";
+                                        cmd.CommandText = "INSERT INTO runners (tavid,name,club,class,brick,dbid,ecard1,ecard2,bib,ecardchecked) " +
+                                            "VALUES (?compid,?name,?club,?class,0,?id,?ecard1,?ecard2,?bib,0) " +
+                                            "ON DUPLICATE KEY UPDATE name=?name, club=?club, class=?class, ecard1=?ecard1, ecard2=?ecard2, bib=?bib, ecardchecked=ecardchecked";
 
                                         try
                                         {
