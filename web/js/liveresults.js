@@ -257,53 +257,60 @@ var LiveResults;
                             var LegNo = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
 							classNameClean = classNameClean.replace(/-All$/,'');                            
 
-							if (i<(nClass-1))
+							var classNameCleanNext = "Empty";
+                            var LegNoNext = 0;
+                           
+                            if (i<(nClass-1))
 							{
 								// Relay
-                                var classNameCleanNext = classes[i+1].className.replace(/-[0-9]{1,2}$/,'');
-                                var LegNoStr = classes[i+1].className.match(/-[0-9]{1,2}$/);
-                                var LegNoNext = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
+                                classNameCleanNext = classes[i+1].className.replace(/-[0-9]{1,2}$/,'');
+                                LegNoStr = classes[i+1].className.match(/-[0-9]{1,2}$/);
+                                LegNoNext = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
+                            }
 								
-                                if (classNameClean == classNameCleanNext && LegNoNext == LegNo + 1) // Relay trigger
-								{
-									if (!relay) // First class in relay  
-									{
-										str += "<b>" + classNameClean + "</b><br/>&nbsp;";
-										leg = 0;
-									}
-									relay = true;
-									relayNext = true;
-								}
-								else
+                            if (classNameClean == classNameCleanNext && LegNoNext == LegNo + 1) // Relay trigger
+                            {
+                                if (!relay) // First class in relay  
                                 {
-									relayNext = false;	
-                                    // Sprint
-                                    if (className.includes('| Prolog') || className.includes('| Kvart') || className.includes('| Semi') || className.includes('| Finale'))
-                                    { 
-                                        var classNameCleanSprint = className.replace(' | ','');
-                                        classNameCleanSprint = classNameCleanSprint.replace('Prolog','');
-                                        classNameCleanSprint = classNameCleanSprint.replace(/Kvart [0-9]/,'');
-                                        classNameCleanSprint = classNameCleanSprint.replace(/Semi [0-9]/,'');
-                                        classNameCleanSprint = classNameCleanSprint.replace(/Finale [0-9]/,'');
-                                        
-                                        var classNameCleanSprintNext = classes[i+1].className.replace(' | ','');
-                                        classNameCleanSprintNext = classNameCleanSprintNext.replace(/Kvart [0-9]/,'');
-                                        classNameCleanSprintNext = classNameCleanSprintNext.replace(/Semi [0-9]/,'');
-                                        classNameCleanSprintNext = classNameCleanSprintNext.replace(/Finale [0-9]/,'');
-                                        
-                                        if (!sprint) // First class in sprint or new class  
-                                            str += "<b>" + classNameCleanSprint + "</b><br/>&nbsp;";
-                                        sprint = true;
-                                        sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
-                                        if (className.includes('| Prolog') ||
-                                            className.includes('| Kvart')  && !classes[i+1].className.includes('| Kvart') ||
-                                            className.includes('| Semi')   && !classes[i+1].className.includes('| Semi'))
-                                            shiftHeat = true;
-                                        else
-                                            shiftHeat = false;
-                                    }
+                                    str += "<b>" + classNameClean + "</b><br/>&nbsp;";
+                                    leg = 0;
                                 }
-							}
+                                relay = true;
+                                relayNext = true;
+                            }
+                            else
+                            {
+                                relayNext = false;	
+                                // Sprint
+                                if (className.includes('| Prolog') || className.includes('| Kvart') || className.includes('| Semi') || className.includes('| Finale'))
+                                { 
+                                    var classNameCleanSprint = className.replace(' | ','');
+                                    classNameCleanSprint = classNameCleanSprint.replace('Prolog','');
+                                    classNameCleanSprint = classNameCleanSprint.replace(/Kvart [0-9]/,'');
+                                    classNameCleanSprint = classNameCleanSprint.replace(/Semi [0-9]/,'');
+                                    classNameCleanSprint = classNameCleanSprint.replace(/Finale [0-9]/,'');
+                                    
+                                    var classNameCleanSprintNext = "";
+                                    if (i<(nClass-1))
+                                        classNameCleanSprintNext = classes[i+1].className.replace(' | ','');
+                                    classNameCleanSprintNext = classNameCleanSprintNext.replace(/Kvart [0-9]/,'');
+                                    classNameCleanSprintNext = classNameCleanSprintNext.replace(/Semi [0-9]/,'');
+                                    classNameCleanSprintNext = classNameCleanSprintNext.replace(/Finale [0-9]/,'');
+                                    
+                                    if (!sprint) // First class in sprint or new class  
+                                        str += "<b>" + classNameCleanSprint + "</b><br/>&nbsp;";
+                                    sprint = true;
+                                    sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
+                                    
+                                    if (i<(nClass-1) && (className.includes('| Prolog') ||
+                                        className.includes('| Kvart')  && !classes[i+1].className.includes('| Kvart') ||
+                                        className.includes('| Semi')   && !classes[i+1].className.includes('| Semi')))
+                                        shiftHeat = true;
+                                    else
+                                        shiftHeat = false;
+                                }
+                            }
+							
                             if (relay)
 							{
                                 this.relayClasses.push(classes[i].className);
@@ -1949,7 +1956,7 @@ var LiveResults;
 
     //Popup window for setting ecard to checked
     AjaxViewer.prototype.popupCheckedEcard = function (dbid,name,ecards) {
-        var message = "Bekreft brikke: " + name + " - " + ecards ;
+        var message = name + ": " + ecards + " ?";
         var OK = confirm(message);
         if (OK)
             $.ajax({url: this.messageURL + "?method=setecardchecked", data: "&comp=" + this.competitionId + "&dbid=" + dbid });        
