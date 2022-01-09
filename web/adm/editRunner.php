@@ -108,16 +108,14 @@ header('Content-Type: text/html; charset='.$CHARSET);
 <td><input type="text" name="class" size="20" value="<?=$runner['class']?>"/></td></tr>
 
 <tr><td><b>Time</b></td>
-<td><input type="text" name="time" size="20" value="<?=$runner['time']?>"/></td></tr>
+<td><input type="text" name="time" size="20" value="<?=$runner['time']?>"/> centi seconds, 100 cs = 1 s</td></tr>
 
 <tr><td><b>Status</b></td>
-<td><input type="text" name="status" size="20" value="<?=$runner['status']?>"/></td></tr>
+<td><input type="text" name="status" size="20" value="<?=$runner['status']?>"/> 0=OK; 1=DNS; 2=DNF; 3=DSQ; 10=Entered; 13=Finished</td></tr>
 
 <tr><td><b>PIN code</b></td>
 <td><input type="number" name="pin" size="20" value="0000"/></td></tr>
 </table>
-Time: centi seconds, 100=1 sec</br>
-Status: 0=OK; 1=DNS; 2=DNF; 3=DSQ; 10=Entered; 13=Finished </br>
 <input type="submit" name="btnSave" value="Update"/>
 </form>
 	</td>

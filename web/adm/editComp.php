@@ -125,30 +125,28 @@ function confirmDelete(msg,url)
 <tr><td><b>Organizer</b></td>
 <td><input type="text" name="org" size="20" value="<?=$comp['organizer']?>"/></td></tr>
 
-<tr><td><b>Date (yyyy-mm-dd)</b></td>
-<td><input type="text" name="date" size="20" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/></td></tr>
+<tr><td><b>Date</b></td>
+<td><input type="text" name="date" size="20" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/> Format: yyyy-mm-dd</td></tr>
 
 <tr><td><b>Timezonediff</b></td>
-<td><input type="number" name="timediff" size="20" value="<?=$comp['timediff']?>"/></td></tr>
+<td><input type="number" name="timediff" size="20" value="<?=$comp['timediff']?>"/> Eg. +1 for Finland, 0 for Norway, -1 for GBR</td></tr>
 
 <tr><td><b>Highlight time</b></td>
-<td><input type="number" name="hightime" size="20" value="<?=$comp['hightime']?>"/></td></tr>
+<td><input type="number" name="hightime" size="20" value="<?=$comp['hightime']?>"/> Seconds</td></tr>
 
 <tr><td><b>Qual. classes</b></td>
-<td><input type="text" name="qualclasses" size="20" value="<?=$qualclasses?>"/></td></tr>
+<td><input type="text" name="qualclasses" size="20" value="<?=$qualclasses?>"/> Empty = same limit for all (Format: "D21-", "H21-", "D70")</td></tr>
 
 <tr><td><b>Qual. limits</b></td>
-<td><input type="text" name="quallimits" size="20" value="<?=$comp['quallimits']?>"/></td></tr>
+<td><input type="text" name="quallimits" size="20" value="<?=$comp['quallimits']?>"/> Last = all classes not in list above (Format: 3, 4, 5, 6)</td></tr>
 
 <tr><td><b>Multi day stage no</b></td>
 <td><input type="number" name="multidaystage" size="20" value="<?=$comp['multidaystage']?>"/></td></tr>
 
-<tr><td><b>Multi day parent (compid)</b></td>
-<td><input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/></td></tr>
+<tr><td><b>Multi day parent</b></td>
+<td><input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/> CompetitionID</td></tr>
 </table>
-Qual. classes: Empty = same limit for all (Format: "D21-", "H21-", "D70")<br/>
-Qual. limits: Last = all classes not in list above (Format: 3, 4, 5, 6)<br/>
-Timezonediff: +1 for Finland, 0 for Norway, -1 for GBR<br/>
+
 
 <input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/><b>Use mass start sorting</b><br/>
 <input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/><b>Show tenth of seconds</b><br/>
