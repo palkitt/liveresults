@@ -61,7 +61,6 @@
 <td><b>Class</b></td>
 <td><b>Time</b></td>
 <td><b>Status</b></td>
-<td><b>Edit</b></td>
 </tr>
 
 <?php
@@ -72,12 +71,11 @@
 	?>
     <tr>
     <td><?=$runner["bib"]?></td>
-    <td><?=$runner["name"]?></td>
+    <td><a href="./editRunner.php?compid=<?=$runner["tavid"]?>&dbid=<?=$runner["dbid"]?>"><?=$runner["name"]?></a></td>
     <td><?=$runner["club"]?></td>
     <td><?=$runner["class"]?></td>
     <td><?=$runner["time"]?></td>
     <td><?=$runner["status"]?></td>  
-    <td><a href="./editRunner.php?compid=<?=$runner["tavid"]?>&dbid=<?=$runner["dbid"]?>">Edit</a></td>
     </tr>
 	<?php
 	}
