@@ -97,7 +97,8 @@ class Emma
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
 		hightime,quallimits,qualclasses,multidaystage,multidayparent)
-	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,1,60,'','',0,0)") or die(mysqli_error($conn));
+	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,60,'','',0,0)") or die(mysqli_error($conn));
+		return $id;
 	}
 
 	public static function CreateCompetitionFull($name,$org,$date, $email, $password, $country)
@@ -152,7 +153,48 @@ class Emma
 		mysqli_free_result($result);
  		return $ret;
 	}
+	
+	public static function GetAllRunnerData($compid)
+    {
+		$conn = self::openConnection();
 
+		$q = "SELECT runners.tavid, runners.dbid, runners.bib, runners.name, runners.club, runners.class, results.time, results.status FROM runners, results "; 
+		$q .= "WHERE runners.tavid=".$compid." AND results.tavid=".$compid." AND results.dbid = runners.dbid AND results.control = 1000 order by bib";
+		$result = mysqli_query($conn, $q);
+		$ret = Array();
+		while ($tmp = mysqli_fetch_array($result))
+			$ret[] = $tmp;
+		mysqli_free_result($result);
+ 		return $ret;
+	}
+	
+	public static function GetRunnerData($compid,$dbid)
+    {
+		$conn = self::openConnection();
+
+		$q = "SELECT runners.tavid, runners.dbid, runners.bib, runners.name, runners.club, runners.class, results.time, results.status FROM runners, results "; 
+		$q .= "WHERE runners.tavid=".$compid." AND results.tavid=".$compid." AND results.dbid = runners.dbid AND results.control = 1000 AND runners.dbid=".$dbid;
+		
+		$result = mysqli_query($conn, $q);
+		$ret = null;
+		while ($tmp = mysqli_fetch_array($result))
+			$ret = $tmp;
+		mysqli_free_result($result);
+ 		return $ret;
+	}
+	
+	public static function UpdateRunner($compid,$dbid,$bib,$name,$club,$class,$time,$status)
+    {
+		$conn = self::openConnection();
+		$q1 = "UPDATE runners SET bib=".$bib.", name='".$name."', club='".$club."', class='".$class."' WHERE tavid=".$compid." AND dbid=".$dbid;
+		$ret1 = mysqli_query($conn, $q1) or die(mysqli_error($conn));
+
+		$q2 = "UPDATE results SET time=".$time.", status=".$status." WHERE tavid=".$compid." AND dbid=".$dbid." AND control=1000";
+		$ret2 = mysqli_query($conn, $q2) or die(mysqli_error($conn));
+
+		return $ret1+$ret2;		
+	}
+	
 	public static function SendMessage($compid,$dbid,$changed,$message,$dns,$ecardchange,$completed)
 	{
 		$conn = self::openConnection();

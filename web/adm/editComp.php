@@ -114,30 +114,45 @@ function confirmDelete(msg,url)
 ?>
 <form name="form1" action="editComp.php?what=comp&compid=<?=$comp['tavid']?>" method="post">
 <h1 class="categoriesheader">Edit competition</h1>
-<b>CompetitionID</b><br/>
-<input type="text" name="id" size="50" disabled="true" value="<?=$comp['tavid']?>"/><br/>
-<b>Competition Name</b><br/>
-<input type="text" name="name" size="50" value="<?=$comp['compName']?>"/><br/>
-<b>Organizer</b><br/>
-<input type="text" name="org" size="50" value="<?=$comp['organizer']?>"/><br/>
-<b>Date (format yyyy-mm-dd)</b><br/>
-<input type="text" name="date" size="50" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/><br/>
-<b>Timezonediff (+1 for Finland, 0 for Norway, -1 for GBR)</b><br/>
-<input type="text" name="timediff" size="50" value="<?=$comp['timediff']?>"/><br/>
-<b>Highlight time</b><br/>
-<input type="text" name="hightime" size="50" value="<?=$comp['hightime']?>"/><br/>
-<b>Qual. classes. Empty = same limit for all (Format: "D21-", "H21-", "D70")</b><br/>
-<input type="text" name="qualclasses" size="50" value="<?=$qualclasses?>"/><br/>
-<b>Qual. limits. Last = all classes not in list above (Format: 3, 4, 5, 6)</b><br/>
-<input type="text" name="quallimits" size="50" value="<?=$comp['quallimits']?>"/><br/>
-<b>Multi day stage no</b><br/>
-<input type="text" name="multidaystage" size="50" value="<?=$comp['multidaystage']?>"/><br/>
-<b>Multi day parent (comp id)</b><br/>
-<input type="text" name="multidayparent" size="50" value="<?=$comp['multidayparent']?>"/><br/>
-<br/>
+
+<table>
+<tr><td><b>CompetitionID</b></td>
+<td><input type="text" name="id" size="20" disabled="true" value="<?=$comp['tavid']?>"/></td></tr>
+
+<tr><td><b>Competition Name</b></td>
+<td><input type="text" name="name" size="20" value="<?=$comp['compName']?>"/></td></tr>
+
+<tr><td><b>Organizer</b></td>
+<td><input type="text" name="org" size="20" value="<?=$comp['organizer']?>"/></td></tr>
+
+<tr><td><b>Date (yyyy-mm-dd)</b></td>
+<td><input type="text" name="date" size="20" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/></td></tr>
+
+<tr><td><b>Timezonediff</b></td>
+<td><input type="number" name="timediff" size="20" value="<?=$comp['timediff']?>"/></td></tr>
+
+<tr><td><b>Highlight time</b></td>
+<td><input type="number" name="hightime" size="20" value="<?=$comp['hightime']?>"/></td></tr>
+
+<tr><td><b>Qual. classes</b></td>
+<td><input type="text" name="qualclasses" size="20" value="<?=$qualclasses?>"/></td></tr>
+
+<tr><td><b>Qual. limits</b></td>
+<td><input type="text" name="quallimits" size="20" value="<?=$comp['quallimits']?>"/></td></tr>
+
+<tr><td><b>Multi day stage no</b></td>
+<td><input type="number" name="multidaystage" size="20" value="<?=$comp['multidaystage']?>"/></td></tr>
+
+<tr><td><b>Multi day parent (compid)</b></td>
+<td><input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/></td></tr>
+</table>
+Qual. classes: Empty = same limit for all (Format: "D21-", "H21-", "D70")<br/>
+Qual. limits: Last = all classes not in list above (Format: 3, 4, 5, 6)<br/>
+Timezonediff: +1 for Finland, 0 for Norway, -1 for GBR<br/>
+
 <input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/><b>Use mass start sorting</b><br/>
 <input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/><b>Show tenth of seconds</b><br/>
-<input type="checkbox" name="fullviewdefault" <?= $comp['fullviewdefault'] == 1 ? "checked" : "" ?>/><b>Show full view by default. Two lines</b><br/>
+<input type="checkbox" name="fullviewdefault" <?= $comp['fullviewdefault'] == 1 ? "checked" : "" ?>/><b>Show full view (two lines) by default</b><br/>
 <input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?>/><b>Dynamic ranking from start</b><br/>
 <input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/><b>Set competion visibility as Public</b><br/>
 <br/>
@@ -161,11 +176,12 @@ for ($i = 0; $i < sizeof($rcontrols); $i++)
 <a href="javascript:confirmDelete('Do you want to delete ALL radiocontrols?','?compid=<?= $_GET['compid']?>&what=delallctr&compid=<?= $_GET['compid']?>');">Delete all radio controls</a>
 <br/><hr/><br/>
 <br/><b>Add Radio Control</b><br/>
-Code = 1000*passingcnt + controlCode, <br/>
-ex. first pass at control 53 => Code = 1053, second pass => Code = 2053<br/>
-Code: <input type="text" name="code"/><br/>
-Control-Name: <input type="text" name="controlname"/><br/>
-ClassName: <input type="text" name="classname"/><br/>
+Code = 1000*passingcnt + controlCode, eg. first pass at control 53 => Code = 1053, second pass => Code = 2053<br/>
+<table>
+<tr><td>Code</td><td><input type="text" name="code"/></td></tr>
+<tr><td>Control-Name</td><td><input type="text" name="controlname"/></td></tr>
+<tr><td>ClassName</td><td><input type="text" name="classname"/></td></tr>
+</table>
 <input type="submit" name="btnAdd" value="Add Control"/>
 </form>
 	</td>

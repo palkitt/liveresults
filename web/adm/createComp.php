@@ -3,8 +3,8 @@ include_once("../templates/classEmma.class.php");
 
 if (isset($_POST['btnSubmit']))
 {
-	Emma::CreateCompetition($_POST['name'],$_POST['org'],$_POST['date']);
-	header("Location: index.php");
+	$id = Emma::CreateCompetition($_POST['name'],$_POST['org'],$_POST['date']);
+	header("Location: editComp.php?compid=$id");
 	exit;
 }
 
@@ -91,12 +91,16 @@ function resetRow(row)
                <td>
 <form name="form1" action="createComp.php" method="post">
 <h1 class="categoriesheader">New competition</h1>
-<b>Competitions Name</b><br/>
-<input type="text" name="name" size="15"/><br/>
-<b>Organizer</b><br/>
-<input type="text" name="org" size="15"/><br/>
-<b>Date (format yyyy-mm-dd)</b><br/>
-<input type="text" name="date" size="15"/> (ex. 2008-02-03)<br/>
+<table>
+  <tr><td><b>Competitions Name</b></td>
+  <td><input type="text" name="name" size="15"/></td></tr>
+
+  <tr><td><b>Organizer</b></td>
+  <td><input type="text" name="org" size="15"/></td></tr>
+
+  <tr><td><b>Date (yyyy-mm-dd)</b></td>
+  <td><input type="text" name="date" size="15"/> (eg. 2022-02-23)</td></tr>
+</table>
 <input type="submit" name="btnSubmit" value="Create"/>
 </form>
 		</td>

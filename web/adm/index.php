@@ -16,8 +16,6 @@ include_once("../templates/emmalang_$lang.php");
 
 header('Content-Type: text/html; charset='.$CHARSET);
 
-
-
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
@@ -100,12 +98,12 @@ function resetRow(row)
 <td><b>CompId</b></td>
 <td><b>Public</b></td>
 <td><b>Edit</b></td>
-<td><b>All</b></td>
 <td><b>Startlist</b></td>
 <td><b>Start</b></td>
 <td><b>Speaker</b></td>
 <td><b>Radio</b></td>
 <td><b>Messages</b></td>
+<td><b>Runners</b></td>
 </tr>
 
 <?php
@@ -125,12 +123,12 @@ function resetRow(row)
     <td><?=$comp["tavid"]?></td>
     <td><?=$comp["public"] == "1" ? "yes" : "no"?></td>
     <td><a href="/adm/editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></td>
-    <td><a href="/followall.php?comp=<?=$comp["tavid"]?>">All</a>
     <td><a href="/startlist.php?comp=<?=$comp["tavid"]?>">Startlist</a></td>
     <td><a href="/radio.php?comp=<?=$comp["tavid"]?>&code=0">Start</a>
     <td><a href="/speaker.php?comp=<?=$comp["tavid"]?>">Speaker</a></td>
     <td><a href="/adm/radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td>
     <td><a href="/message.php?comp=<?=$comp["tavid"]?>">Messages</a></td>
+    <td><a href="/adm/runners.php?compid=<?=$comp["tavid"]?>">Runners</a></td>
     </tr>
 	<?php
 	}
