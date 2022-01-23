@@ -322,6 +322,8 @@ function closeTop() {
 					case "Freidig":	        $image = "images/Freidig60.png"; break;
 					case "Porsgrunn OL":    $image = "images/POL.png";	break;
 					case "Wing OK":	        $image = "images/Wing.png"; break;
+					case "Byåsen I.L": 
+					case "Byåsen il": 
 					case "Byåsen IL":       $image = "images/BIL.png"; break; 
 					case "Røros IL":        $image = "images/roros.png"; break; 
 					case "Freidig/Wing/Malvik":	$image = "images/NM2020.png"; break;
