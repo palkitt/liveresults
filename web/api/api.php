@@ -1,4 +1,5 @@
 <?php
+
 date_default_timezone_set("Europe/Stockholm");
 $compid = $_GET['comp'];
 $lang = "no";
@@ -321,17 +322,49 @@ elseif ($_GET['method'] == 'getracesplitter')
  }
  elseif ($_GET['method'] == 'getplainresults')
  {
+	class sort
+	{	
+		public $sortKey;
+		public $name;
+	}
+	
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
 	$classes = $currentComp->Classes();
+	$classNames = [];
+
+	foreach ($classes as $class)
+	{
+		$classSort = new sort();
+		$classSort->name = $class['Class'];
+		$sortKey = strtolower($class['Class']);
+
+		if (strpos($sortKey,'åpen') !== false || strpos($sortKey,'open') !== false || strpos($sortKey,'gjest') !== false || strpos($sortKey,'dir') !== false || strpos($sortKey,'utv') !== false)
+			$sortKey = 'z'.$sortKey;
+		$sortKey = preg_replace('/(^|[^\d])(\d)($|[^\d])/','$1 00 $2 $3',$sortKey);      // Add 00 ahead of single digits
+		$sortKey = preg_replace('/(^|[^\d])(\d)(\d)($|[^\d])/','$1 0 $2 $3 $4',$sortKey); // Add 0 ahead of double digits
+		$sortKey = str_replace(' ','',$sortKey);
+        $sortKey = str_replace('-','',$sortKey);
+        $sortKey = str_replace('+','',$sortKey);
+        $sortKey = str_replace('prolog','a',$sortKey);
+        $sortKey = str_replace('kvart' ,'b',$sortKey);
+        $sortKey = str_replace('semi'  ,'c',$sortKey);
+        $sortKey = str_replace('finale','d',$sortKey);
+
+		$classSort->sortKey = $sortKey;
+		$classNames[] = $classSort;
+	}
+	
+	usort($classNames, "cmp");
+
 	$ret = "";
 	$first = true;
-	foreach ($classes as $class)
+	foreach ($classNames as $class)
 	{
 		if (!$first)
 			$ret .= ", ";
 		$first = false;
-		$className = $class['Class'];
+		$className = $class->name;
 		$res = classresults($className,true);
 		$ret .= "{\"className\": \"$className\", \"results\": [".$res[0]."]}";
 	}
@@ -346,6 +379,10 @@ else
     header($protocol . ' ' . 400 . ' Bad Request');
 	echo("{ \"status\": \"ERR\", \"message\": \"No method given\"}");
 }
+
+function cmp($a, $b) {
+	return strcmp($a->sortKey, $b->sortKey);
+}	
 
 function classResults($class,$plain)
 {
