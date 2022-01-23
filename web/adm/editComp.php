@@ -116,44 +116,54 @@ function confirmDelete(msg,url)
 <h1 class="categoriesheader">Edit competition</h1>
 
 <table>
-<tr><td><b>CompetitionID</b></td>
-<td><input type="text" name="id" size="20" disabled="true" value="<?=$comp['tavid']?>"/></td></tr>
+<tr><td><b>Competition ID</b></td>
+<td>&nbsp;<input type="text" name="id" size="20" disabled="true" value="<?=$comp['tavid']?>"/></td></tr>
 
-<tr><td><b>Competition Name</b></td>
-<td><input type="text" name="name" size="20" value="<?=$comp['compName']?>"/></td></tr>
+<tr><td><b>Competition name</b></td>
+<td>&nbsp;<input type="text" name="name" size="20" value="<?=$comp['compName']?>"/></td></tr>
 
 <tr><td><b>Organizer</b></td>
-<td><input type="text" name="org" size="20" value="<?=$comp['organizer']?>"/></td></tr>
+<td>&nbsp;<input type="text" name="org" size="20" value="<?=$comp['organizer']?>"/></td></tr>
 
 <tr><td><b>Date</b></td>
-<td><input type="text" name="date" size="20" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/> Format: yyyy-mm-dd</td></tr>
+<td>&nbsp;<input type="text" name="date" size="20" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/> Format: yyyy-mm-dd</td></tr>
 
-<tr><td><b>Timezonediff</b></td>
-<td><input type="number" name="timediff" size="20" value="<?=$comp['timediff']?>"/> Eg. +1 for Finland, 0 for Norway, -1 for GBR</td></tr>
+<tr><td><b>Time zone diff</b></td>
+<td>&nbsp;<input type="number" name="timediff" size="20" value="<?=$comp['timediff']?>"/> Eg. 1 for Finland, 0 for Norway, -1 for GBR</td></tr>
 
 <tr><td><b>Highlight time</b></td>
-<td><input type="number" name="hightime" size="20" value="<?=$comp['hightime']?>"/> Seconds</td></tr>
+<td>&nbsp;<input type="number" name="hightime" size="20" value="<?=$comp['hightime']?>"/> Seconds</td></tr>
 
 <tr><td><b>Qual. classes</b></td>
-<td><input type="text" name="qualclasses" size="20" value="<?=$qualclasses?>"/> Empty = same limit for all (Format: "D21-", "H21-", "D70")</td></tr>
+<td>&nbsp;<input type="text" name="qualclasses" size="20" value="<?=$qualclasses?>"/> Format: "D21-", "H21-", "D70". If not given -> same limit for all classes</td></tr>
 
 <tr><td><b>Qual. limits</b></td>
-<td><input type="text" name="quallimits" size="20" value="<?=$comp['quallimits']?>"/> Last = all classes not in list above (Format: 3, 4, 5, 6)</td></tr>
+<td>&nbsp;<input type="text" name="quallimits" size="20" value="<?=$comp['quallimits']?>"/> Format: 3, 4, 5, 6 (Last value used for all other classes)</td></tr>
 
 <tr><td><b>Multi day stage no</b></td>
-<td><input type="number" name="multidaystage" size="20" value="<?=$comp['multidaystage']?>"/></td></tr>
+<td>&nbsp;<input type="number" name="multidaystage" size="20" value="<?=$comp['multidaystage']?>"/></td></tr>
 
 <tr><td><b>Multi day parent</b></td>
-<td><input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/> CompetitionID</td></tr>
+<td>&nbsp;<input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/> Competition ID for first in series</td></tr>
+
+<tr><td><b>Mass start sorting</b></td>
+<td><input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/></td></tr>
+
+<tr><td><b>Tenth of seconds</b></td>
+<td><input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/></td></tr>
+
+<tr><td><b>Two-line results</td>
+<td><input type="checkbox" name="fullviewdefault" <?= $comp['fullviewdefault'] == 1 ? "checked" : "" ?>/></td></tr>
+
+<tr><td><b>Initial dynamic ranking</td>
+<td><input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?>/></td></tr>
+
+<tr><td><b>Public</td>
+<td><input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/></td></tr>
+
 </table>
 
 
-<input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/><b>Use mass start sorting</b><br/>
-<input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/><b>Show tenth of seconds</b><br/>
-<input type="checkbox" name="fullviewdefault" <?= $comp['fullviewdefault'] == 1 ? "checked" : "" ?>/><b>Show full view (two lines) by default</b><br/>
-<input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?>/><b>Dynamic ranking from start</b><br/>
-<input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/><b>Set competion visibility as Public</b><br/>
-<br/>
 <input type="submit" name="btnSave" value="Save"/>
 </form>
 <br/>
