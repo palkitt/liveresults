@@ -56,7 +56,9 @@ var Messages;
                 url: this.URL,
                 data: "comp=" + this.competitionId + "&method=getmessages&last_hash=" + hash,
                 success: function (data,status,resp) {
-                    _this.handleUpdateMessages(data); },
+                    var reqTime = new Date();
+                    reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.messagesUpdateInterval + 1000);
+                    _this.handleUpdateMessages(data,reqTime); },
                 error: function () {
                     _this.messagesUpdateTimer = setTimeout(function () {_this.updateMessages();}, _this.messagesUpdateInterval);
                 },
@@ -65,7 +67,8 @@ var Messages;
         };
         
         //Handle response for updating the last radio passings..
-        AjaxViewer.prototype.handleUpdateMessages = function (data) {
+        AjaxViewer.prototype.handleUpdateMessages = function (data,reqTime) {
+            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             // Make live blinker pulsingtoLocaleTimeString
             var el = document.getElementById('liveIndicator');
                 el.style.animation = 'none';
@@ -75,6 +78,7 @@ var Messages;
 
             if (data.rt != undefined && data.rt > 0)
                 this.messagesUpdateInterval = data.rt*1000;
+            $('#updateinterval').html(this.messagesUpdateInterval/1000);
                  
             // Insert data from query
             if (data != null && data.status == "OK" && data.messages != null) 
@@ -117,9 +121,8 @@ var Messages;
                 }
                 
                 // New datatable
-                else 
+                else if (this.messagesData.length>0)
                 {
-                    if (this.messagesData.length==0) return;
                     var columns = Array();
                     var col = 0;
                     
@@ -240,8 +243,7 @@ var Messages;
                         "aoColumnDefs": columns,
                         "bDestroy": true,
                         "orderCellsTop": true
-                        });
-                    
+                        }); 
                 };
                 this.updateMessageMarking();            
             };

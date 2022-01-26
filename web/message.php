@@ -128,6 +128,7 @@ $(document).ready(function()
 </table>
 <?php }?>
 <p align="left"><font color="#AAA" size="0.7em">
+Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br> 
 </body>
 </html>
 
