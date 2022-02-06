@@ -6,6 +6,7 @@ if (isset($_POST['btnSave']))
 	Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
         $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['rankedstartlist'],$_POST['hightime'],$_POST['quallimits'],
         $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent']);
+  header("Location:index.php");
 }
 else if (isset($_POST['btnAdd']))
 {

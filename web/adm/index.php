@@ -97,7 +97,7 @@ function resetRow(row)
 <td><b>Organizer</b></td>
 <td><b>CompId</b></td>
 <td><b>Public</b></td>
-<td><b>Edit</b></td>
+<td><b>Link</b></td>
 <td><b>Startlist</b></td>
 <td><b>Start</b></td>
 <td><b>Speaker</b></td>
@@ -118,11 +118,11 @@ function resetRow(row)
 	?>
 		<tr id="row<?=$comp["tavid"]?>">
     <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-    <td><a href="/followfull.php?comp=<?=$comp['tavid']?>"><?=$comp["compName"]?></a></td>
+    <td><a href="/adm/editComp.php?compid=<?=$comp["tavid"]?>"><?=$comp["compName"]?></a></td>
     <td><?=$comp["organizer"]?></td>
     <td><?=$comp["tavid"]?></td>
     <td><?=$comp["public"] == "1" ? "yes" : "no"?></td>
-    <td><a href="/adm/editComp.php?compid=<?=$comp["tavid"]?>">Edit</a></td>
+    <td><a href="/followfull.php?comp=<?=$comp['tavid']?>">Link</a></td>
     <td><a href="/startlist.php?comp=<?=$comp["tavid"]?>">Startlist</a></td>
     <td><a href="/radio.php?comp=<?=$comp["tavid"]?>&code=0">Start</a>
     <td><a href="/speaker.php?comp=<?=$comp["tavid"]?>">Speaker</a></td>
