@@ -26,7 +26,9 @@ namespace LiveResults.Client
         public event LogMessageDelegate OnLogMessage;
         public event DeleteIDDelegate OnDeleteID;
         public event DeleteUnusedIDDelegate OnDeleteUnusedID;
-        private bool m_createRadioControls;
+        public event RadioControlDelegate OnRadioControl;
+        public event MergeRadioControlsDelegate OnMergeRadioControls;
+        private bool m_updateRadioControls;
         private bool m_continue;
         private int  m_sleepTime;
         private bool m_oneLineRelayRes;
@@ -40,12 +42,12 @@ namespace LiveResults.Client
         private int day;
         private int m_OsOffset;
 
-        public ETimingParser(IDbConnection conn, int sleepTime, bool recreateRadioControls = true, bool oneLineRelayRes = false, 
+        public ETimingParser(IDbConnection conn, int sleepTime, bool notUpdateRadioControls = true, bool oneLineRelayRes = false, 
             bool MSSQL = false, bool twoEcards = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0, 
             bool updateMessage = false, int compID = 0, int OsOffset = 0)
         {
             m_connection = conn;
-            m_createRadioControls = recreateRadioControls;
+            m_updateRadioControls = !notUpdateRadioControls;
             m_sleepTime = sleepTime;
             m_oneLineRelayRes = oneLineRelayRes;
             m_MSSQL = MSSQL;
@@ -125,14 +127,6 @@ namespace LiveResults.Client
             public Dictionary<int,RelayLegInfo> TeamMembers;
         }
         
-        private class IntermediateTime
-        {
-            public string ClassName { get; set; }
-            public string IntermediateName { get; set; }
-            public int Position { get; set; }
-            public int Order { get; set; }
-        }
-
         public struct ClassStruct
         {
             public int Cource; 
@@ -216,10 +210,12 @@ namespace LiveResults.Client
                      */
 
                                  
-                    List<IntermediateTime> intermediates = new List<IntermediateTime>();
-                    var dlg = OnRadioControl;
-                    if (dlg != null)
+                    var dlgMergeRadio = OnMergeRadioControls;
+                    if (m_updateRadioControls && dlgMergeRadio != null)
                     {
+                        List<RadioControl> intermediates = new List<RadioControl>();
+                        List<RadioControl> extraTimes = new List<RadioControl>();
+                        
                         // radiotype, 2=finish/finish-passing, 4 = normal, 10 = exchange
                         cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, timingpointtype, description, etappe, radiorundenr, live 
                                             FROM radiopost WHERE radioday={0} ORDER BY radiorundenr", day);
@@ -320,41 +316,41 @@ namespace LiveResults.Client
                                 if (timingType == 1 || timingType == 2) // 0 = normal, 1 = not ranked, 2 = not show times
                                     sign = -1; // Use negative sign for these timing types
                                 if (timingType == 1) // Add neg finish passing for not-ranked class
-                                    intermediates.Add(new IntermediateTime
+                                    extraTimes.Add(new RadioControl
                                     {
                                         ClassName = className,
-                                        IntermediateName = "Tid",
-                                        Position = -999,
+                                        ControlName = "Tid",
+                                        Code = -999,
                                         Order = 999
                                     });
                                     
                                 // Add starttime and leg times for chase start
                                 if (chaseStart)
                                 {
-                                    intermediates.Add(new IntermediateTime
+                                    extraTimes.Add(new RadioControl
                                     {
                                         ClassName = className,
-                                        IntermediateName = "Start",
-                                        Position = 0,
+                                        ControlName = "Start",
+                                        Code = 0,
                                         Order = 0
                                     });
 
-                                    intermediates.Add(new IntermediateTime
+                                    extraTimes.Add(new RadioControl
                                     {
                                         ClassName = className,
-                                        IntermediateName = "Leg",
-                                        Position = 999,
+                                        ControlName = "Leg",
+                                        Code = 999,
                                         Order = 999
                                     });
                                 }
 
                                 // Add lap time for last lap
                                 if (m_lapTimes && !isRelay)
-                                    intermediates.Add(new IntermediateTime
+                                    extraTimes.Add(new RadioControl
                                     {
                                         ClassName = className,
-                                        IntermediateName = "Leg",
-                                        Position = 999,
+                                        ControlName = "Leg",
+                                        Code = 999,
                                         Order = 999
                                     });
 
@@ -366,19 +362,19 @@ namespace LiveResults.Client
                                             classN += "-";
                                     classN += Convert.ToString(i);
 
-                                    intermediates.Add(new IntermediateTime
+                                    extraTimes.Add(new RadioControl
                                     {
                                         ClassName = classN,
-                                        IntermediateName = "Exchange",
-                                        Position = 0,
+                                        ControlName = "Exchange",
+                                        Code = 0,
                                         Order = 0
                                     });
 
-                                    intermediates.Add(new IntermediateTime
+                                    extraTimes.Add(new RadioControl
                                     {
                                             ClassName = classN,
-                                            IntermediateName = "Leg",
-                                            Position = 999,
+                                            ControlName = "Leg",
+                                            Code = 999,
                                             Order = 999
                                     });
                                 }
@@ -390,16 +386,16 @@ namespace LiveResults.Client
 
                                 if (numLegs > 0 && m_oneLineRelayRes)
                                 { // Add leg time for last leg in one-line results
-                                    intermediates.Add(new IntermediateTime
+                                    extraTimes.Add(new RadioControl
                                     {
                                         ClassName = classAll,
-                                        IntermediateName = "Leg",
-                                        Position = 999,
+                                        ControlName = "Leg",
+                                        Code = 999,
                                         Order = 999
                                     });
                                 }
 
-                                if (m_createRadioControls && RadioPosts.ContainsKey(cource))
+                                if (RadioPosts.ContainsKey(cource))
                                 {   // Add radio controls to course
                                     Dictionary<int, int> radioCnt = new Dictionary<int, int>();
                                     foreach (var radioControl in RadioPosts[cource])
@@ -429,7 +425,7 @@ namespace LiveResults.Client
                                             AddforLeg = 10000 * radioControl.Leg;
                                         }
 
-                                        if (Code < 999 && radioControl.TimingPoint != "VK") // Not 999 and not exchange)
+                                        if (Code < 999 && Code != 90 && radioControl.TimingPoint != "VK") // Not 90, not 999 and not exchange)
                                         {
                                             CodeforCnt = Code + AddforLeg;
                                             if (!radioCnt.ContainsKey(CodeforCnt))
@@ -438,22 +434,22 @@ namespace LiveResults.Client
 
                                             // Add codes for ordinary classes and leg based classes
                                             // sign = -1 for unranked classes
-                                            intermediates.Add(new IntermediateTime
+                                            intermediates.Add(new RadioControl
                                             {
                                                 ClassName = classN,
-                                                IntermediateName = radioControl.Description,
-                                                Position = sign*(Code + radioCnt[CodeforCnt] * 1000 + AddforLeg),
+                                                ControlName = radioControl.Description,
+                                                Code = sign*(Code + radioCnt[CodeforCnt] * 1000 + AddforLeg),
                                                 Order = nStep*radioControl.Order
                                             });
 
                                             // Add leg passing time for relay, chase start and lap times
                                             if (((numLegs > 0) && (radioControl.Leg > 1)) || chaseStart || (m_lapTimes && !isRelay)) 
                                             {
-                                                intermediates.Add(new IntermediateTime
+                                                intermediates.Add(new RadioControl
                                                 {
                                                     ClassName = classN,
-                                                    IntermediateName = radioControl.Description + "PassTime",
-                                                    Position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg + 100000,
+                                                    ControlName = radioControl.Description + "PassTime",
+                                                    Code = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg + 100000,
                                                     Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
                                                 });
                                             }
@@ -469,20 +465,20 @@ namespace LiveResults.Client
                                             else // Normal radio control
                                                 position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg;
 
-                                            intermediates.Add(new IntermediateTime
+                                            intermediates.Add(new RadioControl
                                             {
                                                 ClassName = classAll,
-                                                IntermediateName = Description,
-                                                Position = position,
+                                                ControlName = Description,
+                                                Code = position,
                                                 Order = 2*radioControl.Order
                                             });
 
                                             // Passing time
-                                            intermediates.Add(new IntermediateTime
+                                            intermediates.Add(new RadioControl
                                             {
                                                 ClassName = classAll,
-                                                IntermediateName = Description + "PassTime",
-                                                Position = position + 100000,
+                                                ControlName = Description + "PassTime",
+                                                Code = position + 100000,
                                                 Order = 2*radioControl.Order - 1
                                             });
                                         }
@@ -491,11 +487,10 @@ namespace LiveResults.Client
                             }
                             reader.Close();
                         }
-
-                        foreach (var itime in intermediates)
-                        {
-                            dlg(itime.IntermediateName, itime.Position, itime.ClassName, itime.Order);
-                        }               
+                        intermediates.AddRange(extraTimes);
+                        RadioControl[] radioControls = intermediates.ToArray();
+                        dlgMergeRadio(radioControls);
+                        
                     }
 
                     string modulus = (m_MSSQL ? "%" : "MOD");
@@ -1636,7 +1631,5 @@ namespace LiveResults.Client
             return timecs;
         }
 
-
-    public event RadioControlDelegate OnRadioControl;
     }
 }

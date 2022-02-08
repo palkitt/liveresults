@@ -15,6 +15,8 @@ namespace LiveResults.Client
         public FrmNewCompetition()
         {
             InitializeComponent();
+            NewETimingComp cmp = new NewETimingComp();
+            cmp.ShowDialog(this);
         }
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)

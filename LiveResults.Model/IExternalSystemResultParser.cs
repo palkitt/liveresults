@@ -20,5 +20,6 @@ namespace LiveResults.Model
         event DeleteUnusedIDDelegate OnDeleteUnusedID;
         event LogMessageDelegate OnLogMessage;
         event RadioControlDelegate OnRadioControl;
+        event MergeRadioControlsDelegate OnMergeRadioControls;
     }
 }

@@ -36,9 +36,7 @@ namespace LiveResults.Client
             txtSleepTime.Text = "3";
             txtIdOffset.Text = "0";
             txtOsOffset.Text = "0";
-            //chkOneLineRelayRes.Checked = false;
-            //chkTwoEcards.Checked = false;
-            //chkDeleteEmmaIDs.Checked = false;
+            chkNotUpdateRadioControls.Checked = false;
             chkLapTimes.Checked = false;
             chkEventorID.Checked = false;
             chkUpdateMessage.Checked = false;
@@ -276,6 +274,7 @@ namespace LiveResults.Client
             public List<IDpar> eTimingIDpars;
             public string Organizer;
             public DateTime CompDate;
+            public int CompType;
 
             public override string ToString()
             {
@@ -295,7 +294,7 @@ namespace LiveResults.Client
                 conn.Open();
                 IDbCommand cmd = conn.CreateCommand();
 
-                cmd.CommandText = "SELECT id, name, organizator, firststart FROM arr";
+                cmd.CommandText = "SELECT id, name, organizator, firststart, kid FROM arr";
                 using (IDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
@@ -304,6 +303,7 @@ namespace LiveResults.Client
                         cmp.Name = Convert.ToString(reader["name"]);
                         cmp.Organizer = Convert.ToString(reader["organizator"]).Trim();
                         cmp.CompDate = Convert.ToDateTime(reader[("firststart")]);
+                        cmp.CompType = Convert.ToInt16(reader["kid"]);
                     }
                     reader.Close();
                 }
@@ -346,6 +346,33 @@ namespace LiveResults.Client
                 txtCompName.Text = cmp.Name;
                 txtOrgName.Text = cmp.Organizer;
                 txtCompDate.Text = Convert.ToString(cmp.CompDate);
+                switch (cmp.CompType)
+                {
+                    case 0:
+                        txtCompType.Text = "Orientering";
+                        break;
+                    case 1:
+                        txtCompType.Text = "Orientering, enkel";
+                        break;
+                    case 2:
+                        txtCompType.Text = "Langrenn, sprint";
+                        break;
+                    case 3:
+                        txtCompType.Text = "Orientering, stafett";
+                        break;
+                    case 4:
+                        txtCompType.Text = "Langrenn";
+                        break;
+                    case 5:
+                        txtCompType.Text = "Langrenn, enkel";
+                        break;
+                    case 6:
+                        txtCompType.Text = "Langrenn, stafett";
+                        break;
+                    default:
+                        txtCompType.Text = "Other (maybe not supported)";
+                        break;
+                }                             
             }
         }
 
@@ -368,7 +395,7 @@ namespace LiveResults.Client
             
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
                     SleepTime, 
-                    chkCreateRadioControls.Checked, false, MSSQL, false, 
+                    chkNotUpdateRadioControls.Checked, false, MSSQL, false, 
                     chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
                     chkUpdateMessage.Checked, CompID, OsOffset);
             monForm.SetParser(pars as IExternalSystemResultParserEtiming);
@@ -376,7 +403,7 @@ namespace LiveResults.Client
             monForm.Organizer = cmp.Organizer;
             monForm.CompDate  = cmp.CompDate;
             monForm.useEventorID = chkEventorID.Checked;
-            monForm.deleteEmmaIDs = false; // chkDeleteEmmaIDs.Checked;
+            monForm.deleteEmmaIDs = false; 
             monForm.clientIDpars = cmp.eTimingIDpars;
             monForm.IdOffset = IdOffset;
             monForm.OsOffset = OsOffset;
@@ -451,6 +478,6 @@ namespace LiveResults.Client
         private void chkEventorID_CheckedChanged(object sender, EventArgs e)
         {
 
-        }
+        }       
     }
 }

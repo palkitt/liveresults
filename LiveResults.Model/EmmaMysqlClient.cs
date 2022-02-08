@@ -610,7 +610,7 @@ namespace LiveResults.Model
                     {
                         if (existingRadios.Length > i)
                         {
-                            if (existingRadios[i].Order != controls[i].Order 
+                            if (existingRadios[i].Order != controls[i].Order
                                 || existingRadios[i].Code != controls[i].Code
                                 || existingRadios[i].ControlName != controls[i].ControlName)
                             {
@@ -640,6 +640,20 @@ namespace LiveResults.Model
                         m_itemsToUpdate.Add(control);
                     }
                     m_classRadioControls.Add(kvp.Key, controls);
+                }
+            }
+
+            // Delete all radio controls for classes that are not in the radios array
+            var radiosClassName = radios.GroupBy(x => x.ClassName).ToDictionary(x => x.Key);
+            foreach (var classRadios in m_classRadioControls)
+            {
+                if (!radiosClassName.ContainsKey(classRadios.Key))
+                {
+                    RadioControl[] existingRadios = m_classRadioControls[classRadios.Key];
+                    for (int i = 0; i < existingRadios.Length; i++)
+                    {
+                        m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingRadios[i] });
+                    }
                 }
             }
         }

@@ -4,6 +4,7 @@ namespace LiveResults.Model
 {
     public delegate void ResultDelegate(Result newResult);
     public delegate void DeleteIDDelegate(int runnerID);
+    public delegate void MergeRadioControlsDelegate(RadioControl[] radiocontrols);
     public delegate void DeleteUnusedIDDelegate(List<int> usedID, bool first = false);
     public delegate void RadioControlDelegate(string controlName, int controlCode, string className, int order);
 
