@@ -9,7 +9,7 @@ if (isset($_GET['lang']))
 $hightime = 60;
 if (!isset($_GET['method']))
     $_GET['method'] = null;
-if ($_GET['method'] == 'getplainresults')
+if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist')
 	$refreshTime = 120;
 else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults')
 	$refreshTime = 60;
@@ -124,7 +124,7 @@ elseif ($_GET['method'] == 'getclasses')
 {
 		$currentComp = new Emma($_GET['comp']);
 		$RT = insertHeader($refreshTime);	
-		$classes = $currentComp->Classes();
+		$classNames = classesSorted($currentComp);
 		$numberOfRunners = $currentComp->numberOfRunners();
 		$numberOfStartedRunners = $currentComp->numberOfStartedRunners();
 		$numberOfFinishedRunners = $currentComp->numberOfFinishedRunners();
@@ -132,11 +132,12 @@ elseif ($_GET['method'] == 'getclasses')
 		$ret = "";
 		$first = true;
 
-		foreach ($classes as $class)
+		foreach ($classNames as $class)
 		{
+			$className = $class->name;
 			if (!$first)
 				$ret.=",$br";
-			$ret .="{\"className\": \"".$class['Class']."\"}";
+			$ret .="{\"className\": \"".$className."\"}";
 			$first = false;
 		}
 		
@@ -322,14 +323,73 @@ elseif ($_GET['method'] == 'getracesplitter')
  }
  elseif ($_GET['method'] == 'getplainresults')
  {
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime);
+	$classNames = classesSorted($currentComp);
+	$ret = "";
+	$first = true;
+	foreach ($classNames as $class)
+	{
+		if (!$first)
+			$ret .= ", ";
+		$first = false;
+		$className = $class->name;
+		$res = classresults($className,true);
+		$ret .= "{\"className\": \"$className\", \"results\": [".$res[0]."]}";
+	}
+	$hash = MD5($ret);
+	echo("{ \"status\": \"OK\",$br \"className\": \"plainresults\",$br \"results\": [$br$ret$br]");
+	echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
+elseif ($_GET['method'] == 'getstartlist')
+{
+   $currentComp = new Emma($_GET['comp']);
+   $RT = insertHeader($refreshTime);
+   $classNames = classesSorted($currentComp);
+   $ret = "";
+   $first = true;
+   foreach ($classNames as $class)
+   {
+	   if (!$first)
+		   $ret .= ", ";
+	   $first = false;
+	   $className = $class->name;
+
+	   $runners = $currentComp->getStartlist($className);
+	   $retClass = "";
+	   $firstInClass = true;
+	   foreach ($runners as $runner)
+	   {
+		   if (!$firstInClass)
+			   $retClass .=",$br";
+		   $retClass .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".$runner['start']."\", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
+		   $firstInClass = false;
+	   }
+	   $ret .= "{\"className\": \"$className\", \"results\": [".$retClass."]}";
+   }
+   $hash = MD5($ret);
+   echo("{ \"status\": \"OK\",$br \"className\": \"startlist\",$br \"results\": [$br$ret$br]");
+   echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
+else
+{
+	insertHeader($refreshTime,false);
+	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+    header($protocol . ' ' . 400 . ' Bad Request');
+	echo("{ \"status\": \"ERR\", \"message\": \"No method given\"}");
+}
+
+function cmp($a, $b) {
+	return strcmp($a->sortKey, $b->sortKey);
+}	
+
+function classesSorted($currentComp){
 	class sort
 	{	
 		public $sortKey;
 		public $name;
 	}
 	
-	$currentComp = new Emma($_GET['comp']);
-	$RT = insertHeader($refreshTime);
 	$classes = $currentComp->Classes();
 	$classNames = [];
 
@@ -356,33 +416,8 @@ elseif ($_GET['method'] == 'getracesplitter')
 	}
 	
 	usort($classNames, "cmp");
-
-	$ret = "";
-	$first = true;
-	foreach ($classNames as $class)
-	{
-		if (!$first)
-			$ret .= ", ";
-		$first = false;
-		$className = $class->name;
-		$res = classresults($className,true);
-		$ret .= "{\"className\": \"$className\", \"results\": [".$res[0]."]}";
-	}
-	$hash = MD5($ret);
-	echo("{ \"status\": \"OK\",$br \"className\": \"plainresults\",$br \"results\": [$br$ret$br]");
-	echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+	return $classNames;
 }
-else
-{
-	insertHeader($refreshTime,false);
-	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
-    header($protocol . ' ' . 400 . ' Bad Request');
-	echo("{ \"status\": \"ERR\", \"message\": \"No method given\"}");
-}
-
-function cmp($a, $b) {
-	return strcmp($a->sortKey, $b->sortKey);
-}	
 
 function classResults($class,$plain)
 {

@@ -209,28 +209,7 @@ var LiveResults;
 				{
                     this.relayClasses = [];
                     var classes = data.classes;
-					classes.sort(function(a, b)
-					{
-						var x  = [a.className.toLowerCase(), b.className.toLowerCase()];
-						for (var i=0; i<2; i++)
-						{
-                            if (x[i].includes("åpen") || x[i].includes("open") || x[i].includes("gjest") || x[i].includes("dir") || x[i].includes("utv") )
-                                x[i] = 'z' + x[i];
-							x[i] = x[i].replace(/(^|[^\d])(\d)($|[^\d])/,'$100$2$3');      // Add 00 ahead of single digits
-							x[i] = x[i].replace(/(^|[^\d])(\d)(\d)($|[^\d])/,'$10$2$3$4'); // Add 0 ahead of double digits
-                            x[i] = x[i].replace(' ','');
-                            x[i] = x[i].replace('-','');
-                            x[i] = x[i].replace('+','');
-                            x[i] = x[i].replace('prolog','a');
-                            x[i] = x[i].replace('kvart' ,'b');
-                            x[i] = x[i].replace('semi'  ,'c');
-                            x[i] = x[i].replace('finale','d');
-						}
-						if (x[0] < x[1]) {return -1;}
-						if (x[0] > x[1]) {return 1;}
-						return 0;
-					});
-                    var str = "";
+					var str = "";
 					var nClass = classes.length;
 					var relayNext = false;
 					var leg = 0;
@@ -244,26 +223,21 @@ var LiveResults;
 						param = className.replace('\'', '\\\'');
 						if (className && className.length > 0)
 						{
-                            className = className.replace(/menn/i,'M');
-							className = className.replace(/kvinner/i,'K');
-                            className = className.replace(/gutter/i,'G');
-                            className = className.replace(/jenter/i,'J');
-                            className = className.replace(/veteraner/i,'Vet');
-                            className = className.replace(/veteran/i,'Vet');
-							className = className.replace(' Vann','V');
+                            className = this.shortClassName(className);
                             
                             var classNameClean = className.replace(/-[0-9]{1,2}$/,'');
+                            classNameClean = classNameClean.replace(/-All$/,'');
                             var LegNoStr = className.match(/-[0-9]{1,2}$/);
-                            var LegNo = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
-							classNameClean = classNameClean.replace(/-All$/,'');                            
+                            var LegNo = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);                            
 
-							var classNameCleanNext = "Empty";
+							var classNameCleanNext = "";
                             var LegNoNext = 0;
                            
                             if (i<(nClass-1))
 							{
 								// Relay
-                                classNameCleanNext = classes[i+1].className.replace(/-[0-9]{1,2}$/,'');
+                                classNameCleanNext = this.shortClassName(classes[i+1].className);
+                                classNameCleanNext = classNameCleanNext.replace(/-[0-9]{1,2}$/,'');
                                 LegNoStr = classes[i+1].className.match(/-[0-9]{1,2}$/);
                                 LegNoNext = parseInt( (LegNoStr != null ? -LegNoStr[0] : 0),10);
                             }
@@ -292,7 +266,10 @@ var LiveResults;
                                     
                                     var classNameCleanSprintNext = "";
                                     if (i<(nClass-1))
-                                        classNameCleanSprintNext = classes[i+1].className.replace(' | ','');
+                                    {
+                                        classNameCleanSprintNext = this.shortClassName(classes[i+1].className);
+                                        classNameCleanSprintNext = classNameCleanSprintNext.replace(' | ','');
+                                    }
                                     classNameCleanSprintNext = classNameCleanSprintNext.replace(/Kvart [0-9]/,'');
                                     classNameCleanSprintNext = classNameCleanSprintNext.replace(/Semi [0-9]/,'');
                                     classNameCleanSprintNext = classNameCleanSprintNext.replace(/Finale [0-9]/,'');
@@ -350,10 +327,12 @@ var LiveResults;
 								str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + className + "</a><br/>";							
 						}
                     };
-                    str += "<hr>"
                     if (!this.EmmaServer)
-                        str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresults')\" style=\"text-decoration: none\">Alle</a>";
-                    str += "</nowrap>";
+                    {
+                        str += "<hr><a href=\"javascript:LiveResults.Instance.chooseClass('plainresults')\" style=\"text-decoration: none\">Alle</a>";
+                        str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('startlist')\" style=\"text-decoration: none\">Startliste</a>";
+                    }
+                    str += "<hr></nowrap>";
                     $("#" + this.classesDiv).html(str);
                     $("#numberOfRunnersTotal").html(data.numberOfRunners);
                     $("#numberOfRunnersStarted").html(data.numberOfStartedRunners);
@@ -366,7 +345,18 @@ var LiveResults;
             if (_this.isCompToday())
                 this.classUpdateTimer = setTimeout(function () {_this.updateClassList(); }, _this.classUpdateInterval);
         };
-		
+        
+        AjaxViewer.prototype.shortClassName = function (className) {
+            var ret = className.replace(/menn/i,'M');
+			ret = ret.replace(/kvinner/i,'K');
+            ret = ret.replace(/gutter/i,'G');
+            ret = ret.replace(/jenter/i,'J');
+            ret = ret.replace(/veteraner/i,'Vet');
+            ret = ret.replace(/veteran/i,'Vet');
+			ret = ret.replace(' Vann','V');
+            return ret;
+        }
+
 		// Update best split times
 		AjaxViewer.prototype.updateClassSplitsBest = function (data) {
 			if (data != null && data.status == "OK" && data.results != null) {
@@ -2405,6 +2395,8 @@ var LiveResults;
             var callStr;
             if (className == "plainresults")
                 callStr = "&method=getplainresults&unformattedTimes=true";
+            else if (className == "startlist")
+                callStr = "&method=getstartlist";
             else
                 callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (this.isMultiDayEvent ? "&includetotal=true" : "");
             $.ajax({
@@ -2448,6 +2440,8 @@ var LiveResults;
                 if (data.className != null) {
                     if (data.className == "plainresults")
                         $('#' + this.resultsHeaderDiv).html('<b>Alle</b>');
+                    else if (data.className == "startlist")
+                        $('#' + this.resultsHeaderDiv).html('<b>Startliste</b>');
                     else
                         $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
                     $('#' + this.resultsControlsDiv).show();
@@ -2480,7 +2474,52 @@ var LiveResults;
                     }
                     $('#' + this.resultsDiv).html(res);
                     $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
-                }               
+                }
+                else if (data.className == "startlist")
+                {
+                    var res = "";
+                    for (var i=0; i < data.results.length; i++)
+                    {
+                        res += "<tr style=\"background-color:#E6E6E6\"><td colspan=5><b>&nbsp;" + data.results[i].className + "<b></td></tr>";
+                        for (var j=0; j < data.results[i].results.length; j++)
+                        {
+                            var name = data.results[i].results[j].name;
+                            if (name.length> this.maxNameLength)
+                                name = this.nameShort(name);
+                            var club = data.results[i].results[j].club;
+                            if (club.length > this.maxClubLength)
+                                club = this.clubShort(club);
+                            
+                                var bibRaw = data.results[i].results[j].bib;
+                            var bib = "";
+                            if (bibRaw<0)         // Relay
+                                bib = (-bibRaw/100|0) + "-" + (-bibRaw%100);
+                            else if (bibRaw>0)   // Ordinary
+                                bib = bibRaw;
+                            
+                            var ecards = "";
+                            if (data.results[i].results[j].ecard1>0) {
+                                ecards += data.results[i].results[j].ecard1;
+                            if (data.results[i].results[j].ecard2>0) 
+                                ecards += " / " + data.results[i].results[j].ecard2;}
+                            else if (data.results[i].results[j].ecard2>0) 
+                                ecards += data.results[i].results[j].ecard2;
+                            
+                            var delPre = (data.results[i].results[j].status == 1 ? "<del>" : "");
+                            var delPost = (data.results[i].results[j].status == 1 ? "</del>" : "");
+
+                            res += "<tr><td align=\"right\">" + delPre + bib + delPost + "</td>";
+                            res += "<td>" + delPre + name + delPost + "</td>";
+                            res += "<td>" + delPre + club + delPost + "</td>";
+                            res += "<td align=\"right\">" + delPre + ecards + delPost + "</td>";
+                            res += "<td align=\"right\">" + delPre + _this.formatTime(data.results[i].results[j].start, 0, false, true, true) + delPost + "</td>";
+                            res += "</span></td></tr>";
+                        }
+                        res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
+                    }
+                    $('#' + this.resultsDiv).html(res);
+                    $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
+                }                 
                 else if (data.results != null && data.results.length>0) {
                     var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
                     // Class properties
