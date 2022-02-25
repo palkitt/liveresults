@@ -2511,8 +2511,8 @@ var LiveResults;
                             res += "<tr><td align=\"right\">" + delPre + bib + delPost + "</td>";
                             res += "<td>" + delPre + name + delPost + "</td>";
                             res += "<td>" + delPre + club + delPost + "</td>";
-                            res += "<td align=\"right\">" + delPre + ecards + delPost + "</td>";
                             res += "<td align=\"right\">" + delPre + _this.formatTime(data.results[i].results[j].start, 0, false, true, true) + delPost + "</td>";
+                            res += "<td align=\"right\"><span class=small>" + delPre + ecards + delPost + "</span></td>";
                             res += "</span></td></tr>";
                         }
                         res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
