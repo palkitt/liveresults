@@ -256,7 +256,7 @@ function switchTop(x) {
 }
 
 function openNav() {
-  if(res.currentTable != null && res.curClassName != "plainresults")
+  if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
 	$(".firstCol").width("75px");  
   	$('#divResults').DataTable()
@@ -270,7 +270,7 @@ function openNav() {
 }
 
 function closeNav() {
-  if(res.currentTable != null && res.curClassName != "plainresults")
+  if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
 		$(".firstCol").width("0px");  
 		$('#divResults').DataTable()
