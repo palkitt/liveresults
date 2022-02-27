@@ -128,6 +128,7 @@ elseif ($_GET['method'] == 'getclasses')
 		$numberOfRunners = $currentComp->numberOfRunners();
 		$numberOfStartedRunners = $currentComp->numberOfStartedRunners();
 		$numberOfFinishedRunners = $currentComp->numberOfFinishedRunners();
+		$infoText = $currentComp->InfoText();
 
 		$ret = "";
 		$first = true;
@@ -149,13 +150,13 @@ elseif ($_GET['method'] == 'getclasses')
 		foreach ($numberOfFinishedRunners as $numfinrun)
 			$retnum .=",\"numberOfFinishedRunners\": \"".$numfinrun['num']."\"";
 			
-		$hash = MD5($ret.$retnum);
+		$hash = MD5($ret.$retnum.$infoText);
 
 		if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
 			echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 		else
 		{
-			echo("{ \"status\": \"OK\", \"classes\" : [$br$ret$br]");
+			echo("{ \"status\": \"OK\", \"classes\" : [$br$ret$br], \"infotext\" : \"".$infoText."\"");
 			echo(",$retnum");
 			echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 		}
@@ -259,15 +260,16 @@ elseif ($_GET['method'] == 'getclassresults')
 	$res = classresults($class,false);
 	$ret = $res[0];
 	$splitJSON = $res[1];
+	$infoText = $currentComp->InfoText();
 
-	$hash = MD5($ret);
+	$hash = MD5($ret.$infoText);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
 	{
 		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 	}
 	else
 	{
-		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br]");
+		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br],$br \"infotext\": \"$infoText\"");
 		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 	}
 }
@@ -362,7 +364,7 @@ elseif ($_GET['method'] == 'getstartlist')
 	   {
 		   if (!$firstInClass)
 			   $retClass .=",$br";
-		   $retClass .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".$runner['start']."\", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
+		   $retClass .= "{ \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".$runner['start']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
 		   $firstInClass = false;
 	   }
 	   $ret .= "{\"className\": \"$className\", \"results\": [".$retClass."]}";

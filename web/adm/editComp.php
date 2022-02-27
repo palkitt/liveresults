@@ -5,7 +5,7 @@ if (isset($_POST['btnSave']))
 {
 	Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
         $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['rankedstartlist'],$_POST['hightime'],$_POST['quallimits'],
-        $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent']);
+        $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],$_POST['showinfo'],$_POST['infotext']);
   header("Location:index.php");
 }
 else if (isset($_POST['btnAdd']))
@@ -127,25 +127,25 @@ function confirmDelete(msg,url)
 <td>&nbsp;<input type="text" name="org" size="20" value="<?=$comp['organizer']?>"/></td></tr>
 
 <tr><td><b>Date</b></td>
-<td>&nbsp;<input type="text" name="date" size="20" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/> Format: yyyy-mm-dd</td></tr>
+<td>&nbsp;<input type="text" name="date" size="20" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/></td><td>Format: yyyy-mm-dd</td></tr>
 
 <tr><td><b>Time zone diff</b></td>
-<td>&nbsp;<input type="number" name="timediff" size="20" value="<?=$comp['timediff']?>"/> Eg. 1 for Finland, 0 for Norway, -1 for GBR</td></tr>
+<td>&nbsp;<input type="number" name="timediff" size="20" value="<?=$comp['timediff']?>"/></td><td>Eg. 1 for Finland, 0 for Norway, -1 for GBR</td></tr>
 
 <tr><td><b>Highlight time</b></td>
-<td>&nbsp;<input type="number" name="hightime" size="20" value="<?=$comp['hightime']?>"/> Seconds</td></tr>
+<td>&nbsp;<input type="number" name="hightime" size="20" value="<?=$comp['hightime']?>"/></td><td>Seconds</td></tr>
 
 <tr><td><b>Qual. classes</b></td>
-<td>&nbsp;<input type="text" name="qualclasses" size="20" value="<?=$qualclasses?>"/> Format: "D21-", "H21-", "D70". If not given -> same limit for all classes</td></tr>
+<td>&nbsp;<input type="text" name="qualclasses" size="20" value="<?=$qualclasses?>"/></td><td>Format: "D21-", "H21-", "D70". If not given -> same limit for all classes</td></tr>
 
 <tr><td><b>Qual. limits</b></td>
-<td>&nbsp;<input type="text" name="quallimits" size="20" value="<?=$comp['quallimits']?>"/> Format: 3, 4, 5, 6 (Last value used for all other classes)</td></tr>
+<td>&nbsp;<input type="text" name="quallimits" size="20" value="<?=$comp['quallimits']?>"/></td><td>Format: 3, 4, 5, 6 (Last value used for all other classes)</td></tr>
 
 <tr><td><b>Multi day stage no</b></td>
 <td>&nbsp;<input type="number" name="multidaystage" size="20" value="<?=$comp['multidaystage']?>"/></td></tr>
 
 <tr><td><b>Multi day parent</b></td>
-<td>&nbsp;<input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/> Competition ID for first in series</td></tr>
+<td>&nbsp;<input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/></td><td>Competition ID for first in series</td></tr>
 
 <tr><td><b>Mass start sorting</b></td>
 <td><input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/></td></tr>
@@ -161,6 +161,12 @@ function confirmDelete(msg,url)
 
 <tr><td><b>Public</td>
 <td><input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/></td></tr>
+
+<tr><td><b>Show info text</td>
+<td><input type="checkbox" name="showinfo" <?= $comp['showinfo'] == 1 ? "checked" : "" ?>/></td></tr>
+
+<tr valign="top"><td><b>Info text</td>
+<td>&nbsp;<textarea name="infotext" rows="3" cols="20"><?=$comp['infotext']?></textarea></td><td>Text to be scrolled on top of page</td></tr>
 
 </table>
 

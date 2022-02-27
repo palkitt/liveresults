@@ -62,3 +62,7 @@ CREATE TABLE `lastconnect` (
 ) DEFAULT CHARSET=utf8;
 
 INSERT INTO `lastconnect` VALUES (DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+
+-- addition 2022-02-27
+alter table login add column showinfo tinyint(1) DEFAULT NULL;
+alter table login add column infotext text DEFAULT NULL;

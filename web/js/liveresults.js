@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -203,6 +203,7 @@ var LiveResults;
                 this.classUpdateInterval = data.rt*1000;
             if (data != null && data.status == "OK")
 			{                
+                $('#divInfoText').html(data.infotext);
                 if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0)
                     $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
                 if (data.classes != null)
@@ -2093,6 +2094,8 @@ var LiveResults;
                     }
                     if (this.currentTable != null)
                     {
+                        $('#divInfoText').html(newData.infotext);
+                        
                         var oldResults = $.extend(true,[],this.currentTable.fnGetData());
                         var table = this.currentTable.api();
                         var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
@@ -2437,6 +2440,7 @@ var LiveResults;
             }
             var _this = this;    
             if (data != null && data.status == "OK") {
+                $('#divInfoText').html(data.infotext);
                 if (data.className != null) {
                     if (data.className == "plainresults")
                         $('#' + this.resultsHeaderDiv).html('<b>Alle</b>');
@@ -2467,8 +2471,8 @@ var LiveResults;
                             res += "<td align=\"right\">" + this.formatTime(data.results[i].results[j].result,data.results[i].results[j].status,_this.showTenthOfSecond) + "</td>";
                             res += "<td align=\"right\"><span class=plustime>"
                             if (data.results[i].results[j].status == 0)
-                                res += "+" + this.formatTime(data.results[i].results[j].timeplus,data.results[i].results[j].status,_this.showTenthOfSecond) + "</td></tr>";
-                            res += "</span></td></tr>";
+                                res += "+" + this.formatTime(data.results[i].results[j].timeplus,data.results[i].results[j].status,_this.showTenthOfSecond);
+                            res += "</span>&nbsp;</td></tr>";
                         }
                         res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
                     }
@@ -2512,8 +2516,8 @@ var LiveResults;
                             res += "<td>" + delPre + name + delPost + "</td>";
                             res += "<td>" + delPre + club + delPost + "</td>";
                             res += "<td align=\"right\">" + delPre + _this.formatTime(data.results[i].results[j].start, 0, false, true, true) + delPost + "</td>";
-                            res += "<td align=\"right\"><span class=small>" + delPre + ecards + delPost + "</span></td>";
-                            res += "</span></td></tr>";
+                            res += "<td align=\"right\"><span class=small>" + delPre + ecards + delPost + "</span>&nbsp;</td>";
+                            res += "</tr>";
                         }
                         res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
                     }

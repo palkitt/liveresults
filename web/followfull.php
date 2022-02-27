@@ -14,6 +14,7 @@ header('Content-Type: text/html; charset='.$CHARSET);
 $currentComp = new Emma($_GET['comp']);
 $currentCompNo = $_GET['comp'];
 $organizer = $currentComp->Organizer();
+$showInfo = $currentComp->ShowInfo();
 $image = "";
 
 $isSingleClass = isset($_GET['class']);
@@ -206,6 +207,9 @@ $(document).ready(function()
 	// Qualification limits and classes (last limit is default)
 	res.qualLimits = [<?=$currentComp->QualLimits();?>];
 	res.qualClasses = [<?=$currentComp->QualClasses();?>];
+
+	// Initialize info text
+	$("#divInfoText").html("<?=$currentComp->InfoText();?>");
 	
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
@@ -250,7 +254,6 @@ function switchTop(x) {
   else
 	  openTop();
 }
-
 
 function openNav() {
   if(res.currentTable != null && res.curClassName != "plainresults")
@@ -306,6 +309,7 @@ function closeTop() {
 <?php if (!$isSingleClass && !$isSingleClub) {?>
 
   <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
+  
   <tr><td class="firstCol"></td><td width="100%"></td></tr>
   <tr valign="top">
   <td colspan="2" align="center"><div id="topBar" style="overflow: hidden">
@@ -340,8 +344,15 @@ function closeTop() {
 			
 <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
 </tr>
-</table></div>
-</td></tr>
+</table></div></td></tr>
+
+<?php if ($showInfo) {?>
+<tr valign="top">
+  <td colspan="2" align="center"><div id="scrollBar" style="overflow: hidden">
+    <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 0px">
+	<tr ><td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><div id="divInfoText"></div></span></td></tr>
+</table></div></td></tr>
+<?php }?>
 
 <tr valign="top" style="background-color:#555555; color:#FFF">
   <td class="firstCol">

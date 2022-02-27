@@ -152,6 +152,43 @@ td i { color: var(--livered); font-style: normal;}
 
 #divClasses { white-space: nowrap;}
 
+#divInfoText {
+  /* animation properties */
+  -moz-transform: translateX(100%);
+  -webkit-transform: translateX(100%);
+  transform: translateX(100%);
+  
+  -moz-animation: scroll-animation 20s linear infinite;
+  -webkit-animation: scroll-animation 20s linear infinite;
+  animation: scroll-animation 20s linear infinite;
+}
+
+/* for Firefox */
+@-moz-keyframes scroll-animation {
+  from { -moz-transform: translateX(100%); }
+  to { -moz-transform: translateX(-100%); }
+}
+
+/* for Chrome */
+@-webkit-keyframes scroll-animation {
+  from { -webkit-transform: translateX(100%); }
+  to { -webkit-transform: translateX(-100%); }
+}
+
+@keyframes scroll-animation {
+  from {
+    -moz-transform: translateX(100%);
+    -webkit-transform: translateX(100%);
+    transform: translateX(100%);
+  }
+  to {
+    -moz-transform: translateX(-100%);
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+}
+
+
 .eI {
 background: url('../images/sprite_black2.png') no-repeat -63px -63px;
 height: 21px;

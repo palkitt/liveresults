@@ -19,6 +19,7 @@ class Emma
    var $m_IsMultiDayEvent = false;
    var $m_UseMassStartSort = false;
    var $m_ShowTenthOfSeconds = false;
+   var $m_ShowInfo = false;
    var $m_ShowFullView = false;
    var $m_MultiDayStage = -1;
    var $m_MultiDayParent = -1;
@@ -28,6 +29,7 @@ class Emma
    var $m_TwitterFeed = "";
    var $m_QualLimits = "";
    var $m_QualClasses = "";
+   var $m_InfoText = "";
    
    var $m_Conn;
 
@@ -96,8 +98,8 @@ class Emma
 		if ($id < 10000)
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
-		hightime,quallimits,qualclasses,multidaystage,multidayparent)
-	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,60,'','',0,0)") or die(mysqli_error($conn));
+		hightime,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext)
+	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,60,'','',0,0,0,'')") or die(mysqli_error($conn));
 		return $id;
 	}
 
@@ -121,14 +123,15 @@ class Emma
 		mysqli_query($conn, "insert into splitcontrols(tavid,classname,name,code,corder) values($compid,'$classname','$name',$code,$id)") or die(mysqli_error($conn));
 	}
 
-	public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent)
+	public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,
+	$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent,$showinfo,$infotext)
 	{
 		$conn = self::openConnection();
 	 	$sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, public=". (!isset($public) ? "0":"1") ."
 	         , massstartsort=". (!isset($massstartsort) ? "0":"1") .", tenthofseconds=". (!isset($tenthofseconds) ? "0":"1") ."
 			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", rankedstartlist=". (!isset($rankedstartlist) ? "0":"1") ."
 			 , hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses'
-			 , multidaystage='$multidaystage', multidayparent='$multidayparent' where tavid=$id";
+			 , multidaystage='$multidaystage', multidayparent='$multidayparent', showinfo=". (!isset($showinfo) ? "0":"1") .", infotext='$infotext' where tavid=$id";
 		mysqli_query($conn, $sql) or die(mysqli_error($conn));
 	}
 
@@ -146,7 +149,9 @@ class Emma
 	public static function GetCompetition($compid)
     {
 		$conn = self::openConnection();
-		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, fullviewdefault, rankedstartlist, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, multidayparent from login where tavid=$compid");
+		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, 
+		          fullviewdefault, rankedstartlist, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, 
+				  multidayparent, showinfo, infotext from login where tavid=$compid");
 		$ret = null;
 		while ($tmp = mysqli_fetch_array($result))
 			$ret = $tmp;
@@ -268,6 +273,8 @@ class Emma
 			$this->m_RankedStartlist = $tmp["rankedstartlist"];
 			$this->m_QualLimits = $tmp["quallimits"];
 			$this->m_QualClasses = $tmp["qualclasses"];
+			$this->m_ShowInfo = $tmp["showinfo"];
+			$this->m_InfoText = str_replace('"','\"', $tmp["infotext"]);
 
 		    if (isset($tmp["videourl"]))
 		    	$this->m_VideoUrl = $tmp["videourl"];
@@ -369,6 +376,14 @@ class Emma
 	function QualClasses()
 	{
 		return $this->m_QualClasses;
+	}
+	function ShowInfo()
+	{
+		return $this->m_ShowInfo;
+	}
+	function InfoText()
+	{
+		return $this->m_InfoText;
 	}
 
 	function GetUpdateFactor()
@@ -745,7 +760,7 @@ class Emma
 	function getStartlist($className)
     {
 		$ret = Array();
-		$q = "SELECT runners.name, runners.club, runners.class, runners.ecard1, runners.ecard2, runners.bib, results.time, results.dbid, results.control, results2.status 
+		$q = "SELECT runners.dbid, runners.name, runners.club, runners.ecard1, runners.ecard2, runners.bib, results.time, results2.status 
 		FROM runners, results
 		LEFT JOIN results AS results2 ON results.DbID=results2.DbID
 		WHERE results.dbid = runners.dbid AND runners.tavid = ". $this->m_CompId ." AND runners.class = \"".$className."\" AND results.tavid = ". $this->m_CompId . " AND (results.control=100) 
@@ -762,7 +777,6 @@ class Emma
 				 $ret[$dbId]["dbid"] = $dbId;
 				 $ret[$dbId]["name"] = $row['name'];
 				 $ret[$dbId]["club"] = $row['club'];
-				 $ret[$dbId]["class"] = $row['class'];
 				 $ret[$dbId]["ecard1"] = $row['ecard1'];
 				 $ret[$dbId]["ecard2"] = $row['ecard2'];
 				 $ret[$dbId]["bib"] = $row['bib'];

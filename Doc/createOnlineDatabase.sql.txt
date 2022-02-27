@@ -21,6 +21,8 @@
   `hightime` int(11) DEFAULT NULL,
   `quallimits` varchar(50) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `qualclasses` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `showinfo` tinyint(1) DEFAULT NULL;
+  `infotext` text DEFAULT NULL;
   PRIMARY KEY (`user`)
 ) DEFAULT CHARSET=utf8;
 
