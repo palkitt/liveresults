@@ -3,10 +3,13 @@ include_once("../templates/classEmma.class.php");
 
 if (isset($_POST['btnSave']))
 {
-	Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
+	$ok = Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
         $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['rankedstartlist'],$_POST['hightime'],$_POST['quallimits'],
         $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],$_POST['showinfo'],$_POST['infotext']);
-  header("Location:index.php");
+  if ($ok == 1)
+    echo('<b>&nbsp;Competion update OK</b>');
+  else
+     echo('<b>&nbsp;Competion update failed</b>');
 }
 else if (isset($_POST['btnAdd']))
 {
@@ -147,6 +150,9 @@ function confirmDelete(msg,url)
 <tr><td><b>Multi day parent</b></td>
 <td>&nbsp;<input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/></td><td>Competition ID for first in series</td></tr>
 
+<tr><td><b>Public</td>
+<td><input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/></td></tr>
+
 <tr><td><b>Mass start sorting</b></td>
 <td><input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/></td></tr>
 
@@ -159,17 +165,13 @@ function confirmDelete(msg,url)
 <tr><td><b>Initial dynamic ranking</td>
 <td><input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?>/></td></tr>
 
-<tr><td><b>Public</td>
-<td><input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/></td></tr>
-
 <tr><td><b>Show info text</td>
 <td><input type="checkbox" name="showinfo" <?= $comp['showinfo'] == 1 ? "checked" : "" ?>/></td></tr>
 
 <tr valign="top"><td><b>Info text</td>
-<td>&nbsp;<textarea name="infotext" rows="3" cols="20"><?=$comp['infotext']?></textarea></td><td>Text to be scrolled on top of page</td></tr>
+<td>&nbsp;<textarea name="infotext" rows="3" cols="21"><?=$comp['infotext']?></textarea></td><td>Text to be scrolled on top of page</td></tr>
 
 </table>
-
 
 <input type="submit" name="btnSave" value="Save"/>
 </form>

@@ -132,7 +132,8 @@ class Emma
 			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", rankedstartlist=". (!isset($rankedstartlist) ? "0":"1") ."
 			 , hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses'
 			 , multidaystage='$multidaystage', multidayparent='$multidayparent', showinfo=". (!isset($showinfo) ? "0":"1") .", infotext='$infotext' where tavid=$id";
-		mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
 	}
 
 	public static function GetAllCompetitions()
