@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -1689,6 +1689,16 @@ var LiveResults;
         var array = name.split(' ');
         if (array.length==1)
             return name;
+        
+        var num = array[array.length-1];
+        if (num.match(/\d+/g) != null)
+        {
+            array.pop();
+            num = " " + num;
+        }
+        else
+            num = "";
+
         var shortName = array[0] + ' ';
         for (var i=1; i<array.length-1; i++)
             shortName += array[i].charAt(0) + '.';
@@ -1704,7 +1714,7 @@ var LiveResults;
                 lastName = arrayLast[0];
             shortName += ' ' + lastName;
         }
-        return shortName;
+        return shortName + num;
     };
     
     //Request data for start list
@@ -2522,7 +2532,9 @@ var LiveResults;
                         res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
                     }
                     $('#' + this.resultsDiv).html(res);
-                    $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
+                    var NumRunText = $("#numberOfRunnersTotal").html();
+                    NumRunText += "</br><a href=\"javascript:res.raceSplitterDialog();\">Lag RaceSplitter fil</a>";
+                    $('#numberOfRunners').html(NumRunText);
                 }                 
                 else if (data.results != null && data.results.length>0) {
                     var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
