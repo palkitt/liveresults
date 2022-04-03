@@ -164,7 +164,7 @@ class Emma
     {
 		$conn = self::openConnection();
 
-		$q = "SELECT runners.tavid, runners.dbid, runners.bib, runners.name, runners.club, runners.class, results.time, results.status FROM runners, results "; 
+		$q = "SELECT runners.tavid, runners.dbid, runners.bib, runners.name, runners.club, runners.class, runners.ecardchecked, results.time, results.status FROM runners, results "; 
 		$q .= "WHERE runners.tavid=".$compid." AND results.tavid=".$compid." AND results.dbid = runners.dbid AND results.control = 1000 order by bib";
 		$result = mysqli_query($conn, $q);
 		$ret = Array();
@@ -178,7 +178,7 @@ class Emma
     {
 		$conn = self::openConnection();
 
-		$q = "SELECT runners.tavid, runners.dbid, runners.bib, runners.name, runners.club, runners.class, results.time, results.status FROM runners, results "; 
+		$q = "SELECT runners.tavid, runners.dbid, runners.bib, runners.name, runners.club, runners.class, runners.ecardchecked, results.time, results.status FROM runners, results "; 
 		$q .= "WHERE runners.tavid=".$compid." AND results.tavid=".$compid." AND results.dbid = runners.dbid AND results.control = 1000 AND runners.dbid=".$dbid;
 		
 		$result = mysqli_query($conn, $q);
@@ -189,10 +189,11 @@ class Emma
  		return $ret;
 	}
 	
-	public static function UpdateRunner($compid,$dbid,$bib,$name,$club,$class,$time,$status)
+	public static function UpdateRunner($compid,$dbid,$bib,$name,$club,$class,$time,$status,$ecardchecked)
     {
 		$conn = self::openConnection();
-		$q1 = "UPDATE runners SET bib=".$bib.", name='".$name."', club='".$club."', class='".$class."' WHERE tavid=".$compid." AND dbid=".$dbid;
+		$q1 = "UPDATE runners SET bib=".$bib.", name='".$name."', club='".$club."', class='".$class."', 
+		       ecardchecked=". (!isset($ecardchecked)?"0":"1")." WHERE tavid=".$compid." AND dbid=".$dbid;
 		$ret1 = mysqli_query($conn, $q1) or die(mysqli_error($conn));
 
 		$q2 = "UPDATE results SET time=".$time.", status=".$status." WHERE tavid=".$compid." AND dbid=".$dbid." AND control=1000";
