@@ -332,7 +332,8 @@ function closeTop() {
 					case "Røros IL":        $image = "images/roros.png"; break; 
 					case "Freidig/Wing/Malvik":	$image = "images/NM2020.png"; break;
 					case "Eiker O-lag":     $image ="images/Eiker.png"; break; 
-					case "Stokke IL":       $image = "images/stokke.png"; break; 
+					case "Stokke IL":       $image = "images/stokke.png"; break;
+					case "Skien OK":	    $image = "images/Skien.png"; break; 
 					case "Byaasen Skiklub":	$image = "images/BSK.png"; break;
 					case "Kristiansand OK": $image = "images/KOK_60.jpg"; break;
 					case "OK Moss":         $image = "images/OKMoss.png"; break;
