@@ -5,7 +5,7 @@ if (isset($_POST['btnSave']))
 {
   if ($_POST['pin']=="0000")
     {
-      $test = Emma::UpdateRunner($_GET['compid'],$_GET['dbid'],$_POST['bib'],$_POST['name'],$_POST['club'],$_POST['class'],$_POST['time'],$_POST['status']);
+      $test = Emma::UpdateRunner($_GET['compid'],$_GET['dbid'],$_POST['bib'],$_POST['name'],$_POST['club'],$_POST['class'],$_POST['time'],$_POST['status'],$_POST['ecardchecked']);
       if ($test==2)
         echo('<b>&nbsp;Update OK</b>');
       else
@@ -112,6 +112,9 @@ header('Content-Type: text/html; charset='.$CHARSET);
 
 <tr><td><b>Status</b></td>
 <td><input type="text" name="status" size="20" value="<?=$runner['status']?>"/> 0=OK; 1=DNS; 2=DNF; 3=DSQ; 10=Entered; 13=Finished</td></tr>
+
+<tr><td><b>Checked</b><br/>
+<td><input type="checkbox" name="ecardchecked" <?= $runner['ecardchecked'] == 1 ? "checked" : "" ?>/></td></tr>
 
 <tr><td><b>PIN code</b></td>
 <td><input type="number" name="pin" size="20" value="0000"/></td></tr>

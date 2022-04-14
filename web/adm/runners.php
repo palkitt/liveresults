@@ -61,6 +61,7 @@
 <td><b>Class</b></td>
 <td><b>Time</b></td>
 <td><b>Status</b></td>
+<td><b>Checked</b></td>
 </tr>
 
 <?php
@@ -75,7 +76,8 @@
     <td><?=$runner["club"]?></td>
     <td><?=$runner["class"]?></td>
     <td><?=$runner["time"]?></td>
-    <td><?=$runner["status"]?></td>  
+    <td><?=$runner["status"]?></td>
+    <td><?=$runner["ecardchecked"]?></td>    
     </tr>
 	<?php
 	}
