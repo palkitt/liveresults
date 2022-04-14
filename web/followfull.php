@@ -65,6 +65,8 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
+
 <?php if ($beta){?>
 	<script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script> 
 <?php } else {?>
@@ -213,7 +215,7 @@ $(document).ready(function()
 	
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
-		if (res.browserType == 1 && <?=(in_array($_GET['comp'], array("10110","10111","10112"))?0:1)?>)
+		if (res.browserType == 1 && <?=(in_array($_GET['comp'], array("10203"))?0:1)?>)
 			closeTop();
 		else
 		{
@@ -316,6 +318,7 @@ function closeTop() {
     <?php if($organizer=="Freidig/Wing/Malvik"){?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
 	<?php if(in_array($_GET['comp'], array("10118","10119","10120","10121"))){?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
 	<?php if(in_array($_GET['comp'], array("10110","10111","10112"))){?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
+	<?php if(in_array($_GET['comp'], array("10203"))){?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
 	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		<tr>
 			<?php 
