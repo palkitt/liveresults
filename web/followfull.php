@@ -324,6 +324,7 @@ function closeTop() {
 			<?php 
 				if (in_array($_GET['comp'], array("10098","10099","10100","10101")))	$image = "images/SG21.png";
 				else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
+				else if (in_array($_GET['comp'], array("10215")))	$image = "images/Skien.png";
 				else switch ($organizer)
 				{
 					case "Freidig":	        $image = "images/Freidig60.png"; break;
