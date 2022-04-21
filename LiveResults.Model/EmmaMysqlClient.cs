@@ -133,6 +133,7 @@ namespace LiveResults.Model
         private int m_compID;
         public readonly Dictionary<int,Runner> m_runners;
         private readonly Dictionary<string, RadioControl[]> m_classRadioControls;
+        private readonly Dictionary<int, CourseControl[]> m_courseControls;
         private readonly List<DbItem> m_itemsToUpdate;
         private readonly bool m_assignIDsInternally;
         private int m_nextInternalId = 1;
@@ -141,6 +142,7 @@ namespace LiveResults.Model
         {
             m_runners = new Dictionary<int, Runner>();
             m_classRadioControls = new Dictionary<string, RadioControl[]>();
+            m_courseControls = new Dictionary<int, CourseControl[]>();
             m_itemsToUpdate = new List<DbItem>();
             m_assignIDsInternally = assignIDsInternally;
 
@@ -162,6 +164,7 @@ namespace LiveResults.Model
             {
                 r.RunnerUpdated = false;
                 r.ResultUpdated = false;
+                r.StartTimeUpdated = false;
                 r.ResetUpdatedSplits();
             }
         }
@@ -214,7 +217,6 @@ namespace LiveResults.Model
                 if (!classes.ContainsKey(r.Value.Class))
                     classes.Add(r.Value.Class,"");
             }
-
             return classes.Keys.ToArray();
         }
 
@@ -254,8 +256,21 @@ namespace LiveResults.Model
                     m_compsNextGeneratedId.Add(m_compID, -1);
                 }
 
-                cmd.CommandText = "select classname,corder,code,name from splitcontrols where tavid = " + m_compID;
+
+                // Comp info
+                cmd.CommandText = "select organizer, compDate, compName from login where tavid = " + m_compID;
                 MySqlDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+
+                organizer = reader[("organizer")] as string;
+                compName = reader[("compName")] as string;
+                compDate = Convert.ToDateTime(reader[("compDate")]);
+                reader.Close();
+
+
+                // Radio controls
+                cmd.CommandText = "select classname,corder,code,name from splitcontrols where tavid = " + m_compID;
+                reader = cmd.ExecuteReader();
                 Dictionary<string, List<RadioControl>> tmpRadios = new Dictionary<string, List<RadioControl>>();
                 while (reader.Read())
                 {
@@ -275,6 +290,30 @@ namespace LiveResults.Model
                     m_classRadioControls.Add(kvp.Key, kvp.Value.ToArray());
                 }
 
+
+                // Course controls
+                cmd.CommandText = "select courseno,corder,code from courses where tavid = " + m_compID;
+                reader = cmd.ExecuteReader();
+                Dictionary<int, List<CourseControl>> tmpControls = new Dictionary<int, List<CourseControl>>();
+                while (reader.Read())
+                {
+                    int courseNo = Convert.ToInt32(reader["courseno"]);
+                    int corder = Convert.ToInt32(reader["corder"]);
+                    int code = Convert.ToInt32(reader["code"]);
+
+                    if (!tmpControls.ContainsKey(courseNo))
+                        tmpControls.Add(courseNo, new List<CourseControl>());
+
+                    tmpControls[courseNo].Add(new CourseControl() { CourseNo = courseNo, Code = code, Order = corder });
+                }
+                reader.Close();
+                foreach (var kvp in tmpControls)
+                {
+                    m_courseControls.Add(kvp.Key, kvp.Value.ToArray());
+                }
+
+
+                // Runner aliases
                 cmd.CommandText = "select sourceid,id from runneraliases where compid = " + m_compID;
                 reader = cmd.ExecuteReader();
 
@@ -299,18 +338,11 @@ namespace LiveResults.Model
                 {
                     if (!idToAliasDictionary.ContainsKey(kvp.Value))
                         idToAliasDictionary.Add(kvp.Value, kvp.Key);
-                }
+                }                                
 
-                cmd.CommandText = "select organizer, compDate, compName from login where tavid = " + m_compID;
-                reader = cmd.ExecuteReader();
-                reader.Read();
-
-                organizer = reader[("organizer")] as string;
-                compName = reader[("compName")] as string;
-                compDate = Convert.ToDateTime(reader[("compDate")]);
-                reader.Close();
-
-                cmd.CommandText = "select runners.dbid,control,time,name,club,class,ecard1,ecard2,bib,status from runners, results where results.dbid = runners.dbid and results.tavid = " + m_compID + " and runners.tavid = " + m_compID;
+                // Runners
+                cmd.CommandText = "select runners.dbid,control,time,name,course,club,class,ecard1,ecard2,bib,status,ecardtimes from runners, results" +
+                    " where results.dbid = runners.dbid and results.tavid = " + m_compID + " and runners.tavid = " + m_compID;
                 reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -320,10 +352,12 @@ namespace LiveResults.Model
                     var ecard1 = Convert.ToInt32(reader["ecard1"]);
                     var ecard2 = Convert.ToInt32(reader["ecard2"]);
                     var bib = Convert.ToInt32(reader["bib"]);
+                    var course = Convert.ToInt32(reader["course"]);
                     var sourceId = idToAliasDictionary.ContainsKey(dbid) ? idToAliasDictionary[dbid] : null;
                     if (!IsRunnerAdded(dbid))
                     {
-                        var r = new Runner(dbid, reader["name"] as string, reader["club"] as string, reader["class"] as string, ecard1, ecard2, bib, sourceId);
+                        var r = new Runner(dbid, reader["name"] as string, reader["club"] as string, reader["class"] as string, ecard1, ecard2, bib, sourceId,
+                            course, reader["ecardtimes"] as string);
                         AddRunner(r);
                         numRunners++;
                     }
@@ -373,7 +407,7 @@ namespace LiveResults.Model
             }
         }
 
-        public void UpdateRunnerInfo(int id, string name, string club, string Class, int ecard1, int ecard2, int bib, string sourceId)
+        public void UpdateRunnerInfo(int id, string name, string club, string Class, int ecard1, int ecard2, int bib, string sourceId, int course = 0, string ecardTimes = "")
         {
             if (m_runners.ContainsKey(id))
             {
@@ -395,6 +429,11 @@ namespace LiveResults.Model
                 if (cur.Club != club)
                 {
                     cur.Club = club;
+                    isUpdated = true;
+                }
+                if (cur.Course != course)
+                {
+                    cur.Course = course;
                     isUpdated = true;
                 }
                 if (cur.Ecard1 != ecard1)
@@ -421,6 +460,12 @@ namespace LiveResults.Model
                     cur.SourceId = sourceId;
                     isUpdated = true;
                 }
+                if (cur.EcardTimes != ecardTimes)
+                {
+                    cur.EcardTimes = ecardTimes;
+                    isUpdated = true;
+                }
+
                 if (isUpdated)
                 {
                     cur.RunnerUpdated = true;
@@ -485,7 +530,6 @@ namespace LiveResults.Model
             radios.AddRange(m_classRadioControls[className]);
             radios.Add(new RadioControl { ClassName = className, Code = code, ControlName = controlName, Order = order });
             m_classRadioControls[className] = radios.ToArray();
-            //m_classRadioControls.Add(className,new RadioControl[] { );
             m_itemsToUpdate.Add(new RadioControl
             {
                 ClassName = className,
@@ -556,6 +600,7 @@ namespace LiveResults.Model
             }
 
         }
+        
 
         public void SetRunnerStartTime(int runnerID, int starttime)
         {
@@ -595,6 +640,68 @@ namespace LiveResults.Model
             }
         }
 
+        public void MergeCourseControls(CourseControl[] courses)
+        {
+            if (courses == null)
+                return;
+
+            foreach (var kvp in courses.GroupBy(x => x.CourseNo))
+            {
+                CourseControl[] controls = kvp.OrderBy(x => x.Order).ToArray();
+                if (m_courseControls.ContainsKey(kvp.Key))
+                {
+                    CourseControl[] existingControls = m_courseControls[kvp.Key];
+                    for (int i = 0; i < controls.Length; i++)
+                    {
+                        if (existingControls.Length > i)
+                        {
+                            if (existingControls[i].Order != controls[i].Order || existingControls[i].Code != controls[i].Code)
+                            {
+                                m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
+                                m_itemsToUpdate.Add(controls[i]);
+                            }
+                        }
+                        else
+                        {
+                            m_itemsToUpdate.Add(controls[i]);
+                        }
+                    }
+                    if (existingControls.Length > controls.Length)
+                    {
+                        for (int i = controls.Length; i < existingControls.Length; i++)
+                        {
+                            m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
+                        }
+                    }
+                    m_courseControls[kvp.Key] = controls;
+
+                }
+                else
+                {
+                    foreach (var control in controls)
+                    {
+                        m_itemsToUpdate.Add(control);
+                    }
+                    m_courseControls.Add(kvp.Key, controls);
+                }
+            }
+
+            // Delete all controls for course that are not in the array
+            var courseNo = courses.GroupBy(x => x.CourseNo).ToDictionary(x => x.Key);
+            foreach (var controls in m_courseControls)
+            {
+                if (!courseNo.ContainsKey(controls.Key))
+                {
+                    CourseControl[] existingControls = m_courseControls[controls.Key];
+                    for (int i = 0; i < existingControls.Length; i++)
+                    {
+                        m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
+                    }
+                }
+            }
+        }              
+               
+  
         public void MergeRadioControls(RadioControl[] radios)
         {
             if (radios == null)
@@ -667,11 +774,11 @@ namespace LiveResults.Model
             {
                 if (!IsRunnerAdded(r.ID))
                 {
-                    AddRunner(new Runner(r.ID, r.Name, r.Club, r.Class, r.Ecard1, r.Ecard2, r.Bib, r.SourceId));
+                    AddRunner(new Runner(r.ID, r.Name, r.Club, r.Class, r.Ecard1, r.Ecard2, r.Bib, r.SourceId, r.Course, r.EcardTimes));
                 }
                 else
                 {
-                    UpdateRunnerInfo(r.ID, r.Name, r.Club, r.Class, r.Ecard1, r.Ecard2, r.Bib, r.SourceId);
+                    UpdateRunnerInfo(r.ID, r.Name, r.Club, r.Class, r.Ecard1, r.Ecard2, r.Bib, r.SourceId, r.Course, r.EcardTimes);
                 }
 
 
@@ -721,13 +828,13 @@ namespace LiveResults.Model
                         if (currentRunner != null)
                         {
                             runner.ID = currentRunner.ID;
-                            UpdateRunnerInfo(runner.ID, runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId);
+                            UpdateRunnerInfo(runner.ID, runner.Name, runner.Club, runner.Class,  runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.EcardTimes);
                         }
                         else
                         {
                             //New runner
                             runner.ID = m_nextInternalId++;
-                            var newRunner = new Runner(runner.ID, runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId);
+                            var newRunner = new Runner(runner.ID, runner.Name, runner.Club, runner.Class,  runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.EcardTimes);
                             AddRunner(newRunner);
                         }
                         UpdateRunnerTimes(runner);
@@ -739,7 +846,7 @@ namespace LiveResults.Model
                     foreach (var runner in classGroup)
                     {
                         runner.ID = m_nextInternalId++;
-                        var newRunner = new Runner(runner.ID,runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId);
+                        var newRunner = new Runner(runner.ID,runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.EcardTimes);
                         AddRunner(newRunner);
                         UpdateRunnerTimes(runner);
                     }
@@ -810,6 +917,53 @@ namespace LiveResults.Model
                             using (MySqlCommand cmd = m_connection.CreateCommand())
                             {
                                 var item = m_itemsToUpdate[0];
+                                if (item is CourseControl)
+                                {
+                                    var r = item as CourseControl;
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.AddWithValue("?compid", m_compID);
+                                    cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
+                                    cmd.Parameters.AddWithValue("?corder", r.Order);
+                                    cmd.Parameters.AddWithValue("?code", r.Code);
+                                    cmd.CommandText = "REPLACE INTO courses(tavid,courseno,corder,code) VALUES (?compid,?courseno,?corder,?code)";
+
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ee)
+                                    {
+                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.RemoveAt(0);
+                                        throw new ApplicationException("Could not add course control " + r.Order + "." + r.Code + " in course no" + r.CourseNo + " to server due to: " + ee.Message, ee);
+                                    }
+                                    cmd.Parameters.Clear();
+                                    FireLogMsg("Course control " + r.Order + "." + r.Code + " in course no " + r.CourseNo + " added in DB");
+                                }
+                                else if (item is DelCourseControl)
+                                {
+                                    var dr = item as DelCourseControl;
+                                    var r = dr.ToDelete;
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.AddWithValue("?compid", m_compID);
+                                    cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
+                                    cmd.Parameters.AddWithValue("?corder", r.Order);
+                                    cmd.Parameters.AddWithValue("?code", r.Code);
+                                    cmd.CommandText = "delete from courses where tavid= ?compid and courseno = ?courseno and corder = ?corder and code = ?code";
+
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ee)
+                                    {
+                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.RemoveAt(0);
+                                        throw new ApplicationException("Could not delete course control " + r.Order + "." + r.Code + " in course no" + r.CourseNo + " to server due to: " + ee.Message, ee);
+                                    }
+                                    cmd.Parameters.Clear();
+                                    FireLogMsg("Course control " + r.Order + "." + r.Code + " in course no " + r.CourseNo + " deleted in DB");
+                                }
                                 if (item is RadioControl)
                                 {
                                     var r = item as RadioControl;
@@ -830,10 +984,10 @@ namespace LiveResults.Model
                                         //Move failing runner last
                                         m_itemsToUpdate.Add(r);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not add radiocontrol " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not add radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Radiocontrol " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " added in DB");
+                                    FireLogMsg("Radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " added in DB");
                                 }
                                 else if (item is DelRadioControl)
                                 {
@@ -856,10 +1010,10 @@ namespace LiveResults.Model
                                         //Move failing radio control
                                         m_itemsToUpdate.Add(r);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not delete radiocontrol " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not delete radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Radiocontrol " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " deleted in DB");
+                                    FireLogMsg("Radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " deleted in DB");
                                 }
                                 else if (item is DelRunner)
                                 {
@@ -921,13 +1075,17 @@ namespace LiveResults.Model
                                         cmd.Parameters.AddWithValue("?name", Encoding.UTF8.GetBytes(r.Name));
                                         cmd.Parameters.AddWithValue("?club", Encoding.UTF8.GetBytes(r.Club ?? ""));
                                         cmd.Parameters.AddWithValue("?class", Encoding.UTF8.GetBytes(r.Class));
+                                        cmd.Parameters.AddWithValue("?course", r.Course);
                                         cmd.Parameters.AddWithValue("?ecard1", r.Ecard1);
                                         cmd.Parameters.AddWithValue("?ecard2", r.Ecard2);
                                         cmd.Parameters.AddWithValue("?bib", r.Bib);
                                         cmd.Parameters.AddWithValue("?id", r.ID);
-                                        cmd.CommandText = "INSERT INTO runners (tavid,name,club,class,brick,dbid,ecard1,ecard2,bib,ecardchecked) " +
-                                            "VALUES (?compid,?name,?club,?class,0,?id,?ecard1,?ecard2,?bib,0) " +
-                                            "ON DUPLICATE KEY UPDATE name=?name, club=?club, class=?class, ecard1=?ecard1, ecard2=?ecard2, bib=?bib, ecardchecked=ecardchecked";
+                                        cmd.Parameters.AddWithValue("?ecardtimes", r.EcardTimes);
+
+                                        cmd.CommandText = "INSERT INTO runners (tavid,name,club,class,course,brick,dbid,ecard1,ecard2,bib,ecardtimes,ecardchecked) " +
+                                            "VALUES (?compid,?name,?club,?class,?course,0,?id,?ecard1,?ecard2,?bib,?ecardtimes,0) " +
+                                            "ON DUPLICATE KEY UPDATE name=?name,club=?club,class=?class,course=?course,ecard1=?ecard1," +
+                                            "ecard2=?ecard2,bib=?bib,ecardtimes=?ecardtimes,ecardchecked=ecardchecked";
 
                                         try
                                         {
@@ -939,7 +1097,7 @@ namespace LiveResults.Model
                                             m_itemsToUpdate.Add(r);
                                             m_itemsToUpdate.RemoveAt(0);
                                             throw new ApplicationException(
-                                                "Could not add runner " + r.Name + ", " + r.Club + ", " + r.Class + " to server due to: " + ee.Message, ee);
+                                                "Could not update runner " + r.Name + ", " + r.Club + ", " + r.Class + " to server due to: " + ee.Message, ee);
                                         }
                                         cmd.Parameters.Clear();
 

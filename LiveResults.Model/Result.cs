@@ -7,6 +7,7 @@ namespace LiveResults.Model
     public delegate void MergeRadioControlsDelegate(RadioControl[] radiocontrols);
     public delegate void DeleteUnusedIDDelegate(List<int> usedID, bool first = false);
     public delegate void RadioControlDelegate(string controlName, int controlCode, string className, int order);
+    public delegate void MergeCourseControlsDelegate(CourseControl[] courseControls);
 
     public class Result
     {
@@ -17,10 +18,12 @@ namespace LiveResults.Model
         public int StartTime { get; set; }
         public int Time { get; set; }
         public int Status { get; set; }
+        public int Course { get; set; }
         public int Ecard1 { get; set; }
         public int Ecard2 { get; set; }
         public int Bib { get; set; }
         public List<ResultStruct> SplitTimes { get; set; }
+        public string EcardTimes { get; set; }
     }
 
     public class OverallResult : Result

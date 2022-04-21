@@ -50,13 +50,12 @@ namespace LiveResults.Client
             foreach (EmmaMysqlClient client in m_Clients)
             {
                 if (!client.IsRunnerAdded(newResult.ID))
-                    client.AddRunner(new Runner(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib ));
+                    client.AddRunner(new Runner(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null, newResult.Course, newResult.EcardTimes ));
                 else
-                    client.UpdateRunnerInfo(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null);
+                    client.UpdateRunnerInfo(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null, newResult.Course, newResult.EcardTimes);
 
                 if (newResult.StartTime > 0)
                     client.SetRunnerStartTime(newResult.ID, newResult.StartTime);
-
 
                 if (newResult.Time != -2)
                 {

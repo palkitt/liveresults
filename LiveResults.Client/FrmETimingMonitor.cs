@@ -47,6 +47,7 @@ namespace LiveResults.Client
             m_Parser.OnDeleteID += new DeleteIDDelegate(m_Parser_OnDeleteID);
             m_Parser.OnDeleteUnusedID += new DeleteUnusedIDDelegate(m_Parser_OnDeleteUnusedID);
             m_Parser.OnMergeRadioControls += new MergeRadioControlsDelegate(m_Parser_OnMergeRadioControls);
+            m_Parser.OnMergeCourseControls += new MergeCourseControlsDelegate(m_Parser_OnMergeCourseControls);
             m_Parser.OnRadioControl += (name, code, className, order) =>
             {
                 foreach (EmmaMysqlClient client in m_Clients)
@@ -55,6 +56,16 @@ namespace LiveResults.Client
                 }
             }; 
         }
+
+        void m_Parser_OnMergeCourseControls(CourseControl[] courseControls)
+        {
+            foreach (EmmaMysqlClient client in m_Clients)
+            {
+                if (courseControls != null)
+                    client.MergeCourseControls(courseControls);
+            }
+        }
+
 
         void m_Parser_OnMergeRadioControls(RadioControl[] radioControls)
         {
@@ -95,9 +106,9 @@ namespace LiveResults.Client
             foreach (EmmaMysqlClient client in m_Clients)
             {
                 if (!client.IsRunnerAdded(newResult.ID))
-                    client.AddRunner(new Runner(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib));
+                    client.AddRunner(new Runner(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null, newResult.Course, newResult.EcardTimes));
                 else
-                    client.UpdateRunnerInfo(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null);
+                    client.UpdateRunnerInfo(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null, newResult.Course, newResult.EcardTimes);
 
                 if (newResult.StartTime > 0 || newResult.StartTime == -1 || newResult.StartTime == -999)
                     client.SetRunnerStartTime(newResult.ID, newResult.StartTime);

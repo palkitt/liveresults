@@ -40,6 +40,7 @@ namespace LiveResults.Client
             chkLapTimes.Checked = false;
             chkEventorID.Checked = false;
             chkUpdateMessage.Checked = false;
+            chkAddEcardSplits.Checked = false;
             RetreiveSettings();
         }
 
@@ -397,7 +398,7 @@ namespace LiveResults.Client
                     SleepTime, 
                     chkNotUpdateRadioControls.Checked, false, MSSQL, false, 
                     chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
-                    chkUpdateMessage.Checked, CompID, OsOffset);
+                    chkUpdateMessage.Checked, chkAddEcardSplits.Checked, CompID, OsOffset);
             monForm.SetParser(pars as IExternalSystemResultParserEtiming);
             monForm.CompetitionID = CompID;
             monForm.Organizer = cmp.Organizer;

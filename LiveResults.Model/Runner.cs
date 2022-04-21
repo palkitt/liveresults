@@ -106,6 +106,33 @@ namespace LiveResults.Model
         }
     }
 
+    class DelCourseControl : DbItem
+    {
+        public CourseControl ToDelete;
+    }
+
+    public class CourseControl : DbItem
+    {
+        public int CourseNo
+        {
+            get;
+            set;
+        }
+
+        public int Code
+        {
+            get;
+            set;
+        }
+
+        public int Order
+        {
+            get;
+            set;
+        }
+    }
+
+
     public class DbItem
     {
     }
@@ -127,6 +154,7 @@ namespace LiveResults.Model
         private string m_name;
         private string m_club;
         private string m_class;
+        private int m_course;
         private int m_start;
         private int m_time;
         private int m_status;
@@ -134,13 +162,14 @@ namespace LiveResults.Model
         private int m_ecard2;
         private int m_bib;
         private string m_sourceId;
+        private string m_ecardTimes;
 
         public bool RunnerUpdated;
         public bool ResultUpdated;
         public bool StartTimeUpdated;
 
         private readonly Dictionary<int,SplitTime> m_splitTimes;
-        public Runner(int dbID, string name, string club, string Class, int ecard1 = 0, int ecard2 = 0, int bib = 0, string sourceId = null)
+        public Runner(int dbID, string name, string club, string Class, int ecard1 = 0, int ecard2 = 0, int bib = 0, string sourceId = null, int course = 0, string ecardTimes = "")
         {
             RunnerUpdated = true;
             ResultUpdated = false;
@@ -150,11 +179,13 @@ namespace LiveResults.Model
             m_id = dbID;
             m_name = name;
             m_club = club;
+            m_course = course;
             m_class = Class;
             m_ecard1 = ecard1;
             m_ecard2 = ecard2;
             m_bib = bib;
             m_sourceId = sourceId;
+            m_ecardTimes = ecardTimes; 
         }
 
         public string SourceId
@@ -168,6 +199,18 @@ namespace LiveResults.Model
                 m_sourceId = value;
             }
         
+        }
+        public string EcardTimes
+        {
+            get
+            {
+                return m_ecardTimes;
+            }
+            set
+            {
+                m_ecardTimes = value;
+            }
+
         }
         public int ID
         {
@@ -213,9 +256,25 @@ namespace LiveResults.Model
                 m_bib = value;
             }
         }
+        public int Course
+        {
+            get
+            {
+                return m_course;
+            }
+            set
+            {
+                m_course = value;
+            }
+        }
         public bool HasUpdatedSplitTimes()
         {
             return m_splitTimes.Values.Any(t => t.Updated);
+        }
+
+        public bool HasEcardTimesChanged(string EcardTimes)
+        {
+            return m_ecardTimes != EcardTimes;
         }
 
         public void ResetUpdatedSplits()
@@ -347,6 +406,15 @@ namespace LiveResults.Model
             return m_time != time || m_status != status;
         }
 
+        public void SetEcardTimes(string ecardTimes)
+        {
+            if (HasEcardTimesChanged(ecardTimes))
+            {
+                m_ecardTimes = ecardTimes;
+                RunnerUpdated = true;
+            }
+        }
+        
         public void SetResult(int time, int status)
         {
             if (HasResultChanged(time,status))

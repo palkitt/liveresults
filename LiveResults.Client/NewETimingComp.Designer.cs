@@ -71,6 +71,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.chkAddEcardSplits = new System.Windows.Forms.CheckBox();
             this.wizard1.SuspendLayout();
             this.wizardPage5.SuspendLayout();
             this.wizardPage2.SuspendLayout();
@@ -96,6 +97,7 @@
             // 
             // wizardPage5
             // 
+            this.wizardPage5.Controls.Add(this.chkAddEcardSplits);
             this.wizardPage5.Controls.Add(this.txtCompType);
             this.wizardPage5.Controls.Add(this.label15);
             this.wizardPage5.Controls.Add(this.txtOsOffset);
@@ -502,6 +504,16 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Type of eTiming server";
             // 
+            // chkAddEcardSplits
+            // 
+            this.chkAddEcardSplits.AutoSize = true;
+            this.chkAddEcardSplits.Location = new System.Drawing.Point(256, 135);
+            this.chkAddEcardSplits.Name = "chkAddEcardSplits";
+            this.chkAddEcardSplits.Size = new System.Drawing.Size(189, 17);
+            this.chkAddEcardSplits.TabIndex = 25;
+            this.chkAddEcardSplits.Text = "Add splits from ecard (strekktider)";
+            this.chkAddEcardSplits.UseVisualStyleBackColor = true;
+            // 
             // NewETimingComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -568,5 +580,6 @@
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.TextBox txtCompType;
         private System.Windows.Forms.Label label15;
+        public System.Windows.Forms.CheckBox chkAddEcardSplits;
     }
 }
