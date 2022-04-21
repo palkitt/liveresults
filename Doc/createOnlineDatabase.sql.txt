@@ -23,6 +23,7 @@
   `qualclasses` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `showinfo` tinyint(1) DEFAULT NULL;
   `infotext` text DEFAULT NULL;
+  `showecardtimes` tinyint(1) DEFAULT NULL;
   PRIMARY KEY (`user`)
 ) DEFAULT CHARSET=utf8;
 
@@ -49,6 +50,8 @@
   `ecard2` int(11) DEFAULT NULL,
   `bib` int(11) DEFAULT NULL,
   `ecardchecked` tinyint(1) DEFAULT NULL,
+  `course` int(11) DEFAULT NULL,
+  `ecardtimes` text DEFAULT NULL,
 
   PRIMARY KEY (`dbid`,`tavid`),
   KEY `runners_class` (`class`),
@@ -102,3 +105,11 @@ CREATE TABLE `lastconnect` (
 ) DEFAULT CHARSET=utf8;
 
 INSERT INTO `lastconnect` VALUES (DEFAULT, DEFAULT, DEFAULT, DEFAULT);
+
+CREATE TABLE `courses` (
+  `tavid` int(11) NOT NULL DEFAULT 0,
+  `courseno` int(11) NOT NULL DEFAULT 0,
+  `corder` int(11) NOT NULL DEFAULT 0,
+  `code` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`tavid`,`courseno`,`corder`,`code`)
+) DEFAULT CHARSET=utf8;

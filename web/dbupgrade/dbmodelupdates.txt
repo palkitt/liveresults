@@ -66,3 +66,19 @@ INSERT INTO `lastconnect` VALUES (DEFAULT, DEFAULT, DEFAULT, DEFAULT);
 -- addition 2022-02-27
 alter table login add column showinfo tinyint(1) DEFAULT NULL;
 alter table login add column infotext text DEFAULT NULL;
+
+-- addition 2022-04-21
+CREATE TABLE `courses` (
+  `tavid` int(11) NOT NULL DEFAULT 0,
+  `courseno` int(11) NOT NULL DEFAULT 0,
+  `corder` int(11) NOT NULL DEFAULT 0,
+  `code` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`tavid`,`courseno`,`corder`,`code`)
+) DEFAULT CHARSET=utf8; 
+
+alter table runners add column course int(11) DEFAULT NULL;
+alter table runners add column ecardtimes text DEFAULT NULL;
+alter table login add column showecardtimes tinyint(1) DEFAULT NULL;
+
+
+
