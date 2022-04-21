@@ -20,6 +20,7 @@ class Emma
    var $m_UseMassStartSort = false;
    var $m_ShowTenthOfSeconds = false;
    var $m_ShowInfo = false;
+   var $m_ShowEcardTimes = false;
    var $m_ShowFullView = false;
    var $m_MultiDayStage = -1;
    var $m_MultiDayParent = -1;
@@ -98,8 +99,8 @@ class Emma
 		if ($id < 10000)
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
-		hightime,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext)
-	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,60,'','',0,0,0,'')") or die(mysqli_error($conn));
+		hightime,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes)
+	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,60,'','',0,0,0,'',1)") or die(mysqli_error($conn));
 		return $id;
 	}
 
@@ -114,7 +115,6 @@ class Emma
 	 	return $id;
 	}
 
-
 	public static function AddRadioControl($compid,$classname,$name,$code)
 	{
 		$conn = self::openConnection();
@@ -124,14 +124,15 @@ class Emma
 	}
 
 	public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,
-	$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent,$showinfo,$infotext)
+	$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent,$showinfo,$infotext,$showecardtimes)
 	{
 		$conn = self::openConnection();
 	 	$sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, public=". (!isset($public) ? "0":"1") ."
 	         , massstartsort=". (!isset($massstartsort) ? "0":"1") .", tenthofseconds=". (!isset($tenthofseconds) ? "0":"1") ."
 			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", rankedstartlist=". (!isset($rankedstartlist) ? "0":"1") ."
 			 , hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses'
-			 , multidaystage='$multidaystage', multidayparent='$multidayparent', showinfo=". (!isset($showinfo) ? "0":"1") .", infotext='$infotext' where tavid=$id";
+			 , multidaystage='$multidaystage', multidayparent='$multidayparent', showinfo=". (!isset($showinfo) ? "0":"1") ."
+			 , showecardtimes=". (!isset($showecardtimes) ? "0":"1") .", infotext='$infotext' where tavid=$id";
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -152,7 +153,7 @@ class Emma
 		$conn = self::openConnection();
 		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, 
 		          fullviewdefault, rankedstartlist, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, 
-				  multidayparent, showinfo, infotext from login where tavid=$compid");
+				  multidayparent, showinfo, infotext, showecardtimes from login where tavid=$compid");
 		$ret = null;
 		while ($tmp = mysqli_fetch_array($result))
 			$ret = $tmp;
@@ -277,6 +278,7 @@ class Emma
 			$this->m_QualClasses = $tmp["qualclasses"];
 			$this->m_ShowInfo = $tmp["showinfo"];
 			$this->m_InfoText = str_replace('"','\"', $tmp["infotext"]);
+			$this->m_ShowEcardTimes = $tmp["showecardtimes"];
 
 		    if (isset($tmp["videourl"]))
 		    	$this->m_VideoUrl = $tmp["videourl"];
@@ -387,6 +389,10 @@ class Emma
 	{
 		return $this->m_InfoText;
 	}
+	function ShowEcardTimes()
+	{
+		return $this->m_ShowEcardTimes;
+	}
 
 	function GetUpdateFactor()
 	{
@@ -473,6 +479,21 @@ class Emma
 		return $ret;
 	}
 
+	function Courses($className)
+	{
+		$ret = Array();
+		$q = "SELECT course FROM runners WHERE TavId = ". $this->m_CompId ." AND course >-1 AND Class = '" . mysqli_real_escape_string($this->m_Conn, $className) ."' GROUP BY course";
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+
 	function numberOfRunners()
 	{
 		$ret = [];
@@ -529,7 +550,6 @@ class Emma
 	function getSplitControlsForClass($className)
   	{
 		$ret = Array();
-		$q = "SELECT Control from results, runners where results.TavID = ". $this->m_CompId . " and runners.TavID = " . $this->m_CompId . " and results.dbid = runners.dbid and runners.class = '" . mysqli_real_escape_string($this->m_Conn, $className) ."' and results.Control != 1000 Group by Control";
 		$q = "SELECT code, name from splitcontrols where tavid = " .$this->m_CompId. " and classname = '" . mysqli_real_escape_string($this->m_Conn, $className) ."' order by corder asc, code desc";
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
@@ -904,6 +924,78 @@ class Emma
 		}
 
 		usort($ret,'timeSorter');
+		return $ret;
+	}
+
+	function getCourseControls($course)
+	{
+		$ret = Array();
+		$q = "SELECT code, corder from courses WHERE tavid = " .$this->m_CompId. " AND courseno = ".$course." ORDER BY corder ASC";
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while($tmp = mysqli_fetch_array($result))
+				$ret[] = $tmp;
+			mysqli_free_result($result);
+		} 
+		else
+			echo(mysqli_error($this->m_Conn));
+		return $ret;
+
+	}
+		
+	function getEcardTimesForClassCourse($className,$course)
+	{
+		$controls = $this->getCourseControls($course);
+		$ret = Array();
+		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.ecardtimes, results.Time ,results.Status, results.Changed, results.DbID, results.Control 
+		      FROM runners,results WHERE results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." 
+			  AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  
+			  AND runners.course = ".$course."  
+			  AND results.Control = 1000 AND results.Status IN (0,2,3,4,6,13) ORDER BY results.Dbid";
+		
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+			{
+				$dbId = intval($row['DbID']);
+				$ret[$dbId] = Array();
+				$ret[$dbId]["DbId"]   = $dbId;
+				$ret[$dbId]["Name"]   = $row['Name'];
+				$ret[$dbId]["Bib"]    = intval($row['Bib']);
+				$ret[$dbId]["Club"]   = $row['Club'];
+				$ret[$dbId]["Time"]   = intval($row['Time']);
+				$ret[$dbId]["Status"] = intval($row['Status']);
+				
+				$finishTime = intdiv($row['Time'],(intval($row['Status'])==13?1:100));
+				$ecardtimes = explode(",",$row['ecardtimes']);
+				$lastTime = 0;
+
+                if (sizeof($controls)==sizeof($ecardtimes))
+				{
+					for ($split = 0; $split < sizeof($controls); $split++)
+					{
+						$passTime = intval($ecardtimes[$split]);
+						if ($passTime > 0 && $lastTime > -1)
+							$splitTime = $passTime-$lastTime;
+						else
+							$splitTime = -1;
+						$lastTime = $passTime;
+
+						$ret[$dbId][($split+1)."_pass_time"] = $passTime;
+						$ret[$dbId][($split+1)."_split_time"] = $splitTime;					
+					}
+					$ret[$dbId][($split+1)."_pass_time"] = $finishTime;
+					if ($finishTime>$lastTime && $lastTime>-1)
+						$ret[$dbId][($split+1)."_split_time"] = $finishTime-$lastTime;					
+					else
+						$ret[$dbId][($split+1)."_split_time"] = -1;
+				}
+			}
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+
 		return $ret;
 	}
 

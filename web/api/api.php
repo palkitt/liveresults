@@ -9,7 +9,7 @@ if (isset($_GET['lang']))
 $hightime = 60;
 if (!isset($_GET['method']))
     $_GET['method'] = null;
-if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist')
+if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
 	$refreshTime = 120;
 else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults')
 	$refreshTime = 60;
@@ -129,16 +129,26 @@ elseif ($_GET['method'] == 'getclasses')
 		$numberOfStartedRunners = $currentComp->numberOfStartedRunners();
 		$numberOfFinishedRunners = $currentComp->numberOfFinishedRunners();
 		$infoText = $currentComp->InfoText();
-
+		
 		$ret = "";
 		$first = true;
 
 		foreach ($classNames as $class)
 		{
 			$className = $class->name;
+			$firstCourse = true;
+			$courses = $currentComp->Courses($className);
 			if (!$first)
 				$ret.=",$br";
-			$ret .="{\"className\": \"".$className."\"}";
+			$ret .="{\"className\": \"".$className."\", \"courses\": [";
+			foreach ($courses as $course)
+			{
+				if (!$firstCourse)
+					$ret.=",";
+				$ret.=$course[0];
+				$firstCourse = false;					
+			}
+			$ret.="]}";			
 			$first = false;
 		}
 		
@@ -272,6 +282,21 @@ elseif ($_GET['method'] == 'getclassresults')
 		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br],$br \"infotext\": \"$infoText\"");
 		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 	}
+}
+elseif ($_GET['method'] == 'getclasscoursesplits')
+{
+	$class = $_GET['class'];
+	$course = $_GET['course'];
+	$currentComp = new Emma($_GET['comp']);
+	
+	$RT = insertHeader($refreshTime);
+	$res = courseSplitResults($class,$course);
+	$ret = $res[0];
+	$splitJSON = $res[1];
+	
+	echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"splitcontrols\": $splitJSON, $br\"results\": [$br$ret$br],$br ");
+	echo("\"rt\": $RT}");
+	
 }
 elseif ($_GET['method'] == 'getrunners')
 {
@@ -699,6 +724,153 @@ function classResults($class,$plain)
 	return $res;
 }
 
+function courseSplitResults($class,$course)
+{
+	global $RunnerStatus;
+	global $currentComp;
+	
+	$results = $currentComp->getEcardTimesForClassCourse($class,$course);
+	$controls = $currentComp->getCourseControls($course);
+	
+	$ret = "";
+	$first = true;
+	$place = 1;
+	$count = 1;
+	$lastTime = -9999;
+	$winnerTime = 0;
+	
+
+	$splitJSON = "[$br";
+	for ($split = 1; $split < sizeof($controls)+2; $split++)
+	{
+		if (!$first)
+			$splitJSON .=",$br";
+		$code = ($split<sizeof($controls)+1? $controls[$split-1]["code"] : 999);
+		$splitJSON .= "{ \"no\": ".$split.", \"code\": ".$code." }";
+		$first = false;
+		
+		foreach (["_pass","_split"] as $type)
+		{
+			usort($results, function ($a,$b) use($split, $type)
+			{
+				if (!isset($a[$split.$type."_time"]) && isset($b[$split.$type."_time"]))
+					return 1;
+				if (isset($a[$split.$type."_time"]) && !isset($b[$split.$type."_time"]))
+					return -1;
+				if (!isset($a[$split.$type."_time"]) && !isset($b[$split.$type."_time"]))
+					return 0;
+				if (isset($a[$split.$type."_time"]) && isset($b[$split.$type."_time"]))
+				{
+					if ($a[$split.$type."_time"] == $b[$split.$type."_time"])
+						return 0;
+					else
+						return $a[$split.$type."_time"] < $b[$split.$type."_time"] ? -1 : 1;
+				}
+			});
+			$splitplace = 1;
+			$cursplitplace = 1;
+			$lastsplittime = -1;
+			$bestsplittime = -1;
+
+			foreach ($results as $key => $res)
+			{
+				$sp_time = -1;
+				$raceTime = $res['Time'];
+				$raceStatus = $res['Status'];
+				
+				if (isset($res[$split.$type."_time"]))
+				{
+					$sp_time = $res[$split.$type."_time"];
+					if ($raceStatus == 0 && $sp_time > 0 && $bestsplittime < 0)
+						$bestsplittime = $sp_time;
+				}
+
+				if ($sp_time > 0)
+					$results[$key][$split.$type."_plus"] = $sp_time - $bestsplittime;
+				else
+					$results[$key][$split.$type."_plus"] = -1;
+
+				if ($sp_time != $lastsplittime)
+					$cursplitplace = $splitplace;
+
+				if ($raceStatus != 0 || $sp_time <= 0)
+					$results[$key][$split.$type."_place"] = "\"-\"";
+				else
+				{
+					$results[$key][$split.$type."_place"] = $cursplitplace;
+					$splitplace++;
+					$lastsplittime = $res[$split.$type."_time"];
+				}			
+			}
+		}
+	}
+	$splitJSON .= "$br]";
+
+	usort($results,"sortByResult");
+ 	$first = true;
+	$keys = array_keys($results);
+	foreach ($results as $res)
+	{
+		if (!$first)
+			$ret .=",";
+		$time = $res['Time'];
+		$status = $res['Status'];
+
+		if ($first)
+			$winnerTime = $time;				
+		
+		if ($status == 13)
+			$cp = "F";
+		elseif ($status != 0 || $time < 0)
+			$cp = "-";
+		elseif ($time == $lastTime)
+			$cp = $place;
+		else
+		{
+			$place = $count;
+			$cp = $place;
+		}
+		$timeplus = -1;
+
+		if ($time > 0 && $status == 0)
+			$timeplus = $time-$winnerTime;
+		
+		$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"bib\": ".$res['Bib'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\""; 
+
+		if (count($controls) > 0)
+		{
+			$ret .= ",$br \"splits\": {";
+			$first = true;
+			
+			for ($split = 1; $split < sizeof($controls)+2; $split++)
+			{
+				if (!$first)
+						$ret .=",$br";
+
+				if (isset($res[$split."_pass_time"]) && $res[$split."_pass_time"]>0)
+					$ret .= "\"".$split."_pass_time\": ".$res[$split."_pass_time"].",\"".$split."_pass_place\": ".$res[$split."_pass_place"].",\"".$split."_pass_plus\": ".$res[$split."_pass_plus"].",";
+				else
+					$ret .= "\"".$split."_pass_time\": \"\",\"".$split."_pass_place\": \"\",\"".$split."_pass_plus\": \"\",";
+				
+				if (isset($res[$split."_split_time"]) && $res[$split."_split_time"]>0)
+					$ret .= "\"".$split."_split_time\": ".$res[$split."_split_time"].",\"".$split."_split_place\": ".$res[$split."_split_place"].",\"".$split."_split_plus\": ".$res[$split."_split_plus"];
+				else
+					$ret .= "\"".$split."_split_time\": \"\",\"".$split."_split_place\": \"\",\"".$split."_split_plus\": \"\"";
+
+				$first = false;
+			}
+			$ret .="}";
+		}
+		$ret .= "$br}";
+			
+		$first = false;
+		$count++;
+		$lastTime = $time;
+	}
+	$res[0] = $ret;
+	$res[1] = $splitJSON;
+	return $res;
+}
 
 function insertHeader($refreshTime,$update=true)
 {

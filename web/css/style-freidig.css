@@ -134,6 +134,8 @@ table.dataTable td {vertical-align: top;}
 
 .besttime {color: magenta;}
 .bestplace {color: magenta;}
+.time23 {color: blue;}
+.place23 {color: blue;}
 .place {color: dimgrey;}
 .hideplace {opacity: 0;}
 .plustime {color: dimgrey;}
@@ -252,22 +254,22 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
   color: white;
   text-align: center;
   border-radius: 5px;
-  padding: 5px 0;
+  padding: 2px 0;
   position: absolute;
   z-index: 1;
-  bottom: 120%;
-  left: -5%;
+  top: -5px;
+  right: 115%;
 }
 
 .tooltip .tooltiptext::after {
   content: " ";
   position: absolute;
-  top: 100%;
-  left: 50%; /* To the left of the tooltip */
+  top: +5px;
+  right: -20%; 
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
-  border-color: #555555 transparent transparent transparent;
+  border-color: transparent transparent transparent #555555;
 }
 
 .tooltip:hover .tooltiptext {

@@ -5,7 +5,7 @@ if (isset($_POST['btnSave']))
 {
 	$ok = Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
         $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['rankedstartlist'],$_POST['hightime'],$_POST['quallimits'],
-        $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],$_POST['showinfo'],$_POST['infotext']);
+        $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],$_POST['showinfo'],$_POST['infotext'],$_POST['showecardtimes']);
   if ($ok == 1)
     echo('<b>&nbsp;Competion update OK</b>');
   else
@@ -164,6 +164,9 @@ function confirmDelete(msg,url)
 
 <tr><td><b>Initial dynamic ranking</td>
 <td><input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?>/></td></tr>
+
+<tr><td><b>Show ecard split times</td>
+<td><input type="checkbox" name="showecardtimes" <?= $comp['showecardtimes'] == 1 ? "checked" : "" ?>/></td><td>Enable showing ecard split times (strekktider)</td></tr>
 
 <tr><td><b>Show info text</td>
 <td><input type="checkbox" name="showinfo" <?= $comp['showinfo'] == 1 ? "checked" : "" ?>/></td></tr>

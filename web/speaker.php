@@ -14,6 +14,7 @@ header('Content-Type: text/html; charset='.$CHARSET);
 $currentComp = new Emma($_GET['comp']);
 $currentCompNo = $_GET['comp'];
 $organizer = $currentComp->Organizer();
+$showEcardTimes = $currentComp->ShowEcardTimes();
 $image = "";
 
 $isSingleClass = isset($_GET['class']);
@@ -166,6 +167,10 @@ $(document).ready(function()
 
     <?php if ($showLastPassings){?>
 		res.updateLastPassings();
+	<?php }?>
+
+	<?php if ($showEcardTimes){?>
+		res.showEcardTimes = true;
 	<?php }?>
 
 	<?php if ($showTimePrediction){ ?>
@@ -354,7 +359,7 @@ function closeTop() {
 	<tr>
 	<td colspan="4" align="right"> 
 		<a href="startlist.php?comp=<?=$currentCompNo?>"><?= $_START?></a> | <a href="radio.php?code=-1&comp=<?=$currentCompNo?>">Melde</a> | 
-		<a href="radio.php?code=1000&comp=<?=$currentCompNo?>"><?= $_CONTROLFINISH?></a> | <a href="followall.php?comp=<?=$currentCompNo?>">Alle resultat</a>
+		<a href="radio.php?code=1000&comp=<?=$currentCompNo?>"><?= $_CONTROLFINISH?></a>
 	</td>
 	</tr>
 
@@ -376,8 +381,7 @@ function closeTop() {
   <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
   <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
   <td align="center"><b><span id="compname">loading comp name...</b></td>
-  <td align="right"><?php if (!$isSingleClass && !$isSingleClub) {?><a href="javascript:LiveResults.Instance.newWin()"> <?=$_OPENINNEWWINDOW?></a> <?php }?> <span id="txtResetSorting"></span></td></tr></table></td></tr>
-  
+  <td align="right"><span id="txtResetSorting"></span></td></tr></table></td></tr>
    <tr valign="top"><td>
    <table id="divResults" width="100%"><tbody><tr><td></td></tr></tbody></table>
    </td></tr>

@@ -28,6 +28,7 @@ var LiveResults;
             this.showTenthOfSecond = false;
             this.updateAutomatically = true;
             this.autoUpdateLastPassings = true;
+            this.showEcardTimes = false;
             this.compactView = true;
 			this.scrollView = true;
             this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
@@ -51,7 +52,9 @@ var LiveResults;
             this.lastRunnerListHash = "";
             this.lastPassingsUpdateHash = "";
             this.lastRadioPassingsUpdateHash = "";
-            this.curClassName = "";
+            this.curClassName = null;
+            this.curClubName = null;
+            this.curSplitView = null;
             this.lastClassHash = "";
             this.curClassNumberOfRunners = 0;
             this.curClassSplits = null;
@@ -64,7 +67,6 @@ var LiveResults;
             this.curClassIsUnranked = false;
             this.curClassHasBibs = false;
             this.highlightID = null;
-            this.curClubName = "";
             this.lastClubHash = "";
             this.currentTable = null;
             this.serverTimeDiff = 0;
@@ -81,6 +83,7 @@ var LiveResults;
             this.predData = Array(0);
             this.rankedStartlist = true;
             this.relayClasses = [];
+            this.courses = {};
             this.runnerList = null;
             this.speakerView = false;
             this.shortSprint = false;
@@ -101,6 +104,14 @@ var LiveResults;
                         cl = decodeURIComponent(hash.substring(6));
                         if (cl != _this.curClubName)
                             LiveResults.Instance.viewClubResults(cl);
+                    }
+                    else if (hash.indexOf('splits::') >= 0 && hash.indexOf('::course::') >= 0) 
+                    {
+                        var coind = hash.indexOf('::course::');
+                        cl = decodeURIComponent(hash.substring(8,coind));
+                        var co = hash.substring(coind+10);
+                        if (_this.curSplitView != null && (cl != _this.curSplitView[0] || co != _this.curSplitView[1]))
+                            LiveResults.Instance.viewSplitTimeResults(cl,co);
                     }
                     else 
                     {
@@ -208,6 +219,7 @@ var LiveResults;
                     $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
                 if (data.classes != null)
 				{
+                    this.courses = {};
                     this.relayClasses = [];
                     var classes = data.classes;
 					var str = "";
@@ -218,9 +230,11 @@ var LiveResults;
                     var shiftHeat = false;
 					for (var i=0; i<nClass; i++)
 					{
-						var relay = relayNext;
-                        var sprint = sprintNext;
 						var className = classes[i].className;
+                        this.courses[classes[i].className] = (classes[i].courses != undefined ? classes[i].courses : []);                       
+                        var relay = relayNext;
+                        var sprint = sprintNext;
+						
 						param = className.replace('\'', '\\\'');
 						if (className && className.length > 0)
 						{
@@ -2402,7 +2416,8 @@ var LiveResults;
 
 			$('#divResults').html('');
             this.curClassName = className;
-            this.curClubName = null; 
+            this.curClubName = null;
+            this.curSplitView = null; 
             $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
             var preTime = new Date().getTime();
             var callStr;
@@ -2453,14 +2468,28 @@ var LiveResults;
                 $('#divInfoText').html(data.infotext);
                 if (data.className != null) {
                     if (data.className == "plainresults")
+                    {
                         $('#' + this.resultsHeaderDiv).html('<b>Alle</b>');
+                        $('#' + this.txtResetSorting).html("");
+                    }
                     else if (data.className == "startlist")
+                    {
                         $('#' + this.resultsHeaderDiv).html('<b>Startliste</b>');
+                        $('#' + this.txtResetSorting).html("");
+                    }
                     else
+                    {
                         $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
+                        var courses = _this.courses[data.className];
+                        var link = "";
+                        if (_this.showEcardTimes && courses != undefined && courses.length > 0)
+                            link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + data.className + "'," + courses[0] + ");\">Strekktider</a>";
+                        $("#" + _this.txtResetSorting).html(link);
+
+                    }
                     $('#' + this.resultsControlsDiv).show();
-                }
-                $('#' + this.txtResetSorting).html("");
+                }    
+                
                 if (data.className == "plainresults")
                 {
                     var res = "";
@@ -3136,7 +3165,7 @@ var LiveResults;
                         "aoColumnDefs": columns,
                         "fnPreDrawCallback": function (oSettings) {
                             if (oSettings.aaSorting[0][0] != col - 1) {
-                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\"><img class=\"eR\" style=\"vertical-align: middle\" src=\"images/cleardot.gif\" border=\"0\"/> " + _this.resources["_RESETTODEFAULT"] + "</a>");
+                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">" + _this.resources["_RESETTODEFAULT"] + "</a>");
                             }
                         },
                         "bDestroy": true
@@ -3571,6 +3600,7 @@ var LiveResults;
             $('#' + this.txtResetSorting).html('');
             this.curClubName = clubName;
             this.curClassName = null;
+            this.curSplitView = null; 
             $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
             $.ajax({
                 url: this.apiURL,
@@ -3710,7 +3740,7 @@ var LiveResults;
                         "aoColumnDefs": columns,
                         "fnPreDrawCallback": function (oSettings) {
                             if (oSettings.aaSorting[0][0] != 1) {
-                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\"><img class=\"eR\" style=\"vertical-align: middle\" src=\"images/cleardot.gif\" border=\"0\"/> " + _this.resources["_RESETTODEFAULT"] + "</a>");
+                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">" + _this.resources["_RESETTODEFAULT"] + "</a>");
                             }
                         },
                         "bDestroy": true
@@ -3731,7 +3761,17 @@ var LiveResults;
                 }
             });
             this.currentTable.fnSort([[idxCol, 'asc']]);
-            $("#" + this.txtResetSorting).html("");
+            var link = ""; 
+            if (this.curSplitView != null)
+                link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" +  this.curSplitView[0].replace('\'', '\\\'') + "')\">Resultater</a>";
+            else if (this.curClassName != null && this.showEcardTimes)
+            { 
+                var courses = _this.courses[this.curClassName];
+                if (courses != undefined && courses.length > 0)
+                    link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + this.curClassName + "'," + courses[0] + ");\">Strekktider</a>";
+            }
+
+            $("#" + this.txtResetSorting).html(link);
         };
 
     //Request data for result viewer
@@ -3838,14 +3878,10 @@ var LiveResults;
                         "mDataProp": "club",
                         "width": "20%",
                         "render": function (data,type,row) {
-                            var param = row.club;
+                            
                             var clubShort = row.club;
-                            if (param && param.length > 0)
-                            {
-                                param = param.replace('\'', '\\\'');
-                                if (clubShort.length > _this.maxClubLength)
-                                    clubShort = _this.clubShort(clubShort);				
-                            }
+                            if (clubShort.length > _this.maxClubLength)
+                                clubShort = _this.clubShort(clubShort);		
                             return clubShort;
                         }});
 
@@ -3890,14 +3926,9 @@ var LiveResults;
                         "mDataProp": "club",
                         "width": "20%",
                         "render": function (data,type,row) {
-                            var param = row.club;
                             var clubShort = row.club;
-                            if (param && param.length > 0)
-                            {
-                                param = param.replace('\'', '\\\'');
-                                if (clubShort.length > _this.maxClubLength)
-                                    clubShort = _this.clubShort(clubShort);				
-                            }
+                            if (clubShort.length > _this.maxClubLength)
+                                clubShort = _this.clubShort(clubShort);
                             return clubShort;
                         }
                     });
@@ -3954,8 +3985,227 @@ var LiveResults;
                     });
             }  
         }
-    };  
+    };
+    
+    
+    AjaxViewer.prototype.viewSplitTimeResults = function (className,course) {
+        if (!this.showEcardTimes)
+            return
+        var _this = this;
+        if (this.currentTable != null) {
+            try {
+                this.currentTable.api().destroy();
+            }
+            catch (e) { }
+        }        
+        clearTimeout(this.resUpdateTimeout);
+        $('#divResults').html('');       
+        $('#' + this.txtResetSorting).html("<a href=\"javascript:LiveResults.Instance.chooseClass('" +  className.replace('\'', '\\\'') + "')\">Resultater</a>"); 
+        
+        this.curClubName = null;
+        this.curClassName = null;
+        this.curSplitView = [className,course];
+        $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+        $.ajax({
+            url: this.apiURL,
+            data: "comp=" + this.competitionId + "&method=getclasscoursesplits&class=" + encodeURIComponent(className) + "&course=" + course,
+            success: function (data,status,resp) {
+                var reqTime = new Date();
+                reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.clubUpdateInterval + 1000);
+                _this.updateSplitTimeResults(data,reqTime);
+            },
+            dataType: "json"
+        });
+        window.location.hash = "splits::" + className + "::course::" + course;
+    };
+    
+    AjaxViewer.prototype.updateSplitTimeResults = function (data,reqTime) {
+        var _this = this;
+        $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+        if (data.rt != undefined && data.rt > 0)
+                this.updateInterval = data.rt*1000;
+        $('#updateinterval').html(this.updateInterval/1000);
+        
+        if (data != null && data.status == "OK") 
+        {
+            if (data.className != null) {
+                $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
+                $('#' + this.resultsControlsDiv).show();
+            }
+            if (data.results != null) 
+            {
+                $.each(data.results, function (idx, res) {
+                    res.placeSortable = res.place;
+                    if (res.place == "-")
+                        res.placeSortable = 999999;
+                    if (res.place == "F")
+                        res.placeSortable = 0;
+                });
+                this.curClassNumberOfRunners = data.results.length;
+                $('#numberOfRunners').html(_this.curClassNumberOfRunners);
+                var columns = Array();
+                var col = 0;
+                columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place"});
+                columns.push({ "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data,type,row) {
+                    if (type=="sort") 
+                        return row.placeSortable; 
+                    else
+                        return data; }});
+                                
+                columns.push({
+                    "sTitle": this.resources["_NAME"] + " / " + this.resources["_CLUB"],
+                    "sClass": "left",
+                    "bSortable": false,
+                    "aTargets": [col++],
+                    "mDataProp": "club",
+                    "width": null,
+                    "render": function (data,type,row) {
+                        var param = row.club;
+                        var clubShort = row.club;
+                        if (param && param.length > 0)
+                        {
+                            param = param.replace('\'', '\\\'');
+                            if (clubShort.length > _this.maxClubLength)
+                                clubShort = _this.clubShort(clubShort);				
+                        }
+                        var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                        return (row.name.length>_this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
+                    }
+                });
+                                
+                if (data.splitcontrols != null)
+                {
+                    $.each(data.splitcontrols, function (key, value)
+                    {
+                        var title ="";
+                        if (value.no==1)
+                            title = "S-1 (" + value.code + ")";
+                        else if (value.code==999)
+                            title = (value.no-1) + "-F";
+                        else
+                            title = (value.no-1) + "-" + value.no + " (" + + value.code + ")";
 
+                        columns.push({
+                            "sTitle": title + "&nbsp;&nbsp;",
+                            "bVisible": true,
+                            "sClass": "right",
+                            "bSortable": true,
+                            "sType": "numeric",
+                            "aDataSort": [col],
+                            "aTargets": [col],
+                            "bUseRendered": false,
+                            "mDataProp": "splits." + value.no +"_pass_time",
+                            "render": function (data,type,row)
+                            {
+                                if (type=="sort")
+                                {
+                                    if (row.splits[value.no +"_split_place"]>0)
+                                        return row.splits[value.no +"_split_place"];
+                                    else
+                                        return 9999;
+                                }
+                                else if (value.code!=999 && !row.splits[value.no +"_pass_place"])
+                                    return "";
+                                else
+                                {
+                                    var txt = "";
+                                    var place = "";
+                                    var passPlace = row.splits[value.no +"_pass_place"];
+                                    var splitPlace = row.splits[value.no +"_split_place"];
+                                    
+                                    // First line
+                                    if (passPlace == 1)
+                                    {
+                                        place += "<span class=\"bestplace\"> ";
+                                        txt += "<span class=\"besttime\">";
+                                    }
+                                    else if (passPlace ==2 || passPlace == 3)
+                                    {
+                                        place += "<span class=\"place23\"> ";
+                                        txt += "<span class=\"time23\">";
+                                    }
+                                    else
+                                    {
+                                        place += "<span class=\"place\"> ";
+                                        txt += "<span>";
+                                    }
+                                    if (_this.curClassNumberOfRunners >= 10 && passPlace < 10 || passPlace == "-" )
+                                        place += "&numsp;"
+                                    if (passPlace !="")
+                                        place += "&#10072;" + passPlace + "&#10072;";
+                                    place += "</span>";
+                                        
+                                    var passTime = (value.code==999? _this.formatTime(row.result, row.status, false) :
+                                                _this.formatTime(row.splits[value.no +"_pass_time"]*100, 0, false));
+                                    txt += "<div class=\"tooltip\">" + passTime + place ;
+                                    txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_pass_plus"]*100, 0, false) +"</span></div>";
+                                    txt += "</span>";
+                                    
+                                    // Second line
+                                    if (splitPlace != "")
+                                    {
+                                        txt += "<br/><span class=";
+                                        place = "";
+                                        
+                                        if (splitPlace == 1)
+                                        {
+                                            txt += "\"besttime\">";
+                                            place += "<span class=\"bestplace\"> ";
+                                        }
+                                        else if (splitPlace ==2 || splitPlace == 3)
+                                        {
+                                            txt += "\"time23\">";
+                                            place += "<span class=\"place23\"> ";
+                                        }
+                                        else
+                                        {
+                                            txt += "\"legtime\">";
+                                            place += "<span class=\"place\"> ";
+                                        }
+                                        if (_this.curClassNumberOfRunners >= 10 && splitPlace < 10 || splitPlace == "-")
+                                            place += "&numsp;"
+                                        place += "&#10072;" + splitPlace + "&#10072;</span>";
+                                        txt += "<div class=\"tooltip\">" + _this.formatTime(row.splits[value.no +"_split_time"]*100, 0, false) + place ;
+                                        txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_split_plus"]*100, 0, false) +"</span></div>";
+                                        txt += "</span>";
+                                    }                                        
+                                };
+                                return txt;
+                            }
+                        });
+                        col++;
+                    });                                							
+                };
+
+                this.currentTable = $('#' + this.resultsDiv).dataTable({
+                    "scrollX": this.scrollView,
+                    "fixedColumns": {leftColumns: 3},
+                    "responsive": false,
+                    "bPaginate": false,
+                    "bLengthChange": false,
+                    "bFilter": false,
+                    "bSort": true,
+                    "bInfo": false,
+                    "bAutoWidth": false,
+                    "aaData": data.results,
+                    "aaSorting": [[1, "asc"]],
+                    "aoColumnDefs": columns,
+                    "fnPreDrawCallback": function (oSettings) {
+                        if (oSettings.aaSorting[0][0] != 1) {
+                            $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">" + _this.resources["_RESETTODEFAULT"] + "</a>");
+                        }
+                    },
+                    "bDestroy": true
+                });
+
+                var scrollBody = $(this.currentTable.api().settings()[0].nScrollBody);
+                var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
+                if ( $(".firstCol").width() > 0 && maxScroll > 5)
+                    $('#switchNavClick1').trigger('click');
+                this.currentTable.fnAdjustColumnSizing();
+            }
+        }        
+    };
         
     // ReSharper disable once InconsistentNaming
         AjaxViewer.VERSION = "2016-08-06-01";

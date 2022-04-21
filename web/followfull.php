@@ -15,6 +15,7 @@ $currentComp = new Emma($_GET['comp']);
 $currentCompNo = $_GET['comp'];
 $organizer = $currentComp->Organizer();
 $showInfo = $currentComp->ShowInfo();
+$showEcardTimes = $currentComp->ShowEcardTimes();
 $image = "";
 
 $isSingleClass = isset($_GET['class']);
@@ -169,6 +170,10 @@ $(document).ready(function()
 
     <?php if ($showLastPassings){?>
 		res.updateLastPassings();
+	<?php }?>
+	
+	<?php if ($showEcardTimes){?>
+		res.showEcardTimes = true;
 	<?php }?>
 
 	<?php if ($showTimePrediction){ ?>
@@ -342,6 +347,7 @@ function closeTop() {
 					case "Kristiansand OK": $image = "images/KOK_60.jpg"; break;
 					case "OK Moss":         $image = "images/OKMoss.png"; break;
 					case "Halden SK":       $image = "images/haldensk.png"; break;
+					default:                 $image = "images/LiveRes60.png";
 				}
 			if ($image != ""){ ?>
 			<td width="60"><img src="<?php echo($image) ?>" height="60" ></td>
@@ -402,7 +408,7 @@ function closeTop() {
   <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
   <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
   <td align="center"><b><span id="compname">loading comp name...</b></td>
-  <td align="right"><?php if (!$isSingleClass && !$isSingleClub) {?><a href="javascript:LiveResults.Instance.newWin()"> <?=$_OPENINNEWWINDOW?></a> <?php }?> <span id="txtResetSorting"></span></td></tr></table></td></tr>
+  <td align="right"><span id="txtResetSorting"></span></td></tr></table></td></tr>
   
    <tr valign="top"><td>
    <table id="divResults" width="100%"><tbody><tr><td></td></tr></tbody></table>

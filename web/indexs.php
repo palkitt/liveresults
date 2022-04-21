@@ -53,7 +53,7 @@ el.style.backgroundColor = "";
 <!-- MAIN DIV -->
 <div style="font-size: 20px; font-weight: bold; height: 50px; width:100%; background-color: #555555; padding-left: 5px; 
             vertical-align: middle; line-height:45px; color: white;">
-        <img src="images/Freidig60.png" height="40px" style="vertical-align: middle" />&nbsp LiveRes Freidig orientering
+        <img src="images/LiveRes.png" height="40px" style="vertical-align: middle" />&nbsp LiveRes online resultater
 </div>
 <div class="maindiv" style="padding-left: 5px;">
 <br>
