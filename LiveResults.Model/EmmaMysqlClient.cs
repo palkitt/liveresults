@@ -346,18 +346,24 @@ namespace LiveResults.Model
                 reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
+                    var course = 0;
+                    var ecardTimes = "";
                     var dbid = Convert.ToInt32(reader["dbid"]);
                     var control = Convert.ToInt32(reader["control"]);
                     var time = Convert.ToInt32(reader["time"]);
                     var ecard1 = Convert.ToInt32(reader["ecard1"]);
                     var ecard2 = Convert.ToInt32(reader["ecard2"]);
                     var bib = Convert.ToInt32(reader["bib"]);
-                    var course = Convert.ToInt32(reader["course"]);
+                    if (reader["course"] != null && reader["course"] != DBNull.Value)
+                        course = Convert.ToInt32(reader["course"].ToString());
+                    if (reader["ecardtimes"] != null && reader["ecardtimes"] != DBNull.Value)
+                        ecardTimes = reader["ecardtimes"].ToString();
+
                     var sourceId = idToAliasDictionary.ContainsKey(dbid) ? idToAliasDictionary[dbid] : null;
                     if (!IsRunnerAdded(dbid))
                     {
                         var r = new Runner(dbid, reader["name"] as string, reader["club"] as string, reader["class"] as string, ecard1, ecard2, bib, sourceId,
-                            course, reader["ecardtimes"] as string);
+                            course, ecardTimes);
                         AddRunner(r);
                         numRunners++;
                     }

@@ -212,12 +212,16 @@ namespace LiveResults.Client
                         List<CourseControl> courseControls = new List<CourseControl>();
                         if (m_updateEcardTimes)
                         {
-                            cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype FROM controls WHERE posttype=0 ORDER BY courceno, controlno");
+                            cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype FROM controls ORDER BY courceno, controlno");
                             using (IDataReader reader = cmd.ExecuteReader())
                             {
                                 while (reader.Read())
                                 {
-                                    int courseno = 0, order = 0, code = 0;
+                                    int courseno = 0, order = 0, code = 0, posttype=0;
+                                    if (reader["posttype"] != null && reader["posttype"] != DBNull.Value)
+                                        posttype = Convert.ToInt32(reader["posttype"].ToString());
+                                    if (posttype == 1)
+                                        continue;
                                     if (reader["courceno"] != null && reader["courceno"] != DBNull.Value)
                                         courseno = Convert.ToInt32(reader["courceno"].ToString());
                                     if (reader["controlno"] != null && reader["controlno"] != DBNull.Value)
@@ -1173,9 +1177,12 @@ namespace LiveResults.Client
                             if (ecardTimesList.ContainsKey(ecard4)) ecardTimes.AddRange(ecardTimesList[ecard4]);
                             ecardTimes = ecardTimes.OrderBy(s => s.time).ToList();
 
-                            int controlNo = 0, timeNo = 0, timeNoLast = -1;
+                            int controlNo = 0, timeNo = 0, timeNoLast = -1, numControls = 0;
+                            if (courses.ContainsKey(course))
+                                numControls = courses[course].Count;
+
                             bool first = true;
-                            while (controlNo < courses[course].Count)
+                            while (controlNo < numControls)
                             {
                                 int timeMatch = -1;
                                 timeNo = timeNoLast + 1;
