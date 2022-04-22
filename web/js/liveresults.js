@@ -110,7 +110,7 @@ var LiveResults;
                         var coind = hash.indexOf('::course::');
                         cl = decodeURIComponent(hash.substring(8,coind));
                         var co = hash.substring(coind+10);
-                        if (_this.curSplitView != null && (cl != _this.curSplitView[0] || co != _this.curSplitView[1]))
+                        if (_this.curSplitView == null || cl != _this.curSplitView[0] || co != _this.curSplitView[1])
                             LiveResults.Instance.viewSplitTimeResults(cl,co);
                     }
                     else 
@@ -4043,166 +4043,169 @@ var LiveResults;
                 });
                 this.curClassNumberOfRunners = data.results.length;
                 $('#numberOfRunners').html(_this.curClassNumberOfRunners);
-                var columns = Array();
-                var col = 0;
-                columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place"});
-                columns.push({ "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data,type,row) {
-                    if (type=="sort") 
-                        return row.placeSortable; 
-                    else
-                        return data; }});
-                                
-                columns.push({
-                    "sTitle": this.resources["_NAME"] + " / " + this.resources["_CLUB"],
-                    "sClass": "left",
-                    "bSortable": false,
-                    "aTargets": [col++],
-                    "mDataProp": "club",
-                    "width": null,
-                    "render": function (data,type,row) {
-                        var param = row.club;
-                        var clubShort = row.club;
-                        if (param && param.length > 0)
-                        {
-                            param = param.replace('\'', '\\\'');
-                            if (clubShort.length > _this.maxClubLength)
-                                clubShort = _this.clubShort(clubShort);				
-                        }
-                        var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
-                        return (row.name.length>_this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
-                    }
-                });
-                                
-                if (data.splitcontrols != null)
+                if (this.curClassNumberOfRunners>0)
                 {
-                    $.each(data.splitcontrols, function (key, value)
-                    {
-                        var title ="";
-                        if (value.no==1)
-                            title = "S-1 (" + value.code + ")";
-                        else if (value.code==999)
-                            title = (value.no-1) + "-F";
+                    var columns = Array();
+                    var col = 0;
+                    columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place"});
+                    columns.push({ "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data,type,row) {
+                        if (type=="sort") 
+                            return row.placeSortable; 
                         else
-                            title = (value.no-1) + "-" + value.no + " (" + + value.code + ")";
-
-                        columns.push({
-                            "sTitle": title + "&nbsp;&nbsp;",
-                            "bVisible": true,
-                            "sClass": "right",
-                            "bSortable": true,
-                            "sType": "numeric",
-                            "aDataSort": [col],
-                            "aTargets": [col],
-                            "bUseRendered": false,
-                            "mDataProp": "splits." + value.no +"_pass_time",
-                            "render": function (data,type,row)
+                            return data; }});
+                                    
+                    columns.push({
+                        "sTitle": this.resources["_NAME"] + " / " + this.resources["_CLUB"],
+                        "sClass": "left",
+                        "bSortable": false,
+                        "aTargets": [col++],
+                        "mDataProp": "club",
+                        "width": null,
+                        "render": function (data,type,row) {
+                            var param = row.club;
+                            var clubShort = row.club;
+                            if (param && param.length > 0)
                             {
-                                if (type=="sort")
-                                {
-                                    if (row.splits[value.no +"_split_place"]>0)
-                                        return row.splits[value.no +"_split_place"];
-                                    else
-                                        return 9999;
-                                }
-                                else if (value.code!=999 && !row.splits[value.no +"_pass_place"])
-                                    return "";
-                                else
-                                {
-                                    var txt = "";
-                                    var place = "";
-                                    var passPlace = row.splits[value.no +"_pass_place"];
-                                    var splitPlace = row.splits[value.no +"_split_place"];
+                                param = param.replace('\'', '\\\'');
+                                if (clubShort.length > _this.maxClubLength)
+                                    clubShort = _this.clubShort(clubShort);				
+                            }
+                            var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                            return (row.name.length>_this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
+                        }
+                    });
                                     
-                                    // First line
-                                    if (passPlace == 1)
+                    if (data.splitcontrols != null)
+                    {
+                        $.each(data.splitcontrols, function (key, value)
+                        {
+                            var title ="";
+                            if (value.no==1)
+                                title = "S-1 (" + value.code + ")";
+                            else if (value.code==999)
+                                title = (value.no-1) + "-F";
+                            else
+                                title = (value.no-1) + "-" + value.no + " (" + + value.code + ")";
+
+                            columns.push({
+                                "sTitle": title + "&nbsp;&nbsp;",
+                                "bVisible": true,
+                                "sClass": "right",
+                                "bSortable": true,
+                                "sType": "numeric",
+                                "aDataSort": [col],
+                                "aTargets": [col],
+                                "bUseRendered": false,
+                                "mDataProp": "splits." + value.no +"_pass_time",
+                                "render": function (data,type,row)
+                                {
+                                    if (type=="sort")
                                     {
-                                        place += "<span class=\"bestplace\"> ";
-                                        txt += "<span class=\"besttime\">";
+                                        if (row.splits[value.no +"_split_place"]>0)
+                                            return row.splits[value.no +"_split_place"];
+                                        else
+                                            return 9999;
                                     }
-                                    else if (passPlace ==2 || passPlace == 3)
-                                    {
-                                        place += "<span class=\"place23\"> ";
-                                        txt += "<span class=\"time23\">";
-                                    }
+                                    else if (value.code!=999 && !row.splits[value.no +"_pass_place"])
+                                        return "";
                                     else
                                     {
-                                        place += "<span class=\"place\"> ";
-                                        txt += "<span>";
-                                    }
-                                    if (_this.curClassNumberOfRunners >= 10 && passPlace < 10 || passPlace == "-" )
-                                        place += "&numsp;"
-                                    if (passPlace !="")
-                                        place += "&#10072;" + passPlace + "&#10072;";
-                                    place += "</span>";
+                                        var txt = "";
+                                        var place = "";
+                                        var passPlace = row.splits[value.no +"_pass_place"];
+                                        var splitPlace = row.splits[value.no +"_split_place"];
                                         
-                                    var passTime = (value.code==999? _this.formatTime(row.result, row.status, false) :
-                                                _this.formatTime(row.splits[value.no +"_pass_time"]*100, 0, false));
-                                    txt += "<div class=\"tooltip\">" + passTime + place ;
-                                    txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_pass_plus"]*100, 0, false) +"</span></div>";
-                                    txt += "</span>";
-                                    
-                                    // Second line
-                                    if (splitPlace != "")
-                                    {
-                                        txt += "<br/><span class=";
-                                        place = "";
-                                        
-                                        if (splitPlace == 1)
+                                        // First line
+                                        if (passPlace == 1)
                                         {
-                                            txt += "\"besttime\">";
                                             place += "<span class=\"bestplace\"> ";
+                                            txt += "<span class=\"besttime\">";
                                         }
-                                        else if (splitPlace ==2 || splitPlace == 3)
+                                        else if (passPlace ==2 || passPlace == 3)
                                         {
-                                            txt += "\"time23\">";
                                             place += "<span class=\"place23\"> ";
+                                            txt += "<span class=\"time23\">";
                                         }
                                         else
                                         {
-                                            txt += "\"legtime\">";
                                             place += "<span class=\"place\"> ";
+                                            txt += "<span>";
                                         }
-                                        if (_this.curClassNumberOfRunners >= 10 && splitPlace < 10 || splitPlace == "-")
+                                        if (_this.curClassNumberOfRunners >= 10 && passPlace < 10 || passPlace == "-" )
                                             place += "&numsp;"
-                                        place += "&#10072;" + splitPlace + "&#10072;</span>";
-                                        txt += "<div class=\"tooltip\">" + _this.formatTime(row.splits[value.no +"_split_time"]*100, 0, false) + place ;
-                                        txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_split_plus"]*100, 0, false) +"</span></div>";
+                                        if (passPlace !="")
+                                            place += "&#10072;" + passPlace + "&#10072;";
+                                        place += "</span>";
+                                            
+                                        var passTime = (value.code==999? _this.formatTime(row.result, row.status, false) :
+                                                    _this.formatTime(row.splits[value.no +"_pass_time"]*100, 0, false));
+                                        txt += "<div class=\"tooltip\">" + passTime + place ;
+                                        txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_pass_plus"]*100, 0, false) +"</span></div>";
                                         txt += "</span>";
-                                    }                                        
-                                };
-                                return txt;
+                                        
+                                        // Second line
+                                        if (splitPlace != "")
+                                        {
+                                            txt += "<br/><span class=";
+                                            place = "";
+                                            
+                                            if (splitPlace == 1)
+                                            {
+                                                txt += "\"besttime\">";
+                                                place += "<span class=\"bestplace\"> ";
+                                            }
+                                            else if (splitPlace ==2 || splitPlace == 3)
+                                            {
+                                                txt += "\"time23\">";
+                                                place += "<span class=\"place23\"> ";
+                                            }
+                                            else
+                                            {
+                                                txt += "\"legtime\">";
+                                                place += "<span class=\"place\"> ";
+                                            }
+                                            if (_this.curClassNumberOfRunners >= 10 && splitPlace < 10 || splitPlace == "-")
+                                                place += "&numsp;"
+                                            place += "&#10072;" + splitPlace + "&#10072;</span>";
+                                            txt += "<div class=\"tooltip\">" + _this.formatTime(row.splits[value.no +"_split_time"]*100, 0, false) + place ;
+                                            txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_split_plus"]*100, 0, false) +"</span></div>";
+                                            txt += "</span>";
+                                        }                                        
+                                    };
+                                    return txt;
+                                }
+                            });
+                            col++;
+                        });                                							
+                    };
+
+                    this.currentTable = $('#' + this.resultsDiv).dataTable({
+                        "scrollX": this.scrollView,
+                        "fixedColumns": {leftColumns: 3},
+                        "responsive": false,
+                        "bPaginate": false,
+                        "bLengthChange": false,
+                        "bFilter": false,
+                        "bSort": true,
+                        "bInfo": false,
+                        "bAutoWidth": false,
+                        "aaData": data.results,
+                        "aaSorting": [[1, "asc"]],
+                        "aoColumnDefs": columns,
+                        "fnPreDrawCallback": function (oSettings) {
+                            if (oSettings.aaSorting[0][0] != 1) {
+                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">" + _this.resources["_RESETTODEFAULT"] + "</a>");
                             }
-                        });
-                        col++;
-                    });                                							
-                };
+                        },
+                        "bDestroy": true
+                    });
 
-                this.currentTable = $('#' + this.resultsDiv).dataTable({
-                    "scrollX": this.scrollView,
-                    "fixedColumns": {leftColumns: 3},
-                    "responsive": false,
-                    "bPaginate": false,
-                    "bLengthChange": false,
-                    "bFilter": false,
-                    "bSort": true,
-                    "bInfo": false,
-                    "bAutoWidth": false,
-                    "aaData": data.results,
-                    "aaSorting": [[1, "asc"]],
-                    "aoColumnDefs": columns,
-                    "fnPreDrawCallback": function (oSettings) {
-                        if (oSettings.aaSorting[0][0] != 1) {
-                            $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">" + _this.resources["_RESETTODEFAULT"] + "</a>");
-                        }
-                    },
-                    "bDestroy": true
-                });
-
-                var scrollBody = $(this.currentTable.api().settings()[0].nScrollBody);
-                var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
-                if ( $(".firstCol").width() > 0 && maxScroll > 5)
-                    $('#switchNavClick1').trigger('click');
-                this.currentTable.fnAdjustColumnSizing();
+                    var scrollBody = $(this.currentTable.api().settings()[0].nScrollBody);
+                    var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
+                    if ( $(".firstCol").width() > 0 && maxScroll > 5)
+                        $('#switchNavClick1').trigger('click');
+                    this.currentTable.fnAdjustColumnSizing();
+                }
             }
         }        
     };
