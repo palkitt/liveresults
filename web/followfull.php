@@ -386,9 +386,8 @@ function closeTop() {
   	<td align="right"width="30%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
   	<td align="right" width="10%">
-	  <span class="noUnderline"><a href="images/LiveResGuide.jpg">?</a> 
-	<span id="setCompactViewText" class="noUnderline">
-	                            <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
+	  <span class="noUnderline"><a href="images/LiveResGuide.jpg">?</a><span id="setCompactViewText" class="noUnderline">
+	        <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
 	</tr>
   </table></td>
 </tr>
@@ -408,7 +407,7 @@ function closeTop() {
   <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
   <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
   <td align="center"><b><span id="compname">loading comp name...</b></td>
-  <td align="right"><span id="txtResetSorting"></span></td></tr></table></td></tr>
+  <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td></tr></table></td></tr>
   
    <tr valign="top"><td>
    <table id="divResults" width="100%"><tbody><tr><td></td></tr></tbody></table>

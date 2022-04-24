@@ -306,6 +306,10 @@ table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_
    font-size: 1.3em;
 }
 
+.splitChooser a{ 
+  text-decoration: none;
+  color: white;
+}
 
 /* Animated menu icon */
 .menuicon {

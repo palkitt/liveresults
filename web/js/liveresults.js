@@ -1446,9 +1446,9 @@ var LiveResults;
                           "&minbib=" + minBib + "&maxbib=" + maxBib + 
                           "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash,
                     success: function (data,status,resp) {
-                        var reqTime = new Date();
-                        reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.radioUpdateInterval + 1000);
-                        _this.handleUpdateRadioPassings(data,reqTime,code,calltime,minBib,maxBib); },
+                        var expTime = new Date();
+                        expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+                        _this.handleUpdateRadioPassings(data,expTime,code,calltime,minBib,maxBib); },
                     error: function () {
                         _this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(); }, _this.radioUpdateInterval);
                     },
@@ -1458,8 +1458,17 @@ var LiveResults;
 
         };
         //Handle response for updating the last radio passings..
-        AjaxViewer.prototype.handleUpdateRadioPassings = function (data,reqTime,code,calltime,minBib,maxBib) {
-            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+        AjaxViewer.prototype.handleUpdateRadioPassings = function (data,expTime,code,calltime,minBib,maxBib) {
+            
+            if (data.rt != undefined && data.rt > 0)
+                this.radioUpdateInterval = data.rt*1000;
+            $('#updateinterval').html(this.radioUpdateInterval/1000);
+            if (expTime)
+            {
+                var lastUpdate = new Date();
+                lastUpdate.setTime(expTime - this.radioUpdateInterval + 1000);
+                $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
+            }                       
             // Make live blinker pulsing
             var el = document.getElementById('liveIndicator');
                 el.style.animation = 'none';
@@ -1470,10 +1479,7 @@ var LiveResults;
 			var leftInForest = false;
             var updated = false;
 
-            // Insert data from query
-            if (data.rt != undefined && data.rt > 0)
-                this.radioUpdateInterval = data.rt*1000;
-            $('#updateinterval').html(this.radioUpdateInterval/1000);
+            // Insert data from query            
 			if (data != null && data.status == "OK") 
             {
 				this.lastRadioPassingsUpdateHash = data.hash;
@@ -2348,9 +2354,9 @@ var LiveResults;
                         url: this.apiURL,
                         data: "comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club=" + encodeURIComponent(this.curClubName) + "&last_hash=" + this.lastClubHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                         success: function (data,status,resp) {
-                            var reqTime = new Date();
-                            reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.clubUpdateInterval + 1000);
-                            _this.handleUpdateClubResults(data,reqTime); 
+                            var expTime = new Date();
+                            expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+                            _this.handleUpdateClubResults(data,expTime); 
                         },
                         error: function () {
                             _this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, _this.clubUpdateInterval);
@@ -2362,13 +2368,16 @@ var LiveResults;
         };
 
         //handle the response on club-results update
-        AjaxViewer.prototype.handleUpdateClubResults = function (data,reqTime) {
+        AjaxViewer.prototype.handleUpdateClubResults = function (data,expTime) {
             var _this = this;
-            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             if (data.rt != undefined && data.rt > 0)
-            {    
                 this.clubUpdateInterval = data.rt*1000;
-                 $('#updateinterval').html(this.clubUpdateInterval/1000);
+            $('#updateinterval').html(this.clubUpdateInterval/1000);
+            if (expTime)
+            {
+                var lastUpdate = new Date();
+                lastUpdate.setTime(expTime - this.clubUpdateInterval + 1000);
+                $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
             }
             if (data.status == "OK" && this.currentTable != null)
             { 
@@ -2454,9 +2463,8 @@ var LiveResults;
         };
 		
         AjaxViewer.prototype.updateClassResults = function (data,expTime) {
-            if (data.rt != undefined && data.rt > 0)
+            if (data != null && data.rt != undefined && data.rt > 0)
                 this.updateInterval = data.rt*1000;
-            $('#updateinterval').html(this.updateInterval/1000);
             if (expTime)
             {
                 var lastUpdate = new Date();
@@ -2483,7 +2491,7 @@ var LiveResults;
                         var courses = _this.courses[data.className];
                         var link = "";
                         if (_this.showEcardTimes && courses != undefined && courses.length > 0)
-                            link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + data.className + "'," + courses[0] + ");\">Strekktider</a>";
+                            link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + data.className + "'," + courses[0] + ");\">Strekktider&#10148;</a>";
                         $("#" + _this.txtResetSorting).html(link);
 
                     }
@@ -2492,6 +2500,7 @@ var LiveResults;
                 
                 if (data.className == "plainresults")
                 {
+                    $('#updateinterval').html("- ");
                     var res = "";
                     for (var i=0; i < data.results.length; i++)
                     {
@@ -2520,6 +2529,7 @@ var LiveResults;
                 }
                 else if (data.className == "startlist")
                 {
+                    $('#updateinterval').html("- ");
                     var res = "";
                     for (var i=0; i < data.results.length; i++)
                     {
@@ -2565,7 +2575,9 @@ var LiveResults;
                     NumRunText += "</br><a href=\"javascript:res.raceSplitterDialog();\">Lag RaceSplitter fil</a>";
                     $('#numberOfRunners').html(NumRunText);
                 }                 
-                else if (data.results != null && data.results.length>0) {
+                else if (data.results != null && data.results.length>0) 
+                {                    
+                    $('#updateinterval').html(this.updateInterval/1000);
                     var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
                     // Class properties
                     this.curClassSplits = data.splitcontrols;
@@ -3165,7 +3177,7 @@ var LiveResults;
                         "aoColumnDefs": columns,
                         "fnPreDrawCallback": function (oSettings) {
                             if (oSettings.aaSorting[0][0] != col - 1) {
-                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">" + _this.resources["_RESETTODEFAULT"] + "</a>");
+                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#11118;" + _this.resources["_RESETTODEFAULT"] + "</a>");
                             }
                         },
                         "bDestroy": true
@@ -3203,10 +3215,11 @@ var LiveResults;
                     this.lastClassHash = data.hash;                    
                     this.updatePredictedTimes(true,false); // Refresh = true; Animate = false
                     this.currentTable.fnAdjustColumnSizing();
+
+                    if (this.isCompToday())
+                        this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate();}, this.updateInterval);
                 }
-            }
-            if (this.isCompToday())
-                this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate();}, this.updateInterval);
+            } 
         };
         
         AjaxViewer.prototype.setHighlight = function(results,highlightID){
@@ -3606,9 +3619,9 @@ var LiveResults;
                 url: this.apiURL,
                 data: "comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club=" + encodeURIComponent(clubName) + (this.isMultiDayEvent ? "&includetotal=true" : ""),
                 success: function (data,status,resp) {
-                    var reqTime = new Date();
-                    reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.clubUpdateInterval + 1000);
-                    _this.updateClubResults(data,reqTime);
+                    var expTime = new Date();
+                    expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+                    _this.updateClubResults(data,expTime);
                 },
                 dataType: "json"
             });
@@ -3617,13 +3630,16 @@ var LiveResults;
             }
         };
         
-        AjaxViewer.prototype.updateClubResults = function (data,reqTime) {
+        AjaxViewer.prototype.updateClubResults = function (data,expTime) {
             var _this = this;
-            $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             if (data.rt != undefined && data.rt > 0)
-            {    
                 this.clubUpdateInterval = data.rt*1000;
-                 $('#updateinterval').html(this.clubUpdateInterval/1000);
+            $('#updateinterval').html(this.clubUpdateInterval/1000);
+            if (expTime)
+            {
+                var lastUpdate = new Date();
+                lastUpdate.setTime(expTime - this.clubUpdateInterval + 1000);
+                $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
             }
             if (data != null && data.status == "OK") 
             {
@@ -3740,7 +3756,7 @@ var LiveResults;
                         "aoColumnDefs": columns,
                         "fnPreDrawCallback": function (oSettings) {
                             if (oSettings.aaSorting[0][0] != 1) {
-                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">" + _this.resources["_RESETTODEFAULT"] + "</a>");
+                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#11118;" + _this.resources["_RESETTODEFAULT"] + "</a>");
                             }
                         },
                         "bDestroy": true
@@ -3763,12 +3779,12 @@ var LiveResults;
             this.currentTable.fnSort([[idxCol, 'asc']]);
             var link = ""; 
             if (this.curSplitView != null)
-                link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" +  this.curSplitView[0].replace('\'', '\\\'') + "')\">Resultater</a>";
+                link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" +  this.curSplitView[0].replace('\'', '\\\'') + "')\">Resultater&#10148;</a>";
             else if (this.curClassName != null && this.showEcardTimes)
             { 
-                var courses = _this.courses[this.curClassName];
+                var courses = this.courses[this.curClassName];
                 if (courses != undefined && courses.length > 0)
-                    link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + this.curClassName + "'," + courses[0] + ");\">Strekktider</a>";
+                    link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + this.curClassName + "'," + courses[0] + ");\">Strekktider&#10148;</a>";
             }
 
             $("#" + this.txtResetSorting).html(link);
@@ -4000,7 +4016,7 @@ var LiveResults;
         }        
         clearTimeout(this.resUpdateTimeout);
         $('#divResults').html('');       
-        $('#' + this.txtResetSorting).html("<a href=\"javascript:LiveResults.Instance.chooseClass('" +  className.replace('\'', '\\\'') + "')\">Resultater</a>"); 
+        $('#' + this.txtResetSorting).html("<a href=\"javascript:LiveResults.Instance.chooseClass('" +  className.replace('\'', '\\\'') + "')\">Resultater&#10148;</a>"); 
         
         this.curClubName = null;
         this.curClassName = null;
@@ -4010,21 +4026,27 @@ var LiveResults;
             url: this.apiURL,
             data: "comp=" + this.competitionId + "&method=getclasscoursesplits&class=" + encodeURIComponent(className) + "&course=" + course,
             success: function (data,status,resp) {
-                var reqTime = new Date();
-                reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.clubUpdateInterval + 1000);
-                _this.updateSplitTimeResults(data,reqTime);
+                var expTime = new Date();
+                expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+                _this.updateSplitTimeResults(data,expTime);
             },
             dataType: "json"
         });
         window.location.hash = "splits::" + className + "::course::" + course;
     };
     
-    AjaxViewer.prototype.updateSplitTimeResults = function (data,reqTime) {
+    AjaxViewer.prototype.updateSplitTimeResults = function (data,expTime) {
         var _this = this;
-        $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
+        var updateInterval = 0;
         if (data.rt != undefined && data.rt > 0)
-                this.updateInterval = data.rt*1000;
-        $('#updateinterval').html(this.updateInterval/1000);
+                updateInterval = data.rt*1000;
+        $('#updateinterval').html("- ");
+        if (expTime)
+        {
+            var lastUpdate = new Date();
+            lastUpdate.setTime(expTime - updateInterval + 1000);
+            $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
+        }        
         
         if (data != null && data.status == "OK") 
         {
@@ -4083,7 +4105,7 @@ var LiveResults;
                             if (value.no==1)
                                 title = "S-1 (" + value.code + ")";
                             else if (value.code==999)
-                                title = (value.no-1) + "-F";
+                                title = (value.no-1) + "-" + _this.resources["_CONTROLFINISH"];
                             else
                                 title = (value.no-1) + "-" + value.no + " (" + + value.code + ")";
 
@@ -4131,14 +4153,13 @@ var LiveResults;
                                             place += "<span class=\"place\"> ";
                                             txt += "<span>";
                                         }
-                                        if (_this.curClassNumberOfRunners >= 10 && passPlace < 10 || passPlace == "-" )
+                                        if (_this.curClassNumberOfRunners >= 10 && (passPlace < 10 || passPlace == "-" ))
                                             place += "&numsp;"
                                         if (passPlace !="")
                                             place += "&#10072;" + passPlace + "&#10072;";
                                         place += "</span>";
                                             
-                                        var passTime = (value.code==999? _this.formatTime(row.result, row.status, false) :
-                                                    _this.formatTime(row.splits[value.no +"_pass_time"]*100, 0, false));
+                                        var passTime = _this.formatTime(row.splits[value.no +"_pass_time"]*100, 0, false);
                                         txt += "<div class=\"tooltip\">" + passTime + place ;
                                         txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_pass_plus"]*100, 0, false) +"</span></div>";
                                         txt += "</span>";
@@ -4164,7 +4185,7 @@ var LiveResults;
                                                 txt += "\"legtime\">";
                                                 place += "<span class=\"place\"> ";
                                             }
-                                            if (_this.curClassNumberOfRunners >= 10 && splitPlace < 10 || splitPlace == "-")
+                                            if (_this.curClassNumberOfRunners >= 10 && (splitPlace < 10 || splitPlace == "-"))
                                                 place += "&numsp;"
                                             place += "&#10072;" + splitPlace + "&#10072;</span>";
                                             txt += "<div class=\"tooltip\">" + _this.formatTime(row.splits[value.no +"_split_time"]*100, 0, false) + place ;
@@ -4194,7 +4215,7 @@ var LiveResults;
                         "aoColumnDefs": columns,
                         "fnPreDrawCallback": function (oSettings) {
                             if (oSettings.aaSorting[0][0] != 1) {
-                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">" + _this.resources["_RESETTODEFAULT"] + "</a>");
+                                $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#11118;" + _this.resources["_RESETTODEFAULT"] + "</a>");
                             }
                         },
                         "bDestroy": true
