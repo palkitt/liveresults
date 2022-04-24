@@ -4159,7 +4159,10 @@ var LiveResults;
                                             place += "&#10072;" + passPlace + "&#10072;";
                                         place += "</span>";
                                             
-                                        var passTime = _this.formatTime(row.splits[value.no +"_pass_time"]*100, 0, false);
+                                        var status = (row.status == 13 ? 0 : row.status);
+                                        var passTime = (value.code==999? _this.formatTime(row.result, status, false) :
+                                                       _this.formatTime(row.splits[value.no +"_pass_time"]*100, 0, false));
+
                                         txt += "<div class=\"tooltip\">" + passTime + place ;
                                         txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_pass_plus"]*100, 0, false) +"</span></div>";
                                         txt += "</span>";
