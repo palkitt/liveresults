@@ -899,11 +899,11 @@ function sortByResult($a,$b)
 	$aStatus = $a["Status"];
 	$bStatus = $b["Status"];
     if ($aStatus == 13)	
-		$aStatus = 0;
+		$aStatus = -$a["DbId"];
 	else if ($aStatus == 1)
 		$aStatus = 100;
 	if ($bStatus == 13)	
-		$bStatus = 0;
+		$bStatus = -$b["DbId"];
 	else if ($bStatus == 1)
 		$bStatus = 100;
 	

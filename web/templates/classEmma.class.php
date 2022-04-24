@@ -123,6 +123,34 @@ class Emma
 		mysqli_query($conn, "insert into splitcontrols(tavid,classname,name,code,corder) values($compid,'$classname','$name',$code,$id)") or die(mysqli_error($conn));
 	}
 
+	public static function AddRadioControlsForAllClasses($compid,$name,$code,$order)
+	{
+		$conn = self::openConnection();
+	 	$ret1 = mysqli_query($conn, "SELECT class From runners where tavid=$compid AND Class NOT LIKE 'NOCLAS' GROUP BY class");
+		if ($ret1)
+		{
+			$classes = Array();
+			while ($tmp = mysqli_fetch_array($ret1))
+				$classes[] = $tmp;
+			mysqli_free_result($ret1);
+
+			foreach ($classes as $classname)
+			{
+				$sql = "insert into splitcontrols(tavid,classname,name,code,corder) values($compid,'".$classname[0]."','$name',$code,$order)";
+				$ret = mysqli_query($conn,$sql) or die(mysqli_error($conn));
+				if (!$ret)
+				{
+					die(mysqli_error($this->m_Conn));
+					break;
+				}
+			}
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+ 		
+	}
+
 	public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,
 	$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent,$showinfo,$infotext,$showecardtimes)
 	{
@@ -951,26 +979,38 @@ class Emma
 		      FROM runners,results WHERE results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." 
 			  AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  
 			  AND runners.course = ".$course."  
-			  AND results.Control = 1000 AND results.Status IN (0,2,3,4,6,13) ORDER BY results.Dbid";
+			  AND (results.Control = 1000 OR results.Control = -999) AND results.Status IN (0,2,3,4,6,13) ORDER BY results.Dbid, results.Control";
 		
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			while ($row = mysqli_fetch_array($result))
 			{
 				$dbId = intval($row['DbID']);
-				$ret[$dbId] = Array();
-				$ret[$dbId]["DbId"]   = $dbId;
-				$ret[$dbId]["Name"]   = $row['Name'];
-				$ret[$dbId]["Bib"]    = intval($row['Bib']);
-				$ret[$dbId]["Club"]   = $row['Club'];
-				$ret[$dbId]["Time"]   = intval($row['Time']);
-				$ret[$dbId]["Status"] = intval($row['Status']);
-				
-				$finishTime = intdiv($row['Time'],(intval($row['Status'])==13?1:100));
+				if (!isset($ret[$dbId]))
+				{
+					$ret[$dbId] = Array();
+					$ret[$dbId]["DbId"]   = $dbId;
+					$ret[$dbId]["Name"]   = $row['Name'];
+					$ret[$dbId]["Bib"]    = intval($row['Bib']);
+					$ret[$dbId]["Club"]   = $row['Club'];
+				}
+				$finishTime = 0;
+				$split = $row['Control'];
+				if ($split == -999)
+				{
+					$ret[$dbId]["Time"]   = intval($row['Time']);
+					$finishTime = intdiv($row['Time'],100);
+				}
+				else if ($split == 1000)
+				{					
+					if (!isset($ret[$dbId]["Time"])) $ret[$dbId]["Time"] = intval($row['Time']);
+					$ret[$dbId]["Status"] = intval($row['Status']);
+					$finishTime = intdiv($row['Time'],100);
+				}				
 				$ecardtimes = explode(",",$row['ecardtimes']);
 				$lastTime = 0;
 
-                if (sizeof($controls)==sizeof($ecardtimes))
+                if (sizeof($controls)==sizeof($ecardtimes) && !isset($ret[$dbId]["1_pass_time"]))
 				{
 					for ($split = 0; $split < sizeof($controls); $split++)
 					{

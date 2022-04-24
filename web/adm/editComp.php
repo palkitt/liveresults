@@ -15,6 +15,10 @@ else if (isset($_POST['btnAdd']))
 {
 	Emma::AddRadioControl($_GET['compid'],$_POST['classname'],$_POST['controlname'],$_POST['code']);
 }
+else if (isset($_POST['btnAddAll']))
+{
+	Emma::AddRadioControlsForAllClasses($_GET['compid'],$_POST['controlnameall'],$_POST['codeall'],$_POST['order']);
+}
 else if (isset($_GET['what']) && $_GET['what'] == "delctr")
 {
 	Emma::DelRadioControl($_GET['compid'],$_GET['code'],$_GET['class']);
@@ -179,9 +183,10 @@ function confirmDelete(msg,url)
 <input type="submit" name="btnSave" value="Save"/>
 </form>
 <br/>
+<hr/>
 <h1 class="categoriesheader">Radio Controls</h1>
-
 <form name="formrdo1" action="editComp.php?what=radio&compid=<?=$comp['tavid']?>" method="post">
+<a href="javascript:confirmDelete('Do you want to delete ALL radiocontrols?','?compid=<?= $_GET['compid']?>&what=delallctr&compid=<?= $_GET['compid']?>');">Delete all radio controls</a>
 <table border="0">
 <tr><td><b>Code</td><td><b>Name</td><td><b>Class</td><td><b>Order</td></tr>
 <?php
@@ -192,17 +197,24 @@ for ($i = 0; $i < sizeof($rcontrols); $i++)
 }
 ?>
 </table>
-<br/><hr/>
-<a href="javascript:confirmDelete('Do you want to delete ALL radiocontrols?','?compid=<?= $_GET['compid']?>&what=delallctr&compid=<?= $_GET['compid']?>');">Delete all radio controls</a>
-<br/><hr/><br/>
-<br/><b>Add Radio Control</b><br/>
-Code = 1000*passingcnt + controlCode, eg. first pass at control 53 => Code = 1053, second pass => Code = 2053<br/>
+<hr/>
+<b>Add radio control for all classes</b><br/>
+Code = 1000*(pass count) + control code, eg. 1st pass at control 53 => 1053, 2nd pass => 2053<br/>
+<table>
+<tr><td>Code</td><td><input type="text" name="codeall"/></td></tr>
+<tr><td>Control-Name</td><td><input type="text" name="controlnameall"/></td></tr>
+<tr><td>Order</td><td><input type="text" name="order"/></td></tr>
+</table>
+<input type="submit" name="btnAddAll" value="Add control for all classes"/>
+<hr/>
+<b>Add single radio control</b><br/>
+Code = 1000*(pass count) + control code, eg. 1st pass at control 53 => 1053, 2nd pass => 2053<br/>
 <table>
 <tr><td>Code</td><td><input type="text" name="code"/></td></tr>
 <tr><td>Control-Name</td><td><input type="text" name="controlname"/></td></tr>
 <tr><td>ClassName</td><td><input type="text" name="classname"/></td></tr>
 </table>
-<input type="submit" name="btnAdd" value="Add Control"/>
+<input type="submit" name="btnAdd" value="Add single control"/>
 </form>
 	</td>
 	</tr>
