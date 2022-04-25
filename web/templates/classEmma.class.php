@@ -43,6 +43,44 @@ class Emma
 			exit();
 		}
 		mysqli_set_charset($conn, self::$MYSQL_CHARSET);
+		
+		$scale  = 10;    // Scaledown factor
+		if (rand(1,$scale)==1) // Use scaledown factor to reduce number of updates
+		{
+			// Keeps track of number of connects and provides data to returns update 
+			// interval factor to ensure number of connects does not violate limit
+
+			$target = 30000; // Connects per hour (limit)			
+			$UFmin  = 0.01;  // Smallest update factor
+			$UFmax  = 1.0;   // Largest update factor
+			$window = 60;    // [s] Time window in which number of connects is counted
+			$tFilt  = 300;   // [s] Filter constant for updating updateFactor
+			
+			$result = mysqli_query($conn, "SELECT numConnect, time, updateFactor FROM lastconnect");
+			$last = mysqli_fetch_array($result);
+			$num0  = $last["numConnect"];
+			$UF0   = $last["updateFactor"];
+			$time0 = $last["time"];
+			mysqli_free_result($result);
+
+			$time    = time();
+			$timeOutdate = $time - $window;
+			
+			// Update this connect and delete outdated
+			mysqli_query($conn, "INSERT INTO connecttimes VALUES (10001, $time)");			
+			mysqli_query($conn, "DELETE FROM connecttimes WHERE time < ".$timeOutdate);
+			$result = mysqli_query($conn, "SELECT COUNT(*) AS num FROM connecttimes");
+			$tmp = mysqli_fetch_array($result);
+			$num = $tmp["num"];
+			mysqli_free_result($result);
+			
+			$targetW = $target/3600*$window/$scale;         // Target value for current window
+			$dt      = max(1,min($window,$time-$time0));    // Time since last update 
+			$UFi     = min(1.01,$UF0*$targetW/max(1,$num)); // Ideal update factor
+			$UF      = max($UFmin,min($UFmax,$UF0+($UFi-$UF0)*$dt/$tFilt)); // New factor
+
+			mysqli_query($conn, "UPDATE lastconnect SET numConnect=$num, updateFactor=$UF, time=$time WHERE ID = 0");
+		}		
 		return $conn;
 	}
 	
@@ -424,71 +462,18 @@ class Emma
 
 	function GetUpdateFactor()
 	{
-		// Calculates and returns updated interval factor to ensure number of connects does not violate limit
-		$target = 25000; // Connects per hour (limit)
-		$scale  = 10;    // Scaledown factor
-		$UFmin  = 0.01;  // Smallest update factor
-		$UFmax  = 1.0;   // Largest update factor
-		$window = 60;    // [s] Time window in which number of connects is counted
-		$tFilt  = 300;   // [s] Filter constant for updating updateFactor
-
-		$q = "SELECT numConnect, time, updateFactor FROM lastconnect";
+		// Returns updated interval factor to ensure number of connects does not violate limit
+		$q = "SELECT updateFactor FROM lastconnect";
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			$last = mysqli_fetch_array($result);
-			$num0  = $last["numConnect"];
-			$UF0   = $last["updateFactor"];
-			$time0 = $last["time"];
+			$UF   = $last["updateFactor"];
+			return $UF;
 		}
 		else
 		{
 			die(mysqli_error($this->m_Conn));
 			return 1;
-		}
-
-		if (rand(1,$scale)>1) // Use scaledown factor to pass last value to most queries
-			return $UF0;
-		else // Calculate new update factor
-		{
-			$time    = time();
-			
-			// Update this connect and delete outdated
-			$q = "INSERT INTO connecttimes VALUES (".$this->m_CompId.", ".$time.")"; 
-			if (!mysqli_query($this->m_Conn, $q))
-			{
-				die(mysqli_error($this->m_Conn));
-				return $UF;
-			}
-			$timeOutdate = $time - $window;
-			$q = "DELETE FROM connecttimes WHERE time < ".$timeOutdate;
-			if (!mysqli_query($this->m_Conn, $q))
-			{
-				die(mysqli_error($this->m_Conn));
-				return $UF;
-			}
-
-			$q = "SELECT COUNT(*) AS num FROM connecttimes";	
-			if ($result = mysqli_query($this->m_Conn, $q))
-			{
-				$array = mysqli_fetch_array($result);
-				$num   = $array["num"];
-			}
-			else
-			{
-				die(mysqli_error($this->m_Conn));
-				return $UF;
-			}
-
-			$targetW = $target/3600*$window/$scale;      // Target value for current window
-			$dt      = max(1,min($window,$time-$time0)); // Time since last update 
-			$UFi     = min(1.01,$UF0*$targetW/max(1,$num));    // Ideal update factor
-			$UF      = max($UFmin,min($UFmax,$UF0+($UFi-$UF0)*$dt/$tFilt)); // New factor
-
-			$q     = "UPDATE lastconnect SET numConnect=".$num.", updateFactor=".$UF.", time=".$time." WHERE ID = 0";
-			if (!mysqli_query($this->m_Conn, $q))
-				die(mysqli_error($this->m_Conn));
-			
-			return $UF;
 		}
 	}
 	
