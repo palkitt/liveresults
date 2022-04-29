@@ -4099,15 +4099,16 @@ var LiveResults;
                                     
                     if (data.splitcontrols != null)
                     {
-                        $.each(data.splitcontrols, function (key, value)
+                        for (var i=0; i<data.splitcontrols.length; i++)
                         {
+                            var code = data.splitcontrols[i];
                             var title ="";
-                            if (value.no==1)
-                                title = "S-1 (" + value.code + ")";
-                            else if (value.code==999)
-                                title = (value.no-1) + "-" + _this.resources["_CONTROLFINISH"];
+                            if (code==999)
+                                title = (i+1) + "-" + _this.resources["_CONTROLFINISH"];
+                            else if (i==0)
+                                title = "S-1 (" + code + ")";
                             else
-                                title = (value.no-1) + "-" + value.no + " (" + + value.code + ")";
+                                title = i + "-" + (i+1) + " (" + code + ")";
 
                             columns.push({
                                 "sTitle": title + "&nbsp;&nbsp;",
@@ -4118,57 +4119,63 @@ var LiveResults;
                                 "aDataSort": [col],
                                 "aTargets": [col],
                                 "bUseRendered": false,
-                                "mDataProp": "splits." + value.no +"_pass_time",
-                                "render": function (data,type,row)
+                                "mDataProp": "",
+                                "render": function (data,type,row,meta)
                                 {
+                                    var no = meta.col - 3;
+                                    var last = (no==(row.split_place.length-1));
                                     if (type=="sort")
                                     {
-                                        if (row.splits[value.no +"_split_place"]>0)
-                                            return row.splits[value.no +"_split_place"];
+                                        if (row.split_place[no]>0)
+                                            return row.split_place[no];
                                         else
                                             return 9999;
-                                    }
-                                    else if (value.code!=999 && !row.splits[value.no +"_pass_place"])
-                                        return "";
+                                    }                                    
                                     else
                                     {
                                         var txt = "";
                                         var place = "";
-                                        var passPlace = row.splits[value.no +"_pass_place"];
-                                        var splitPlace = row.splits[value.no +"_split_place"];
+                                        var passPlace  = row.pass_place[no];
+                                        var passTime   = row.pass_time[no];
+                                        var passPlus   = row.pass_plus[no]
+                                        var splitPlace = row.split_place[no];
+                                        var splitTime  = row.split_time[no]
+                                        var splitPlus  = row.split_plus[no]
                                         
                                         // First line
-                                        if (passPlace == 1)
+                                        if (passTime>0 || last)
                                         {
-                                            place += "<span class=\"bestplace\"> ";
-                                            txt += "<span class=\"besttime\">";
-                                        }
-                                        else if (passPlace ==2 || passPlace == 3)
-                                        {
-                                            place += "<span class=\"place23\"> ";
-                                            txt += "<span class=\"time23\">";
-                                        }
-                                        else
-                                        {
-                                            place += "<span class=\"place\"> ";
-                                            txt += "<span>";
-                                        }
-                                        if (_this.curClassNumberOfRunners >= 10 && (passPlace < 10 || passPlace == "-" ))
-                                            place += "&numsp;"
-                                        if (passPlace !="")
-                                            place += "&#10072;" + passPlace + "&#10072;";
-                                        place += "</span>";
-                                            
-                                        var status = (row.status == 13 ? 0 : row.status);
-                                        var passTime = (value.code==999? _this.formatTime(row.result, status, false) :
-                                                       _this.formatTime(row.splits[value.no +"_pass_time"]*100, 0, false));
+                                            if (passPlace == 1)
+                                            {
+                                                place += "<span class=\"bestplace\"> ";
+                                                txt += "<span class=\"besttime\">";
+                                            }
+                                            else if (passPlace ==2 || passPlace == 3)
+                                            {
+                                                place += "<span class=\"place23\"> ";
+                                                txt += "<span class=\"time23\">";
+                                            }
+                                            else
+                                            {
+                                                place += "<span class=\"place\"> ";
+                                                txt += "<span>";
+                                            }
+                                            if (_this.curClassNumberOfRunners >= 10 && passPlace < 10)
+                                                place += "&numsp;"                                    
+                                            place += "&#10072;" + (passPlace>0? passPlace : "-") + "&#10072</span>";
+                                                
+                                            var passTimeStr;
+                                            if (last)
+                                                passTimeStr = _this.formatTime(row.result, ((row.result!=row.dbid && row.status == 13) ? 0 : row.status), false);
+                                            else
+                                                passTimeStr = _this.formatTime(passTime*100, 0, false);
 
-                                        txt += "<div class=\"tooltip\">" + passTime + place ;
-                                        txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_pass_plus"]*100, 0, false) +"</span></div>";
-                                        txt += "</span>";
-                                        
+                                            txt += "<div class=\"tooltip\">" + passTimeStr + place ;
+                                            txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(passPlus*100, 0, false) +"</span></div>";
+                                            txt += "</span>";
+                                        }
                                         // Second line
-                                        if (splitPlace != "")
+                                        if (splitTime>0)
                                         {
                                             txt += "<br/><span class=";
                                             place = "";
@@ -4188,11 +4195,11 @@ var LiveResults;
                                                 txt += "\"legtime\">";
                                                 place += "<span class=\"place\"> ";
                                             }
-                                            if (_this.curClassNumberOfRunners >= 10 && (splitPlace < 10 || splitPlace == "-"))
+                                            if (_this.curClassNumberOfRunners >= 10 && splitPlace < 10)
                                                 place += "&numsp;"
-                                            place += "&#10072;" + splitPlace + "&#10072;</span>";
-                                            txt += "<div class=\"tooltip\">" + _this.formatTime(row.splits[value.no +"_split_time"]*100, 0, false) + place ;
-                                            txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(row.splits[value.no +"_split_plus"]*100, 0, false) +"</span></div>";
+                                            place += "&#10072;" + (splitPlace>0? splitPlace : "-") + "&#10072;</span>";
+                                            txt += "<div class=\"tooltip\">" + _this.formatTime(splitTime*100, 0, false) + place ;
+                                            txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(splitPlus*100, 0, false) +"</span></div>";
                                             txt += "</span>";
                                         }                                        
                                     };
@@ -4200,7 +4207,7 @@ var LiveResults;
                                 }
                             });
                             col++;
-                        });                                							
+                        };                                							
                     };
 
                     this.currentTable = $('#' + this.resultsDiv).dataTable({

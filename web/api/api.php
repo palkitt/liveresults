@@ -739,14 +739,12 @@ function courseSplitResults($class,$course)
 	$lastTime = -9999;
 	$winnerTime = 0;
 	
-
-	$splitJSON = "[$br";
+	$splitJSON = "[";
 	for ($split = 1; $split < sizeof($controls)+2; $split++)
 	{
 		if (!$first)
-			$splitJSON .=",$br";
-		$code = ($split<sizeof($controls)+1? $controls[$split-1]["code"] : 999);
-		$splitJSON .= "{ \"no\": ".$split.", \"code\": ".$code." }";
+			$splitJSON .=",";
+		$splitJSON .= ($split<sizeof($controls)+1? $controls[$split-1]["code"] : 999);
 		$first = false;
 		
 		foreach (["_pass","_split"] as $type)
@@ -794,7 +792,7 @@ function courseSplitResults($class,$course)
 					$cursplitplace = $splitplace;
 
 				if ($raceStatus != 0 || $sp_time <= 0)
-					$results[$key][$split.$type."_place"] = "\"-\"";
+					$results[$key][$split.$type."_place"] = -1;
 				else
 				{
 					$results[$key][$split.$type."_place"] = $cursplitplace;
@@ -804,7 +802,7 @@ function courseSplitResults($class,$course)
 			}
 		}
 	}
-	$splitJSON .= "$br]";
+	$splitJSON .= "]";
 
 	usort($results,"sortByResult");
  	$first = true;
@@ -838,28 +836,58 @@ function courseSplitResults($class,$course)
 		$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"bib\": ".$res['Bib'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\""; 
 
 		if (count($controls) > 0)
-		{
-			$ret .= ",$br \"splits\": {";
+		{	
 			$first = true;
-			
+			$pass_time   = "[";
+			$pass_place  = "[";
+			$pass_plus   = "[";
+			$split_time  = "[";
+			$split_place = "[";
+			$split_plus  = "[";
 			for ($split = 1; $split < sizeof($controls)+2; $split++)
 			{
 				if (!$first)
-						$ret .=",$br";
-
+				{
+					$pass_time   .= ",";
+					$pass_place  .= ",";
+					$pass_plus   .= ",";
+					$split_time  .= ",";
+					$split_place .= ",";
+					$split_plus  .= ",";
+				}
 				if (isset($res[$split."_pass_time"]) && $res[$split."_pass_time"]>0)
-					$ret .= "\"".$split."_pass_time\": ".$res[$split."_pass_time"].",\"".$split."_pass_place\": ".$res[$split."_pass_place"].",\"".$split."_pass_plus\": ".$res[$split."_pass_plus"].",";
+				{
+					$pass_time  .= $res[$split."_pass_time"];
+					$pass_place .= $res[$split."_pass_place"];
+					$pass_plus  .= $res[$split."_pass_plus"];
+				}
 				else
-					$ret .= "\"".$split."_pass_time\": \"\",\"".$split."_pass_place\": \"\",\"".$split."_pass_plus\": \"\",";
-				
+				{
+					$pass_time  .= "-1";
+					$pass_place .= "-1";
+					$pass_plus  .= "-1";
+				}
 				if (isset($res[$split."_split_time"]) && $res[$split."_split_time"]>0)
-					$ret .= "\"".$split."_split_time\": ".$res[$split."_split_time"].",\"".$split."_split_place\": ".$res[$split."_split_place"].",\"".$split."_split_plus\": ".$res[$split."_split_plus"];
+				{
+					$split_time  .= $res[$split."_split_time"];
+					$split_place .= $res[$split."_split_place"];
+					$split_plus  .= $res[$split."_split_plus"];
+				}
 				else
-					$ret .= "\"".$split."_split_time\": \"\",\"".$split."_split_place\": \"\",\"".$split."_split_plus\": \"\"";
-
+				{
+					$split_time  .= "-1";
+					$split_place .= "-1";
+					$split_plus  .= "-1";
+				}
 				$first = false;
 			}
-			$ret .="}";
+			$pass_time   .= "]";
+			$pass_place  .= "]";
+			$pass_plus   .= "]";
+			$split_time  .= "]";
+			$split_place .= "]";
+			$split_plus  .= "]";
+			$ret .= ", \"pass_time\": ".$pass_time.", \"pass_place\": ".$pass_place.", \"pass_plus\": ".$pass_plus.", \"split_time\": ".$split_time.", \"split_place\": ".$split_place.", \"split_plus\": ".$split_plus;
 		}
 		$ret .= "$br}";
 			
