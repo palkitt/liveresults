@@ -557,7 +557,7 @@ namespace LiveResults.Client
                     string baseCommandRelay = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime,
                             N.cource, N.place, N.status, N.cource, N.starttime, N.ecard, N.ecard2, N.ecard3, N.ecard4,
                             T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, 
-                            C.firststart AS cfirststart, C.purmin AS cpurmin,
+                            C.firststart AS cfirststart, C.purmin AS cpurmin, C.direct,
                             R.lgstartno, R.teamno, R.lgclass, R.lgtotaltime, R.lglegno, R.lgstatus, R.lgteam  
                             FROM Name N, Class C, Team T, Relay R
                             WHERE N.class=C.code AND T.code=R.lgteam AND N.rank=R.lgstartno AND (N.startno {0} 100)<=C.purmin 
@@ -565,7 +565,7 @@ namespace LiveResults.Client
 
                     string baseCommandInd = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
                             N.cource, N.place, N.status, N.cource, N.starttime, N.races, N.heat, N.ecard, N.ecard2, N.ecard3, N.ecard4,
-                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, C.cheaseing, C.purmin
+                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, C.cheaseing, C.purmin, C.direct
                             FROM Name N, Class C, Team T
                             WHERE N.class=C.code AND T.code=N.team {0}", purmin);
 
@@ -701,7 +701,7 @@ namespace LiveResults.Client
                     int bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1, heat = 0, stage = 0, sprintOffset = 0;
                     int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
                     string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", name = "", shortName = "-";
-                    bool chaseStart = false, freeStart = false, parseOK = false;
+                    bool chaseStart = false, freeStart = false, parseOK = false, useEcardTime = false;
                     string ecardTimeString = "";
                     var SplitTimes = new List<ResultStruct>();
 
@@ -803,6 +803,7 @@ namespace LiveResults.Client
                             chaseStart = Convert.ToBoolean(reader["cheaseing"].ToString());
 
                         freeStart = Convert.ToBoolean(reader["freestart"].ToString());
+                        useEcardTime = Convert.ToBoolean(reader["direct"].ToString());
 
                         iStartTime = -1;
                         if (freeStart)
@@ -1042,7 +1043,7 @@ namespace LiveResults.Client
                             {
                                 if (status == "I" || status == "N") // Change code of entered and not started (by mistake) runners
                                     status = "S";
-                                if (freeStart)
+                                if (freeStart || useEcardTime)
                                 {
                                     if (m_OsOffset > 0) // Set starttime rounded to whole minutes including offset minutes
                                         calcStartTime = (split.passTime / 6000 + m_OsOffset) * 6000;
@@ -1062,7 +1063,7 @@ namespace LiveResults.Client
 
                             passTime = -2;        // Total time at passing
                             int passLegTime = -2; // Time used on leg at passing
-                            if (freeStart)
+                            if ((time < 0 || (split.netTime>0 && split.netTime<time)) && (freeStart || useEcardTime))
                                 passTime = split.netTime;
                             else if (isRelay)
                             {
@@ -1074,9 +1075,9 @@ namespace LiveResults.Client
                                 passTime = splitPassTime - iStartTime + totalTime;
                                 passLegTime = splitPassTime - iStartTime;
                             }
-                            else
+                            else if (!freeStart)
                                 passTime = splitPassTime - iStartTime;
-                            if (passTime < 1000)  // Neglect pass times less than 10 s from start
+                            if (passTime < 1000 || (time > 0 && passTime > time))  // Neglect pass times less than 10 s from start and pass times longer than finish time
                                 continue;
                             if (m_lapTimes && !isRelay)
                             {
@@ -1127,7 +1128,7 @@ namespace LiveResults.Client
                             }
 
                             if (freeStart && calcStartTime < 0)
-                                calcStartTime = split.changedTime - split.netTime;
+                                calcStartTime = split.changedTime - split.netTime - 500;
                         }
 
                         if (time > 0 && m_lapTimes && !isRelay && lastSplitTime > 0) // Add lap time for last lap
@@ -1143,7 +1144,7 @@ namespace LiveResults.Client
                         if (m_twoEcards && numStart < 2 && (status == "S"))
                             status = "I"; // Set status to "Entered" if only one eCard at start when 2 required 
 
-                        if (freeStart && (calcStartTime > 0) && (Math.Abs(calcStartTime - iStartTime) > 3000))  // Update starttime if deviation more than 30 sec
+                        if (freeStart && (calcStartTime > 0) && (Math.Abs(calcStartTime - iStartTime) > 2000))  // Update starttime if deviation more than 20 sec
                             iStartTime = calcStartTime;
 
                         if (time > 0 && (timingType == 1 || timingType == 2)) // Not ranked or not show times
