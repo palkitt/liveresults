@@ -231,7 +231,7 @@ var LiveResults;
 					for (var i=0; i<nClass; i++)
 					{
 						var className = classes[i].className;
-                        this.courses[classes[i].className] = (classes[i].courses != undefined ? classes[i].courses : []);                       
+                        this.courses[className] = (classes[i].courses != undefined ? classes[i].courses : []);                       
                         var relay = relayNext;
                         var sprint = sprintNext;
 						
@@ -2491,7 +2491,7 @@ var LiveResults;
                         var courses = _this.courses[data.className];
                         var link = "";
                         if (_this.showEcardTimes && courses != undefined && courses.length > 0)
-                            link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + data.className + "'," + courses[0] + ");\">Strekktider &#5125;</a>";
+                            link = this.splitTimesLink(data.className,courses);
                         $("#" + _this.txtResetSorting).html(link);
 
                     }
@@ -3784,12 +3784,27 @@ var LiveResults;
             { 
                 var courses = this.courses[this.curClassName];
                 if (courses != undefined && courses.length > 0)
-                    link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + this.curClassName + "'," + courses[0] + ");\">Strekktider &#5125;</a>";
+                    link = this.splitTimesLink(this.curClassName,courses);
             }
 
             $("#" + this.txtResetSorting).html(link);
         };
 
+    //Make link for split times
+    AjaxViewer.prototype.splitTimesLink = function (className,courses) {
+        var link;
+        if (courses.length==1) 
+            link = "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "'," + courses[0] + ");\">Strekktider &#5125;</a>";
+        else
+        {    
+            link = "<button onclick=\"res.showCourses()\" class=\"dropbtn\">Strekktider &#5125;</button><div id=\"myDropdown\" class=\"dropdown-content\">";
+            for (i=0;i<courses.length;i++)
+                link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "'," + courses[i] + ");\">Løype "+courses[i]+"</a>";
+            link += "</div>";
+        }
+        return link;
+    };
+    
     //Request data for result viewer
     AjaxViewer.prototype.updateResultView = function (className,place,first,last) {
         var _this = this;
@@ -4028,14 +4043,14 @@ var LiveResults;
             success: function (data,status,resp) {
                 var expTime = new Date();
                 expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-                _this.updateSplitTimeResults(data,expTime);
+                _this.updateSplitTimeResults(data,course,expTime);
             },
             dataType: "json"
         });
         window.location.hash = "splits::" + className + "::course::" + course;
     };
     
-    AjaxViewer.prototype.updateSplitTimeResults = function (data,expTime) {
+    AjaxViewer.prototype.updateSplitTimeResults = function (data,course,expTime) {
         var _this = this;
         var updateInterval = 0;
         if (data.rt != undefined && data.rt > 0)
@@ -4051,7 +4066,7 @@ var LiveResults;
         if (data != null && data.status == "OK") 
         {
             if (data.className != null) {
-                $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
+                $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>&nbsp;&nbsp;<small>Løype ' + course + '</small>');
                 $('#' + this.resultsControlsDiv).show();
             }
             if (data.results != null) 
@@ -4239,6 +4254,10 @@ var LiveResults;
                 }
             }
         }        
+    };
+
+    AjaxViewer.prototype.showCourses = function () {
+        document.getElementById('myDropdown').classList.toggle("show");
     };
         
     // ReSharper disable once InconsistentNaming

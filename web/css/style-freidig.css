@@ -335,3 +335,40 @@ table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_
   transform: rotate(45deg) translate(-2.25px, -2px);
 }
 
+/*-------------------------------*/
+/*---  DropDown for splits    ---*/
+/*-------------------------------*/
+.dropbtn {
+  background-color: #555555; 
+  opacity: 1;
+  color: white;
+  text-align: right;
+  padding: 0px 0px;
+  border: none;
+  cursor: pointer;
+  font-size:1em
+}
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  right:4px;
+  display: none;
+  position: absolute;
+  background-color: #555555;
+  color: white;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: white;
+  padding: 5px 5px;
+  text-decoration: none;
+  display: block;
+}
+
+.show {display: block;}
