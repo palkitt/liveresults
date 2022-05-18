@@ -1,0 +1,37 @@
+/*-------------------------------*/
+/* --- Styles for admin page --- */
+/*-------------------------------*/
+
+
+.dropbtnAdm {
+    background-color:white;
+    color: var(--livered);
+    border: 0;
+    font-size: 1em;
+  }
+  
+  .dropdownAdm {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .dropdownAdm-content {
+    display: none;
+    position: absolute;
+    left: 10px;
+    background-color: #f1f1f1;
+    min-width: 70px;
+    box-shadow: 2px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+  
+  .dropdownAdm-content a {
+    color: black;
+    padding: 2px 2px;
+    text-decoration: none;
+    display: block;
+  }
+  
+  .dropdownAdm-content a:hover {background-color: #DDD;}
+  .dropdownAdm:hover .dropdownAdm-content {display: block;}
+  .dropdownAdm:hover .dropbtnAdm {background-color: #DDD;}

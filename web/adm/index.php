@@ -29,7 +29,8 @@ header('Content-Type: text/html; charset='.$CHARSET);
 <meta name="robots" content="noindex">
 
 
-<link rel="stylesheet" type="text/css" href="../css/style-eoc.css">
+<link rel="stylesheet" type="text/css" href="../css/style-freidig.css">
+<link rel="stylesheet" type="text/css" href="../css/style-admin.css">
 
 <script language="javascript">
 
@@ -56,7 +57,13 @@ function resetRow(row)
 <!-- MAIN DIV -->
 
 <div class="maindiv">
-<table border="0" cellpadding="0" cellspacing="0" >
+<div style="color:red; padding: 5px">
+Fra 1. juni 2022 flyttes all funksjonalitet over på nytt domene og ny server: <a href="https://liveres.live">https://liveres.live</a>. 
+Send mail til pal.kittilsen@gmail.com for å få tilsendt nødvendig bruker og passord. Last også ned nyeste PC-klient (datert etter 16.05.2022) fra
+<a href="https://github.com/palkitt/liveresults/releases">GitHub</a> for å kunne laste opp resultater til ny server.
+</div>
+
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
      <td valign="bottom">
 <!-- MAIN MENU FLAPS - Two rows, note that left and right styles differs from middle ones -->
@@ -73,62 +80,55 @@ function resetRow(row)
   </tr>
   <tr>
     <td class="submenu" colspan="2">
-       <table border="0" cellpadding="0" cellspacing="0">
+       <table border="0" cellpadding="0" cellspacing="0" width="100%">
              <tr>
-               <td><a href="../index.php"><?=$_CHOOSECMP?></a></td>
+               <td><a href="createComp.php">Create new competition</a> | <a href="../index.php">Show competitions</a> </td>
              </tr>
        </table>
      </td>
   </tr>
 <!-- End SUB MENU -->
 
-  <tr>
-    <td class="searchmenu" colspan="2" style="padding: 5px;">
-       <table border="0" cellpadding="0" cellspacing="0">
-             <tr>
-               <td>
-<a href="createComp.php">Create new competition</a><br/>
+<tr> <td class="searchmenu" colspan="2" style="padding: 5px;">
+<table border="0" cellpadding="0" cellspacing="0">
+<tr><td>
 <h1 class="categoriesheader">Existing competitions</h1>
 
-			<table border="0" cellpadding="0" cellspacing="2" width="100%">
+<table border="0" cellpadding="0" cellspacing="2" width="100%">
 <tr>
 <td><b>Date</b></td>
 <td><b>Competition</b></td>
 <td><b>Organizer</b></td>
 <td><b>CompId</b></td>
 <td><b>Public</b></td>
-<td><b>Link</b></td>
-<td><b>Startlist</b></td>
-<td><b>Start</b></td>
-<td><b>Speaker</b></td>
-<td><b>Radio</b></td>
-<td><b>Messages</b></td>
-<td><b>Runners</b></td>
 </tr>
 
 <?php
 
 	$comps = Emma::GetAllCompetitions();
-	//echo(sizeof($comps));
-	//for ($i = 0; $i < sizeof($comps); $i++)
-
+	
 	foreach ($comps as $comp)
-
 	{
 	?>
 		<tr id="row<?=$comp["tavid"]?>">
     <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-    <td><a href="/adm/editComp.php?compid=<?=$comp["tavid"]?>"><?=$comp["compName"]?></a></td>
+    <td>
+    <div class="dropdownAdm">
+    <button class="dropbtnAdm"><?=$comp["compName"]?></button>
+    <div class="dropdownAdm-content">
+    <a href="/adm/editComp.php?compid=<?=$comp["tavid"]?>">Edit competition</a>
+    <a href="/followfull.php?comp=<?=$comp['tavid']?>">Results page</a>
+    <a href="/message.php?comp=<?=$comp["tavid"]?>">Messages</a>
+    <a href="/radio.php?comp=<?=$comp["tavid"]?>&code=0">Start registration</a>
+    <a href="/speaker.php?comp=<?=$comp["tavid"]?>">Speaker view</a>
+    <a href="/adm/radiolinks.php?comp=<?=$comp["tavid"]?>">Radio links</a>
+    <a href="/adm/runners.php?compid=<?=$comp["tavid"]?>">Runner list and edit</a>
+    <a href="/startlist.php?comp=<?=$comp["tavid"]?>">Startlist</a>
+  </div>
+  </div></td>
     <td><?=$comp["organizer"]?></td>
     <td><?=$comp["tavid"]?></td>
     <td><?=$comp["public"] == "1" ? "yes" : "no"?></td>
-    <td><a href="/followfull.php?comp=<?=$comp['tavid']?>">Link</a></td>
-    <td><a href="/startlist.php?comp=<?=$comp["tavid"]?>">Startlist</a></td>
-    <td><a href="/radio.php?comp=<?=$comp["tavid"]?>&code=0">Start</a>
-    <td><a href="/speaker.php?comp=<?=$comp["tavid"]?>">Speaker</a></td>
-    <td><a href="/adm/radiolinks.php?comp=<?=$comp["tavid"]?>">Radio</a></td>
-    <td><a href="/message.php?comp=<?=$comp["tavid"]?>">Messages</a></td>
-    <td><a href="/adm/runners.php?compid=<?=$comp["tavid"]?>">Runners</a></td>
     </tr>
 	<?php
 	}
@@ -143,8 +143,6 @@ function resetRow(row)
 </div>
 <br/>
 <a href="/api/api.php?method=getnumconnect">#Connections</a>
-
-
+<br/>
 </body>
-
 </html>
