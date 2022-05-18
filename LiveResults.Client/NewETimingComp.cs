@@ -40,7 +40,7 @@ namespace LiveResults.Client
             chkLapTimes.Checked = false;
             chkEventorID.Checked = false;
             chkUpdateMessage.Checked = false;
-            chkAddEcardSplits.Checked = false;
+            chkAddEcardSplits.Checked = true;
             RetreiveSettings();
         }
 
