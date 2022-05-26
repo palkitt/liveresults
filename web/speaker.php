@@ -233,6 +233,18 @@ $(document).ready(function()
 	// Initial view is with open class list
 	openNav();
 
+	// Add function for dropdown list
+	window.onclick = function(event) {
+  		if (!event.target.matches('.dropbtn')) 	{
+			var dropdowns = document.getElementsByClassName("dropdown-content");
+			var i;
+			for (i = 0; i < dropdowns.length; i++) 	{
+				var openDropdown = dropdowns[i];
+				if (openDropdown.classList.contains('show')) {openDropdown.classList.remove('show');}
+			}
+  		}
+	}
+
 	// Search for runner (wait 0.5s after last keyup before searching)
 	var searchTimer = null;
 	$('#searchBib').on('keyup', function () {
@@ -381,7 +393,7 @@ function closeTop() {
   <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
   <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
   <td align="center"><b><span id="compname">loading comp name...</b></td>
-  <td align="right"><span id="txtResetSorting"></span></td></tr></table></td></tr>
+  <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td></tr></table></td></tr>
    <tr valign="top"><td>
    <table id="divResults" width="100%"><tbody><tr><td></td></tr></tbody></table>
    </td></tr>
