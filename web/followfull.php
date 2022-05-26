@@ -344,23 +344,23 @@ function closeTop() {
 				if (in_array($_GET['comp'], array("10098","10099","10100","10101")))	$image = "images/SG21.png";
 				else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
 				else if (in_array($_GET['comp'], array("10215")))	$image = "images/Skien.png";
-				else switch ($organizer)
+				else switch (strtolower($organizer))
 				{
-					case "Freidig":	        $image = "images/Freidig60.png"; break;
-					case "Porsgrunn OL":    $image = "images/POL.png";	break;
-					case "Wing OK":	        $image = "images/Wing.png"; break;
-					case "Byåsen I.L": 
-					case "Byåsen il": 
-					case "Byåsen IL":       $image = "images/BIL.png"; break; 
-					case "Røros IL":        $image = "images/roros.png"; break; 
-					case "Freidig/Wing/Malvik":	$image = "images/NM2020.png"; break;
-					case "Eiker O-lag":     $image ="images/Eiker.png"; break; 
-					case "Stokke IL":       $image = "images/stokke.png"; break;
-					case "Skien OK":	    $image = "images/Skien.png"; break; 
-					case "Byaasen Skiklub":	$image = "images/BSK.png"; break;
-					case "Kristiansand OK": $image = "images/KOK_60.jpg"; break;
-					case "OK Moss":         $image = "images/OKMoss.png"; break;
-					case "Halden SK":       $image = "images/haldensk.png"; break;
+					case "freidig":	         $image = "images/Freidig60.png"; break;
+					case "porsgrunn ol":     $image = "images/POL.png";	break;
+					case "wing ok":	         $image = "images/Wing.png"; break;
+					case "byåsen i.l": 
+					case "byåsen il":        $image = "images/BIL.png"; break; 
+					case "røros il":         $image = "images/roros.png"; break; 
+					case "freidig/wing/malvik":	$image = "images/NM2020.png"; break;
+					case "eiker o-lag":      $image ="images/Eiker.png"; break; 
+					case "stokke il":        $image = "images/stokke.png"; break;
+					case "skien ok":	     $image = "images/Skien.png"; break; 
+					case "byaasen skiklub":	 $image = "images/BSK.png"; break;
+					case "kristiansand ok":  $image = "images/KOK_60.jpg"; break;
+					case "ok moss":          $image = "images/OKMoss.png"; break;
+					case "halden sk":        $image = "images/haldensk.png"; break;
+					case "indre Østfold ok": $image = "images/indereook.jpg"; break;
 					default:                 $image = "images/LiveRes60.png";
 				}
 			if ($image != ""){ ?>
