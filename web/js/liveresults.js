@@ -90,9 +90,9 @@ var LiveResults;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
-            this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.freidig.idrett.no/api.php"));
-            this.radioURL = (this.local ? "api/radioapi.php" : "//api.freidig.idrett.no/radioapi.php");
-            this.messageURL = (this.local ? "api/messageapi.php" : "//api.freidig.idrett.no/messageapi.php");
+            this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.liveres.live/api.php"));
+            this.radioURL = (this.local ? "api/radioapi.php" : "//api.liveres.live/radioapi.php");
+            this.messageURL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
             LiveResults.Instance = this;
             
 			window.onload = function (e) {
@@ -4030,8 +4030,12 @@ var LiveResults;
             catch (e) { }
         }        
         clearTimeout(this.resUpdateTimeout);
-        $('#divResults').html('');       
-        $('#' + this.txtResetSorting).html("<a href=\"javascript:LiveResults.Instance.chooseClass('" +  className.replace('\'', '\\\'') + "')\">&#5130; Resultater</a>"); 
+        $('#divResults').html('');   
+        var link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" +  className.replace('\'', '\\\'') + "')\">&#5130; Resultater</a>";
+        var courses = this.courses[className];
+        if (courses != undefined && courses.length > 1)
+            link += " " + this.splitTimesLink(className,courses);
+        $('#' + this.txtResetSorting).html(link); 
         
         this.curClubName = null;
         this.curClassName = null;

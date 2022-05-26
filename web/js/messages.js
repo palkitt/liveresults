@@ -22,7 +22,7 @@ var Messages;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
             this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
             this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
-            this.URL = (this.local ? "api/messageapi.php" : "//api.freidig.idrett.no/messageapi.php");
+            this.URL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
             Messages.Instance = this;
         }
             

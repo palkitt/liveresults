@@ -1,4 +1,4 @@
 <?php
-header("Location: https://liveres.freidig.idrett.no/indexs.php"); 
+header("Location: https://liveres.live/indexs.php"); 
 exit();
 ?>
