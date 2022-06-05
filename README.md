@@ -1,5 +1,5 @@
 # LiveRes
-LiveRes is a client-server system for publishing live results from sport events. The web frontend is published here: http://liveres.freidig.idrett.no. For questions, please contact: Pål Kittilsen, pal.kittilsen@gmail.com
+LiveRes is a client-server system for publishing live results from sport events. The web frontend is published here: http://liveres.live. Admin page requires user/password. For questions and to get login information contact: Pål Kittilsen, pal.kittilsen@gmail.com
 
 [Norwegian user guide](https://docs.google.com/document/d/1MGTH807QShXwFZVL1RiB1azCDjvMclou3DKP0TuHw84)
 
@@ -7,12 +7,13 @@ This project is forked from Peter Löfås's [liveresults](https://github.com/pet
 
 New and improved features compared to original project:
 
-* :new: Animated transitions in result table
-* :new: Estimated radio times when missing time for runner. Shifting of radio times of muti pass controls that fits better with average split times of the class. 
-* :new: Auto hiding of radio controls if bad quality (less than 1/3 of runners registered)
-* :new: Integration with Torgeir Aune's [ecard check program](https://github.com/Taune/EmiTagCheck)
-* :new: Dedicated speaker web page with bib number search and automatic class selection and runner highlighting
-* Interface to eTiming with support of individual, mass start, chase start, relay, lap time race. Radio control setup is read from eTiming and automatically configured. Supports both Access and SQL server 
+* Interface to eTiming with support of individual, mass start, chase start, relay, lap time race. Radio control setup is read from eTiming and automatically configured. Supports both Access and SQL server
+* Animated transitions in result table
+* Ecard split times (optional)
+* Estimated radio times when missing times for runners. 
+* Shifting of radio times of muti pass controls that fits better with average split times of the class. 
+* Auto hiding of radio controls if bad quality (less than 1/3 of runners registered)
+* Integration with Torgeir Aune's [ecard check program](https://github.com/Taune/EmiTagCheck)
 * Responsive web design (mobile phone friendly). Scroll view if too narrow view
 * Shows live rank number on approaching intermediate time and in finish with difference to current leader
 * Highlight single intermediate times (not just whole row) if race with radio controls
@@ -20,6 +21,7 @@ New and improved features compared to original project:
 * Relay and chase start views including total time and leg times (with ranking number)
 * Support for classes with no-time or no-rank show
 * Column for bib number with optional sorting
+* Start list and complete result list view
 * Last-update-time view
 * Norwegian language support
 * Organizer views
