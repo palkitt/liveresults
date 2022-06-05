@@ -57,12 +57,6 @@ function resetRow(row)
 <!-- MAIN DIV -->
 
 <div class="maindiv">
-<div style="color:red; padding: 5px">
-Fra 1. juni 2022 flyttes all funksjonalitet over på nytt domene og ny server: <a href="https://liveres.live">https://liveres.live</a>. 
-Send mail til pal.kittilsen@gmail.com for å få tilsendt nødvendig bruker og passord. Last også ned nyeste PC-klient (datert etter 16.05.2022) fra
-<a href="https://github.com/palkitt/liveresults/releases">GitHub</a> for å kunne laste opp resultater til ny server.
-</div>
-
 <table border="0" cellpadding="0" cellspacing="0" width="100%">
   <tr>
      <td valign="bottom">
@@ -82,7 +76,7 @@ Send mail til pal.kittilsen@gmail.com for å få tilsendt nødvendig bruker og p
     <td class="submenu" colspan="2">
        <table border="0" cellpadding="0" cellspacing="0" width="100%">
              <tr>
-               <td><a href="createComp.php">Create new competition</a> | <a href="../index.php">Show competitions</a> </td>
+               <td><a href="createComp.php">Create new competition</a> | <a href="../">Show competitions</a> </td>
              </tr>
        </table>
      </td>

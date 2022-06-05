@@ -75,7 +75,7 @@ function resetRow(row)
        <table border="0" cellpadding="0" cellspacing="0">
              <tr>
               <td><a href="index.php">Adminpage Competitionindex</a> | </td>
-               <td><a href="../indexs.php"><?=$_CHOOSECMP?> to view</a></td>
+               <td><a href="../"><?=$_CHOOSECMP?> to view</a></td>
              </tr>
        </table>
      </td>
