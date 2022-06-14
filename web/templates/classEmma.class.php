@@ -640,8 +640,7 @@ class Emma
 			AND ( runners.bib >= ".$minBib." AND runners.bib <= ".$maxBib." OR runners.class =\"NOCLAS\") 
 			AND ( ( results.Time-".$currTime." < ".$preTime ." AND ".$currTime."-results.Time < ".$postTime." ) 
 					OR (results2.Status = 9 AND results2.Changed > '".$postTimeText."' ) ) 		 
-			ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.bib DESC, runners.Name
-			limit 100";	   	
+			ORDER BY CASE WHEN class = 'NOCLAS' THEN 0 ELSE 1 END, results.Time DESC, runners.bib DESC, runners.Name";	   	
 		}
 		elseif ($code == -2) // Left in forest
 			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, runners.ecardchecked, runners.dbid,
@@ -964,7 +963,7 @@ class Emma
 		      FROM runners,results WHERE results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." 
 			  AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  
 			  AND runners.course = ".$course."  
-			  AND (results.Control = 1000 OR results.Control = -999) AND results.Status IN (0,2,3,4,6,13) ORDER BY results.Dbid, results.Control";
+			  AND (results.Control = -999 OR results.Control = 999 OR results.Control = 1000) AND results.Status IN (0,2,3,4,6,13) ORDER BY results.Dbid, results.Control";
 		
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
@@ -983,14 +982,22 @@ class Emma
 				$split = $row['Control'];
 				if ($split == -999)
 				{
-					$ret[$dbId]["Time"]   = intval($row['Time']);
+					$ret[$dbId]["Time"] = intval($row['Time']);
+					$finishTime = intdiv($row['Time'],100);
+				}
+				else if ($split == 999)
+				{					
+					if (!isset($ret[$dbId]["Time"])) 
+						$ret[$dbId]["Time"] = intval($row['Time']);
 					$finishTime = intdiv($row['Time'],100);
 				}
 				else if ($split == 1000)
 				{					
-					if (!isset($ret[$dbId]["Time"])) $ret[$dbId]["Time"] = intval($row['Time']);
-					$ret[$dbId]["Status"] = intval($row['Status']);
-					$finishTime = intdiv($row['Time'],100);
+					if (!isset($ret[$dbId]["Time"]))
+						$ret[$dbId]["Time"] = intval($row['Time']);
+					if ($finishTime==0)
+						$finishTime = intdiv($row['Time'],100);
+					$ret[$dbId]["Status"] = intval($row['Status']);						
 				}				
 				$ecardtimes = explode(",",$row['ecardtimes']);
 				$lastTime = 0;
