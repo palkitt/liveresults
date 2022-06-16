@@ -1565,19 +1565,19 @@ var LiveResults;
                         columns.push({ "sTitle": "Tidsp." , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "passtime"});
                     }
                     columns.push({ "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
-                                    "render": function (data,type,row) {
-                                        if (type === 'display')
-                                        {
-                                            if (data<0) // Relay
-                                                return  "<span class=\"bib\">" + (-data/100|0) + "-" + (-data%100) + "</span>";
-                                            else if (data>0)    // Ordinary
-                                                return " <span class=\"bib\">" + data + "</span>";
-                                            else
-                                                return "";
-                                        }
-                                        else
-                                            return Math.abs(data);
-                                    }
+                        "render": function (data,type,row) {
+                            if (type === 'display')
+                            {
+                                if (data<0) // Relay
+                                    return  "<span class=\"bib\">" + (-data/100|0) + "-" + (-data%100) + "</span>";
+                                else if (data>0)    // Ordinary
+                                    return " <span class=\"bib\">" + data + "</span>";
+                                else
+                                    return "";
+                            }
+                            else
+                                return Math.abs(data);
+                        }
                     });
                     columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName",
                     "render": function (data,type,row) {
@@ -1641,10 +1641,12 @@ var LiveResults;
                                 if (row.rank >= 0) res += row.rank;
                                 return res;
                             }});
+                    
                     var timeTitle = "Tid";
                     if (this.radioStart || leftInForest) 
                         timeTitle = "Starttid";
                     columns.push({ "sTitle": timeTitle, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time"});
+                    
                     if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
                         columns.push({ "sTitle": "Diff", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeDiff",
                             "render": function (data,type,row) {
@@ -1656,16 +1658,23 @@ var LiveResults;
                                 return res;
                             }});
                     if (leftInForest)
-                        columns.push({ "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
+                    {
+                        columns.push({ "sTitle": "", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
                             "render": function (data,type,row) {
                                 var res = "";
-                                if (data == 9)
-                                    res += "Startet";
-                                else if (row.checked == 1)
-                                    res += "Brikkesjekk";
+                                if (row.checked == 1 || row.status==9)
+                                    res += "&#9989; "; // Green checkmark
+                                else
+                                    res += "&#11036; "; // Empty checkbox
                                 return res;
                             }});
-
+                        columns.push({ "sTitle": "DNS", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
+                            "render": function (data,type,row) {                               
+                                var runnerName = ( Math.abs(row.bib)>0 ? "(" + Math.abs(row.bib) + ") " : "" ) + row.runnerName;                                
+                                var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + ",1);\">&#128172;</button>";						
+                                return link;
+                            }});
+                    }
                     if (this.radioStart){				
                         var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
                         
@@ -1682,6 +1691,7 @@ var LiveResults;
                                     return link;
                             }});
                     }
+                    
                     this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
                         "bPaginate": false,
                         "bLengthChange": false,
