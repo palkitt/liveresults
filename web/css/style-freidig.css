@@ -142,6 +142,8 @@ table.dataTable td {vertical-align: top;}
 .legtime {color: dimgrey;}
 .bib {color: grey; font-style: normal;}
 .estimate {color:grey; font-style: italic;}
+.gained {color: green;}
+.lost {color: red;}
 a.club {color: var(--livered); }
 a.relayclub {color: var(--livered); }
 

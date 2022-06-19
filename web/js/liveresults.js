@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -55,6 +55,7 @@ var LiveResults;
             this.curClassName = null;
             this.curClubName = null;
             this.curSplitView = null;
+            this.curRelayView = null;
             this.lastClassHash = "";
             this.curClassNumberOfRunners = 0;
             this.curClassSplits = null;
@@ -112,6 +113,12 @@ var LiveResults;
                         var co = hash.substring(coind+10);
                         if (_this.curSplitView == null || cl != _this.curSplitView[0] || co != _this.curSplitView[1])
                             LiveResults.Instance.viewSplitTimeResults(cl,co);
+                    }
+                    else if (hash.indexOf('relay::') >= 0) 
+                    {
+                        cl = decodeURIComponent(hash.substring(7));
+                        if (cl != _this.curRelayView)
+                            LiveResults.Instance.viewRelayResults(cl);
                     }
                     else 
                     {
@@ -260,8 +267,8 @@ var LiveResults;
                             if (classNameClean == classNameCleanNext && LegNoNext == LegNo + 1) // Relay trigger
                             {
                                 if (!relay) // First class in relay  
-                                {
-                                    str += "<b>" + classNameClean + "</b><br/>&nbsp;";
+                                {                                    
+                                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameClean + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
                                     leg = 0;
                                 }
                                 relay = true;
@@ -2437,6 +2444,7 @@ var LiveResults;
             this.curClassName = className;
             this.curClubName = null;
             this.curSplitView = null; 
+            this.curRelayView = null;
             $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
             var preTime = new Date().getTime();
             var callStr;
@@ -2661,7 +2669,6 @@ var LiveResults;
                                             clubShort = _this.clubShort(clubShort);				
                                     }
                                     return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>" + vertLine;
-                                    
                                 }
                             });
                         columns.push({
@@ -3624,6 +3631,7 @@ var LiveResults;
             this.curClubName = clubName;
             this.curClassName = null;
             this.curSplitView = null; 
+            this.curRelayView = null;
             $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
             $.ajax({
                 url: this.apiURL,
@@ -3779,6 +3787,199 @@ var LiveResults;
                 this.resUpdateTimeout = setTimeout(function () {_this.checkForClubUpdate();}, _this.clubUpdateInterval);
         };
         
+        AjaxViewer.prototype.viewRelayResults = function (className) {
+            var _this = this;
+            this.inactiveTimer = 0;
+            if (this.currentTable != null) {
+                try {this.currentTable.api().destroy(); }
+                catch (e) { }
+            }
+            clearTimeout(this.resUpdateTimeout);
+            $('#divResults').html('');
+            $('#' + this.txtResetSorting).html('');
+            this.curClubName =  null;
+            this.curClassName = null;
+            this.curSplitView = null; 
+            this.curRelayView = className;
+            
+            $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+            $.ajax({
+                url: this.apiURL,
+                data: "comp=" + this.competitionId + "&unformattedTimes=true&method=getrelayresults&class=" +encodeURIComponent(className),
+                success: function (data,status,resp) {
+                    var expTime = new Date();
+                    expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+                    _this.updateRelayResults(data,expTime);
+                },
+                dataType: "json"
+            });
+            window.location.hash = "relay::" + className;
+        };
+        
+        AjaxViewer.prototype.updateRelayResults = function (data,expTime) {
+            var _this = this;
+            if (data.rt != undefined && data.rt > 0)
+                this.updateInterval = data.rt*1000;
+            $('#updateinterval').html("- ");
+            if (expTime)
+            {
+                var lastUpdate = new Date();
+                lastUpdate.setTime(expTime - this.clubUpdateInterval + 1000);
+                $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
+            }
+            if (data != null && data.status == "OK") 
+            {
+                if (data.className != null) {
+                    $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
+                    $('#' + this.resultsControlsDiv).show();
+                }
+                if (data.legs != null & data.relayresults != null)
+                {
+                    var legs = data.legs;
+                    var numberOfRunners = legs*data.relayresults[0].results.length;
+                    $('#numberOfRunners').html(numberOfRunners);
+
+                    var teamresults = [];
+                    for (let leg = 1; leg <= legs; leg++)
+                    {
+                        var legResults = data.relayresults[leg-1].results;
+                        for (let runner = 0; runner < legResults.length; runner++)
+                        {
+                            var br = "";
+                            var teamBib = (-legResults[runner].bib/100|0);
+                            var legTime;
+                            var legStatus;
+                            var legPlusTime;
+                            var legPlace;
+                            if (leg==1)
+                            {
+                                var clubShort = legResults[runner].club;
+                                if (clubShort.length > _this.maxClubLength)
+                                    clubShort = _this.clubShort(clubShort);
+                                teamresults[teamBib] = {
+                                    names     : "<b>" + clubShort + "</b><br/>",		                                
+                                    bib       : "<b>" + teamBib + "</b><br/>",
+                                    legTime   : "<br/>",
+                                    legPlace  : "<br/>",
+                                    legDiff   : "<br/>",
+                                    totTime   : "",
+                                    totPlace  : "<br/>",
+                                    totDiff   : "",
+                                    lastPlace : legResults[runner].place,
+                                    lastDiff  : legResults[runner].timeplus,
+                                    placeDiff : "<br/>",
+                                    totGained : "<br/>",
+                                    sort      : []
+                                }
+                                legTime     = legResults[runner].result;
+                                legStatus   = legResults[runner].status;
+                                legPlusTime = legResults[runner].timeplus;
+                                legPlace    = legResults[runner].place;
+                            }
+                            else
+                            {
+                                br = "<br/>";
+                                legTime     = legResults[runner].splits["999"];
+                                legStatus   = legResults[runner].status;
+                                legPlusTime = legResults[runner].splits["999_timeplus"];
+                                legPlace    = legResults[runner].splits["999_place"];
+                            
+                            }
+                            var totStatus = legResults[runner].status;
+                            var totPlace  = legResults[runner].place;
+                            var placeDiff = (totStatus==0? legResults[runner].place - teamresults[teamBib].lastPlace : "");
+                            var totGained = legResults[runner].timeplus - teamresults[teamBib].lastDiff;
+                            teamresults[teamBib].lastPlace = legResults[runner].place;
+                            teamresults[teamBib].lastDiff  = legResults[runner].timeplus;
+                            
+                            var nameShort = legResults[runner].name;
+                            if (nameShort.length > _this.maxNameLength)
+                                nameShort = _this.nameShort(nameShort); 
+
+                            teamresults[teamBib].names    += br + nameShort;
+                            teamresults[teamBib].bib      += br + leg;
+                            
+                            teamresults[teamBib].legPlace += br + (legPlace==1? "<span class=\"bestplace\">" : "<span>") + legPlace + "</span>";
+                            teamresults[teamBib].legTime  += br + (legPlace==1? "<span class=\"besttime\">" : "<span>") 
+                                                                + _this.formatTime(legTime,legStatus,_this.showTenthOfSecond) + "</span>";
+                            teamresults[teamBib].legDiff  += br + (legStatus==0? (legPlace==1? "<span class=\"besttime\">" : "<span>") + (legPlusTime<0? "-" :"+") 
+                                                                + _this.formatTime(Math.abs(legPlusTime),0,_this.showTenthOfSecond) + "</span>": "");
+                            
+                            teamresults[teamBib].totPlace += br + (totPlace==1? "<span class=\"bestplace\">" : "<span>") + totPlace +" </span>" ;
+                            teamresults[teamBib].totTime  += br + (totPlace==1? "<span class=\"besttime\">" : "<span>") 
+                                                                + _this.formatTime(legResults[runner].result,legResults[runner].status,_this.showTenthOfSecond) +" </span>" ;
+                            teamresults[teamBib].totDiff  += br + (totStatus==0? (totPlace==1? "<span class=\"besttime\">" : "<span>") + ( legResults[runner].timeplus<0 ? "-": "+") 
+                                                                +_this.formatTime(Math.abs(legResults[runner].timeplus),0,_this.showTenthOfSecond) + "</span>" : "");
+                            
+                            teamresults[teamBib].placeDiff+= br + (leg==1? "" : (placeDiff<0? "<span class=\"gained\">": (placeDiff>0? "<span class=\"lost\">+":"<span>")) + placeDiff + "</span>");
+                            teamresults[teamBib].totGained+= br + (leg>1 && legStatus==0 ? (totGained<=0? "<span class=\"gained\">-" : "<span class=\"lost\">+") 
+                                                                + _this.formatTime(Math.abs(totGained),0,_this.showTenthOfSecond) : "");
+
+                            if (legResults[runner].place == "-")
+                                teamresults[teamBib].sort[leg-1] = 999999 + (leg==1 ? teamBib : 0);
+                            else if (legResults[runner].place == "")
+                                teamresults[teamBib].sort[leg-1] = 99999 + (leg==1 ? teamBib : 0);
+                            else 
+                                teamresults[teamBib].sort[leg-1] = legResults[runner].place;
+                            
+                            if (leg == legs)
+                            {
+                                teamresults[teamBib].place   = "<b>" + legResults[runner].place + "</b>";
+                                teamresults[teamBib].totTime = "<b>" + _this.formatTime(legResults[runner].result,legResults[runner].status,_this.showTenthOfSecond) 
+                                                                     + "</b><br/>" + teamresults[teamBib].totTime;
+                                teamresults[teamBib].totDiff = "<b>" + (legResults[runner].status==0? (legResults[runner].timeplus<0? "-":"+") 
+                                                                     + _this.formatTime(Math.abs(legResults[runner].timeplus),0,_this.showTenthOfSecond) : "") 
+                                                                     + "</b><br/>" + teamresults[teamBib].totDiff;
+                            }
+                                
+                        };
+                    };
+                    
+                    teamresults = teamresults.filter(Boolean);
+                    var columns = Array();
+                    var col = 0;
+                    var sorting = []; 
+                    for (let leg = 1; leg <= legs; leg++)
+                    { 
+                        sorting.unshift([col,"asc"]);
+                        columns.push({ "sTitle": "sort", "bVisible": false, "mDataProp": "sort", "aTargets": [col++], "render": function (data,type,row,meta) {
+                            leg = meta.col;
+                            return row.sort[leg]; 
+					         }});  
+                    }
+                    columns.push({ "sTitle": "#",     "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "place"});
+                    columns.push({ "sTitle": "&#8470","sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib"});
+                    columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "names"});
+                    columns.push({ "sTitle": "Tot",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totTime"});
+                    columns.push({ "sTitle": "T#",    "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totPlace"});
+                    columns.push({ "sTitle": "Tot&#916;",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totDiff"});
+                    columns.push({ "sTitle": "Etp",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legTime"});
+                    columns.push({ "sTitle": "E#",    "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legPlace"});
+                    columns.push({ "sTitle": "Etp&#916;",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legDiff"});
+                    columns.push({ "sTitle": "±#",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeDiff"});
+                    columns.push({ "sTitle": "­±Tot",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totGained"});
+
+                    this.currentTable = $('#' + this.resultsDiv).dataTable({
+						"scrollX": this.scrollView,
+						"fixedColumns": {leftColumns: legs+3, heightMatch: 'auto'},
+						"responsive": false,
+						"bPaginate": false,
+                        "bLengthChange": false,
+                        "bFilter": false,
+                        "bSort": true,
+                        "bInfo": false,
+                        "bAutoWidth": false,
+                        "aaData": teamresults,
+                        "aaSorting": sorting,
+                        "aoColumnDefs": columns,
+                        "bDestroy": true
+                    });
+                    this.currentTable.fnAdjustColumnSizing();
+                };
+            };
+        };
+
+
         AjaxViewer.prototype.resetSorting = function () {
             var idxCol = 1;
             $.each(this.currentTable.fnSettings().aoColumns, function (idx, val) {
@@ -4050,6 +4251,7 @@ var LiveResults;
         this.curClubName = null;
         this.curClassName = null;
         this.curSplitView = [className,course];
+        this.curRelayView = null;
         $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
         $.ajax({
             url: this.apiURL,

@@ -11,7 +11,7 @@ if (!isset($_GET['method']))
     $_GET['method'] = null;
 if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
 	$refreshTime = 120;
-else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults')
+else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults' || $_GET['method'] == 'getrelayresults')
 	$refreshTime = 60;
 else
 	$refreshTime = 5;
@@ -283,6 +283,36 @@ elseif ($_GET['method'] == 'getclassresults')
 		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 	}
 }
+elseif ($_GET['method'] == 'getrelayresults')
+{
+	$class = $_GET['class'];
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime);
+	$leg = 0;
+	$ret = "";
+    do {
+		$leg += 1;
+		$relayClass = $class."-".$leg;
+		$res = classresults($relayClass,false,true);
+		if ($res[0] != "")
+		{
+			if($leg>1)
+				$ret .= ",".$br;
+			$ret .= "$br{\"leg\": ".$leg.", \"results\": [" .$res[0]. "]}";
+		}
+	} while ($res[0] != "");
+
+	$hash = MD5($ret);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+	{
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+	}
+	else
+	{
+		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"legs\": ".($leg-1).", \"relayresults\": [$br$ret$br]");
+		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+	}
+}
 elseif ($_GET['method'] == 'getclasscoursesplits')
 {
 	$class = $_GET['class'];
@@ -447,13 +477,18 @@ function classesSorted($currentComp){
 	return $classNames;
 }
 
-function classResults($class,$plain)
+function classResults($class,$plain,$relay=false)
 {
 	global $RunnerStatus;
 	global $currentComp;
 	$results = $currentComp->getAllSplitsForClass($class);
 	if (isset($_GET['nosplits']) && $_GET['nosplits'] == "true" || $plain)
 		$splits = null;
+	else if ($relay)
+	{
+		$splits[0]['code']="999";
+		$splits[0]['name']="leg";
+	}
 	else
 		$splits = $currentComp->getSplitControlsForClass($class);
 
@@ -467,7 +502,6 @@ function classResults($class,$plain)
 		foreach ($results as $key=>$res)
 		{
 			$id = $res['DbId'];
-
 			$results[$key]["totaltime"] = $total[$id]["Time"];
 			$results[$key]["totalstatus"] = $total[$id]["Status"];
 			$results[$key]["totalplace"] = $total[$id]["Place"];
