@@ -4327,7 +4327,7 @@ var LiveResults;
                         }
                     });
                                     
-                    if (data.splitcontrols != null)
+                    if (data.splitcontrols != null && data.splitcontrols.length>1)
                     {
                         for (var i=0; i<data.splitcontrols.length; i++)
                         {
