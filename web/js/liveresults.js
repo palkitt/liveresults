@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -2620,7 +2620,7 @@ var LiveResults;
 					else
                         this.curClassNumSplits = this.curClassSplits.length;
 
-                    this.compactView = !(this.curClassIsRelay || this.curClassLapTimes);
+                    this.compactView = !(this.curClassIsRelay || this.curClassLapTimes || this.isMultiDayEvent);
                     this.curClassIsMassStart = this.curClassIsRelay;
 
                     this.curClassSplitsOK = new Array(this.curClassNumSplits).fill(true);
