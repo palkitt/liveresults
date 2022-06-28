@@ -186,18 +186,10 @@ $(document).ready(function()
 	var compName = "<?=$currentComp->CompName()?>";
 	compName = compName.substring(0,  (res.browserType == 1 ? 30 : 60) )
 	$("#compname").html(compName);
-	
-	// Set full view
-	<?php if ($setFullView || $currentComp->FullView() ){?>
-		res.setCompactView(false); <?php }?>
-		
+			
 	// Turn off scroll view
 	<?php if ($setNotScroll){?>
 		res.setScrollView(false); <?php }?>
-	
-	// Mass start race
-	<?php if($currentComp->MassStartSorting() ){?>
-		res.curClassIsMassStart = true; <?php }?>
 	
 	// Show tenth of seconds
 	<?php if($currentComp->ShowTenthOfSeconds() ){?>
@@ -359,8 +351,6 @@ function closeTop() {
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div></span>
 		<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div></span>
-		<span id="setCompactViewText" class="noUnderline">
-	    <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span>
 		</td>
 		<td align="left"><input type="text" id="searchBib" placeholder="Startno..." size="5">
 		<span id="searchRunner">Ukjent startnummer</span></td>

@@ -1427,8 +1427,16 @@ var LiveResults;
                             cl = cl.replace('\'', '\\\'');
                         var bibStr = "";
                         if (_this.speakerView)
-                            bibStr = " (<a href=\"javascript:LiveResults.Instance.searchBib(" + value["bib"] + ")\">" + value["bib"] + "</a>) "; 
-                        str += value.passtime + ": " + bibStr + runnerName 
+                        {
+                            var bib = value["bib"];
+                            var bibFormat = "";
+                            if (bib<0)
+                                bibFormat = (-bib/100|0) + "-" + (-bib%100)
+                            else
+                                bibFormat = bib;
+                            bibStr = " (<a href=\"javascript:LiveResults.Instance.searchBib(" + bib + ")\">" + bibFormat + "</a>) "; 
+                        }
+                            str += value.passtime + ": " + bibStr + runnerName 
                         + " (<a href=\"javascript:LiveResults.Instance.chooseClass('" + cl + "')\">" + value["class"] + "</a>) " 
                         + (value.control == 1000 && status > 0 && status < 7 ? _this.resources["_NEWSTATUS"] :
                         (value.control == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"]) 
@@ -2612,6 +2620,9 @@ var LiveResults;
 					else
                         this.curClassNumSplits = this.curClassSplits.length;
 
+                    this.compactView = !(this.curClassIsRelay || this.curClassLapTimes);
+                    this.curClassIsMassStart = this.curClassIsRelay;
+
                     this.curClassSplitsOK = new Array(this.curClassNumSplits).fill(true);
                     this.checkRadioControls(data);
                     this.updateClassSplitsBest(data);
@@ -3286,20 +3297,7 @@ var LiveResults;
             }
         };
 
-		AjaxViewer.prototype.setCompactView = function (val) {
-            this.compactView = val;
-            if (this.compactView) {
-                $("#" + this.setCompactViewText).html("<a href=\"javascript:LiveResults.Instance.setCompactView(false);\">&#9868;</a>");
-            }
-            else {
-                $("#" + this.setCompactViewText).html("<a href=\"javascript:LiveResults.Instance.setCompactView(true);\">&#9866;</a>");
-            }
-			if (this.curClassName!=null)
-			{
-				this.chooseClass(this.curClassName);
-			}
-        };
-		
+				
 		AjaxViewer.prototype.setScrollView = function (val) {
             this.scrollView = val;
             if (this.scrollView) {

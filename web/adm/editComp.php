@@ -4,7 +4,7 @@ include_once("../templates/classEmma.class.php");
 if (isset($_POST['btnSave']))
 {
 	$ok = Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
-        $_POST['massstartsort'],$_POST['tenthofseconds'],$_POST['fullviewdefault'],$_POST['rankedstartlist'],$_POST['hightime'],$_POST['quallimits'],
+        0,$_POST['tenthofseconds'],0,$_POST['rankedstartlist'],$_POST['hightime'],$_POST['quallimits'],
         $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],$_POST['showinfo'],$_POST['infotext'],$_POST['showecardtimes']);
   if ($ok == 1)
     echo('<b>&nbsp;Competion update OK</b>');
@@ -157,14 +157,8 @@ function confirmDelete(msg,url)
 <tr><td><b>Public</td>
 <td><input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/></td></tr>
 
-<tr><td><b>Mass start sorting</b></td>
-<td><input type="checkbox" name="massstartsort" <?= $comp['massstartsort'] == 1 ? "checked" : "" ?>/></td></tr>
-
 <tr><td><b>Tenth of seconds</b></td>
 <td><input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/></td></tr>
-
-<tr><td><b>Two-line results</td>
-<td><input type="checkbox" name="fullviewdefault" <?= $comp['fullviewdefault'] == 1 ? "checked" : "" ?>/></td></tr>
 
 <tr><td><b>Initial dynamic ranking</td>
 <td><input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?>/></td></tr>

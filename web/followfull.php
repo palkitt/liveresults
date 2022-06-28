@@ -187,17 +187,9 @@ $(document).ready(function()
 	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 	
-	// Set full view
-	<?php if ($setFullView || $currentComp->FullView() ){?>
-		res.setCompactView(false); <?php }?>
-		
 	// Turn off scroll view
 	<?php if ($setNotScroll){?>
 		res.setScrollView(false); <?php }?>
-	
-	// Mass start race
-	<?php if($currentComp->MassStartSorting() ){?>
-		res.curClassIsMassStart = true; <?php }?>
 	
 	// Show tenth of seconds
 	<?php if($currentComp->ShowTenthOfSeconds() ){?>
@@ -400,8 +392,7 @@ function closeTop() {
   	<td align="right"width="30%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
 		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
   	<td align="right" width="10%">
-	  <span class="noUnderline"><a href="images/LiveResGuide.jpg">?</a><span id="setCompactViewText" class="noUnderline">
-	        <a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
+	  <span class="noUnderline"><a href="images/LiveResGuide.jpg">?</a></td>
 	</tr>
   </table></td>
 </tr>
