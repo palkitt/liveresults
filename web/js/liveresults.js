@@ -961,7 +961,7 @@ var LiveResults;
                     var offset = 3 + (this.curClassHasBibs? 1 : 0) + ((this.curClassIsUnranked || (this.compactView && !this.curClassLapTimes)) ? 1 : 0);
                     var MDoffset = (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
                     var rank;
-                    const predOffset = 0;
+                    const predOffset = 1500;
                     const predRank = true;
                     
                     var firstOKSplit = this.curClassNumSplits; 
@@ -1201,7 +1201,7 @@ var LiveResults;
                                         if (predRank && this.rankedStartlist && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
                                             data[i].progress == 0 && (data[i].status == 0 || data[i].status == 9 || data[i].status == 10))
                                         {
-                                            tmpPredData[i].result = elapsedTime - predOffset;
+                                            tmpPredData[i].result = max(elapsedTime/(predOffset+1),elapsedTime - predOffset);
                                             tmpPredData[i].progress = 100;
                                             tmpPredData[i].place = "p";
                                             tmpPredData[i].status = 0;
@@ -1306,7 +1306,7 @@ var LiveResults;
                                             {
                                                 if (nextSplit == 0 && this.rankedStartlist) // First split
                                                     {   
-                                                        tmpPredData[i].splits[this.curClassSplits[0].code] = elapsedTime - predOffset;
+                                                        tmpPredData[i].splits[this.curClassSplits[0].code] = Math.max(elapsedTime/(predOffset+1),elapsedTime - predOffset);
                                                         tmpPredData[i].progress = 100.0 * 1/(this.curClassNumSplits + 1);
                                                         tmpPredData[i].place = "";
                                                     }
@@ -1318,7 +1318,7 @@ var LiveResults;
                                                             break                                                
                                                         if (!this.shortSprint && nextSplit == this.curClassNumSplits && data[j].status == 0 && elapsedTime - predOffset > parseInt(data[j].result))
                                                         {   // Finish
-                                                            tmpPredData[i].result = elapsedTime - predOffset;
+                                                            tmpPredData[i].result = Math.max(elapsedTime/(predOffset+1),elapsedTime - predOffset);
                                                             tmpPredData[i].progress = 100;
                                                             tmpPredData[i].place = "p";
                                                             tmpPredData[i].status = 0;
@@ -3869,6 +3869,7 @@ var LiveResults;
                                     lastDiff  : legResults[runner].timeplus,
                                     placeDiff : "<br/>",
                                     totGained : "<br/>",
+                                    placeStr  : "",
                                     sort      : []
                                 }
                                 legTime     = legResults[runner].result;
@@ -3887,7 +3888,7 @@ var LiveResults;
                             }
                             var totStatus = legResults[runner].status;
                             var totPlace  = legResults[runner].place;
-                            var placeDiff = (totStatus==0? legResults[runner].place - teamresults[teamBib].lastPlace : "");
+                            var placeDiff = (totStatus==0 && teamresults[teamBib].lastPlace > 0 ? legResults[runner].place - teamresults[teamBib].lastPlace : "");
                             var totGained = legResults[runner].timeplus - teamresults[teamBib].lastDiff;
                             teamresults[teamBib].lastPlace = legResults[runner].place;
                             teamresults[teamBib].lastDiff  = legResults[runner].timeplus;
@@ -3924,18 +3925,18 @@ var LiveResults;
                             
                             if (leg == legs)
                             {
-                                teamresults[teamBib].place   = "<b>" + legResults[runner].place + "</b>";
+                                teamresults[teamBib].placeStr = "<b>" + legResults[runner].place + "</b>";
                                 teamresults[teamBib].totTime = "<b>" + _this.formatTime(legResults[runner].result,legResults[runner].status,_this.showTenthOfSecond) 
                                                                      + "</b><br/>" + teamresults[teamBib].totTime;
                                 teamresults[teamBib].totDiff = "<b>" + (legResults[runner].status==0? (legResults[runner].timeplus<0? "-":"+") 
                                                                      + _this.formatTime(Math.abs(legResults[runner].timeplus),0,_this.showTenthOfSecond) : "") 
                                                                      + "</b><br/>" + teamresults[teamBib].totDiff;
                             }
-                                
                         };
                     };
                     
                     teamresults = teamresults.filter(Boolean);
+                    
                     var columns = Array();
                     var col = 0;
                     var sorting = []; 
@@ -3947,7 +3948,7 @@ var LiveResults;
                             return row.sort[leg]; 
 					         }});  
                     }
-                    columns.push({ "sTitle": "#",     "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "place"});
+                    columns.push({ "sTitle": "#",     "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeStr"});
                     columns.push({ "sTitle": "&#8470","sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib"});
                     columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "names"});
                     columns.push({ "sTitle": "Tot",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totTime"});
@@ -3956,8 +3957,8 @@ var LiveResults;
                     columns.push({ "sTitle": "Etp",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legTime"});
                     columns.push({ "sTitle": "E#",    "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legPlace"});
                     columns.push({ "sTitle": "Etp&#916;",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legDiff"});
-                    columns.push({ "sTitle": "±#",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeDiff"});
-                    columns.push({ "sTitle": "­±Tot",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totGained"});
+                    columns.push({ "sTitle": "±#",    "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeDiff"});
+                    columns.push({ "sTitle": "±Tot",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totGained"});
 
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
 						"scrollX": this.scrollView,
