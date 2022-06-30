@@ -1085,11 +1085,12 @@ class Emma
 					elseif (!($ret[$dbId]["Status"]==13 && $status == 13))
 						$ret[$dbId]["Status"] = min($status, $ret[$dbId]["Status"] );
 				}
-				$ret[$dbId]["c_".$row['TavId']] = true;
+				if ($status != 9 && $status != 10)
+					$ret[$dbId]["c_".$row['TavId']] = true;
 			}
 			mysqli_free_result($result);
 			
-			/*set DNS on those missing any comp*/
+			/* Set DNS on those missing any comp*/
 			foreach($ret as $key => $val)
 			{
 				$haveAll = true;
