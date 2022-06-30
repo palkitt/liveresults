@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = false;
+            this.local = true;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -151,7 +151,7 @@ var LiveResults;
             var now = new Date();
             var compDay = new Date(this.compDate);
             var dDays = (now-compDay)/1000/86400;
-            return  (dDays>0 && dDays<1.25 || this.compDate == "" || this.local )
+            return  (dDays>-0.25 && dDays<1.25 || this.compDate == "" || this.local )
         };
 
         //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
@@ -268,7 +268,10 @@ var LiveResults;
                             {
                                 if (!relay) // First class in relay  
                                 {                                    
-                                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameClean + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
+                                    if (this.EmmaServer)
+                                        str += "<b> " + classNameClean + "</b><br/>&nbsp;";
+                                    else
+                                        str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameClean + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
                                     leg = 0;
                                 }
                                 relay = true;
@@ -946,17 +949,18 @@ var LiveResults;
             if (this.currentTable != null && this.curClassName != null && this.updateAutomatically && this.isCompToday()) {
                 try {
                     var dt = new Date();			
-					var data = this.currentTable.fnGetData();
                     var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
                     var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
                     var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
                     var time = 100*Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-					var timeServer = (dt - this.serverTimeDiff)/1000 + timeZoneDiff*60;
+					var timeServer = (dt - this.serverTimeDiff)/1000;
                     var timeDiff = 0;
 					var timeDiffCol = 0;
                     var highlight = false;
                     var modifiedTable = false;
 					var age = 0;
+                    
+                    var data = this.currentTable.fnGetData();
 					var table = this.currentTable.api();					
                     var offset = 3 + (this.curClassHasBibs? 1 : 0) + ((this.curClassIsUnranked || (this.compactView && !this.curClassLapTimes)) ? 1 : 0);
                     var MDoffset = (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
@@ -1201,7 +1205,7 @@ var LiveResults;
                                         if (predRank && this.rankedStartlist && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
                                             data[i].progress == 0 && (data[i].status == 0 || data[i].status == 9 || data[i].status == 10))
                                         {
-                                            tmpPredData[i].result = max(elapsedTime/(predOffset+1),elapsedTime - predOffset);
+                                            tmpPredData[i].result = Math.max(elapsedTime/(predOffset+1),elapsedTime - predOffset);
                                             tmpPredData[i].progress = 100;
                                             tmpPredData[i].place = "p";
                                             tmpPredData[i].status = 0;
