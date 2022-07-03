@@ -247,7 +247,8 @@ namespace LiveResults.Client
                             }
                         }
                         CourseControl[] courseControlArray = courseControls.ToArray();
-                        dlgMergeCourseControls(courseControlArray);
+                        bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
+                        dlgMergeCourseControls(courseControlArray, deleteUnused);
                     }
 
 
@@ -677,7 +678,6 @@ namespace LiveResults.Client
                 {
                     if (m_connection != null)
                         m_connection.Close();                    
-                    FireLogMsg("Disconnected");
                     FireLogMsg("eTiming Monitor thread stopped");
                 }
             }

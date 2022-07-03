@@ -205,7 +205,7 @@
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(261, 13);
             this.label15.TabIndex = 11;
-            this.label15.Text = "Ver 16.05.2022 - https://github.com/palkitt/liveresults";
+            this.label15.Text = "Ver 03.07.2022 - https://github.com/palkitt/liveresults";
             // 
             // FrmNewCompetition
             // 

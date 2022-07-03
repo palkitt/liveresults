@@ -57,12 +57,12 @@ namespace LiveResults.Client
             }; 
         }
 
-        void m_Parser_OnMergeCourseControls(CourseControl[] courseControls)
+        void m_Parser_OnMergeCourseControls(CourseControl[] courseControls, bool deleteUnused)
         {
             foreach (EmmaMysqlClient client in m_Clients)
             {
                 if (courseControls != null)
-                    client.MergeCourseControls(courseControls);
+                    client.MergeCourseControls(courseControls, deleteUnused);
             }
         }
 
@@ -165,18 +165,18 @@ namespace LiveResults.Client
                     string stringCliCompDate = cli.compDate.ToString("yyyy-MM-dd");
                     if (!( String.Equals(stringCliCompDate, stringCompDate) && String.Equals(cli.organizer, Organizer)))
                     {
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Parser aborts!");
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  eTiming: \t\t" + Organizer + " - " + stringCompDate);
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  Database:\t" + cli.organizer + " - " + stringCliCompDate);
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " eTiming and datebase do NOT match!");
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " eTiming date/orgainzer:\t" + stringCompDate + " / " + Organizer);
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Server date/orgainzer:\t" + stringCliCompDate + " / " + cli.organizer);
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Parser aborts! Server and eTiming data do NOT match."); 
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Check date, organizer, compID and network connection!");
                         dateOrganizerOK = false;
                         break;
                     }
                     else
                     {
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  eTiming: \t\t" + Organizer + " - " + stringCompDate);
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + "  Database:\t" + cli.organizer + " - " + stringCliCompDate);
-                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " eTiming and database matches");
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " eTiming date/orgainzer:\t" + stringCompDate + " / " + Organizer);
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Server date/orgainzer:\t" + stringCliCompDate + " / " + cli.organizer);
+                        listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Server and eTiming data match!");
                         if (deleteEmmaIDs)
                         {
                             List<int> usedID = new List<int>();
@@ -202,13 +202,15 @@ namespace LiveResults.Client
                 else
                 {
                     foreach (EmmaMysqlClient cli in m_Clients)
-                     cli.Stop();
+                        cli.Stop();
+                    m_Clients.Clear();
                 }
             }
             else
             {
                 foreach (EmmaMysqlClient cli in m_Clients)
-                  cli.Stop();
+                    cli.Stop();
+                m_Clients.Clear();
                 m_Parser.Stop();
                 btnStartSTop.Text = "Start";
             }

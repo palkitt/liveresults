@@ -583,7 +583,7 @@ namespace LiveResults.Model
                 if (!m_currentlyBuffering)
                 {
                     FireResultChanged(r, 1000);
-                    FireLogMsg("Local update result: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + r.Time);
+                    FireLogMsg("Local update result: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + formatTime(r.Time,r.Status));
                 }
             }
         }
@@ -601,7 +601,7 @@ namespace LiveResults.Model
                 if (!m_currentlyBuffering)
                 {
                     FireResultChanged(r, controlcode);
-                    FireLogMsg("Local update split: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", {cn: " + controlcode + ", t: " + time + "}");
+                    FireLogMsg("Local update split: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", c" + controlcode + ", " + formatTime(time,0));
                 }
             }
 
@@ -620,7 +620,7 @@ namespace LiveResults.Model
                 m_itemsToUpdate.Add(r);
                 if (!m_currentlyBuffering)
                 {
-                    FireLogMsg("Local update start: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", t: " + starttime + "}");
+                    FireLogMsg("Local update start: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + formatTime(starttime,0,true));
                 }
             }
 
@@ -640,13 +640,13 @@ namespace LiveResults.Model
                             ControlCode = splitTime.Control
                         });
                         r.DeleteSplitTime(splitTime.Control);
-                        FireLogMsg("Local update split delete: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", {cn: " + splitTime.Control + "}");
+                        FireLogMsg("Local update split delete: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", c" + splitTime.Control);
                     }
                 }
             }
         }
 
-        public void MergeCourseControls(CourseControl[] courses)
+        public void MergeCourseControls(CourseControl[] courses, bool deleteUnused)
         {
             if (courses == null)
                 return;
@@ -693,15 +693,18 @@ namespace LiveResults.Model
             }
 
             // Delete all controls for course that are not in the array
-            var courseNo = courses.GroupBy(x => x.CourseNo).ToDictionary(x => x.Key);
-            foreach (var controls in m_courseControls)
+            if (deleteUnused)
             {
-                if (!courseNo.ContainsKey(controls.Key))
+                var courseNo = courses.GroupBy(x => x.CourseNo).ToDictionary(x => x.Key);
+                foreach (var controls in m_courseControls)
                 {
-                    CourseControl[] existingControls = m_courseControls[controls.Key];
-                    for (int i = 0; i < existingControls.Length; i++)
+                    if (!courseNo.ContainsKey(controls.Key))
                     {
-                        m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
+                        CourseControl[] existingControls = m_courseControls[controls.Key];
+                        for (int i = 0; i < existingControls.Length; i++)
+                        {
+                            m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
+                        }
                     }
                 }
             }
@@ -944,7 +947,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not add course control " + r.Order + "." + r.Code + " in course no" + r.CourseNo + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Course control " + r.Order + "." + r.Code + " in course no " + r.CourseNo + " added in DB");
+                                    FireLogMsg("Server update add: Course control " + r.Order + "." + r.Code + " in course no " + r.CourseNo);
                                 }
                                 else if (item is DelCourseControl)
                                 {
@@ -968,7 +971,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete course control " + r.Order + "." + r.Code + " in course no" + r.CourseNo + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Course control " + r.Order + "." + r.Code + " in course no " + r.CourseNo + " deleted in DB");
+                                    FireLogMsg("Server update delete: Course control " + r.Order + "." + r.Code + " in course no " + r.CourseNo);
                                 }
                                 if (item is RadioControl)
                                 {
@@ -993,7 +996,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not add radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " added in DB");
+                                    FireLogMsg("Server update add: Radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code);
                                 }
                                 else if (item is DelRadioControl)
                                 {
@@ -1019,7 +1022,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " deleted in DB");
+                                    FireLogMsg("Server update delete: Radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code);
                                 }
                                 else if (item is DelRunner)
                                 {
@@ -1045,7 +1048,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete runner " + r + " on server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("DB update delete: Runner ID " + r );
+                                    FireLogMsg("Server update delete: Runner ID " + r );
                                 }
                                 else if (item is DelSplitTime)
                                 {
@@ -1069,7 +1072,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete split from runner " + r + " on server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("DB update split deleted: Runner ID " + r );
+                                    FireLogMsg("Server update delete: Split " + control + " for runner ID " + r );
                                 }
                                 else if (item is Runner)
                                 {
@@ -1123,7 +1126,7 @@ namespace LiveResults.Model
                                             }
                                         }
                                         cmd.Parameters.Clear();
-                                        FireLogMsg("DB update info: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
+                                        FireLogMsg("Server update info: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
                                         r.RunnerUpdated = false;
                                     }
                                     if (r.ResultUpdated)
@@ -1147,7 +1150,7 @@ namespace LiveResults.Model
                                                 "Could not update result for runner " + r.Name + ", " + r.Club + ", " + r.Class + " to server due to: " + ee.Message, ee);
                                         }
                                         cmd.Parameters.Clear();
-                                        FireLogMsg("DB update result: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
+                                        FireLogMsg("Server update result: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
                                         r.ResultUpdated = false;
                                     }
                                     if (r.StartTimeUpdated)
@@ -1171,7 +1174,7 @@ namespace LiveResults.Model
                                                 "Could not update starttime for runner " + r.Name + ", " + r.Club + ", " + r.Class + " to server due to: " + ee.Message, ee);
                                         }
                                         cmd.Parameters.Clear();
-                                        FireLogMsg("DB update start: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
+                                        FireLogMsg("Server update start: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name);
                                         r.StartTimeUpdated = false;
                                     }
                                     if (r.HasUpdatedSplitTimes())
@@ -1201,7 +1204,7 @@ namespace LiveResults.Model
                                                 throw new ApplicationException(
                                                     "Could not update split time for runner " + r.Name + " splittime{" + t.Control + "} to server due to: " + ee.Message, ee);
                                             }
-                                            FireLogMsg("DB update split: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", {cn: " + t.Control + "}");
+                                            FireLogMsg("Server update split: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", c" + t.Control);
                                             t.Updated = false;
                                         }
                                         cmd.Parameters.Clear();
@@ -1251,6 +1254,40 @@ namespace LiveResults.Model
         public override string ToString()
         {
             return (m_connection != null ? m_connection.DataSource : "Detached") + " (" + UpdatesPending + ")";
+        }
+
+        private string formatTime(int time, int status, bool clock = false)
+        {
+            string returnStr = "";
+            switch (status)
+            {
+                case 1: returnStr  = "DNS"; break;
+                case 2: returnStr  = "DNF"; break;
+                case 3: returnStr  = "MP"; break;
+                case 4: returnStr  = "DSQ"; break;
+                case 5: returnStr  = "OT"; break;
+                case 6: returnStr  = "NC"; break;
+                case 9: returnStr  = "STARTED"; break;
+                case 10: returnStr = "ENTERED"; break;
+                case 11: returnStr = "WO"; break;
+                case 12: returnStr = "MOVEDUP"; break;
+                case 13: returnStr = "FINISHED"; break;
+                default:
+                {
+                    TimeSpan t = TimeSpan.FromSeconds((double)time / 100);
+                    if (clock)
+                        returnStr = string.Format("{0:D2}:{1:D2}:{2:D2}", t.Hours, t.Minutes, t.Seconds);
+                    else
+                    {
+                        if (t.Hours > 0)
+                            returnStr = string.Format("{0:D1}:", t.Hours);
+                        returnStr += string.Format("{0:D2}:{1:D2}", t.Minutes, t.Seconds);
+                        if (t.Milliseconds > 0)
+                            returnStr += string.Format(".{0:D1}", t.Milliseconds / 100);
+                    }
+                } break;
+            }
+            return returnStr;
         }
 
         #region IDisposable Members
