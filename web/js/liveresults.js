@@ -7,7 +7,7 @@ var LiveResults;
             resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv, 
             EmmaServer=false,filterDiv=null,fixedTable=false) {
             var _this = this;
-            this.local = true;
+            this.local = false;
             this.competitionId = competitionId;
             this.language = language;
             this.classesDiv = classesDiv;
@@ -2133,6 +2133,8 @@ var LiveResults;
         
         //handle response from class-results-update
         AjaxViewer.prototype.handleUpdateClassResults = function (newData,expTime) {
+            if (this.curClassName == null)
+                return;
             try{
                 if (newData.rt != undefined && newData.rt > 0)
                     this.updateInterval = newData.rt*1000;
@@ -2399,6 +2401,8 @@ var LiveResults;
         //handle the response on club-results update
         AjaxViewer.prototype.handleUpdateClubResults = function (data,expTime) {
             var _this = this;
+            if (this.curClubName == null)
+                return;
             if (data.rt != undefined && data.rt > 0)
                 this.clubUpdateInterval = data.rt*1000;
             $('#updateinterval').html(this.clubUpdateInterval/1000);
@@ -2443,8 +2447,8 @@ var LiveResults;
             if (className.length == 0)
 				return;
             var _this = this;
-            this.inactiveTimer = 0;
             clearTimeout(this.resUpdateTimeout);
+            this.inactiveTimer = 0;
             if (this.currentTable != null) {
                 try {
                     this.currentTable.api().destroy();
@@ -2493,6 +2497,8 @@ var LiveResults;
         };
 		
         AjaxViewer.prototype.updateClassResults = function (data,expTime) {
+            if (this.curClassName == null)
+                return;
             if (data != null && data.rt != undefined && data.rt > 0)
                 this.updateInterval = data.rt*1000;
             if (expTime)
@@ -3620,6 +3626,7 @@ var LiveResults;
         
         AjaxViewer.prototype.viewClubResults = function (clubName) {
             var _this = this;
+            clearTimeout(this.resUpdateTimeout);
             this.inactiveTimer = 0;
             if (this.currentTable != null) {
                 try {
@@ -3627,7 +3634,6 @@ var LiveResults;
                 }
                 catch (e) { }
             }
-            clearTimeout(this.resUpdateTimeout);
             $('#divResults').html('');
             $('#' + this.txtResetSorting).html('');
             this.curClubName = clubName;
@@ -3651,6 +3657,8 @@ var LiveResults;
         };
         
         AjaxViewer.prototype.updateClubResults = function (data,expTime) {
+            if (this.curClubName == null)
+                return;
             var _this = this;
             if (data.rt != undefined && data.rt > 0)
                 this.clubUpdateInterval = data.rt*1000;
@@ -3791,12 +3799,12 @@ var LiveResults;
         
         AjaxViewer.prototype.viewRelayResults = function (className) {
             var _this = this;
+            clearTimeout(this.resUpdateTimeout);
             this.inactiveTimer = 0;
             if (this.currentTable != null) {
                 try {this.currentTable.api().destroy(); }
                 catch (e) { }
             }
-            clearTimeout(this.resUpdateTimeout);
             $('#divResults').html('');
             $('#' + this.txtResetSorting).html('');
             this.curClubName =  null;
@@ -3819,6 +3827,8 @@ var LiveResults;
         };
         
         AjaxViewer.prototype.updateRelayResults = function (data,expTime) {
+            if (this.curRelayView == null)
+                return;
             var _this = this;
             if (data.rt != undefined && data.rt > 0)
                 this.updateInterval = data.rt*1000;
@@ -4237,13 +4247,13 @@ var LiveResults;
         if (!this.showEcardTimes)
             return
         var _this = this;
+        clearTimeout(this.resUpdateTimeout);
         if (this.currentTable != null) {
             try {
                 this.currentTable.api().destroy();
             }
             catch (e) { }
         }        
-        clearTimeout(this.resUpdateTimeout);
         $('#divResults').html('');   
         var link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" +  className.replace('\'', '\\\'') + "')\">&#5130; Resultater</a>";
         var courses = this.courses[className];
@@ -4270,6 +4280,8 @@ var LiveResults;
     };
     
     AjaxViewer.prototype.updateSplitTimeResults = function (data,course,expTime) {
+        if (this.curSplitView == null)
+            return;
         var _this = this;
         var updateInterval = 0;
         if (data.rt != undefined && data.rt > 0)
