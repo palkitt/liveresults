@@ -145,7 +145,7 @@ elseif ($_GET['method'] == 'getclasses')
 			{
 				if (!$firstCourse)
 					$ret.=",";
-				$ret.=$course[0];
+				$ret.=$course;
 				$firstCourse = false;					
 			}
 			$ret.="]}";			
@@ -763,8 +763,9 @@ function courseSplitResults($class,$course)
 	global $RunnerStatus;
 	global $currentComp;
 	
-	$results = $currentComp->getEcardTimesForClassCourse($class,$course);
-	$controls = $currentComp->getCourseControls($course);
+	$ret = $currentComp->getEcardTimesForClassCourse($class,$course);
+	$results = $ret[0];
+	$controls = $ret[1];
 	
 	$ret = "";
 	$first = true;
@@ -778,7 +779,7 @@ function courseSplitResults($class,$course)
 	{
 		if (!$first)
 			$splitJSON .=",";
-		$splitJSON .= ($split<sizeof($controls)+1? $controls[$split-1]["code"] : 999);
+		$splitJSON .= ($split<sizeof($controls)+1? $controls[$split-1]: 999);
 		$first = false;
 		
 		foreach (["_pass","_split"] as $type)

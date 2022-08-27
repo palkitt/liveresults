@@ -151,7 +151,7 @@ var LiveResults;
             var now = new Date();
             var compDay = new Date(this.compDate);
             var dDays = (now-compDay)/1000/86400;
-            return  (dDays>-0.25 && dDays<1.25 || this.compDate == "" || this.local )
+            return  (dDays>0 && dDays<1.25 || this.compDate == "" || this.local )
         };
 
         //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
@@ -4022,6 +4022,7 @@ var LiveResults;
         else
         {    
             link = "<button onclick=\"res.showCourses()\" class=\"dropbtn\">Strekktider &#5125;</button><div id=\"myDropdown\" class=\"dropdown-content\">";
+            link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "',-1);\">Felles poster</a>";
             for (i=0;i<courses.length;i++)
                 link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "'," + courses[i] + ");\">Løype "+courses[i]+"</a>";
             link += "</div>";
@@ -4297,7 +4298,8 @@ var LiveResults;
         if (data != null && data.status == "OK") 
         {
             if (data.className != null) {
-                $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>&nbsp;&nbsp;<small>Løype ' + course + '</small>');
+                var courseName = (course>0? 'Løype ' + course : 'Felles poster');
+                $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>&nbsp;&nbsp;<small>' + courseName + '</small>');
                 $('#' + this.resultsControlsDiv).show();
             }
             if (data.results != null) 

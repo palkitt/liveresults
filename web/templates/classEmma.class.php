@@ -499,7 +499,7 @@ class Emma
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			while ($row = mysqli_fetch_array($result))
-				$ret[] = $row;
+				$ret[] = $row[0];
 			mysqli_free_result($result);
 		}
 		else
@@ -946,23 +946,79 @@ class Emma
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			while($tmp = mysqli_fetch_array($result))
-				$ret[] = $tmp;
+				$ret[] = $tmp[0];
 			mysqli_free_result($result);
 		} 
 		else
 			echo(mysqli_error($this->m_Conn));
 		return $ret;
+	}
 
+	function getCommonCourseControls($courses)
+	{
+		$commonControls = Array();
+		$courseArray = Array();
+		$n = sizeof($courses);
+		if ($n>0)
+		{
+			$courseNo = $courses[0];
+			$courseArray[$courseNo] = $this->getCourseControls($courseNo);
+			$commonControls = $courseArray[$courseNo];
+			for ($c = 1; $c<$n; $c++)
+			{
+				$courseNo = $courses[$c];
+				$courseArray[$courseNo] = $this->getCourseControls($courseNo);
+				$courseControls = $courseArray[$courseNo];
+				$com_idx = 0;
+				$cou_idx = 0;
+				while ($com_idx < sizeof($commonControls))
+				{
+					$com_control = $commonControls[$com_idx];
+					$cou_ptr = $cou_idx;
+					while ($cou_ptr < sizeof($courseControls))
+					{
+						if ($courseControls[$cou_ptr]==$com_control)
+						{
+							$cou_idx = $cou_ptr+1;
+							$com_idx++;
+							break;
+						}
+						else if (in_array($courseControls[$cou_ptr],array_slice($courseControls,0,$cou_ptr))) // control appears multiple times
+						{
+							array_splice($commonControls,$com_idx,1);
+							break;
+						}
+						$cou_ptr++;
+					}
+					if ($cou_ptr==sizeof($courseControls)) // Common control not found in control set
+						array_splice($commonControls,$com_idx,1);	
+				}
+			}
+		}
+		return [$commonControls,$courseArray];
 	}
 		
 	function getEcardTimesForClassCourse($className,$course)
 	{
-		$controls = $this->getCourseControls($course);
+		$common = ($course==-1); // All common controls
+		if ($common)
+		{
+			$courses = $this->Courses($className);
+			$ret = $this->getCommonCourseControls($courses);
+			$controls = $ret[0];
+			$courseArray = $ret[1];
+		}
+		else
+		{
+			$courses = [$course];
+			$controls = $this->getCourseControls($course);
+		}
+	
 		$ret = Array();
-		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.ecardtimes, results.Time ,results.Status, results.Changed, results.DbID, results.Control 
+		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.ecardtimes, runners.course, results.Time ,results.Status, results.Changed, results.DbID, results.Control 
 		      FROM runners,results WHERE results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." 
 			  AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  
-			  AND runners.course = ".$course."  
+			  AND runners.course IN (".implode(',',$courses).")  
 			  AND (results.Control = -999 OR results.Control = 999 OR results.Control = 1000) AND results.Status IN (0,2,3,4,6,13) ORDER BY results.Dbid, results.Control";
 		
 		if ($result = mysqli_query($this->m_Conn, $q))
@@ -999,28 +1055,54 @@ class Emma
 						$finishTime = intdiv($row['Time'],100);
 					$ret[$dbId]["Status"] = intval($row['Status']);						
 				}				
-				$ecardtimes = explode(",",$row['ecardtimes']);
-				$lastTime = 0;
-
-                if (sizeof($controls)==sizeof($ecardtimes) && !isset($ret[$dbId]["1_pass_time"]))
+				
+				if (!isset($ret[$dbId]["1_pass_time"]))
 				{
-					for ($split = 0; $split < sizeof($controls); $split++)
+					$ecardtimes = explode(",",$row['ecardtimes']);
+					if ($common && sizeof($controls)!=sizeof($ecardtimes) )
 					{
-						$passTime = intval($ecardtimes[$split]);
-						if ($passTime > 0 && $lastTime > -1)
-							$splitTime = $passTime-$lastTime;
-						else
-							$splitTime = -1;
-						$lastTime = $passTime;
-
-						$ret[$dbId][($split+1)."_pass_time"] = $passTime;
-						$ret[$dbId][($split+1)."_split_time"] = $splitTime;					
+						$courseNo = $row['course'];
+						$runnerControls = $courseArray[$courseNo];
+						$commonTimes = [];
+						$timesPtr = 0;
+						for ($i=0;$i<sizeof($controls);$i++)
+						{
+							do 
+							{
+								if ($runnerControls[$timesPtr]==$controls[$i])
+								{
+									$commonTimes[$i] = $ecardtimes[$timesPtr];
+									$timesPtr++;
+									break;
+								}
+								else
+									$timesPtr++;
+							} while ($timesPtr <= sizeof($runnerControls));
+						}
+						$ecardtimes = $commonTimes;
 					}
-					$ret[$dbId][($split+1)."_pass_time"] = $finishTime;
-					if ($finishTime>$lastTime && $lastTime>-1)
-						$ret[$dbId][($split+1)."_split_time"] = $finishTime-$lastTime;					
-					else
-						$ret[$dbId][($split+1)."_split_time"] = -1;
+
+					$lastTime = 0;
+					if (sizeof($controls)==sizeof($ecardtimes))
+					{
+						for ($split = 0; $split < sizeof($controls); $split++)
+						{
+							$passTime = intval($ecardtimes[$split]);
+							if ($passTime > 0 && $lastTime > -1)
+								$splitTime = $passTime-$lastTime;
+							else
+								$splitTime = -1;
+							$lastTime = $passTime;
+
+							$ret[$dbId][($split+1)."_pass_time"] = $passTime;
+							$ret[$dbId][($split+1)."_split_time"] = $splitTime;					
+						}
+						$ret[$dbId][($split+1)."_pass_time"] = $finishTime;
+						if ($finishTime>$lastTime && $lastTime>-1)
+							$ret[$dbId][($split+1)."_split_time"] = $finishTime-$lastTime;					
+						else
+							$ret[$dbId][($split+1)."_split_time"] = -1;
+					}
 				}
 			}
 			mysqli_free_result($result);
@@ -1028,7 +1110,7 @@ class Emma
 		else
 			die(mysqli_error($this->m_Conn));
 
-		return $ret;
+		return [$ret,$controls];
 	}
 
 	function getTotalResultsForClass($className)
