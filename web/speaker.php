@@ -147,7 +147,12 @@ var topBar = false;
 
 $(document).ready(function()
 {
-	time_is_widget.init({Oslo_z71e:{}});
+	try
+	{
+		time_is_widget.init({Oslo_z71e:{}});
+	}
+	catch (error)
+	{}
 	
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		Resources, <?= ($currentComp->IsMultiDayEvent() ? "true" : "false")?>, <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", false);

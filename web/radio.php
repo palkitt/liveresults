@@ -57,7 +57,12 @@ var maxbib =  99999999;
 
 $(document).ready(function()
 {
-	time_is_widget.init({Oslo_z71e:{}});
+	try
+	{
+		time_is_widget.init({Oslo_z71e:{}});
+	}
+	catch (error)
+	{}
 	
 	<?php 
 		if (isset($_GET['calltime']))
