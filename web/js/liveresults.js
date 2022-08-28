@@ -4351,12 +4351,25 @@ var LiveResults;
                         {
                             var code = data.splitcontrols[i];
                             var title ="";
-                            if (code==999)
-                                title = (i+1) + "-" + _this.resources["_CONTROLFINISH"];
-                            else if (i==0)
-                                title = "S-1 (" + code + ")";
+                            if (course>0)
+                            {
+                                if (code==999)
+                                    title = (i+1) + "-" + _this.resources["_CONTROLFINISH"];
+                                else if (i==0)
+                                    title = "S-1 (" + code + ")";
+                                else
+                                    title = i + "-" + (i+1) + " (" + code + ")";
+                            }
                             else
-                                title = i + "-" + (i+1) + " (" + code + ")";
+                            {
+                                var codePre = (i>0? data.splitcontrols[i-1] : 0);
+                                if (code==999)
+                                    title = codePre + "-" + _this.resources["_CONTROLFINISH"];
+                                else if (i==0)
+                                    title = "S-" + code;
+                                else
+                                    title = codePre + "-" + code;
+                            }
 
                             columns.push({
                                 "sTitle": title + "&nbsp;&nbsp;",
