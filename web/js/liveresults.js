@@ -271,7 +271,7 @@ var LiveResults;
                                     if (this.EmmaServer)
                                         str += "<b> " + classNameClean + "</b><br/>&nbsp;";
                                     else
-                                        str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameClean + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
+                                        str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + param.replace(/-[0-9]{1,2}$/,'') + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
                                     leg = 0;
                                 }
                                 relay = true;
