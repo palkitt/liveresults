@@ -4,6 +4,7 @@
 
 :root{
   --livered: #F1592A;
+  --bkgray: #E6E6E6;
 }
 
 body {background-color: #ffffff; margin: 0; font-size:68.75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
@@ -243,7 +244,6 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 /*---       Tooltip           ---*/
 /*-------------------------------*/
 
-
 .tooltip {
   position: relative;
   display: inline-block;
@@ -251,23 +251,23 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 50px;
+  width: 60px;
   background-color: #555555;
   color: white;
   text-align: center;
   border-radius: 5px;
   padding: 2px 0;
   position: absolute;
-  z-index: 1;
-  top: -5px;
-  right: 115%;
+  z-index: 100;
+  bottom: 0px;
+  right: 60px;
 }
 
 .tooltip .tooltiptext::after {
   content: " ";
   position: absolute;
-  top: +5px;
-  right: -20%; 
+  bottom: +5px;
+  right: -10px; 
   margin-left: -5px;
   border-width: 5px;
   border-style: solid;
@@ -374,3 +374,10 @@ table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_
 }
 
 .show {display: block;}
+
+/*----------------------------------*/
+/*---  Background for bad splits ---*/
+/*----------------------------------*/
+
+.splitMiss { background-color: #ffcccc !important; }
+

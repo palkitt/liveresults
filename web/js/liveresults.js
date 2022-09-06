@@ -4315,6 +4315,8 @@ var LiveResults;
                 $('#numberOfRunners').html(_this.curClassNumberOfRunners);
                 if (this.curClassNumberOfRunners>0)
                 {
+                    //if (course>0)
+                    this.splitAnalyze(data.results);
                     var columns = Array();
                     var col = 0;
                     columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place"});
@@ -4400,9 +4402,11 @@ var LiveResults;
                                         var passTime   = row.pass_time[no];
                                         var passPlus   = row.pass_plus[no]
                                         var splitPlace = row.split_place[no];
-                                        var splitTime  = row.split_time[no]
-                                        var splitPlus  = row.split_plus[no]
-                                        
+                                        var splitTime  = row.split_time[no];
+                                        var splitPlus  = row.split_plus[no];
+                                        var splitMiss  = (row.split_miss != undefined ? row.split_miss[no] : false);
+                                        var splitLost  = (row.split_lost != undefined ? row.split_lost[no] : 0);
+
                                         // First line
                                         if (passTime>0 || last)
                                         {
@@ -4438,31 +4442,39 @@ var LiveResults;
                                         // Second line
                                         if (splitTime>0)
                                         {
-                                            txt += "<br/><span class=";
+                                            txt += "<br/>";
+                                            if (splitMiss)
+                                                txt += "<div class = \"splitMiss\">";
                                             place = "";
                                             
                                             if (splitPlace == 1)
                                             {
-                                                txt += "\"besttime\">";
                                                 place += "<span class=\"bestplace\"> ";
+                                                txt += "<span class=\"besttime\">";
                                             }
                                             else if (splitPlace ==2 || splitPlace == 3)
                                             {
-                                                txt += "\"time23\">";
                                                 place += "<span class=\"place23\"> ";
+                                                txt += "<span class=\"time23\">";
                                             }
                                             else
                                             {
-                                                txt += "\"legtime\">";
                                                 place += "<span class=\"place\"> ";
+                                                txt += "<span>";
                                             }
                                             if (_this.curClassNumberOfRunners >= 10 && splitPlace < 10)
                                                 place += "&numsp;"
                                             place += "&#10072;" + (splitPlace>0? splitPlace : "-") + "&#10072;</span>";
                                             txt += "<div class=\"tooltip\">" + _this.formatTime(splitTime*100, 0, false) + place ;
-                                            txt += "<span class=\"tooltiptext\">+"+ _this.formatTime(splitPlus*100, 0, false) +"</span></div>";
+                                            var tooltext = "<span class=\"tooltiptext\">+"+ _this.formatTime(splitPlus*100, 0, false);
+                                            if (splitMiss)
+                                                tooltext += "<br>Bom: " +  _this.formatTime(splitLost*100, 0, false);
+                                            tooltext += "</span></div>";
+                                            txt += tooltext;
                                             txt += "</span>";
-                                        }                                        
+                                        }
+                                        if (splitMiss)
+                                            txt += "</span>";
                                     };
                                     return txt;
                                 }
@@ -4502,6 +4514,96 @@ var LiveResults;
         }        
     };
 
+    
+    AjaxViewer.prototype.splitAnalyze = function (splitResults) {
+        var nRunners = splitResults.length;
+        var nSplits  = splitResults[0].split_time.length;
+        const bestFrac = 0.25; // Best time fraction
+        const missFrac = 1.2;  // Criteria for miss indication
+        const missMin  = 20;   // Minimum number of seconds for a miss indication
+
+        // Calc best times
+        var bestTimes = Array(nSplits).fill(-1);
+        for (var split=0; split<nSplits ; split++)
+        {
+            var times = Array();
+            for (var runner=0; runner<nRunners; runner++ )
+            {
+                if (splitResults[runner].split_time[split]>0)
+                    times.push(splitResults[runner].split_time[split]); 
+            }
+            var nTimes = times.length;
+            if (nTimes>0)
+            {
+                times.sort(function(a, b){return a-b});
+                var nBest = nTimes*bestFrac;
+                var sumTimes = 0;
+                var nBestLast = Math.floor(nBest);
+                for (var i=0; i<=nBestLast; i++)
+                    sumTimes += (i==nBestLast ?  nBest - nBestLast : 1)*times[i];
+                bestTimes[split]=sumTimes/nBest;
+            }
+        }
+
+        // Calc time fractions, misses and lost time
+        for (var runner=0; runner<nRunners; runner++ )
+        {
+            var frac = Array();
+            var fracNom = 0;  // Nominal fraction (median)
+            var fracTop = 0;  // Average fraction, up to the mid value
+            var nFracTop = 0; // Average top fractions
+
+            splitResults[runner].split_miss = Array(nSplits).fill(false);
+            splitResults[runner].split_lost = Array(nSplits).fill(0);
+
+            for (var split=0; split<nSplits ; split++)
+            {
+                var time = splitResults[runner].split_time[split];
+                if (time>0)
+                    frac.push(bestTimes[split]/time);
+            }
+            var nFrac = frac.length;
+            if (nFrac == 0 )
+                continue;                 
+            frac.sort(function(a, b){return b-a});
+            if (nFrac == 1)
+            {
+                fracNom = frac[0];
+                nFracTop = 1;
+            }
+            else if (nFrac %2 ==0 ) // Even number
+            {
+                fracNom = (frac[nFrac/2-1] + frac[nFrac/2])/2;
+                nFracTop = nFrac/2;
+            }
+            else // Odd number
+            {
+                fracNom = frac[(nFrac-1)/2];
+                nFracTop = (nFrac-1)/2 + 1;
+            }
+            var fracTopSum = 0;
+            for (var i=0;i<nFracTop;i++)
+                fracTopSum += frac[i];
+            fracTop = fracTopSum/nFracTop;
+
+            for (var split=0; split<nSplits ; split++)
+            {
+                var time = splitResults[runner].split_time[split];
+                if (time>0)
+                {
+                    var nomTime = bestTimes[split]/fracNom;
+                    var missLim  = nomTime*missFrac;
+                    if (time>missLim && (time-nomTime)>missMin)
+                    {
+                        splitResults[runner].split_miss[split] = true;
+                        splitResults[runner].split_lost[split] = time -  bestTimes[split]/fracTop;
+                    }                    
+                }
+            }
+        }    
+    }
+    
+    
     AjaxViewer.prototype.showCourses = function () {
         document.getElementById('myDropdown').classList.toggle("show");
     };
