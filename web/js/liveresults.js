@@ -2523,7 +2523,9 @@ var LiveResults;
                     }
                     else
                     {
-                        $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
+                        var distance = (data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
+                        var classHead = "<b>" + data.className + "</b>" + distance;
+                        $('#' + this.resultsHeaderDiv).html(classHead);
                         var courses = _this.courses[data.className];
                         var link = "";
                         if (_this.showEcardTimes && courses != undefined && courses.length > 0)
@@ -2539,10 +2541,16 @@ var LiveResults;
                     $('#updateinterval').html("- ");
                     var res = "";
                     for (var i=0; i < data.results.length; i++)
-                    {
-                        res += "<tr style=\"background-color:#E6E6E6\"><td colspan=5><b>&nbsp;" + data.results[i].className + "<b></td></tr>";
+                    {                    
+                        var distance = (data.results[i].distance != "" ? "&emsp;" + data.results[i].distance + " km" : "");
+                        res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + data.results[i].className + "</span>";
+                        res += distance +"</td></tr>";
+                        res += "<tr style=\"font-weight:bold\"><td align=\"right\">#</td><td>" + this.resources["_NAME"] + "</td><td>" + this.resources["_CLUB"] + "</td>";
+                        res += "<td align=\"right\">Tid</td><td align=\"right\">Diff</td><td align=\"right\">m/km&nbsp;</td></td></tr>"
                         for (var j=0; j < data.results[i].results.length; j++)
                         {
+                            var time = data.results[i].results[j].result;
+                            var kmTime = data.results[i].results[j].pace;
                             var name = data.results[i].results[j].name;
                             if (name.length> this.maxNameLength)
                                 name = this.nameShort(name);
@@ -2552,11 +2560,15 @@ var LiveResults;
                             res += "<tr><td align=\"right\">" + data.results[i].results[j].place + "</td>";
                             res += "<td>" + name + "</td>";
                             res += "<td>" + club + "</td>";
-                            res += "<td align=\"right\">" + this.formatTime(data.results[i].results[j].result,data.results[i].results[j].status,_this.showTenthOfSecond) + "</td>";
+                            res += "<td align=\"right\">" + this.formatTime(time,data.results[i].results[j].status,_this.showTenthOfSecond) + "</td>";
                             res += "<td align=\"right\"><span class=plustime>"
                             if (data.results[i].results[j].status == 0)
                                 res += "+" + this.formatTime(data.results[i].results[j].timeplus,data.results[i].results[j].status,_this.showTenthOfSecond);
-                            res += "</span>&nbsp;</td></tr>";
+                            res += "</span></td>"
+                            res += "<td align=\"right\"><span class=plustime>";
+                            if (data.results[i].results[j].status == 0 && kmTime>0)
+                               res += this.formatTime(kmTime,0,_this.showTenthOfSecond);
+                            res += "&nbsp;</span></tr>";
                         }
                         res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
                     }
@@ -2569,7 +2581,11 @@ var LiveResults;
                     var res = "";
                     for (var i=0; i < data.results.length; i++)
                     {
-                        res += "<tr style=\"background-color:#E6E6E6\"><td colspan=5><b>&nbsp;" + data.results[i].className + "<b></td></tr>";
+                        var distance = (data.results[i].distance != "" ? "&emsp;" + data.results[i].distance + " km" : "");
+                        res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=5><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + data.results[i].className + "</span>";
+                        res += distance +"</td></tr>";
+                        res += "<tr style=\"font-weight:bold\"><td align=\"right\">&#8470;</td><td>" + this.resources["_NAME"] + "</td><td>" + this.resources["_CLUB"] + "</td>";
+                        res += "<td align=\"right\">" + this.resources["_START"] +"</td><td align=\"right\">Brikke&nbsp;</td></tr>"
                         for (var j=0; j < data.results[i].results.length; j++)
                         {
                             var name = data.results[i].results[j].name;
@@ -3761,12 +3777,37 @@ var LiveResults;
                     });
                     col++;
                     columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
-                    columns.push({ "sTitle": "", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeplus",
+                    columns.push({ "sTitle": "Diff&nbsp;&nbsp;", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "timeplus",
                         "render": function (data,type,row) {
-                            if (row.status != 0)
-                                return "";
+                            if (type === 'display')
+                            {                            
+                                if (row.status == 0)
+                                    return "<span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status) + "</span>";
+                                else
+                                    return "";    
+                            }
                             else
-                                return "<span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status) + "</span>";
+                            {
+                                if (row.status == 0)
+                                    return row.timeplus;
+                                else
+                                    return 999999;
+                            }
+                        }
+                    });
+                    columns.push({ "sTitle": "m/km&nbsp;&nbsp;", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "pace",
+                        "render": function (data,type,row) {
+                            if (row.status == 0 && data > 0)
+                            {
+                                if (type === 'display')
+                                   return "<span class=\"plustime\">" + _this.formatTime(data, 0) + "</span>";
+                                else
+                                   return data;
+                            }
+                            else if (type === 'display')
+                                return ""; 
+                            else
+                                return 999999;
                         }
                     });
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
@@ -3877,6 +3918,7 @@ var LiveResults;
                                     totTime   : "",
                                     totPlace  : "<br/>",
                                     totDiff   : "",
+                                    kmTime    : "<br/>",
                                     lastPlace : legResults[runner].place,
                                     lastDiff  : legResults[runner].timeplus,
                                     placeDiff : "<br/>",
@@ -3898,6 +3940,9 @@ var LiveResults;
                                 legPlace    = legResults[runner].splits["999_place"];
                             
                             }
+                            var kmTime = legResults[runner].pace;
+                            teamresults[teamBib].kmTime += br + ((kmTime>0 && legStatus == 0) ? _this.formatTime(kmTime,0) : "");
+
                             var totStatus = legResults[runner].status;
                             var totPlace  = legResults[runner].place;
                             var placeDiff = (totStatus==0 && teamresults[teamBib].lastPlace > 0 ? legResults[runner].place - teamresults[teamBib].lastPlace : "");
@@ -3963,14 +4008,15 @@ var LiveResults;
                     columns.push({ "sTitle": "#",     "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeStr"});
                     columns.push({ "sTitle": "&#8470","sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib"});
                     columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "names"});
-                    columns.push({ "sTitle": "Tot",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totTime"});
                     columns.push({ "sTitle": "T#",    "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totPlace"});
-                    columns.push({ "sTitle": "Tot&#916;",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totDiff"});
-                    columns.push({ "sTitle": "Etp",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legTime"});
-                    columns.push({ "sTitle": "E#",    "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legPlace"});
-                    columns.push({ "sTitle": "Etp&#916;",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legDiff"});
                     columns.push({ "sTitle": "±#",    "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeDiff"});
+                    columns.push({ "sTitle": "Tot",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totTime"});
+                    columns.push({ "sTitle": "Tot&#916;",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totDiff"});
                     columns.push({ "sTitle": "±Tot",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totGained"});
+                    columns.push({ "sTitle": "E#",    "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legPlace"});
+                    columns.push({ "sTitle": "Etp",   "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legTime"});
+                    columns.push({ "sTitle": "Etp&#916;",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legDiff"});
+                    columns.push({ "sTitle": "m/km",  "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "kmTime"});
 
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
 						"scrollX": this.scrollView,

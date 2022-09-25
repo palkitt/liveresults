@@ -188,6 +188,8 @@ elseif ($_GET['method'] == 'getclubresults')
 	{
 		$time = $res['Time'];
 		$status = $res['Status'];
+		$length = ($res['Length'] == null? 0 : $res['Length'] );
+		$pace = ($length>0 && $time>0 ? round(1000*$time/$length) : 0);
 
 		if ($time == "")
 			$status = 9;
@@ -211,7 +213,7 @@ elseif ($_GET['method'] == 'getclubresults')
 
 		if (!$first)
 			$ret .= ",$br";
-		$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"bib\": \"".$res['Bib']."\", \"club\": \"".$res['Club']."\",\"class\": \"".$res['Class']."\", \"result\": \"".$time."\",\"status\" : ".$status.", \"timeplus\": \"$timeplus\"";
+		$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"bib\": \"".$res['Bib']."\", \"club\": \"".$res['Club']."\",\"class\": \"".$res['Class']."\", \"pace\": \"".$pace."\", \"result\": \"".$time."\",\"status\" : ".$status.", \"timeplus\": \"$timeplus\"";
 
 		if (isset($res["start"]))
 			$ret .= ",$br \"start\": ".$res["start"];
@@ -270,6 +272,9 @@ elseif ($_GET['method'] == 'getclassresults')
 	$res = classresults($class,false);
 	$ret = $res[0];
 	$splitJSON = $res[1];
+	$lengthMin = $res[2];
+	$lengthMax = $res[3];
+	$lengthStr = lengthToStr($lengthMin,$lengthMax);
 	$infoText = $currentComp->InfoText();
 
 	$hash = MD5($ret.$infoText);
@@ -279,7 +284,7 @@ elseif ($_GET['method'] == 'getclassresults')
 	}
 	else
 	{
-		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br],$br \"infotext\": \"$infoText\"");
+		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"distance\": \"".$lengthStr."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br],$br \"infotext\": \"$infoText\"");
 		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 	}
 }
@@ -392,7 +397,10 @@ elseif ($_GET['method'] == 'getracesplitter')
 		$first = false;
 		$className = $class->name;
 		$res = classresults($className,true);
-		$ret .= "{\"className\": \"$className\", \"results\": [".$res[0]."]}";
+		$lengthMin = $res[2];
+		$lengthMax = $res[3];
+		$lengthStr = lengthToStr($lengthMin,$lengthMax);
+		$ret .= "{\"className\": \"$className\", \"distance\": \"".$lengthStr."\", \"results\": [".$res[0]."]}";
 	}
 	$hash = MD5($ret);
 	echo("{ \"status\": \"OK\",$br \"className\": \"plainresults\",$br \"results\": [$br$ret$br]");
@@ -414,15 +422,23 @@ elseif ($_GET['method'] == 'getstartlist')
 
 	   $runners = $currentComp->getStartlist($className);
 	   $retClass = "";
+	   $lengthMin = 0;
+	   $lengthMax = 0;  
 	   $firstInClass = true;
 	   foreach ($runners as $runner)
 	   {
+			$length = ($runner['length'] == null ? 0 : $runner['length']);
+			if ($firstInClass || $length>$lengthMax)
+		   		$lengthMax = $length;
+			if ($firstInClass || $length<$lengthMin)
+		   		$lengthMin = $length;
 		   if (!$firstInClass)
 			   $retClass .=",$br";
 		   $retClass .= "{ \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".$runner['start']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
 		   $firstInClass = false;
 	   }
-	   $ret .= "{\"className\": \"$className\", \"results\": [".$retClass."]}";
+	   $lengthStr = lengthToStr($lengthMin,$lengthMax);
+	   $ret .= "{\"className\": \"$className\", \"distance\": \"".$lengthStr."\", \"results\": [".$retClass."]}";
    }
    $hash = MD5($ret);
    echo("{ \"status\": \"OK\",$br \"className\": \"startlist\",$br \"results\": [$br$ret$br]");
@@ -605,12 +621,21 @@ function classResults($class,$plain,$relay=false)
  
 	$splitJSON .= "$br]";
 	$first = true;
+	$lengthMin = 0;
+	$lengthMax = 0;
 	$keys = array_keys($results);
 	foreach ($results as $res)
 	{
+		$length = ($res['Length'] == null? 0 : $res['Length'] );
+		if ($first || $length>$lengthMax)
+		   $lengthMax = $length;
+		if ($first || $length<$lengthMin)
+		   $lengthMin = $length;
+		
 		if (!$first && !$plain)
 			$ret .=",";
 		$time = $res['Time'];
+		$pace = ($length>0 && $time>0 ? round(1000*$time/$length) : 0);
 
 		if ($first)
 			$winnerTime = $time;
@@ -701,7 +726,7 @@ function classResults($class,$plain,$relay=false)
 					continue;
 				if (!$first)
 					$ret .=",";
-				$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": "; 
+				$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\", \"pace\": ".$pace.",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": "; 
 				if (!$first && $res['Status']==0)
 				   $ret .= "\"$timeplus\"";
 				else
@@ -709,7 +734,7 @@ function classResults($class,$plain,$relay=false)
 				$ret .= "$br}";
 			}
 			else
-				$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"bib\": ".$res['Bib'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
+				$ret .= "{\"place\": \"$cp\",$br \"dbid\": ".$res['DbId'].",$br \"bib\": ".$res['Bib'].",$br \"name\": \"".$res['Name']."\",$br \"club\": \"".str_replace("\"","'",$res['Club'])."\", \"pace\": ".$pace.",$br \"result\": \"".$time."\",$br \"status\" : ".$status.",$br \"timeplus\": \"$timeplus\",$br \"changed\": $changed,$br \"progress\": $progress $tot"; 
 
 			if (count($splits) > 0)
 			{
@@ -755,6 +780,8 @@ function classResults($class,$plain,$relay=false)
 	}
 	$res[0] = $ret;
 	$res[1] = $splitJSON;
+	$res[2] = $lengthMin;
+	$res[3] = $lengthMax;
 	return $res;
 }
 
@@ -956,6 +983,15 @@ function insertHeader($refreshTime,$update=true)
 	return $RT;
 }
 
+function lengthToStr($lengthMin,$lengthMax)
+{
+		if ($lengthMin == null || $lengthMin == 0)
+		   return "";
+		elseif ($lengthMin==$lengthMax)
+		   return str_replace('.',',',sprintf("%01.1f", $lengthMin/1000));  
+		else
+		   return str_replace('.',',',sprintf("%01.1f", $lengthMin/1000)." - ".sprintf("%01.1f", $lengthMax/1000));  
+}
 
 function sortByResult($a,$b)
 {

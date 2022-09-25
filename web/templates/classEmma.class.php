@@ -794,7 +794,7 @@ class Emma
 	function getStartlist($className)
     {
 		$ret = Array();
-		$q = "SELECT runners.dbid, runners.name, runners.club, runners.ecard1, runners.ecard2, runners.bib, results.time, results2.status 
+		$q = "SELECT runners.dbid, runners.name, runners.club, runners.length, runners.ecard1, runners.ecard2, runners.bib, results.time, results2.status 
 		FROM runners, results
 		LEFT JOIN results AS results2 ON results.DbID=results2.DbID
 		WHERE results.dbid = runners.dbid AND runners.tavid = ". $this->m_CompId ." AND runners.class = \"".$className."\" AND results.tavid = ". $this->m_CompId . " AND (results.control=100) 
@@ -811,6 +811,7 @@ class Emma
 				 $ret[$dbId]["dbid"] = $dbId;
 				 $ret[$dbId]["name"] = $row['name'];
 				 $ret[$dbId]["club"] = $row['club'];
+				 $ret[$dbId]["length"] = $row['length'];
 				 $ret[$dbId]["ecard1"] = $row['ecard1'];
 				 $ret[$dbId]["ecard2"] = $row['ecard2'];
 				 $ret[$dbId]["bib"] = $row['bib'];
@@ -833,7 +834,7 @@ class Emma
 	function getClubResults($compId, $club)
 	{
 		$ret = Array();
-		$q = "SELECT runners.Name, runners.Bib, runners.Club, results.Time, runners.Class ,results.Status, results.Changed, results.DbID, results.Control ";
+		$q = "SELECT runners.Name, runners.Bib, runners.Club, results.Time, runners.Class, runners.Length, results.Status, results.Changed, results.DbID, results.Control ";
 		$q .= ", (select count(*)+1 from results sr, runners sru where sr.tavid=sru.tavid and sr.dbid=sru.dbid and sr.tavid=results.TavId and sru.class = runners.class and sr.status = 0 and sr.time < results.time and sr.Control=1000) as place ";
 		$q .= ", results.Time - (select min(time) from results sr, runners sru where sr.tavid=sru.tavid and sr.dbid=sru.dbid and sr.tavid=results.TavId and sru.class = runners.class and sr.status = 0 and sr.Control=1000) as timeplus ";
 		$q .= "From runners,results where ";
@@ -852,6 +853,7 @@ class Emma
 					$ret[$dbId]["Bib"] = $row['Bib'];
 					$ret[$dbId]["Club"] = $row['Club'];
 					$ret[$dbId]["Class"] = $row['Class'];
+					$ret[$dbId]["Length"] = $row['Length'];
 					$ret[$dbId]["Time"] = "";
 					$ret[$dbId]["TimePlus"] = "";
 					$ret[$dbId]["Status"] = "9";
@@ -884,7 +886,7 @@ class Emma
 	function getAllSplitsForClass($className)
 	{
 		$ret = Array();
-		$q = "SELECT runners.Name, runners.Bib, runners.Club, results.Time ,results.Status, results.Changed, results.DbID, results.Control From runners,results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  ORDER BY results.Dbid";
+		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.Length, results.Time ,results.Status, results.Changed, results.DbID, results.Control From runners,results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  ORDER BY results.Dbid";
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			while ($row = mysqli_fetch_array($result))
@@ -897,6 +899,7 @@ class Emma
 					$ret[$dbId]["Name"] = $row['Name'];
 					$ret[$dbId]["Bib"] = $row['Bib'];
 					$ret[$dbId]["Club"] = $row['Club'];
+					$ret[$dbId]["Length"] = $row['Length'];
 					$ret[$dbId]["Time"] = "";
 					$ret[$dbId]["Status"] = "9";
 					$ret[$dbId]["Changed"] = "";
