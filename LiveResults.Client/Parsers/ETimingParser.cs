@@ -557,18 +557,18 @@ namespace LiveResults.Client
                     
                     string baseCommandRelay = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime,
                             N.cource, N.place, N.status, N.cource, N.starttime, N.ecard, N.ecard2, N.ecard3, N.ecard4,
-                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, 
-                            C.firststart AS cfirststart, C.purmin AS cpurmin, C.direct,
+                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart,  
+                            C.firststart AS cfirststart, C.purmin AS cpurmin, C.direct, Co.length,
                             R.lgstartno, R.teamno, R.lgclass, R.lgtotaltime, R.lglegno, R.lgstatus, R.lgteam  
-                            FROM Name N, Class C, Team T, Relay R
-                            WHERE N.class=C.code AND T.code=R.lgteam AND N.rank=R.lgstartno AND (N.startno {0} 100)<=C.purmin 
+                            FROM Name N, Class C, Team T, Relay R, Cource Co 
+                            WHERE N.class=C.code AND T.code=R.lgteam AND N.rank=R.lgstartno AND Co.code=N.cource AND (N.startno {0} 100)<=C.purmin 
                             ORDER BY N.startno", modulus);
 
                     string baseCommandInd = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
                             N.cource, N.place, N.status, N.cource, N.starttime, N.races, N.heat, N.ecard, N.ecard2, N.ecard3, N.ecard4,
-                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cource AS ccource, C.cheaseing, C.purmin, C.direct
-                            FROM Name N, Class C, Team T
-                            WHERE N.class=C.code AND T.code=N.team {0}", purmin);
+                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cheaseing, C.purmin, C.direct, Co.length 
+                            FROM Name N, Class C, Team T, Cource Co 
+                            WHERE N.class=C.code AND Co.code=N.cource AND T.code=N.team {0}", purmin);
 
                     string baseSplitCommand = string.Format(@"SELECT mellomid, iplace, stasjon, mintime, nettotid, timechanged, mecard 
                             FROM mellom 
@@ -699,6 +699,7 @@ namespace LiveResults.Client
                 {
                     int time = 0, runnerID = 0, eTimeID = 0, EventorID = 0, iStartTime = 0, iStartClass = 0, totalTime = 0, course = -1;
                     int bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1, heat = 0, stage = 0, sprintOffset = 0;
+                    int length = 0;
                     int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
                     string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", name = "", shortName = "-";
                     bool chaseStart = false, freeStart = false, parseOK = false, useEcardTime = false;
@@ -719,13 +720,17 @@ namespace LiveResults.Client
                         if ((status == "V") || (status == "C")) // Skip if free or not entered  
                             continue;
 
-                        classN = (reader["cclass"] as string);
+                        classN = reader["cclass"] as string;
                         if (!string.IsNullOrEmpty(classN))
                             classN = classN.Trim();
                         if (classN == "NOCLAS")                // Skip runner if in NOCLAS
                             continue;
+
                         if (m_updateEcardTimes && reader["cource"] != null && reader["cource"] != DBNull.Value)
                             course = Convert.ToInt32(reader["cource"].ToString());
+
+                        if (reader["length"] != null)
+                            length = Convert.ToInt32(reader["length"].ToString());
 
                         // Sprint class definition
                         if (isSprint)
@@ -1224,6 +1229,7 @@ namespace LiveResults.Client
                             RunnerClub = club,
                             Class = classN,
                             Course = course,
+                            Length = length,
                             StartTime = iStartTime,
                             Time = time,
                             Status = rstatus,

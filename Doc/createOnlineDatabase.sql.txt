@@ -51,6 +51,7 @@
   `bib` int(11) DEFAULT NULL,
   `ecardchecked` tinyint(1) DEFAULT NULL,
   `course` int(11) DEFAULT NULL,
+  `length` int(11) DEFAULT NULL,
   `ecardtimes` text DEFAULT NULL,
 
   PRIMARY KEY (`dbid`,`tavid`),

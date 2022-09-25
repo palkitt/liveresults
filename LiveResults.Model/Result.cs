@@ -19,6 +19,7 @@ namespace LiveResults.Model
         public int Time { get; set; }
         public int Status { get; set; }
         public int Course { get; set; }
+        public int Length { get; set; }
         public int Ecard1 { get; set; }
         public int Ecard2 { get; set; }
         public int Bib { get; set; }
