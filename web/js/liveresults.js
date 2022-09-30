@@ -2523,7 +2523,7 @@ var LiveResults;
                     }
                     else
                     {
-                        var distance = (data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
+                        var distance = (data.distance != undefined && data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
                         var classHead = "<b>" + data.className + "</b>" + distance;
                         $('#' + this.resultsHeaderDiv).html(classHead);
                         var courses = _this.courses[data.className];
@@ -2539,6 +2539,14 @@ var LiveResults;
                 if (data.className == "plainresults")
                 {
                     $('#updateinterval').html("- ");
+                    var hasDistance = false;
+                    $.each(data.results, function (idx, res) {
+                        if (res.distance != "")
+                        {
+                            hasDistance = true;
+                            return false;
+                        }
+                    });
                     var res = "";
                     for (var i=0; i < data.results.length; i++)
                     {                    
@@ -2546,7 +2554,10 @@ var LiveResults;
                         res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + data.results[i].className + "</span>";
                         res += distance +"</td></tr>";
                         res += "<tr style=\"font-weight:bold\"><td align=\"right\">#</td><td>" + this.resources["_NAME"] + "</td><td>" + this.resources["_CLUB"] + "</td>";
-                        res += "<td align=\"right\">Tid</td><td align=\"right\">Diff</td><td align=\"right\">m/km&nbsp;</td></td></tr>"
+                        res += "<td align=\"right\">Tid</td><td align=\"right\">Diff</td>";
+                        if (hasDistance)
+                            res += "<td align=\"right\">m/km&nbsp;</td>";
+                        res +"</tr>";
                         for (var j=0; j < data.results[i].results.length; j++)
                         {
                             var time = data.results[i].results[j].result;
@@ -2565,10 +2576,14 @@ var LiveResults;
                             if (data.results[i].results[j].status == 0)
                                 res += "+" + this.formatTime(data.results[i].results[j].timeplus,data.results[i].results[j].status,_this.showTenthOfSecond);
                             res += "</span></td>"
-                            res += "<td align=\"right\"><span class=plustime>";
-                            if (data.results[i].results[j].status == 0 && kmTime>0)
-                               res += this.formatTime(kmTime,0,_this.showTenthOfSecond);
-                            res += "&nbsp;</span></tr>";
+                            if (hasDistance)
+                            {
+                                res += "<td align=\"right\"><span class=plustime>";
+                                if (data.results[i].results[j].status == 0 && kmTime>0)
+                                    res += this.formatTime(kmTime,0,_this.showTenthOfSecond);
+                                res += "&nbsp;</span>";
+                            }
+                            res += "</tr>";
                         }
                         res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
                     }
@@ -3692,7 +3707,10 @@ var LiveResults;
                     $('#' + this.resultsControlsDiv).show();
                 }
                 if (data.results != null) {
+                    var hasPace = false;
                     $.each(data.results, function (idx, res) {
+                        if(res.pace>0)
+                            hasPace = true;
                         res.placeSortable = res.place;
                         if (res.place == "-")
                             res.placeSortable = 999999;
@@ -3795,21 +3813,24 @@ var LiveResults;
                             }
                         }
                     });
-                    columns.push({ "sTitle": "m/km&nbsp;&nbsp;", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "pace",
-                        "render": function (data,type,row) {
-                            if (row.status == 0 && data > 0)
-                            {
-                                if (type === 'display')
-                                   return "<span class=\"plustime\">" + _this.formatTime(data, 0) + "</span>";
+                    if (hasPace)
+                    {
+                        columns.push({ "sTitle": "m/km&nbsp;&nbsp;", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "pace",
+                            "render": function (data,type,row) {
+                                if (row.status == 0 && data > 0)
+                                {
+                                    if (type === 'display')
+                                       return "<span class=\"plustime\">" + _this.formatTime(data, 0) + "</span>";
+                                    else
+                                       return data;
+                                }
+                                else if (type === 'display')
+                                    return "";
                                 else
-                                   return data;
+                                    return 999999;
                             }
-                            else if (type === 'display')
-                                return ""; 
-                            else
-                                return 999999;
-                        }
-                    });
+                        });
+                    }
                     this.currentTable = $('#' + this.resultsDiv).dataTable({
 						"scrollX": this.scrollView,
 						"fixedColumns": {leftColumns: 3, heightMatch: 'auto'},
