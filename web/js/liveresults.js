@@ -4394,7 +4394,7 @@ var LiveResults;
                             return data; }});
                                     
                     columns.push({
-                        "sTitle": this.resources["_NAME"] + " / " + this.resources["_CLUB"],
+                        "sTitle": this.resources["_NAME"] + "<br/>" + this.resources["_CLUB"],
                         "sClass": "left",
                         "bSortable": false,
                         "aTargets": [col++],
@@ -4413,6 +4413,21 @@ var LiveResults;
                             return (row.name.length>_this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
                         }
                     });
+
+                    columns.push({
+                        "sTitle": "tid<br/>m/km",
+                        "sClass": "right",
+                        "bSortable": false,
+                        "aTargets": [col++],
+                        "mDataProp": "result",
+                        "width": null,
+                        "render": function (data,type,row) {
+                            var ret = _this.formatTime(row.result, row.status);
+                            if (row.status == 0 && row.pace > 0)
+                                ret += "<br/>" + _this.formatTime(row.pace, 0);                            
+                            return ret;
+                        }
+                    });
                                     
                     if (data.splitcontrols != null && data.splitcontrols.length>1)
                     {
@@ -4425,9 +4440,9 @@ var LiveResults;
                                 if (code==999)
                                     title = (i+1) + "-" + _this.resources["_CONTROLFINISH"];
                                 else if (i==0)
-                                    title = "S-1 (" + code + ")";
+                                    title = "S-1&nbsp;&nbsp;<br/>(" + code + ")";
                                 else
-                                    title = i + "-" + (i+1) + " (" + code + ")";
+                                    title = i + "-" + (i+1) + "&nbsp;&nbsp;<br/>(" + code + ")";
                             }
                             else
                             {
@@ -4452,7 +4467,7 @@ var LiveResults;
                                 "mDataProp": "",
                                 "render": function (data,type,row,meta)
                                 {
-                                    var no = meta.col - 3;
+                                    var no = meta.col - 4;
                                     var last = (no==(row.split_place.length-1));
                                     if (type=="sort")
                                     {

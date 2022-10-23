@@ -1018,7 +1018,7 @@ class Emma
 		}
 	
 		$ret = Array();
-		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.ecardtimes, runners.course, results.Time ,results.Status, results.Changed, results.DbID, results.Control 
+		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.ecardtimes, runners.course, runners.Length, results.Time ,results.Status, results.Changed, results.DbID, results.Control 
 		      FROM runners,results WHERE results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." 
 			  AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  
 			  AND runners.course IN (".implode(',',$courses).")  
@@ -1036,6 +1036,7 @@ class Emma
 					$ret[$dbId]["Name"]   = $row['Name'];
 					$ret[$dbId]["Bib"]    = intval($row['Bib']);
 					$ret[$dbId]["Club"]   = $row['Club'];
+					$ret[$dbId]["Length"] = $row['Length'];
 				}
 				$finishTime = 0;
 				$split = $row['Control'];
