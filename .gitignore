@@ -174,7 +174,7 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 testfiles/iof_xml_notcompeting.xml
-.vs*
+*/.vs
 testfiles/oe_speaker_result_0.1sec.xml
 web/js/liveresults – Kopi.js
 web/js/jquery.dataTables.min.js_old
@@ -184,14 +184,4 @@ web/js/ToDelete/liveresults – Kopi.js
 web/js/ToDelete/LiveResults.ts
 web/js/ToDelete/liveresults.grid.js
 web/js/ToDelete/jquery-3.3.1.min.js
-web/liveres_helpers/header.php
-web/liveres_helpers/kvi.php
-web/liveres_helpers/les_1.php
-web/liveres_helpers/les.php
-web/liveres_helpers/liveres-data.db
-web/liveres_helpers/log_1.php
-web/liveres_helpers/log.php
-web/liveres_helpers/meld.php
-web/liveres_helpers/phpliteadmin.config.php
-web/liveres_helpers/phpliteadmin.php
-web/liveres_helpers/test.php
+web/.vscode/launch.json
