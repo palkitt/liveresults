@@ -49,7 +49,13 @@ else if ($_GET['method'] == 'setcompetitioninfo')
         $compid = $_POST['comp'];
 		Emma::UpdateCompetition($compid,$_POST["compName"],$_POST["organizer"],$_POST["date"],$_POST["public"],$_POST["timediff"]);
 		insertHeader($refreshTime,false);
-		echo("{\"status\": \"OK\"");
+		echo("{\"status\": \"OK\"}");
+}
+else if ($_GET['method'] == 'setlastactive')
+{
+		Emma::SetLastActive($compid);
+		insertHeader($refreshTime,false);
+		echo("{\"status\": \"OK\"}");
 }
 else if ($_GET['method'] == 'createcompetition')
 {
@@ -268,6 +274,7 @@ elseif ($_GET['method'] == 'getclassresults')
 {
 	$class = $_GET['class'];
 	$currentComp = new Emma($_GET['comp']);
+	$isActive = $currentComp->IsCompActive();
 	$RT = insertHeader($refreshTime);
 	$res = classresults($class,false);
 	$ret = $res[0];
@@ -280,12 +287,12 @@ elseif ($_GET['method'] == 'getclassresults')
 	$hash = MD5($ret.$infoText);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
 	{
-		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT, \"active\": $isActive}");
 	}
 	else
 	{
 		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"distance\": \"".$lengthStr."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br],$br \"infotext\": \"$infoText\"");
-		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
 	}
 }
 elseif ($_GET['method'] == 'getrelayresults')

@@ -83,7 +83,7 @@ alter table login add column showecardtimes tinyint(1) DEFAULT NULL;
 -- addition 2022-09-15
 alter table runners add column length int(11) DEFAULT NULL;
 
--- addition 2022-10-29
+-- addition 2022-11-03
 alter table login add column livecenterurl varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '';
 
 CREATE TABLE `lastactive` (

@@ -121,6 +121,15 @@ table.dataTable td {vertical-align: top;}
   color: gray;
 }
 
+.liveClient {
+  animation: blinker 1s ease-in-out infinite;
+  color: #51ff00;
+}
+
+.notLiveClient {
+  color: gray;
+}
+
 @keyframes blinker { 
   0% { opacity: 0; } 
   50% { opacity: 1; } 

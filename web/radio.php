@@ -134,7 +134,7 @@ $(document).ready(function()
 	<td> 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
 	<tr>
-		<td><span class="pulsingLive" id="liveIndicator">◉</span>
+		<td><span id="liveIndicator"></span>
 		<b>
    			<?php if ($_GET['code']==0){?> Start <?php }
 			    else if ($_GET['code']==-999){?> Fristart <?php }

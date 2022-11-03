@@ -69,16 +69,16 @@ var Messages;
         //Handle response for updating the last radio passings..
         AjaxViewer.prototype.handleUpdateMessages = function (data,reqTime) {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
-            // Make live blinker pulsingtoLocaleTimeString
-            var el = document.getElementById('liveIndicator');
-                el.style.animation = 'none';
-                el.offsetHeight; /* trigger reflow */
-                el.style.animation = null; 
             var _this = this;
-
             if (data.rt != undefined && data.rt > 0)
                 this.messagesUpdateInterval = data.rt*1000;
             $('#updateinterval').html(this.messagesUpdateInterval/1000);
+
+            // Make live blinker pulsing
+            if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient') )
+               $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>'); 
+            if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient') )
+               $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
                  
             // Insert data from query
             if (data != null && data.status == "OK" && data.messages != null) 

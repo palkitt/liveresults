@@ -185,3 +185,7 @@ web/js/ToDelete/LiveResults.ts
 web/js/ToDelete/liveresults.grid.js
 web/js/ToDelete/jquery-3.3.1.min.js
 web/.vscode/launch.json
+.vs/LiveResults.Client/v15/Server/sqlite3/db.lock
+.vs/LiveResults.Client/v15/Server/sqlite3/storage.ide
+.vs/LiveResults.Client/v15/Server/sqlite3/storage.ide-shm
+.vs/LiveResults.Client/v15/Server/sqlite3/storage.ide-wal

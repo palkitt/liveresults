@@ -121,6 +121,7 @@ else if ($_GET['method'] == 'getmessages')
 	$currentComp = new Emma($_GET['comp']);
 	$messages = $currentComp->getMessages();
 	$RT = insertHeader($refreshTime);
+	$isActive = $currentComp->IsCompActive();
 	$ret = "";
 	$first = true;
 	$lastId = null;
@@ -164,9 +165,9 @@ else if ($_GET['method'] == 'getmessages')
 	}
 	$hash = MD5($ret);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
-		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT, \"active\": $isActive}");
 	else
-		echo("{ \"status\": \"OK\",$br \"messages\": [$br$ret$br],$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo("{ \"status\": \"OK\",$br \"messages\": [$br$ret$br],$br \"hash\": \"". $hash."\", \"rt\":$RT, \"active\": $isActive}");
 }
 else if ($_GET['method'] == 'getdns')
 {

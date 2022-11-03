@@ -110,7 +110,7 @@ $(document).ready(function()
 	<td> 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
 	<tr>
-		<td><span class="pulsingLive" id="liveIndicator">&#9679;</span>
+		<td><td><span id="liveIndicator"></span>
 		<span style="cursor:pointer; color:#FFF; font-size:1.3em" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
 		<b>Meldinger</b>
 		</td>

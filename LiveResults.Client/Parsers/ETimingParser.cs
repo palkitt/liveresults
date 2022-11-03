@@ -605,6 +605,7 @@ namespace LiveResults.Client
                     FireLogMsg("eTiming Monitor thread started");
 
                     string messageServer = ConfigurationManager.AppSettings["messageServer"];
+                    string apiServer = ConfigurationManager.AppSettings["apiServer"];
                     WebClient client = new WebClient();
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
@@ -612,6 +613,8 @@ namespace LiveResults.Client
                     int sleepTimeMessage = maxSleepTimeMessage;
                     int maxSleepTimeCleanupID = 60; // Time between cleaning/deleting unused IDs
                     int sleepTimeCleanupID = maxSleepTimeCleanupID;
+                    int maxSleepTimeLiveActive = 60; //Time between setting new live active signal
+                    int sleepTimeLiveActive = maxSleepTimeLiveActive;
                     bool failedLast = false;
                     bool failedThis;
                     bool first = true;
@@ -635,8 +638,8 @@ namespace LiveResults.Client
                             first = false;
 
                             handleUnknowns(splitList, ref unknownRunners);
-                            sleepTimeMessage += m_sleepTime;
 
+                            sleepTimeMessage += m_sleepTime;
                             if (m_updateMessage && sleepTimeMessage >= maxSleepTimeMessage)
                             {
                                 UpdateFromMessages(messageServer, client, failedLast, out failedThis);
@@ -645,12 +648,18 @@ namespace LiveResults.Client
                             }
 
                             sleepTimeCleanupID += m_sleepTime;
-
                             if (sleepTimeCleanupID >= maxSleepTimeCleanupID)
                             {
                                 if (m_IdOffset == 0 && !isSprint) //  Delete only when no offset is used and not sprint
                                     FireOnDeleteUnusedID(usedID);
                                 sleepTimeCleanupID = 0;
+                            }
+
+                            sleepTimeLiveActive += m_sleepTime;
+                            if (sleepTimeLiveActive >= maxSleepTimeLiveActive)
+                            {
+                                SendLiveActive(apiServer, client);
+                                sleepTimeLiveActive = 0;
                             }
                             
                             Thread.Sleep(1000*m_sleepTime);
@@ -1498,7 +1507,7 @@ namespace LiveResults.Client
             }
             catch (Exception ee)
             {
-                FireLogMsg("Bad network? eTiming Message error: " + ee.Message);
+                FireLogMsg("Bad network or config file? eTiming Message error: " + ee.Message);
             }
 
             var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
@@ -1583,7 +1592,7 @@ namespace LiveResults.Client
                     }
                     catch (Exception ee)
                     {
-                        FireLogMsg("Bad network? eTiming Message DNS: " + ee.Message);
+                        FireLogMsg("Bad network or config file? eTiming Message DNS: " + ee.Message);
                     }
                 }
 
@@ -1750,10 +1759,24 @@ namespace LiveResults.Client
                     }
                     catch (Exception ee)
                     {
-                        FireLogMsg("Bad network? eTiming Message ecard: " + ee.Message);
+                        FireLogMsg("Bad network or config file? eTiming Message ecard: " + ee.Message);
                     }
                 }
             }
+        }
+
+        private void SendLiveActive(string apiServer, WebClient client)
+        {
+            string apiResponse = "";
+            try
+            {
+                apiResponse = client.DownloadString(apiServer + "api.php?method=setlastactive&comp=" + m_compID);
+                FireLogMsg("Client live active sent to web server");
+            }
+            catch (Exception ee)
+            {
+                FireLogMsg("Bad network or config file? Error on sending active signal: " + ee.Message);
+            }      
         }
 
         private static int GetRunTime(string runTime)

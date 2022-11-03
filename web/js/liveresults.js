@@ -1381,7 +1381,10 @@ var LiveResults;
             
             // Stop requesting updates if class not active
             if (!curClassActive && !this.EmmaServer && this.curClassName != null && !this.noSplits)
+            {
                 clearTimeout(this.resUpdateTimeout);
+                $('#liveIndicator').html('');
+            }
         };
 		
 		//Find rank number
@@ -1488,11 +1491,13 @@ var LiveResults;
                 lastUpdate.setTime(expTime - this.radioUpdateInterval + 1000);
                 $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
             }                       
+            
             // Make live blinker pulsing
-            var el = document.getElementById('liveIndicator');
-                el.style.animation = 'none';
-                el.offsetHeight; /* trigger reflow */
-                el.style.animation = null; 
+            if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient') )
+               $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>'); 
+            if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient') )
+               $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+            
             const maxLines = 40;
             var _this = this;
 			var leftInForest = false;
@@ -1729,6 +1734,9 @@ var LiveResults;
             }
             if (this.isCompToday())
                 this.radioPassingsUpdateTimer = setTimeout(function () {_this.updateRadioPassings(code,calltime,minBib,maxBib);}, this.radioUpdateInterval);
+            else
+               $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+
         };
         
     // Runner name shortener
@@ -2145,6 +2153,15 @@ var LiveResults;
                     lastUpdate.setTime(expTime - this.updateInterval + 1000);
                     $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
                 }
+                if (this.EmmaServer)
+                    $('#liveIndicator').html('');
+                else 
+                {
+                    if (newData.active && !$('#liveIndicator').find('span').hasClass('liveClient') )
+                       $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>'); 
+                    if (!newData.active && !$('#liveIndicator').find('span').hasClass('notLiveClient') )
+                       $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+                }
                 var _this = this;
                 if (newData.status == "OK") {
                     clearInterval(this.updatePredictedTimeTimer);
@@ -2539,6 +2556,7 @@ var LiveResults;
                 if (data.className == "plainresults")
                 {
                     $('#updateinterval').html("- ");
+                    $('#liveIndicator').html('');
                     var hasDistance = false;
                     $.each(data.results, function (idx, res) {
                         if (res.distance != "")
@@ -2593,6 +2611,7 @@ var LiveResults;
                 else if (data.className == "startlist")
                 {
                     $('#updateinterval').html("- ");
+                    $('#liveIndicator').html('');
                     var res = "";
                     for (var i=0; i < data.results.length; i++)
                     {
@@ -2645,8 +2664,14 @@ var LiveResults;
                 else if (data.results != null && data.results.length>0) 
                 {                    
                     $('#updateinterval').html(this.updateInterval/1000);
+                    if (this.EmmaServer)
+                        $('#liveIndicator').html('');
+                    else if (data.active)
+                        $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>'); 
+                    else
+                        $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+
                     var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
-                    // Class properties
                     this.curClassSplits = data.splitcontrols;
                     this.curClassIsRelay = (haveSplitControls && this.curClassSplits[0].code == "0");
                     this.curClassLapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
@@ -3694,6 +3719,7 @@ var LiveResults;
             if (data.rt != undefined && data.rt > 0)
                 this.clubUpdateInterval = data.rt*1000;
             $('#updateinterval').html(this.clubUpdateInterval/1000);
+            $('#liveIndicator').html('');
             if (expTime)
             {
                 var lastUpdate = new Date();
@@ -3895,6 +3921,7 @@ var LiveResults;
             if (data.rt != undefined && data.rt > 0)
                 this.updateInterval = data.rt*1000;
             $('#updateinterval').html("- ");
+            $('#liveIndicator').html('');
             if (expTime)
             {
                 var lastUpdate = new Date();
@@ -4355,6 +4382,7 @@ var LiveResults;
         if (data.rt != undefined && data.rt > 0)
                 updateInterval = data.rt*1000;
         $('#updateinterval').html("- ");
+        $('#liveIndicator').html('');
         if (expTime)
         {
             var lastUpdate = new Date();

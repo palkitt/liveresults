@@ -410,7 +410,7 @@ function closeTop() {
   <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0"> 
   <tr><td>
   <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
-  <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
+  <td align="left" ><span id="liveIndicator"></span><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
   <td align="center"><b><span id="compname">loading comp name...</b></td>
   <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td></tr></table></td></tr>
   

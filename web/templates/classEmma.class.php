@@ -190,6 +190,14 @@ class Emma
  		
 	}
 
+	public static function SetLastActive($id)
+	{
+		$conn = self::openConnection();
+	 	$sql = "insert into lastactive (tavid,changed) values ($id,CURRENT_TIMESTAMP) on duplicate key update changed=CURRENT_TIMESTAMP";
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
+	}
+
 	public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,
 	$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent,$showinfo,$infotext,$showecardtimes,$livecenterurl)
 	{
@@ -466,6 +474,27 @@ class Emma
 		return $this->m_LiveCenterURL;
 	}
 
+	function IsCompActive()
+	{
+		// Check if client is active on current competion
+		$q = "SELECT changed from lastactive where TavId = ". $this->m_CompId;
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			$secondsDiff = 9999;
+			$last = mysqli_fetch_array($result);
+			if ($last)
+			{
+				$changed = $last["changed"]; 
+				$secondsDiff = time() - strtotime($changed);
+			}
+			return ($secondsDiff<120 ? 1 : 0);
+		}
+		else
+		{
+			die(mysqli_error($this->m_Conn));
+			return 0;
+		}
+	}
 	function GetUpdateFactor()
 	{
 		// Returns updated interval factor to ensure number of connects does not violate limit
@@ -1298,7 +1327,6 @@ class Emma
 			die(mysqli_error($this->m_Conn));
 		return $ret;
 	}
-
 }
 
 ?>

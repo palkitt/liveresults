@@ -23,7 +23,8 @@ $br = $pretty ? "\n" : "";
 if ($_GET['method'] == 'getradiopassings')
 {
 	$currentComp = new Emma($_GET['comp']);
-	$RT = insertHeader($refreshTime); 
+	$RT = insertHeader($refreshTime);
+	$isActive = $currentComp->IsCompActive(); 
 	$code = $_GET['code'];
 	$calltime = $_GET['calltime'];
 	$maxNum = 100; 
@@ -160,16 +161,16 @@ if ($_GET['method'] == 'getradiopassings')
 	{
 		$hash = MD5($ret);
 		if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
-			echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+			echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT, \"active\": $isActive}");
 		else
-			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$hash\", \"rt\": $RT}");
+			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$hash\", \"rt\": $RT, \"active\": $isActive}");
 	}
 	else
 	{
 		if ($num == 0)
-			echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+			echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT, \"active\": $isActive}");
 		else
-			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$changedTime\", \"rt\": $RT}"); 
+			echo("{ \"status\": \"OK\", $br\"passings\" : [$br$ret$br],$br \"hash\": \"$changedTime\", \"rt\": $RT, \"active\": $isActive}");
 	}
 }
 
