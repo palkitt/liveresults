@@ -91,10 +91,11 @@ function resetRow(row)
 <table border="0" cellpadding="0" cellspacing="2" width="100%">
 <tr>
 <td><b>Date</b></td>
-<td><b>Competition</b></td>
+<td><b>&nbsp;&nbsp;Competition</b></td>
 <td><b>Organizer</b></td>
 <td><b>CompId</b></td>
 <td><b>Public</b></td>
+<td><b>LiveCenter</b></td>
 </tr>
 
 <?php
@@ -123,6 +124,7 @@ function resetRow(row)
     <td><?=$comp["organizer"]?></td>
     <td><?=$comp["tavid"]?></td>
     <td><?=$comp["public"] == "1" ? "yes" : "no"?></td>
+    <?php if (strlen($comp['livecenterurl'])>0){ ?>  <td><a href="../<?=$comp['livecenterurl']?>">LC</a></td>	<?php } ?>
     </tr>
 	<?php
 	}
@@ -137,6 +139,7 @@ function resetRow(row)
 </div>
 <br/>
 <a href="/api/api.php?method=getnumconnect">#Connections</a>
+<p>
 <br/>
 </body>
 </html>
