@@ -92,7 +92,7 @@ namespace LiveResults.Client
         public void Start()
         {
             m_continue = true;
-            if (m_connection.State != ConnectionState.Open)
+            if (m_monitorThread == null || !m_monitorThread.IsAlive)
             {
                 m_monitorThread = new Thread(Run);
                 m_monitorThread.Start();
