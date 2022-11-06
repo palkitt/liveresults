@@ -732,16 +732,26 @@ namespace LiveResults.Client
                         if ((status == "V") || (status == "C")) // Skip if free or not entered  
                             continue;
 
+                        eTimeID = Convert.ToInt32(reader["id"].ToString());
+                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
+                            parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
+                        if (m_EventorID)
+                            runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
+                        else
+                            runnerID = eTimeID;
+                        runnerID += m_IdOffset + sprintOffset;
+                        usedIDout.Add(runnerID);
+
                         classN = reader["cclass"] as string;
                         if (!string.IsNullOrEmpty(classN))
                             classN = classN.Trim();
-                        if (classN == "NOCLAS")                // Skip runner if in NOCLAS
+                        if (classN == "NOCLAS")  // Skip runner if in NOCLAS
                             continue;
 
                         if (m_updateEcardTimes && reader["cource"] != null && reader["cource"] != DBNull.Value)
                             course = Convert.ToInt32(reader["cource"].ToString());
 
-                        if (reader["length"] != null)
+                        if (reader["length"] != null && reader["length"] != DBNull.Value)
                             length = Convert.ToInt32(reader["length"].ToString());
 
                         // Sprint class definition
@@ -778,16 +788,6 @@ namespace LiveResults.Client
                         }
 
                         // Continue with adding or updating runner
-                        eTimeID = Convert.ToInt32(reader["id"].ToString());
-                        if (reader["kid"] != null && reader["kid"] != DBNull.Value)
-                            parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
-                        if (m_EventorID)
-                            runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
-                        else
-                            runnerID = eTimeID;
-                        runnerID += m_IdOffset + sprintOffset;
-                        usedIDout.Add(runnerID);
-
                         club = (reader["tname"] as string);
                         if (!string.IsNullOrEmpty(club))
                             club = club.Trim();
