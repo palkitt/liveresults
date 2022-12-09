@@ -52,7 +52,7 @@ if ($_GET['method'] == 'getradiopassings')
 	$firstStarted = false;
 	$lasttime = 0;
 	$changedTime = "";
-	foreach ($lastPassings as $pass)
+	foreach ((array)$lastPassings as $pass)
 	{
 		$num += 1;
 		$age = time()-strtotime($pass['Changed']);
@@ -236,7 +236,7 @@ function insertHeader($refreshTime,$update=true)
 	header('content-type: application/json; charset='.$CHARSET);
 	header('Access-Control-Allow-Origin: *');
 	header('Access-Control-Expose-Headers: Date');
-	header('cache-control: max-age='+ ($RT-1));
+	header('cache-control: max-age='.($RT-1));
 	header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($RT-1)));
 
 	return $RT;
@@ -269,7 +269,7 @@ function urlRawDecode($raw_url_encoded)
 	{
 		$res = array_unique($res = $res[1]);
 		$arr_unicoded = array();
-		foreach($res as $key => $value){
+		foreach((array)$res as $key => $value){
 			$arr_unicoded[] = chr(
 					(0xc0 | ($hex_table[substr($value,0,1)]<<4))
 					| (0x03 & $hex_table[substr($value,1,1)])

@@ -5,7 +5,8 @@ if (isset($_POST['btnSave']))
 {
   if ($_POST['pin']=="0000")
     {
-      $test = Emma::UpdateRunner($_GET['compid'],$_GET['dbid'],$_POST['bib'],$_POST['name'],$_POST['club'],$_POST['class'],$_POST['time'],$_POST['status'],$_POST['ecardchecked']);
+      $test = Emma::UpdateRunner($_GET['compid'],$_GET['dbid'],$_POST['bib'],$_POST['name'],$_POST['club']
+      ,$_POST['class'],$_POST['time'],$_POST['status'],(isset($_POST['ecardchecked'])?1:null));
       if ($test==2)
         echo('<b>&nbsp;Update OK</b>');
       else

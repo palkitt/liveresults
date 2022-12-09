@@ -124,9 +124,9 @@ else if ($_GET['method'] == 'getmessages')
 	$isActive = $currentComp->IsCompActive();
 	$ret = "";
 	$first = true;
-	$lastId = null;
+	$lastID = null;
 	$groupCompleted = false;
-	foreach ($messages as $message)
+	foreach ((array)$messages as $message)
 	{
 		$dbid      = $message['dbid'];
 		$completed = $message['completed'];
@@ -176,7 +176,7 @@ else if ($_GET['method'] == 'getdns')
 	$runners = $currentComp->getDNS();
 	$ret = "";
 	$first = true;
-	foreach ($runners as $runner)
+	foreach ((array)$runners as $runner)
 	{
 		$messid    = $runner['messid'];
 		$dbid      = $runner['dbid'];
@@ -199,7 +199,7 @@ else if ($_GET['method'] == 'getecardchange')
 	$runners = $currentComp->getEcardChange();
 	$ret = "";
 	$first = true;
-	foreach ($runners as $runner)
+	foreach ((array)$runners as $runner)
 	{
 		$messid    = $runner['messid'];
 		$dbid      = $runner['dbid'];
@@ -237,7 +237,7 @@ else if ($_GET['method'] == 'getchanges')
 	$runnersEcard = $currentComp->getEcardChange();
 	$retEcard = "";
 	$first = true;
-	foreach ($runnersEcard as $runner)
+	foreach ((array)$runnersEcard as $runner)
 	{
 		$messid    = $runner['messid'];
 		$dbid      = $runner['dbid'];
@@ -265,7 +265,7 @@ else if ($_GET['method'] == 'getchanges')
 	$runnersDNS = $currentComp->getDNS();
 	$retDNS = "";
 	$first = true;
-	foreach ($runnersDNS as $runner)
+	foreach ((array)$runnersDNS as $runner)
 	{
 		$messid    = $runner['messid'];
 		$dbid      = $runner['dbid'];
@@ -306,7 +306,7 @@ function insertHeader($refreshTime,$update=true)
 	header('content-type: application/json; charset='.$CHARSET);
 	header('Access-Control-Allow-Origin: *');
 	header('Access-Control-Expose-Headers: Date');
-	header('cache-control: max-age='+ ($RT-1));
+	header('cache-control: max-age='.($RT-1));
 	header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + ($RT-1)));
 
 	return $RT;
@@ -378,7 +378,7 @@ function urlRawDecode($raw_url_encoded)
 	{
 		$res = array_unique($res = $res[1]);
 		$arr_unicoded = array();
-		foreach($res as $key => $value){
+		foreach((array)$res as $key => $value){
 			$arr_unicoded[] = chr(
 					(0xc0 | ($hex_table[substr($value,0,1)]<<4))
 					| (0x03 & $hex_table[substr($value,1,1)])

@@ -164,7 +164,8 @@ class Emma
 
 	public static function AddRadioControlsForAllClasses($compid,$name,$code,$order)
 	{
-		$conn = self::openConnection();
+		$ret = false;
+    $conn = self::openConnection();
 	 	$ret1 = mysqli_query($conn, "SELECT class From runners where tavid=$compid AND Class NOT LIKE 'NOCLAS' GROUP BY class");
 		if ($ret1)
 		{
@@ -333,7 +334,7 @@ class Emma
 		return $ret;
 	}
 
-	function Emma($compID)
+	function __construct($compID)
 	{
 		$this->m_CompId = $compID;
 		$this->m_Conn = self::openConnection();
@@ -348,7 +349,7 @@ class Emma
 			$this->m_UseMassStartSort = $tmp["massstartsort"];
 			$this->m_ShowTenthOfSeconds = $tmp["tenthofseconds"];
 			$this->m_ShowFullView = $tmp["fullviewdefault"];
-			$this->m_RankedStartlist = $tmp["rankedstartlist"];
+			$this->m_RankedStartList = $tmp["rankedstartlist"];
 			$this->m_QualLimits = $tmp["quallimits"];
 			$this->m_QualClasses = $tmp["qualclasses"];
 			$this->m_ShowInfo = $tmp["showinfo"];
@@ -440,7 +441,7 @@ class Emma
 	
 	function RankedStartlist()
 	{
-		return $this->m_RankedStartlist;
+		return $this->m_RankedStartList;
 	}
 	
 	function ShowTenthOfSeconds()

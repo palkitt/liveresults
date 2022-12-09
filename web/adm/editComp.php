@@ -3,9 +3,10 @@ include_once("../templates/classEmma.class.php");
 
 if (isset($_POST['btnSave']))
 {
-	$ok = Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],$_POST['public'],$_POST['timediff'],
-        0,$_POST['tenthofseconds'],0,$_POST['rankedstartlist'],$_POST['hightime'],$_POST['quallimits'],
-        $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],$_POST['showinfo'],$_POST['infotext'],$_POST['showecardtimes'],$_POST['livecenterurl']);
+	$ok = Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],(isset($_POST['public'])?1:null),$_POST['timediff'],
+        0,(isset($_POST['tenthofseconds'])?1:null),0,(isset($_POST['rankedstartlist'])?1:null),$_POST['hightime'],$_POST['quallimits'],
+        $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],(isset($_POST['showinfo'])?1:null),$_POST['infotext'],
+        (isset($_POST['showecardtimes'])?1:null),$_POST['livecenterurl']);
   if ($ok == 1)
     echo('<b>&nbsp;Competion update OK</b>');
   else
