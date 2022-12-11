@@ -201,7 +201,7 @@ $(document).ready(function()
 
 	// Set ranked startlist
 	<?php if($currentComp->RankedStartlist()>-1 ){?> 
-	    res.rankedStartlist = <?=$currentComp->RankedStartlist(); ?> <?php }?>
+	    res.rankedStartlist = <?=$currentComp->RankedStartList(); ?> <?php }?>
 	
 	// Qualification limits and classes (last limit is default)
 	res.qualLimits = [<?=$currentComp->QualLimits();?>];
@@ -221,12 +221,13 @@ $(document).ready(function()
 			topBar = true;
 		}
 		
-		document.getElementById("switchNavClick1").classList.toggle("change");
-		document.getElementById("switchNavClick2").classList.toggle("change");
+		document.getElementById("switchNavClick").classList.toggle("change");
 	<?php }?>
 
 	// Initial view is with open class list
 	openNav();
+
+  loadFontSize();
 
 	// Add function for dropdown list
 	window.onclick = function(event) {
@@ -244,24 +245,30 @@ $(document).ready(function()
 
 });
 
-function changeFontSize(val)
-{
+function loadFontSize() {
+	if (typeof(Storage) !== "undefined") {
+    var size = localStorage.getItem("fontSize");
+    if (size>0)
+      $("td").css("font-size",size + "px");
+  }	
+}
+
+function changeFontSize(val) {
 	var size = $("td").css("font-size");
 	var newSize = parseInt(size.replace(/px/, "")) + val;
 	$("td").css("font-size",newSize + "px");
+  if (typeof(Storage) !== "undefined")
+    localStorage.setItem("fontSize",newSize);
 }
 
-function switchNav(x) {
-  document.getElementById("switchNavClick1").classList.toggle("change");
-  document.getElementById("switchNavClick2").classList.toggle("change");
+function switchNav() {
   if (sideBar)
 	  closeNav();
   else
 	  openNav();
 }
 
-function switchTop(x) {
-  x.classList.toggle("change");
+function switchTop() {
   if (topBar)
 	  closeTop();
   else
@@ -271,14 +278,14 @@ function switchTop(x) {
 function openNav() {
   if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
-	$(".firstCol").width("75px");  
+	$(".firstCol").width("6em");  
   	$('#divResults').DataTable()
      .columns.adjust()
 	 .responsive.recalc();
 	 $(".firstCol").width("0px");  
   }
-  $(".firstCol").animate({'width':'75px'},300);
-  $('#switchNavClick1').hide();
+  $(".firstCol").animate({'width':'6em'},300);
+  $("#navLR").html("←");
   sideBar = true;
 }
 
@@ -289,10 +296,10 @@ function closeNav() {
 		$('#divResults').DataTable()
 		.columns.adjust()
 		.responsive.recalc();
-		$(".firstCol").width("75px");  
+		$(".firstCol").width("6em");  
   }
-  $(".firstCol").animate({'width':'0px'},300);  
-  $('#switchNavClick1').show();
+  $(".firstCol").animate({'width':'0px'},300);
+  $("#navLR").html("→");
   sideBar = false;	
 }
 
@@ -300,7 +307,8 @@ function openTop() {
 	$("#topBar").height('auto');
 	var height = $("#topBar").height();
 	$("#topBar").height(0);
-	$("#topBar").animate({'height': height},300);  
+	$("#topBar").animate({'height': height},300);
+	$("#navUD").html("↑");
   topBar = true;
   res.autoUpdateLastPassings = true;
   res.updateLastPassings();
@@ -310,126 +318,147 @@ function closeTop() {
   $("#topBar").animate({'height':'0px'},300);  
   topBar = false;
   res.autoUpdateLastPassings = false;
+  $("#navUD").html("↓") 
 }
-
 </script>
 </head>
 <body>
-
-
 <!-- MAIN DIV -->
 <div id="main">
 <?php if (!$isSingleClass && !$isSingleClub) {?>
-
   <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
-  
-  <tr><td class="firstCol"></td><td width="100%"></td></tr>
-  <tr valign="top">
-  <td colspan="2" align="center"><div id="topBar" style="overflow: hidden">
-    <?php if($organizer=="Freidig/Wing/Malvik"){?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
-	<?php if(in_array($_GET['comp'], array("10118","10119","10120","10121"))){?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
-	<?php if(in_array($_GET['comp'], array("10110","10111","10112"))){?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
-	<?php if(in_array($_GET['comp'], array("10203"))){?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
-	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
-		<tr>
-			<?php 
-				if (in_array($_GET['comp'], array("10098","10099","10100","10101")))	$image = "images/SG21.png";
-				else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
-				else if (in_array($_GET['comp'], array("10215")))	$image = "images/Skien.png";
-				else switch (strtolower($organizer))
-				{
-					case "freidig":	         $image = "images/Freidig60.png"; break;
-					case "porsgrunn ol":     $image = "images/POL.png";	break;
-					case "wing ok":	         $image = "images/Wing.png"; break;
-					case "byåsen i.l": 
-					case "byåsen il":        $image = "images/BIL.png"; break; 
-					case "røros il":         $image = "images/roros.png"; break; 
-					case "freidig/wing/malvik":	$image = "images/NM2020.png"; break;
-					case "eiker o-lag":      $image ="images/Eiker.png"; break; 
-					case "stokke il":        $image = "images/stokke.png"; break;
-					case "skien ok":	     $image = "images/Skien.png"; break; 
-					case "byaasen skiklub":	 $image = "images/BSK.png"; break;
-					case "kristiansand ok":  $image = "images/KOK_60.jpg"; break;
-					case "ok moss":          $image = "images/OKMoss.png"; break;
-					case "halden sk":        $image = "images/haldensk.png"; break;
-					case "indre Østfold ok": $image = "images/indereook.jpg"; break;
-					default:                 $image = "images/LiveRes60.png";
-				}
-			if ($image != ""){ ?>
-			<td width="60"><img src="<?php echo($image) ?>" height="60" ></td>
-			<?php }?>
-			
-<td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
-</tr>
-</table></div></td></tr>
+    <tr>
+      <td class="firstCol"></td>
+      <td width="100%"></td>
+    </tr>
+    <tr valign="top">
+      <td colspan="2" align="center">
+      <div id="topBar" style="overflow: hidden">
+      <?php if($organizer=="Freidig/Wing/Malvik"){?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
+	    <?php if(in_array($_GET['comp'], array("10118","10119","10120","10121"))){?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
+	    <?php if(in_array($_GET['comp'], array("10110","10111","10112"))){?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
+	    <?php if(in_array($_GET['comp'], array("10203"))){?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
+	    <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
+		    <tr>
+			    <?php 
+				    if (in_array($_GET['comp'], array("10098","10099","10100","10101")))	$image = "images/SG21.png";
+				    else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
+				    else if (in_array($_GET['comp'], array("10215")))	$image = "images/Skien.png";
+				    else switch (strtolower($organizer))
+				    {
+					    case "freidig":	         $image = "images/Freidig60.png"; break;
+					    case "porsgrunn ol":     $image = "images/POL.png";	break;
+					    case "wing ok":	         $image = "images/Wing.png"; break;
+					    case "byåsen i.l": 
+					    case "byåsen il":        $image = "images/BIL.png"; break; 
+					    case "røros il":         $image = "images/roros.png"; break; 
+					    case "freidig/wing/malvik":	$image = "images/NM2020.png"; break;
+					    case "eiker o-lag":      $image ="images/Eiker.png"; break; 
+					    case "stokke il":        $image = "images/stokke.png"; break;
+					    case "skien ok":	     $image = "images/Skien.png"; break; 
+					    case "byaasen skiklub":	 $image = "images/BSK.png"; break;
+					    case "kristiansand ok":  $image = "images/KOK_60.jpg"; break;
+					    case "ok moss":          $image = "images/OKMoss.png"; break;
+					    case "halden sk":        $image = "images/haldensk.png"; break;
+					    case "indre Østfold ok": $image = "images/indereook.jpg"; break;
+					    default:                 $image = "images/LiveRes60.png";
+				    }
+			      if ($image != ""){ ?> <td width="60"><img src="<?php echo($image) ?>" height="60" ></td>  <?php }?>
+          <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
+        </tr>
+      </table>
+      </div>
+      </td>
+    </tr>
 
-<?php if ($showInfo) {?>
-<tr valign="top">
-  <td colspan="2" align="center"><div id="scrollBar" style="overflow: hidden">
-    <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 0px">
-	<tr ><td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><div id="divInfoText"></div></span></td></tr>
-</table></div></td></tr>
-<?php }?>
+    <?php if ($showInfo) {?>
+      <tr valign="top">
+        <td colspan="2" align="center">
+          <div id="scrollBar" style="overflow: hidden">
+          <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 0px">
+	          <tr>
+              <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><div id="divInfoText"></div></span></td>
+            </tr>
+          </table>
+          </div>
+        </td>
+      </tr>
+    <?php }?>
 
-<tr valign="top" style="background-color:#555555; color:#FFF">
-  <td class="firstCol">
-  <table border="0" cellpadding="3 px" cellspacing="0">
-     <tr><td align="left">
-     <span id="switchNavClick2" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
-		</tr></table></td>
-  <td width="100%">
-  <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
-	<tr>
-  	<td align="left" width="30%">
-	<span id="switchNavClick1" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
-
-	<td align="center" width="30%">
-	<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_LASTPASSINGS?></span></td>
-	  
-  	<td align="right"width="30%"><a href="index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
-  	<td align="right" width="10%">
-	  <span class="noUnderline"><a href="images/LiveResGuide.jpg">?</a></td>
-	</tr>
-  </table></td>
-</tr>
+    <tr valign="top" style="background-color:#555555; color:#FFF">
+      <td class="firstCol">
+        <table border="0" cellpadding="3 px" cellspacing="0">
+          <tr>
+            <td align="left"><?=$_CHOOSECLASS?></td>
+          </tr>
+	      </table>
+      </td>
+      <td width="100%">
+        <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
+	        <tr>
+  	        <td align="left">
+	            <button id="switchNavClick" class="navbtn" onclick="switchNav()"><span id="navLR">←</span></button>
+	            <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span id="navUD">↑</span></button>
+	            <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
+	            <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
+	            <button class="navbtn" onclick="location.href='index.php?lang=<?=$lang?>'">↗</button>
+            </td>
+  	        <td align="left">
+              <b><span id="compname">loading comp name...</b>
+            </td>
+	        </tr>
+        </table>
+      </td>
+    </tr>
  
- <tr>
-  <td class="firstCol" valign="top" style="background-color:#FFF; color:#000"><div id="divClasses"></div>
-    Totalt: <span id="numberOfRunnersTotal"></span>
-	<br><?=$_START?>: <span id="numberOfRunnersStarted"></span>
-	<br><?=$_CONTROLFINISH?>: <span id="numberOfRunnersFinished"></span>
-  </td>
-
-  <td valign="top" width="100%">  
- 
-  <?php }?> 
-  <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0"> 
-  <tr><td>
-  <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
-  <td align="left" ><span id="liveIndicator"></span><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
-  <td align="center"><b><span id="compname">loading comp name...</b></td>
-  <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td></tr></table></td></tr>
+    <tr>
+      <td class="firstCol" valign="top" style="background-color:#FFF; color:#000;">
+        <div id="divClasses"></div>
+          Totalt: <span id="numberOfRunnersTotal"></span><br>
+	        <?=$_START?>: <span id="numberOfRunnersStarted"></span><br>
+	        <?=$_CONTROLFINISH?>: <span id="numberOfRunnersFinished"></span>
+        </span>
+      </td>
+      <td valign="top" width="100%">  
+<?php }?> 
+        <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0"> 
+          <tr>
+            <td>
+              <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF">
+                <tr>
+                  <td align="left" ><span id="liveIndicator"></span><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
+                  <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
   
-   <tr valign="top"><td>
-   <table id="divResults" width="100%"><tbody><tr><td></td></tr></tbody></table>
-   </td></tr>
-  </table>
+          <tr valign="top">
+            <td>
+              <table id="divResults" width="100%">
+                <tbody>
+                  <tr>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </table>
 
   <?php if (!$isSingleClass && !$isSingleClub) {?> 
-  <p align="left">Antall: <span id="numberOfRunners"></span></p>
-  <p align="left"><font color="#AAA" size="0.7em">
-  Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
-  * <?=$_HELPREDRESULTS?><br>
-  &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
-  
+        <p align="left">Antall: <span id="numberOfRunners"></span></p>
+        <p align="left">
+          <span style="font-size: 0.7em; color:#AAA">
+            Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.
+            <br>* <?=$_HELPREDRESULTS?>
+            <br>&copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
+          </span>
+        </p>
+      </td>
+    </tr>
   </table>
   <?php }?>
-
-  </div>
-
+</div>
 </body>
 </html>

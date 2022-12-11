@@ -7,10 +7,14 @@
   --bkgray: #E6E6E6;
 }
 
-body {background-color: #ffffff; margin: 0; font-size:68.75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
+body {background-color: #ffffff; margin: 0; font-size: 75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
+
+@media screen and (max-width: 1000px) {
+  body {background-color: #ffffff; margin: 0; font-size: 95%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
+}
 
 /* html documents within iframes */
-body.iframed {margin-left:0px; margin-right:0px; font-size:68.75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
+body.iframed {margin-left:0px; margin-right:0px; font-size:80%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
 
 button {font-size:0.8em; padding-top: 0px; padding-bottom: 0px}
 table {font-size:1em;}
@@ -260,25 +264,23 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  width: 60px;
   background-color: #555555;
   color: white;
   text-align: center;
   border-radius: 5px;
-  padding: 2px 0;
+  padding: 0.1em 0.5em;
   position: absolute;
   z-index: 100;
   bottom: 0px;
-  right: 60px;
+  right: 5em; 
 }
 
 .tooltip .tooltiptext::after {
   content: " ";
   position: absolute;
-  bottom: +5px;
-  right: -10px; 
-  margin-left: -5px;
-  border-width: 5px;
+  bottom: +0.4em;
+  right: -0.7em; 
+  border-width: 0.4em;
   border-style: solid;
   border-color: transparent transparent transparent #555555;
 }
@@ -295,14 +297,9 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 
 .firstCol{
   overflow: hidden;
-  width: 75px;
+  width: 6em;
 }
 
-/* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
-@media screen and (max-height: 450px) {
-  .sidebar {padding-top: 15px;}
-  .sidebar a {font-size: 18px;}
-}
 
 /* Fixed columns*/
 table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_Blocker{background-color:white}div.DTFC_LeftWrapper table.dataTable,div.DTFC_RightWrapper table.dataTable{margin-bottom:0;z-index:2}div.DTFC_LeftWrapper table.dataTable.no-footer,div.DTFC_RightWrapper table.dataTable.no-footer{border-bottom:none};
@@ -326,24 +323,6 @@ table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_
 .menuicon {
   display: inline-block;
   cursor: pointer;
-}
-
-.bar1, .bar2, .bar3 {
-  width: 10px;
-  height: 1.5px;
-  background-color: #FFF;
-  margin: 1.5px 0;
-  transition: 1s;
-}
-
-.change .bar1 {
-  -webkit-transform: rotate(-45deg) translate(-2.25px, 2px);
-  transform: rotate(-45deg) translate(-2.25px, 2px);
-}
-.change .bar2 {opacity: 0;}
-.change .bar3 {
-  -webkit-transform: rotate(45deg) translate(-2.25px, -2px);
-  transform: rotate(45deg) translate(-2.25px, -2px);
 }
 
 /*-------------------------------*/
@@ -390,3 +369,20 @@ table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_
 
 .splitMiss { background-color: #ffcccc !important; }
 
+/*-------------------------------*/
+/*---  Buttons for navigation ---*/
+/*-------------------------------*/
+.navbtn {
+  border: none;
+  background-color: black;
+  font-size: 1em;
+  cursor: pointer;
+  display: inline-block;
+  color: white;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.3em;
+  padding: 0;
+  text-align: center;
+}
+.navbtn:hover {background: gray;}

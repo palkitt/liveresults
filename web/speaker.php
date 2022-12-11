@@ -14,6 +14,7 @@ header('Content-Type: text/html; charset='.$CHARSET);
 $currentComp = new Emma($_GET['comp']);
 $currentCompNo = $_GET['comp'];
 $organizer = $currentComp->Organizer();
+$showInfo = $currentComp->ShowInfo();
 $showEcardTimes = $currentComp->ShowEcardTimes();
 $image = "";
 
@@ -54,6 +55,7 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 
 <script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
@@ -153,11 +155,11 @@ $(document).ready(function()
 	}
 	catch (error)
 	{}
-	
-	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
+
+  res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		Resources, <?= ($currentComp->IsMultiDayEvent() ? "true" : "false")?>, <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", false);
-	res.speakerView = true;
-	<?php if ($isSingleClass){?>
+  res.speakerView = true;
+  <?php if ($isSingleClass){?>
 		res.chooseClass('<?=$singleClass?>');
 	<?php }
 	else if ($isSingleClub)
@@ -170,28 +172,28 @@ $(document).ready(function()
 		res.updateClassList();
 	<?php }?>
 
-    <?php if ($showLastPassings){?>
+  <?php if ($showLastPassings){?>
 		res.updateLastPassings();
 	<?php }?>
-
+	
 	<?php if ($showEcardTimes){?>
 		res.showEcardTimes = true;
 	<?php }?>
 
 	<?php if ($showTimePrediction){ ?>
-	    res.compDate = "<?=$currentComp->CompDate();?>";
+	  res.compDate = "<?=$currentComp->CompDate();?>";
 		res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
 		res.startPredictionUpdate();
 	<?php }?>
 
-	// Update runner list
+  // Update runner list
 	res.updateRunnerList();
 
 	// Insert comp name
 	var compName = "<?=$currentComp->CompName()?>";
 	compName = compName.substring(0,  (res.browserType == 1 ? 30 : 60) )
 	$("#compname").html(compName);
-			
+	
 	// Turn off scroll view
 	<?php if ($setNotScroll){?>
 		res.setScrollView(false); <?php }?>
@@ -206,15 +208,18 @@ $(document).ready(function()
 
 	// Set ranked startlist
 	<?php if($currentComp->RankedStartlist()>-1 ){?> 
-	    res.rankedStartlist = <?=$currentComp->RankedStartlist(); ?> <?php }?>
+	    res.rankedStartlist = <?=$currentComp->RankedStartList(); ?> <?php }?>
 	
 	// Qualification limits and classes (last limit is default)
 	res.qualLimits = [<?=$currentComp->QualLimits();?>];
 	res.qualClasses = [<?=$currentComp->QualClasses();?>];
+
+	// Initialize info text
+	$("#divInfoText").html("<?=$currentComp->InfoText();?>");
 	
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
-		if (res.browserType == 1 && <?=($organizer=="Freidig/Wing/Malvik"?0:1)?>)
+		if (res.browserType == 1)
 			closeTop();
 		else
 		{
@@ -223,84 +228,94 @@ $(document).ready(function()
 			topBar = true;
 		}
 		
-		document.getElementById("switchNavClick1").classList.toggle("change");
-		document.getElementById("switchNavClick2").classList.toggle("change");
+		document.getElementById("switchNavClick").classList.toggle("change");
 	<?php }?>
 
 	// Initial view is with open class list
 	openNav();
+  loadFontSize();
 
 	// Add function for dropdown list
-	window.onclick = function(event) {
-  		if (!event.target.matches('.dropbtn')) 	{
-			var dropdowns = document.getElementsByClassName("dropdown-content");
-			var i;
-			for (i = 0; i < dropdowns.length; i++) 	{
-				var openDropdown = dropdowns[i];
-				if (openDropdown.classList.contains('show')) {openDropdown.classList.remove('show');}
-			}
-  		}
-	}
+	window.onclick = function(event) 
+  {
+  	if (!event.target.matches('.dropbtn')) 
+    {
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) 
+      {
+    	  var openDropdown = dropdowns[i];
+    	  if (openDropdown.classList.contains('show'))
+          openDropdown.classList.remove('show');
+      }
+    }
+  }
 
-	// Search for runner (wait 0.5s after last keyup before searching)
+  // Search for runner (wait 0.5s after last keyup before searching)
 	var searchTimer = null;
-	$('#searchBib').on('keyup', function () {
+	$('#searchBib').on('keyup', function () 
+  {
 		clearTimeout(searchTimer); 
 		searchTimer = setTimeout(function(){ res.searchRunner(); }, 500);
 	}); 
 
 });
 
-function changeFontSize(val)
-{
+function loadFontSize() {
+	if (typeof(Storage) !== "undefined") {
+    var size = localStorage.getItem("fontSize");
+    if (size>0)
+      $("td").css("font-size",size + "px");
+  }	
+}
+
+function changeFontSize(val) {
 	var size = $("td").css("font-size");
 	var newSize = parseInt(size.replace(/px/, "")) + val;
 	$("td").css("font-size",newSize + "px");
+  if (typeof(Storage) !== "undefined")
+    localStorage.setItem("fontSize",newSize);
 }
 
-function switchNav(x) {
-  document.getElementById("switchNavClick1").classList.toggle("change");
-  document.getElementById("switchNavClick2").classList.toggle("change");
+function switchNav() {
   if (sideBar)
 	  closeNav();
   else
 	  openNav();
 }
 
-function switchTop(x) {
-  x.classList.toggle("change");
+function switchTop() {
   if (topBar)
 	  closeTop();
   else
 	  openTop();
 }
 
-
 function openNav() {
-  if(res.currentTable != null)
+  if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
-	$(".firstCol").width("75px");  
+	$(".firstCol").width("6em");  
   	$('#divResults').DataTable()
      .columns.adjust()
 	 .responsive.recalc();
 	 $(".firstCol").width("0px");  
   }
-  $(".firstCol").animate({'width':'75px'},300);
-  $('#switchNavClick1').hide();
+  $(".firstCol").animate({'width':'6em'},300);
+  $("#navLR").html("←");
   sideBar = true;
 }
 
 function closeNav() {
-  if(res.currentTable != null)
+  if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
 		$(".firstCol").width("0px");  
 		$('#divResults').DataTable()
 		.columns.adjust()
 		.responsive.recalc();
-		$(".firstCol").width("75px");  
+		$(".firstCol").width("6em");  
   }
-  $(".firstCol").animate({'width':'0px'},300);  
-  $('#switchNavClick1').show();
+  $(".firstCol").animate({'width':'0px'},300);
+  $("#navLR").html("→");
   sideBar = false;	
 }
 
@@ -308,7 +323,8 @@ function openTop() {
 	$("#topBar").height('auto');
 	var height = $("#topBar").height();
 	$("#topBar").height(0);
-	$("#topBar").animate({'height': height},300);  
+	$("#topBar").animate({'height': height},300);
+	$("#navUD").html("↑");
   topBar = true;
   res.autoUpdateLastPassings = true;
   res.updateLastPassings();
@@ -318,93 +334,127 @@ function closeTop() {
   $("#topBar").animate({'height':'0px'},300);  
   topBar = false;
   res.autoUpdateLastPassings = false;
+  $("#navUD").html("↓") 
 }
-
 </script>
 </head>
 <body>
-
-
 <!-- MAIN DIV -->
 <div id="main">
 <?php if (!$isSingleClass && !$isSingleClub) {?>
-
   <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
-  <tr><td class="firstCol"></td><td width="100%"></td></tr>
-  <tr valign="top">
-  <td colspan="2" align="center"><div id="topBar" style="overflow: hidden">
-    
-	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
-		<tr>			
-<td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
-</tr>
-</table></div>
-</td></tr>
+    <tr>
+      <td class="firstCol"></td>
+      <td width="100%"></td>
+    </tr>
+    <tr valign="top">
+      <td colspan="2" align="center">
+      <div id="topBar" style="overflow: hidden">
+	    <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
+        <tr>
+          <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
+        </tr>
+      </table>
+      </div>
+      </td>
+    </tr>
 
-<tr valign="top" style="background-color:#555555; color:#FFF">
-  <td class="firstCol">
-  <table border="0" cellpadding="3 px" cellspacing="0">
-     <tr><td align="left">
-     <span id="switchNavClick2" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
-		</tr></table></td>
-  <td width="100%">
-  <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
-	<tr>
-		<td align="left" width="10%">
-		<span id="switchNavClick1" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div></span>
-		<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div></span>
-		</td>
-		<td align="left"><input type="text" id="searchBib" placeholder="Startno..." size="5">
-		<span id="searchRunner">Ukjent startnummer</span></td>
-		<td></td>
-		<td align="right"><a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF"></a>
-		<span id="Oslo_z71e"></span></td>
-	</tr>
-	<tr>
-	<td colspan="4" align="right"> 
-		<a href="startlist.php?comp=<?=$currentCompNo?>"><?= $_START?></a> | <a href="radio.php?code=-1&comp=<?=$currentCompNo?>">Melde</a> | 
-		<a href="radio.php?code=1000&comp=<?=$currentCompNo?>"><?= $_CONTROLFINISH?></a>
-	</td>
-	</tr>
+    <?php if ($showInfo) {?>
+      <tr valign="top">
+        <td colspan="2" align="center">
+          <div id="scrollBar" style="overflow: hidden">
+          <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 0px">
+	          <tr>
+              <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><div id="divInfoText"></div></span></td>
+            </tr>
+          </table>
+          </div>
+        </td>
+      </tr>
+    <?php }?>
 
-  </table></td>
-</tr>
+    <tr valign="top" style="background-color:#555555; color:#FFF">
+      <td class="firstCol">
+        <table border="0" cellpadding="3 px" cellspacing="0">
+          <tr>
+            <td align="left"><?=$_CHOOSECLASS?></td>
+          </tr>
+	      </table>
+      </td>
+      <td width="100%">
+        <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
+	        <tr>
+  	        <td align="left">
+	            <button id="switchNavClick" class="navbtn" onclick="switchNav()"><span id="navLR">←</span></button>
+	            <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span id="navUD">↑</span></button>
+	            <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
+	            <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
+	            <button class="navbtn" onclick="location.href='index.php?lang=<?=$lang?>'">↗</button>
+            </td>
+  	        <td align="right">
+              <b><span id="compname">loading comp name...</b>
+            </td>
+	        </tr>
+          <tr>
+            <td align="left">
+              <input type="text" id="searchBib" placeholder="Startno..." size="3em"> <span id="searchRunner">Ukjent startnummer</span>
+            </td>
+            <td align="right">
+            <a href="startlist.php?comp=<?=$currentCompNo?>"><?= $_START?></a> | <a href="radio.php?code=-1&comp=<?=$currentCompNo?>">Melde</a> | 
+              <a href="radio.php?code=1000&comp=<?=$currentCompNo?>"><?= $_CONTROLFINISH?></a> | 
+              <a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF"></a><span id="Oslo_z71e"></span>
+            </td>
+        </table>
+      </td>
+    </tr>
  
- <tr>
-  <td class="firstCol" valign="top" style="background-color:#FFF; color:#000"><div id="divClasses"></div>
-    <br>Totalt: <span id="numberOfRunnersTotal"></span>
-	<br><?=$_START?>: <span id="numberOfRunnersStarted"></span>
-	<br><?=$_CONTROLFINISH?>: <span id="numberOfRunnersFinished"></span>
-  </td>
-
-  <td valign="top" width="100%">  
- 
-  <?php }?> 
-  <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0"> 
-  <tr><td>
-  <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
-  <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
-  <td align="center"><b><span id="compname">loading comp name...</b></td>
-  <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td></tr></table></td></tr>
-   <tr valign="top"><td>
-   <table id="divResults" width="100%"><tbody><tr><td></td></tr></tbody></table>
-   </td></tr>
-  </table>
+    <tr>
+      <td class="firstCol" valign="top" style="background-color:#FFF; color:#000;">
+        <div id="divClasses"></div>
+          Totalt: <span id="numberOfRunnersTotal"></span><br>
+	        <?=$_START?>: <span id="numberOfRunnersStarted"></span><br>
+	        <?=$_CONTROLFINISH?>: <span id="numberOfRunnersFinished"></span>
+      </td>
+      <td valign="top" width="100%">  
+<?php }?> 
+        <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0"> 
+          <tr>
+            <td>
+              <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF">
+                <tr>
+                  <td align="left" ><span id="liveIndicator"></span><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
+                  <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+  
+          <tr valign="top">
+            <td>
+              <table id="divResults" width="100%">
+                <tbody>
+                  <tr>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </table>
 
   <?php if (!$isSingleClass && !$isSingleClub) {?> 
-  Antall: <span id="numberOfRunners"></span>
-  <p align="left"><font color="#AAA" size="0.7em">
-  Last update: <span id="lastupdate"></span><br>
-  * <?=$_HELPREDRESULTS?><br>
-  &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
-  
+        <p align="left">Antall: <span id="numberOfRunners"></span></p>
+        <p align="left">
+          <span style="font-size: 0.7em; color:#AAA">
+            Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.
+            <br>* <?=$_HELPREDRESULTS?>
+            <br>&copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
+          </span>
+        </p>
+      </td>
+    </tr>
   </table>
   <?php }?>
-
-  </div>
-
+</div>
 </body>
 </html>
