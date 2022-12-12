@@ -231,8 +231,6 @@ $(document).ready(function()
 		document.getElementById("switchNavClick").classList.toggle("change");
 	<?php }?>
 
-	// Initial view is with open class list
-	openNav();
   loadFontSize();
 
 	// Add function for dropdown list
@@ -443,14 +441,14 @@ function closeTop() {
         </table>
 
   <?php if (!$isSingleClass && !$isSingleClub) {?> 
-        <p align="left">Antall: <span id="numberOfRunners"></span></p>
-        <p align="left">
-          <span style="font-size: 0.7em; color:#AAA">
-            Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.
-            <br>* <?=$_HELPREDRESULTS?>
-            <br>&copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
-          </span>
-        </p>
+        <div align="left">
+          Antall: <span id="numberOfRunners"></span>
+        </div>
+        <div align="left" style="font-size: 0.7em; color:#AAA">
+            Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
+            * <?=$_HELPREDRESULTS?><br>
+            &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
+        </div>
       </td>
     </tr>
   </table>

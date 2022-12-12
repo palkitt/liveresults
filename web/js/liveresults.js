@@ -894,7 +894,7 @@ var LiveResults;
           var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
-          var time = -4.23 * 3600 * 100 + 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
+          var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -2452,6 +2452,8 @@ var LiveResults;
           }
           $('#' + this.resultsDiv).html(res);
           $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
+          if (this.browserType == 1)
+            $('#switchNavClick').trigger('click');
         }
         else if (data.className == "startlist") {
           $('#updateinterval').html("- ");
@@ -2503,6 +2505,8 @@ var LiveResults;
           var NumRunText = $("#numberOfRunnersTotal").html();
           NumRunText += "</br><a href=\"javascript:res.raceSplitterDialog();\">Lag RaceSplitter fil</a>";
           $('#numberOfRunners').html(NumRunText);
+          if (this.browserType == 1)
+            $('#switchNavClick').trigger('click');
         }
         else if (data.results != null && data.results.length > 0) {
           $('#updateinterval').html(this.updateInterval / 1000);

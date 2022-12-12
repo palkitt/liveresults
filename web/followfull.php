@@ -165,7 +165,7 @@ $(document).ready(function()
 		else
 	{?>
 		$("#divClasses").html("<?=$_LOADINGCLASSES?>...");
-		res.updateClassList();
+    res.updateClassList();
 	<?php }?>
 
     <?php if ($showLastPassings){?>
@@ -186,7 +186,7 @@ $(document).ready(function()
 	var compName = "<?=$currentComp->CompName()?>";
 	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
-	
+
 	// Turn off scroll view
 	<?php if ($setNotScroll){?>
 		res.setScrollView(false); <?php }?>
@@ -209,7 +209,7 @@ $(document).ready(function()
 
 	// Initialize info text
 	$("#divInfoText").html("<?=$currentComp->InfoText();?>");
-	
+
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
 		if (res.browserType == 1 && <?=(in_array($_GET['comp'], array("10203"))?0:1)?>)
@@ -224,10 +224,7 @@ $(document).ready(function()
 		document.getElementById("switchNavClick").classList.toggle("change");
 	<?php }?>
 
-	// Initial view is with open class list
-	openNav();
-
-  loadFontSize();
+	loadFontSize();
 
 	// Add function for dropdown list
 	window.onclick = function(event) {
@@ -259,6 +256,7 @@ function changeFontSize(val) {
 	$("td").css("font-size",newSize + "px");
   if (typeof(Storage) !== "undefined")
     localStorage.setItem("fontSize",newSize);
+  $('#divResults').DataTable().columns.adjust().responsive.recalc();
 }
 
 function switchNav() {
@@ -278,11 +276,9 @@ function switchTop() {
 function openNav() {
   if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
-	$(".firstCol").width("6em");  
-  	$('#divResults').DataTable()
-     .columns.adjust()
-	 .responsive.recalc();
-	 $(".firstCol").width("0px");  
+    $(".firstCol").width("6em");  
+    $('#divResults').DataTable().columns.adjust().responsive.recalc();
+	  $(".firstCol").width("0px");  
   }
   $(".firstCol").animate({'width':'6em'},300);
   $("#navLR").html("←");
@@ -293,9 +289,7 @@ function closeNav() {
   if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
 		$(".firstCol").width("0px");  
-		$('#divResults').DataTable()
-		.columns.adjust()
-		.responsive.recalc();
+		$('#divResults').DataTable().columns.adjust().responsive.recalc();
 		$(".firstCol").width("6em");  
   }
   $(".firstCol").animate({'width':'0px'},300);
@@ -417,7 +411,6 @@ function closeTop() {
           Totalt: <span id="numberOfRunnersTotal"></span><br>
 	        <?=$_START?>: <span id="numberOfRunnersStarted"></span><br>
 	        <?=$_CONTROLFINISH?>: <span id="numberOfRunnersFinished"></span>
-        </span>
       </td>
       <td valign="top" width="100%">  
 <?php }?> 
@@ -447,14 +440,14 @@ function closeTop() {
         </table>
 
   <?php if (!$isSingleClass && !$isSingleClub) {?> 
-        <p align="left">Antall: <span id="numberOfRunners"></span></p>
-        <p align="left">
-          <span style="font-size: 0.7em; color:#AAA">
-            Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.
-            <br>* <?=$_HELPREDRESULTS?>
-            <br>&copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
-          </span>
-        </p>
+        <div align="left">
+          Antall: <span id="numberOfRunners"></span>
+        </div>
+        <div align="left" style="font-size: 0.7em; color:#AAA">
+            Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
+            * <?=$_HELPREDRESULTS?><br>
+            &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
+        </div>
       </td>
     </tr>
   </table>
