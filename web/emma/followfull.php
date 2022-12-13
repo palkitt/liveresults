@@ -13,7 +13,6 @@ header('Content-Type: text/html; charset='.$CHARSET);
 
 $currentComp = new Emma($_GET['comp']);
 $currentCompNo = $_GET['comp'];
-$orgainzer = $currentComp->Organizer();
 
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
@@ -54,6 +53,7 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
 <link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 
 <script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
@@ -69,8 +69,6 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
 <?php }?>
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
-
-
 <script language="javascript" type="text/javascript">
 
 var noSleep = new NoSleep();
@@ -146,7 +144,6 @@ runnerStatus[13] = "<?=$_STATUSFINISHED?>";
 var sideBar = true;
 var topBar = false;
 
-
 $(document).ready(function()
 {
 	
@@ -161,13 +158,13 @@ $(document).ready(function()
 		else
 	{?>
 		$("#divClasses").html("<?=$_LOADINGCLASSES?>...");
-		res.updateClassList();
+    res.updateClassList();
 	<?php }?>
 
     <?php if ($showLastPassings){?>
 		res.updateLastPassings();
 	<?php }?>
-
+	
 	<?php if ($showTimePrediction){ ?>
 	    res.compDate = "<?=$currentComp->CompDate();?>";
 		res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
@@ -179,17 +176,9 @@ $(document).ready(function()
 	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 
-	// Set full view
-	<?php if ($setFullView || $currentComp->FullView() ){?>
-		res.setCompactView(false); <?php }?>
-		
 	// Turn off scroll view
 	<?php if ($setNotScroll){?>
 		res.setScrollView(false); <?php }?>
-	
-	// Mass start race
-	<?php if($currentComp->MassStartSorting() ){?>
-		res.curClassIsMassStart = true; <?php }?>
 	
 	// Show tenth of seconds
 	<?php if($currentComp->ShowTenthOfSeconds() ){?>
@@ -202,175 +191,203 @@ $(document).ready(function()
 	// Qualification limits and classes (last limit is default)
 	res.qualLimits = [<?=$currentComp->QualLimits();?>];
 	res.qualClasses = [<?=$currentComp->QualClasses();?>];
-	
+
 	// Check for mobile and close top if mobile is detected
 	var isMobile = res.isMobile();
 	if (isMobile)
-		closeTop();
-	else
-	{
-		document.getElementById("switchTopClick").classList.toggle("change");
-		$("#topBar").height('auto');
-		topBar = true;
-	}
-	document.getElementById("switchNavClick").classList.toggle("change");
+			closeTop();
+		else
+		{
+			document.getElementById("switchTopClick").classList.toggle("change");
+			$("#topBar").height('auto');
+			topBar = true;
+		}
+		
+		document.getElementById("switchNavClick").classList.toggle("change");
+
+	loadFontSize();
+
+	// Add function for dropdown list
+	window.onclick = function(event) {
+  	if (!event.target.matches('.dropbtn')) {
+    var dropdowns = document.getElementsByClassName("dropdown-content");
+    var i;
+    for (i = 0; i < dropdowns.length; i++) {
+    	var openDropdown = dropdowns[i];
+    	if (openDropdown.classList.contains('show')) {
+        	openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
 
 });
 
-function changeFontSize(val)
-{
+function loadFontSize() {
+	if (typeof(Storage) !== "undefined") {
+    var size = localStorage.getItem("fontSize");
+    if (size>0)
+      $("td").css("font-size",size + "px");
+  }	
+}
+
+function changeFontSize(val) {
 	var size = $("td").css("font-size");
 	var newSize = parseInt(size.replace(/px/, "")) + val;
 	$("td").css("font-size",newSize + "px");
+  if (typeof(Storage) !== "undefined")
+    localStorage.setItem("fontSize",newSize);
+  $('#divResults').DataTable().columns.adjust().responsive.recalc();
 }
 
-function switchNav(x) {
-  x.classList.toggle("change");
+function switchNav() {
   if (sideBar)
 	  closeNav();
   else
 	  openNav();
 }
 
-function switchTop(x) {
-  x.classList.toggle("change");
+function switchTop() {
   if (topBar)
 	  closeTop();
   else
 	  openTop();
 }
 
-
 function openNav() {
-  if(res.currentTable != null)
+  if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
-	$(".firstCol").width("70px");  
-  	$('#divResults').DataTable()
-     .columns.adjust()
-	 .responsive.recalc();
-	 $(".firstCol").width("0px");  
+    $(".firstCol").width("6em");  
+    $('#divResults').DataTable().columns.adjust().responsive.recalc();
+	  $(".firstCol").width("0px");  
   }
-  $(".firstCol").animate({'width':'70px'},"1s");
+  $(".firstCol").animate({'width':'6em'},300);
+  $("#navLR").html("←");
   sideBar = true;
 }
 
 function closeNav() {
   if(res.currentTable != null)
   {
-	$(".firstCol").width("0px");  
-  	$('#divResults').DataTable()
-     .columns.adjust()
-	 .responsive.recalc();
-    $(".firstCol").width("70px");  
+		$(".firstCol").width("0px");  
+		$('#divResults').DataTable().columns.adjust().responsive.recalc();
+		$(".firstCol").width("6em");  
   }
-
-  $(".firstCol").animate({'width':'0px'},"1s");  
-  sideBar = false;
+  $(".firstCol").animate({'width':'0px'},300);
+  $("#navLR").html("→");
+  sideBar = false;	
 }
 
 function openTop() {
 	$("#topBar").height('auto');
 	var height = $("#topBar").height();
 	$("#topBar").height(0);
-	$("#topBar").animate({'height': height},"1s");  
+	$("#topBar").animate({'height': height},300);
+	$("#navUD").html("↑");
   topBar = true;
+  res.autoUpdateLastPassings = true;
+  res.updateLastPassings();
 }
 
 function closeTop() {
-  $("#topBar").animate({'height':'0px'},"1s");  
+  $("#topBar").animate({'height':'0px'},300);  
   topBar = false;
+  res.autoUpdateLastPassings = false;
+  $("#navUD").html("↓") 
 }
-
 </script>
 </head>
 <body>
-
-
 <!-- MAIN DIV -->
 <div id="main">
 <?php if (!$isSingleClass && !$isSingleClub) {?>
+  <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
+    <tr>
+      <td class="firstCol"></td>
+      <td width="100%"></td>
+    </tr>
+    <tr valign="top">
+      <td colspan="2" align="center">
+      <div id="topBar" style="overflow: hidden">
+        <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
+		    <tr>
+          <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
+        </tr>
+      </table>
+      </div>
+      </td>
+    </tr>
 
-  <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0" >
-  <tr><td class="firstCol"></td><td width="100%"></td></tr>
-  <tr valign="top">
-  <td colspan="2"><div id="topBar" style="overflow: hidden">
-	<table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
-		<tr>
-			<?php if(in_array($_GET['comp'], array("15821","15822","15823"))){?>
-			    <td width="60">
-			    <img src="images/SG19.PNG" height="60" /></td>
-			<?php } elseif(in_array($_GET['comp'], array("15950","15951","15952"))){?>
-			    <td width="60">
-			    <img src="images/OF.png" height="60" /></td>
-			<?php } elseif(in_array($_GET['comp'], array("16235","16241","16284"))){?>
-			    <td width="60">
-			    <img src="images/SB-O.png" height="60" /></td>
-			<?php } elseif(in_array($_GET['comp'], array("16699"))){?>
-			    <td width="70">
-			    <img src="images/MOTTV.png" height="60" /></td>
-			<?php } elseif($orgainzer=="Freidig"){?>
-			    <td width="60">
-			    <img src="images/Freidig60.png" height="60" /></td>
-			<?php } elseif($orgainzer=="Byåsen IL"){?>
-			    <td width="60">
-			    <img src="images/BIL.png" height="60" /></td>
-		     <?php } elseif($orgainzer=="Byaasen Skiklub"){?>
-			    <td width="60">
-			    <img src="images/BSK.png" height="60" ></td>
-			<?php }?>
-<td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?=$_LASTPASSINGS?></b><br><div id="divLastPassings"></div></span></td>
-</tr>
-</table></div>
-</td></tr>
-
-<tr valign="top" style="background-color:#555555; color:#FFF">
-  <td class="firstCol">&nbsp;Klasser</td>
-  <td width="100%">
-  <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
-	<tr>
-  	<td align="left" width="30%">
-	<span id="switchNavClick" style="cursor:pointer; color:#FFF" onclick="switchNav(this)"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECLASS?></span></td>
-
-	<td align="center" width="30%">
-	<span id="switchTopClick" style="cursor:pointer; color:#FFF" onclick="switchTop(this)"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_LASTPASSINGS?></span></td>
-	  
-  	<td align="right"width="30%"><a href="emma/index.php?lang=<?=$lang?>" style="text-decoration: none; color: #FFF"><div class="menuicon">
-		<div class="bar1"></div><div class="bar2"></div><div class="bar3"></div></div> <?=$_CHOOSECMP?></a></span></td>
-  	<td align="right" width="10%"><span id="setCompactViewText" class="noUnderline"><a href="javascript:LiveResults.Instance.setCompactView(false);">&#9868;</a></span></td>
-	</tr>
-  </table></td>
-</tr>
+    <tr valign="top" style="background-color:#555555; color:#FFF">
+      <td class="firstCol">
+        <table border="0" cellpadding="3 px" cellspacing="0">
+          <tr>
+            <td align="left"><?=$_CHOOSECLASS?></td>
+          </tr>
+	      </table>
+      </td>
+      <td width="100%">
+        <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
+	        <tr>
+  	        <td align="left">
+	            <button id="switchNavClick" class="navbtn" onclick="switchNav()"><span id="navLR">←</span></button>
+	            <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span id="navUD">↑</span></button>
+	            <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
+	            <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
+	            <button class="navbtn" onclick="location.href='emma/index.php?lang=<?=$lang?>'">↗</button>
+            </td>
+  	        <td align="left">
+              <b><span id="compname">loading comp name...</b>
+            </td>
+	        </tr>
+        </table>
+      </td>
+    </tr>
  
- <tr>
-  <td class="firstCol" valign="top" style="background-color:#FFF; color:#000"><div id="divClasses"></div></td>
-
-  <td valign="top" width="100%">  
- 
-  <?php }?> 
-  <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0"> 
-  <tr><td>
-  <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF"><tr>
-  <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
-  <td align="center"><b><span id="compname">loading comp name...</b></td>
-  <td align="right"><?php if (!$isSingleClass && !$isSingleClub) {?><a href="javascript:LiveResults.Instance.newWin()"> <?=$_OPENINNEWWINDOW?></a> <?php }?> <span id="txtResetSorting"></span></td></tr></table></td></tr>
+    <tr>
+      <td class="firstCol" valign="top" style="background-color:#FFF; color:#000;">
+        <div id="divClasses"></div>
+      </td>
+      <td valign="top" width="100%">  
+<?php }?> 
+        <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0"> 
+          <tr>
+            <td>
+              <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF">
+                <tr>
+                  <td align="left" ><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
+                  <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
   
-   <tr valign="top"><td>
-   <table id="divResults" width="100%"><tbody><tr><td></td></tr></tbody></table>
-   </td></tr>
-  </table>
+          <tr valign="top">
+            <td>
+              <table id="divResults" width="100%">
+                <tbody>
+                  <tr>
+                    <td></td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </table>
 
-  <?php if (!$isSingleClass && !$isSingleClub) {?>
-	<p align="left">Antall: <span id="numberOfRunners"></span></p>
-	<p align="left"><font color="#AAA" size="0.7em">
-  * <?=$_HELPREDRESULTS?><br>
-  &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
-  
+  <?php if (!$isSingleClass && !$isSingleClub) {?> 
+        <div align="left">
+          Antall: <span id="numberOfRunners"></span>
+        </div>
+        <div align="left" style="font-size: 0.7em; color:#AAA">
+            Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
+            * <?=$_HELPREDRESULTS?><br>
+            &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
+        </div>
+      </td>
+    </tr>
   </table>
   <?php }?>
-
-  </div>
-
+</div>
 </body>
 </html>
