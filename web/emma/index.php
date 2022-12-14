@@ -84,7 +84,7 @@ el.style.backgroundColor = "";
 	  foreach ($comps as $comp)
         {
         ?>
-                <tr id="row<?=$comp["tavid"]?>" style="font-size:12px;font-weight:bold;"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
+                <tr id="row<?=$comp["tavid"]?>" style="font-weight:bold;"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
                 <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="followfull.php?comp=<?=$comp['tavid']?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
                 <td style="font-weight:normal"><?=$comp["organizer"]?></td>
                 </tr>
@@ -95,10 +95,19 @@ el.style.backgroundColor = "";
 <tr><td colspan=3><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td><tr>
 <tr><th align="left"><?= $_DATE?></th><th align="left"><?= $_EVENTNAME?></th><th align="left"><?= $_ORGANIZER?></th></tr>
 <?php
-	$comps = Emma::GetCompetitions();
+  $comps = Emma::GetCompetitions();
+  $yearPre = 0;
 	foreach ($comps as $comp)
 	{
-	?>
+    $year = date("Y",strtotime($comp['compDate']));
+    if ($year != $yearPre)
+    {
+      $yearPre = $year;
+      ?>
+        <tr><td colspan=3><h1 class="categoriesheader"><?=$year?></h1></td><tr>
+      <?php
+    }
+	  ?>
 		<tr id="row<?=$comp["tavid"]?>"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
 		<td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="followfull.php?comp=<?=$comp["tavid"]?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
 		<td><?=$comp["organizer"]?></td>

@@ -77,13 +77,13 @@ el.style.backgroundColor = "";
 <br>
 
 <table border="0" cellpadding="0px" cellspacing="0" width="100%" id="tblLiveComps">
-  <tr><td colspan=3><h1 class="categoriesheader">LIVE TODAY!</h1></td><tr>
+  <tr><td colspan=4><h1 class="categoriesheader">LIVE TODAY!</h1></td><tr>
 	<tr><th align="left"><?= $_DATE?></th><th align="left"><?= $_EVENTNAME?></th><th align="left"><?= $_ORGANIZER?></th><th align="left">Livesenter</th></tr>
 <?php	$comps = Emma::GetCompetitionsToday();
 	  foreach ($comps as $comp)
         {
         ?>
-            <tr id="row<?=$comp["tavid"]?>" style="font-size:12px;font-weight:bold;"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
+            <tr id="row<?=$comp["tavid"]?>" style="font-weight:bold;"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
             <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp['tavid']?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
 			<td style="font-weight:normal"><?=$comp["organizer"]?></td>
 			<?php if (strlen($comp['livecenterurl'])>0){ ?>
@@ -96,23 +96,33 @@ el.style.backgroundColor = "";
         }
         ?>
 <tr><td>&nbsp</td></tr>
-<tr><td colspan=3><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td><tr>
+<tr><td colspan=4><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td><tr>
 <tr><th align="left"><?= $_DATE?></th><th align="left"><?= $_EVENTNAME?></th><th align="left"><?= $_ORGANIZER?></th><th align="left">Livesenter</th></tr>
 <?php
 	$comps = Emma::GetCompetitions();
+  $yearPre = 0;
 	foreach ($comps as $comp)
 	{
-	?>
-		<tr id="row<?=$comp["tavid"]?>"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-		<td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp["tavid"]?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
-		<td><?=$comp["organizer"]?></td>
-		<?php if (strlen($comp['livecenterurl'])>0){ ?>
-		   <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="<?=$comp['livecenterurl']?>">Livesenter</a></td>
-		<?php } else { ?>
-		   <td></td>
-		<?php } ?>
+    $year = date("Y",strtotime($comp['compDate']));
+    if ($year != $yearPre)
+    {
+      $yearPre = $year;
+      ?>
+        <tr><td colspan=4><h1 class="categoriesheader"><?=$year?></h1></td><tr>
+      <?php
+    }
+	  ?>
+		<tr id="row<?=$comp["tavid"]?>">
+      <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
+		  <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp["tavid"]?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
+		  <td><?=$comp["organizer"]?></td>
+		  <?php if (strlen($comp['livecenterurl'])>0){ ?>
+		    <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="<?=$comp['livecenterurl']?>">Livesenter</a></td>
+		  <?php } else { ?>
+		    <td></td>
+		  <?php } ?>
 		</tr>
-	<?php
+	  <?php
 	}
 	?>
 	</table>
