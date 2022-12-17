@@ -184,7 +184,6 @@ $(document).ready(function()
 
 	// Insert comp name
 	var compName = "<?=$currentComp->CompName()?>";
-	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 
 	// Turn off scroll view
@@ -396,8 +395,7 @@ function closeTop() {
 	            <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
 	            <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
 	            <button class="navbtn" onclick="location.href='index.php?lang=<?=$lang?>'">↗</button>
-            </td>
-  	        <td align="left">
+              &nbsp;
               <b><span id="compname">loading comp name...</b>
             </td>
 	        </tr>
