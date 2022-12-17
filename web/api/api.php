@@ -1,7 +1,8 @@
 <?php
 
 date_default_timezone_set("Europe/Stockholm");
-$compid = $_GET['comp'];
+if (isset($_GET['comp']))
+  $compid = $_GET['comp'];
 $lang = "no";
 if (isset($_GET['lang']))
 	$lang = $_GET['lang'];
@@ -32,21 +33,21 @@ if ($_GET['method'] == 'getcompetitions')
 		echo("{ \"competitions\": [$br");
 		$first = true;
 		foreach ((array)$comps as $comp)
-			{
-				if (!$first)
-					echo(",");
-				echo("{\"id\": ".$comp["tavid"].", \"name\": \"".$comp["compName"]."\", \"organizer\": \"".$comp["organizer"]."\", \"date\": \"".date("Y-m-d",strtotime($comp['compDate']))."\"");
-        echo (", \"timediff\": ".$comp["timediff"]);
-        if ($comp["multidaystage"] != "")
-				  echo(", \"multidaystage\": ".$comp["multidaystage"].", \"multidayfirstday\": ".$comp["multidayparent"]);
-        echo("}$br");
-				$first = false;
-			}
+		{
+			if (!$first)
+				echo(",");
+			echo("{\"id\": ".$comp["tavid"].", \"name\": \"".$comp["compName"]."\", \"organizer\": \"".$comp["organizer"]."\", \"date\": \"".date("Y-m-d",strtotime($comp['compDate']))."\"");
+      echo (", \"timediff\": ".$comp["timediff"]);
+      if ($comp["multidaystage"] != "")
+		    echo(", \"multidaystage\": ".$comp["multidaystage"].", \"multidayfirstday\": ".$comp["multidayparent"]);
+      echo("}$br");
+			$first = false;
+		}
 		echo("]}");
 }
 else if ($_GET['method'] == 'setcompetitioninfo')
 {
-        $compid = $_POST['comp'];
+    $compid = $_POST['comp'];
 		Emma::UpdateCompetition($compid,$_POST["compName"],$_POST["organizer"],$_POST["date"],$_POST["public"],$_POST["timediff"]);
 		insertHeader($refreshTime,false);
 		echo("{\"status\": \"OK\"}");
@@ -383,12 +384,13 @@ elseif ($_GET['method'] == 'getracesplitter')
  {
 	insertHeader($refreshTime,false);
 	$nums = Emma::GetNumConnect();	
-	foreach ((array)$nums as $num)
+	foreach ($nums as $num)
 	{
-		$n = $num["num"]; // Numbers in buffer
+		$n = $num["num"]; // Number of connects in buffer
 		$UF = $num["UF"]; // Update factor
+    $nH = $n*60;      // Number of connects per hour
 	}
-	echo("Number of connections in buffer (passing rand function) [#/min]: ".$n. ". Update factor: ".$UF);
+	echo("Number of connections to server\n[#/min]      : ".$n."\n[#/hour]     : ".$nH."\nUpdate factor: ".$UF);
  }
  elseif ($_GET['method'] == 'getplainresults')
  {
