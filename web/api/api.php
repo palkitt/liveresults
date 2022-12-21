@@ -388,7 +388,7 @@ elseif ($_GET['method'] == 'getracesplitter')
 	{
 		$n = $num["num"]; // Number of connects in buffer
 		$UF = $num["UF"]; // Update factor
-    $nH = $n*60;      // Number of connects per hour
+    $nH = $n*60*10;   // Number of connects per hour
 	}
 	echo("Number of connections to server\n[#/min]      : ".$n."\n[#/hour]     : ".$nH."\nUpdate factor: ".$UF);
  }
