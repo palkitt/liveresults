@@ -7,7 +7,14 @@
   --bkgray: #E6E6E6;
 }
 
-body {background-color: #ffffff; margin: 0; font-size: 75%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
+
+body {
+  background-color: #ffffff; 
+  margin: 0; 
+  font-size: 75%; 
+  font-family: arial, helvetica, verdana, geneva, sans-serif;
+  -webkit-text-size-adjust: none; 
+}
 
 @media screen and (max-width: 1000px) {
   body {background-color: #ffffff; margin: 0; font-size: 95%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
