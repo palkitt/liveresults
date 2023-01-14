@@ -164,9 +164,7 @@ namespace LiveResults.Client
                 try
                 {
                     if (m_connection.State != ConnectionState.Open)
-                    {
                         m_connection.Open();
-                    }
 
                     IDbCommand cmd           = m_connection.CreateCommand();
                     IDbCommand cmdInd        = m_connection.CreateCommand();
@@ -177,14 +175,17 @@ namespace LiveResults.Client
                     /*Detect event type*/
                     bool isRelay = false;
                     bool isSprint = false;
+                    bool isSprintRelay = false;
                     day = 1;
-                    cmd.CommandText = "SELECT kid, sub FROM arr";
+                    cmd.CommandText = "SELECT kid, sub, boloffset FROM arr";
                     using (IDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             if (reader[0] != null && reader[0] != DBNull.Value)
                             {
+                                if (reader["boloffset"] != null && reader["boloffset"] != DBNull.Value)
+                                    isSprintRelay = Convert.ToBoolean(reader["boloffset"].ToString());
                                 string eventType;
                                 int kid = Convert.ToInt16(reader["kid"]);
                                 if (kid == 2)
@@ -195,7 +196,10 @@ namespace LiveResults.Client
                                 else if (kid == 3 || kid == 6)
                                 {
                                     isRelay = true;
-                                    eventType = " (Relay)";
+                                    if (isSprintRelay)
+                                        eventType = " (Sprintrelay)";
+                                    else
+                                        eventType = " (Relay)";
                                 }
                                 else
                                     eventType = " (Individual)";
@@ -209,7 +213,6 @@ namespace LiveResults.Client
                     /* Set up courses */
                     var dlgMergeCourseControls = OnMergeCourseControls;
                     var courses = new Dictionary<int, List<CourseControl>>();
-
                     if (dlgMergeCourseControls != null) // Read courses
                     {
                         List<CourseControl> courseControls = new List<CourseControl>();
@@ -239,11 +242,8 @@ namespace LiveResults.Client
                                         Order = order
                                     };
                                     courseControls.Add(control);
-
                                     if (!courses.ContainsKey(courseno))
-                                    {
                                         courses.Add(courseno, new List<CourseControl>());
-                                    };
                                     courses[courseno].Add(control);
                                 }
                                 reader.Close();
@@ -271,7 +271,6 @@ namespace LiveResults.Client
                      *  L = leg number
                      */
 
-
                     var dlgMergeRadio = OnMergeRadioControls;                              
                     if (m_updateRadioControls && dlgMergeRadio != null)
                     {
@@ -289,7 +288,6 @@ namespace LiveResults.Client
                             {
                                 int cource = 0, code = 0, radiotype = -1, leg = 0, order = 0;
                                 bool live = false;
-
                                 if (reader["live"] != null && reader["live"] != DBNull.Value)
                                     live = Convert.ToBoolean(reader["live"].ToString());
                                 if (!live) continue;
@@ -337,9 +335,7 @@ namespace LiveResults.Client
                                 };
 
                                 if (!RadioPosts.ContainsKey(cource))
-                                {
                                     RadioPosts.Add(cource, new List<RadioStruct>());
-                                };
                                 RadioPosts[cource].Add(radioControl);
                             }
                             reader.Close();
@@ -352,7 +348,6 @@ namespace LiveResults.Client
                             while (reader.Read())
                             {
                                 int cource = 0, numLegs = 0, timingType = 0, sign = 1;
-
                                 bool chaseStart = Convert.ToBoolean(reader["cheaseing"].ToString());
 
                                 string classCode = reader["code"] as string;
@@ -597,12 +592,12 @@ namespace LiveResults.Client
                     ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
 
                     cmdInd.CommandText = baseCommandInd;
-                    ParseReader(cmdInd, ref splitList, ref ecardTimesList, ref courses, false, isSprint, usedID, out lastRunner, out usedID);
+                    ParseReader(cmdInd, ref splitList, ref ecardTimesList, ref courses, false, isSprint, false, usedID, out lastRunner, out usedID);
 
                     if (isRelay)
                     {
                         cmdRelay.CommandText = baseCommandRelay;
-                        ParseReader(cmdRelay, ref splitList, ref ecardTimesList, ref courses, true, false, usedID, out lastRunner, out usedID);
+                        ParseReader(cmdRelay, ref splitList, ref ecardTimesList, ref courses, true, false, isSprintRelay, usedID, out lastRunner, out usedID);
                     }
 
                     FireLogMsg("eTiming Monitor thread started");
@@ -631,9 +626,9 @@ namespace LiveResults.Client
                             if (m_updateEcardTimes)
                                 ParseReaderEcardTimes(cmdEcardTimes, out ecardTimesList, out lastRunner);
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
-                            ParseReader(cmdInd, ref splitList, ref ecardTimesList, ref courses, false, isSprint, new List<int>(), out lastRunner, out usedID);
+                            ParseReader(cmdInd, ref splitList, ref ecardTimesList, ref courses, false, isSprint, false, new List<int>(), out lastRunner, out usedID);
                             if (isRelay)
-                                ParseReader(cmdRelay, ref splitList, ref ecardTimesList, ref courses, true, false, usedID, out lastRunner, out usedID);
+                                ParseReader(cmdRelay, ref splitList, ref ecardTimesList, ref courses, true, false, isSprintRelay, usedID, out lastRunner, out usedID);
                             lastRunner = "Finished parsing runners";
 
                             if (first && m_IdOffset==0 && !isSprint)
@@ -697,7 +692,8 @@ namespace LiveResults.Client
         
 
         private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, ref Dictionary<int, List<EcardTimesRawStruct>> ecardTimesList, 
-                                 ref Dictionary<int, List<CourseControl>> courses, bool isRelay, bool isSprint, List<int> usedIDin, out string lastRunner, out List<int> usedIDout)
+                                 ref Dictionary<int, List<CourseControl>> courses, bool isRelay, bool isSprint, bool isSprintRelay,
+                                 List<int> usedIDin, out string lastRunner, out List<int> usedIDout)
         {
             lastRunner = "";
             usedIDout = usedIDin;
@@ -707,6 +703,7 @@ namespace LiveResults.Client
 
             using (IDataReader reader = cmd.ExecuteReader())
             {
+                string namePre1 = "", namePre2 = "";
                 while (reader.Read())
                 {
                     int time = 0, runnerID = 0, eTimeID = 0, EventorID = 0, iStartTime = 0, iStartClass = 0, totalTime = 0, course = -1;
@@ -732,6 +729,12 @@ namespace LiveResults.Client
                         if ((status == "V") || (status == "C")) // Skip if free or not entered  
                             continue;
 
+                        classN = reader["cclass"] as string;
+                        if (!string.IsNullOrEmpty(classN))
+                            classN = classN.Trim();
+                        if (classN == "NOCLAS")  // Skip runner if in NOCLAS
+                            continue;
+
                         eTimeID = Convert.ToInt32(reader["id"].ToString());
                         if (reader["kid"] != null && reader["kid"] != DBNull.Value)
                             parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
@@ -739,20 +742,6 @@ namespace LiveResults.Client
                             runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
                         else
                             runnerID = eTimeID;
-                        runnerID += m_IdOffset + sprintOffset;
-                        usedIDout.Add(runnerID);
-
-                        classN = reader["cclass"] as string;
-                        if (!string.IsNullOrEmpty(classN))
-                            classN = classN.Trim();
-                        if (classN == "NOCLAS")  // Skip runner if in NOCLAS
-                            continue;
-
-                        if (m_updateEcardTimes && reader["cource"] != null && reader["cource"] != DBNull.Value)
-                            course = Convert.ToInt32(reader["cource"].ToString());
-
-                        if (reader["length"] != null && reader["length"] != DBNull.Value)
-                            length = Convert.ToInt32(reader["length"].ToString());
 
                         // Sprint class definition
                         if (isSprint)
@@ -786,8 +775,16 @@ namespace LiveResults.Client
                                 }
                             }
                         }
-
+                        runnerID += m_IdOffset + sprintOffset;
+                        usedIDout.Add(runnerID);
+             
                         // Continue with adding or updating runner
+                        if (m_updateEcardTimes && reader["cource"] != null && reader["cource"] != DBNull.Value)
+                            course = Convert.ToInt32(reader["cource"].ToString());
+
+                        if (reader["length"] != null && reader["length"] != DBNull.Value)
+                            length = Convert.ToInt32(reader["length"].ToString());
+
                         club = (reader["tname"] as string);
                         if (!string.IsNullOrEmpty(club))
                             club = club.Trim();
@@ -802,7 +799,7 @@ namespace LiveResults.Client
 
                         name = givName + " " + famName;
                         lastRunner = name;
-
+                        
                         bibread = (reader["startno"].ToString()).Trim();
                         bib = string.IsNullOrEmpty(bibread) ? 0 : Convert.ToInt32(bibread);
 
@@ -835,6 +832,11 @@ namespace LiveResults.Client
                         if (isRelay)
                         {   //RelayTeams
                             leg = bib % 100;   // Leg number
+
+                            if (isSprintRelay & leg > 2) // Keep and use first two names in sprint reLay
+                                name = namePre2;
+                            namePre2 = namePre1; 
+                            namePre1 = name;
 
                             if (!RelayTeams.ContainsKey(teambib))
                             {
@@ -962,7 +964,7 @@ namespace LiveResults.Client
                             RelayTeams[teambib].TeamStatus = TeamStatus;
 
                             if (intime > 0)
-                                time = Math.Max(intime - iStartClass, TeamTime);
+                                time = Math.Max(intime - RelayTeams[teambib].StartTime, TeamTime);
 
                             if (leg > 1 && RelayTeams[teambib].TeamMembers[leg - 1].TotalTime > 0)
                             {

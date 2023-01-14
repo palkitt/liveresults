@@ -20,17 +20,24 @@
             base.Dispose(disposing);
         }
 
-        #region Windows Form Designer generated code
+        public class DBListBox : System.Windows.Forms.ListBox
+        {
+            public int PreviousSelectedIndex { get; set; }
+        }
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
-        private void InitializeComponent()
+
+            #region Windows Form Designer generated code
+
+            /// <summary>
+            /// Required method for Designer support - do not modify
+            /// the contents of this method with the code editor.
+            /// </summary>
+            private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewETimingComp));
             this.wizard1 = new Gui.Wizard.Wizard();
             this.wizardPage5 = new Gui.Wizard.WizardPage();
+            this.chkAddEcardSplits = new System.Windows.Forms.CheckBox();
             this.txtCompType = new System.Windows.Forms.TextBox();
             this.label15 = new System.Windows.Forms.Label();
             this.txtOsOffset = new System.Windows.Forms.TextBox();
@@ -54,7 +61,7 @@
             this.txtCompID = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
             this.wizardPage2 = new Gui.Wizard.WizardPage();
-            this.lstDB = new System.Windows.Forms.ListBox();
+            this.lstDB = new LiveResults.Client.NewETimingComp.DBListBox();
             this.label6 = new System.Windows.Forms.Label();
             this.wizardPage1 = new Gui.Wizard.WizardPage();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -71,7 +78,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.chkAddEcardSplits = new System.Windows.Forms.CheckBox();
             this.wizard1.SuspendLayout();
             this.wizardPage5.SuspendLayout();
             this.wizardPage2.SuspendLayout();
@@ -81,8 +87,8 @@
             // 
             // wizard1
             // 
-            this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage2);
+            this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -128,6 +134,16 @@
             this.wizardPage5.TabIndex = 5;
             this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
             this.wizardPage5.ShowFromNext += new System.EventHandler(this.wizardPage5_ShowFromNext);
+            // 
+            // chkAddEcardSplits
+            // 
+            this.chkAddEcardSplits.AutoSize = true;
+            this.chkAddEcardSplits.Location = new System.Drawing.Point(256, 135);
+            this.chkAddEcardSplits.Name = "chkAddEcardSplits";
+            this.chkAddEcardSplits.Size = new System.Drawing.Size(189, 17);
+            this.chkAddEcardSplits.TabIndex = 25;
+            this.chkAddEcardSplits.Text = "Add splits from ecard (strekktider)";
+            this.chkAddEcardSplits.UseVisualStyleBackColor = true;
             // 
             // txtCompType
             // 
@@ -350,6 +366,7 @@
             this.lstDB.FormattingEnabled = true;
             this.lstDB.Location = new System.Drawing.Point(13, 26);
             this.lstDB.Name = "lstDB";
+            this.lstDB.PreviousSelectedIndex = 0;
             this.lstDB.Size = new System.Drawing.Size(218, 186);
             this.lstDB.TabIndex = 1;
             // 
@@ -358,9 +375,9 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(12, 9);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(53, 13);
+            this.label6.Size = new System.Drawing.Size(79, 13);
             this.label6.TabIndex = 0;
-            this.label6.Text = "Database";
+            this.label6.Text = "SQL databases";
             // 
             // wizardPage1
             // 
@@ -504,16 +521,6 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Type of eTiming server";
             // 
-            // chkAddEcardSplits
-            // 
-            this.chkAddEcardSplits.AutoSize = true;
-            this.chkAddEcardSplits.Location = new System.Drawing.Point(256, 135);
-            this.chkAddEcardSplits.Name = "chkAddEcardSplits";
-            this.chkAddEcardSplits.Size = new System.Drawing.Size(189, 17);
-            this.chkAddEcardSplits.TabIndex = 25;
-            this.chkAddEcardSplits.Text = "Add splits from ecard (strekktider)";
-            this.chkAddEcardSplits.UseVisualStyleBackColor = true;
-            // 
             // NewETimingComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -561,7 +568,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TextBox txtETimingDb;
         private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.ListBox lstDB;
+        private DBListBox lstDB;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label12;
         private System.Windows.Forms.TextBox txtSleepTime;

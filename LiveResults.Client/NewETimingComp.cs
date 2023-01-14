@@ -29,6 +29,7 @@ namespace LiveResults.Client
             InitializeComponent();
             comboBox1.DataSource = new string[] { "eTiming Access database", "SQL-Server" };
             comboBox1.SelectedIndex = 0;
+            lstDB.PreviousSelectedIndex = 0;
             txtUser.Text = "emit";
             txtPw.Text   = "time";
             txtPort.Text = "1433";
@@ -90,8 +91,7 @@ namespace LiveResults.Client
                 if (c is ComboBox)
                 {
                     string val = setts.Where(x => x.Key == c.Name).Select(x => x.Value).FirstOrDefault();
-                    (c as ComboBox).SelectedItem = val;
-                    
+                    (c as ComboBox).SelectedItem = val;                    
                 }
                 if (c is CheckBox)
                 {
@@ -100,6 +100,12 @@ namespace LiveResults.Client
                     {
                         (c as CheckBox).Checked = val == "True";
                     }
+                }
+                if (c is DBListBox)
+                {
+                    string val = setts.Where(x => x.Key == c.Name).Select(x => x.Value).FirstOrDefault();
+                    if (val != null)
+                        (c as DBListBox).PreviousSelectedIndex = Int32.Parse(val);               
                 }
 
                 applyControlValues(c.Controls, setts);
@@ -162,12 +168,12 @@ namespace LiveResults.Client
                         Value = (c as CheckBox).Checked.ToString()
                     });
                 }
-                if (c is ListBox)
+                if (c is DBListBox)
                 {
                     setts.Add(new Setting
                     {
-                        Key = (c as ListBox).Name,
-                        Value = (c as ListBox).SelectedIndex.ToString()
+                        Key = (c as DBListBox).Name,
+                        Value = (c as DBListBox).PreviousSelectedIndex.ToString()
                     });
                 }
 
@@ -210,6 +216,8 @@ namespace LiveResults.Client
 
                         string[] databases = GetDatabases(conn);
                         lstDB.DataSource = databases;
+                        if (lstDB.Items.Count>lstDB.PreviousSelectedIndex)
+                           lstDB.SetSelected(lstDB.PreviousSelectedIndex,true);
                     }
                 }
             }
@@ -287,6 +295,7 @@ namespace LiveResults.Client
 
         private void wizardPage5_ShowFromNext(object sender, EventArgs e)
         {
+            lstDB.PreviousSelectedIndex = lstDB.SelectedIndex;
             StoreSettings();
             IDbConnection conn = null;
             try
