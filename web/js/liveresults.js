@@ -2713,17 +2713,14 @@ var LiveResults;
                     place += "&numsp;"
                   place += "&#10072;" + row.splits["0_place"] + "&#10072; </span>"
 
-                  if (fullView) {
+                  if (fullView){
                     if (row.splits["0_place"] == 1)
-                      txt += "<span class=\"besttime\">+" + _this.formatTime(0, 0, _this.showTenthOfSecond) + place + "</span><br />";
+                      txt += "<span class=\"besttime\">";
                     else
-                      txt += "<span>+" + _this.formatTime(row.splits["0_timeplus"], 0, _this.showTenthOfSecond) + place + "</span><br />";
+                      txt += "<span>";
+                    txt += "+" + _this.formatTime(Math.max(0,row.splits["0_timeplus"]), 0, _this.showTenthOfSecond) + place + "</span><br />";
                   }
-                  txt += vertLine;
-                  if (row.splits["0_place"] == 1)
-                    txt += "<span class=\"besttime\">";
-                  else
-                    txt += "<span>";
+                  txt += vertLine + "<span>";
                   if (!fullView && row.splits["0_place"] >= 1)
                     txt += place;
                   txt += _this.formatTime(row.start, 0, false, true, true) + "</span>";
@@ -2766,7 +2763,7 @@ var LiveResults;
                           var place = "";
                           if (!row.splits[value.code + "_estimate"] && row.splits[value.code + "_place"] == 1)
                             place += "<span class=\"bestplace\"> ";
-                          else
+                          else                          
                             place += "<span class=\"place\"> ";
                           if (_this.curClassNumberOfRunners >= 10 && (row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-" || row.splits[value.code + "_place"] == "="))
                             place += "&numsp;"
@@ -2787,14 +2784,18 @@ var LiveResults;
                           // Ordinary passing or first place at passing for relay (drop place if code is negative - unranked)
                           {
                             if (row.splits[value.code + "_estimate"])
-                              txt += "<span class=\"estimate\">";
+                              if (row.splits[value.code + "_place"] == 1)
+                                txt += "<span class=\"estimatebest\">";
+                              else 
+                                txt += "<span class=\"estimate\">";
                             else if (row.splits[value.code + "_place"] == 1)
                               txt += "<span class=\"besttime\">";
                             else
                               txt += "<span>";
                             txt += _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond);
                             if (value.code > 0)
-                              txt += place + "</span>";
+                              txt += place;
+                            txt += "</span>";
                           }
                           // Second line
                           if ((fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
@@ -2803,9 +2804,15 @@ var LiveResults;
                             txt += "<br/><span class=";
                             var legplace = "";
 
-                            if (row.splits[value.code + 100000 + "_estimate"]) {
-                              txt += "\"estimate\">";
-                              legplace += "<span class=\"place\"> ";
+                            if (row.splits[value.code + 100000 + "_estimate"]){
+                              if (row.splits[(value.code + 100000) + "_place"] == 1) {
+                                txt += "\"estimatebest\">";
+                                legplace += "<span class=\"place\"> ";
+                              }
+                              else {
+                                txt += "\"estimate\">";
+                                legplace += "<span class=\"place\"> ";
+                              }
                             }
                             else if (row.splits[(value.code + 100000) + "_place"] == 1) {
                               txt += "\"besttime\">";
@@ -2815,30 +2822,22 @@ var LiveResults;
                               txt += "\"legtime\">";
                               legplace += "<span class=\"place\"> ";
                             }
+
                             if (_this.curClassNumberOfRunners >= 10 && (row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-"))
                               legplace += "&numsp;"
                             legplace += "&#10072;" + row.splits[(value.code + 100000) + "_place"] + "&#10072;</span>";
-                            if (_this.curClassIsRelay) {
-                              txt += "⟳";
-                              if (row.splits[(value.code + 100000) + "_place"] == 1)
-                                txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
-                              else
-                                txt += "+" + _this.formatTime(row.splits[(value.code + 100000) + "_timeplus"], 0, _this.showTenthOfSecond);
-                            }
+                            if (_this.curClassIsRelay)
+                              txt += "⟳" + _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
                             else
                               txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
                             txt += legplace + "</span>";
                           }
-                          else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !_this.curClassIsRelay && (value.code > 0))
+                          else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !_this.curClassIsRelay && (value.code > 0) && row.splits[value.code + "_place"] > 1)
                           // Second line for ordinary passing (drop if code is negative - unranked)
                           {
                             txt += "<br/><span class=";
-                            if (row.splits[value.code + "_estimate"] && row.splits[value.code + "_place"] == 1)
-                              txt += "\"estimate\">-";
-                            else if (row.splits[value.code + "_estimate"])
+                            if (row.splits[value.code + "_estimate"])
                               txt += "\"estimate\">+";
-                            else if (row.splits[value.code + "_place"] == 1)
-                              txt += "\"besttime\">-";
                             else
                               txt += "\"plustime\">+";
                             txt += _this.formatTime(Math.abs(row.splits[value.code + "_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
@@ -2894,14 +2893,8 @@ var LiveResults;
                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
                 res += place + "</span>";
 
-                if ((haveSplitControls || _this.isMultiDayEvent) && fullView && !(_this.curClassIsRelay) && !(_this.curClassLapTimes) && row.status == 0) {
-                  if (row.place == 1) {
-                    res += "<br/><span class=\"besttime\">";
-                    res += ((haveSplitControls || _this.isMultiDayEvent) ? "-" : "+");
-                    res += _this.formatTime(-row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
-                  }
-                  else
-                    res += "<br/><span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
+                if ((haveSplitControls || _this.isMultiDayEvent) && fullView && !(_this.curClassIsRelay) && !(_this.curClassLapTimes) && row.status == 0 && row.place > 1) {
+                  res += "<br/><span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                   if (_this.curClassNumberOfRunners >= 10)
                     res += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                   else
@@ -2949,12 +2942,9 @@ var LiveResults;
                 if (isNaN(parseInt(data)))
                   return data;
                 var res = vertLine;
-                if (row.status == 0) {
-                  if (row.timeplus <= 0 && (haveSplitControls || _this.isMultiDayEvent))
-                    res += "<span class=\"besttime\">+";
-                  else
-                    res += "<span class=\"plustime\">+";
-                  res += _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
+                if (row.status == 0 && row.timeplus > 0) {
+                  res += "<span class=\"plustime\">+";
+                  res += _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";                 
                 }
                 return res;
               }
@@ -2974,15 +2964,11 @@ var LiveResults;
                     return data;
                   var res = vertLine;
                   if (row.status == 0) {
-                    if (row.place == 1)
-                      res += "<span class=\"besttime\">+" + _this.formatTime(0, row.status, _this.showTenthOfSecond);
-                    else
-                      res += "<span>+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond);
-
+                    res += "<span>";
+                    if (row.place > 1)
+                      res += "+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond);
                     res += "</span><br />" + vertLine;
-                    if (row.splits["999_place"] == 1)
-                      res += "<span class=\"besttime\">+" + _this.formatTime(0, 0, _this.showTenthOfSecond) + "</span>";
-                    else
+                    if (row.splits["999_place"] > 1)
                       res += "<span class=\"legtime\">+" + _this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                   }
                   return res;
@@ -3022,16 +3008,13 @@ var LiveResults;
                     totalplace += "&numsp;"
                   totalplace += "&#10072;" + row.totalplace + "&#10072;</span>";
                   totalres += _this.formatTime(row.totalresult, row.totalstatus) + totalplace + "</span>";
-                  if (fullView) {
-                    if (row.totalplace == 1)
-                      totalres += "<br/><span class=\"besttime\">+";
-                    else
-                      totalres += "<br/><span class=\"plustime\">+";
+                  if (fullView && row.totalplace > 1) {                    
+                    totalres += "<br/><span class=\"plustime\">+";
                     totalres += _this.formatTime(row.totalplus, row.totalstatus) + "</span>";
-                    if (_this.curClassNumberOfRunners >= 10)
-                      totalres += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
-                    else
-                      totalres += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
+                      if (_this.curClassNumberOfRunners >= 10)
+                        totalres += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
+                      else
+                        totalres += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
                   }
                   return totalres;
                 }
@@ -3798,16 +3781,16 @@ var LiveResults;
               teamresults[teamBib].names += br + nameShort;
               teamresults[teamBib].bib += br + leg;
 
-              teamresults[teamBib].legPlace += br + (legPlace == 1 ? "<span class=\"bestplace\">" : "<span>") + legPlace + "</span>";
-              teamresults[teamBib].legTime += br + (legPlace == 1 ? "<span class=\"besttime\">" : "<span>")
+              teamresults[teamBib].legPlace += br + (legPlace == 1 ? "<span class=\"place1\">" : "<span>") + legPlace + "</span>";
+              teamresults[teamBib].legTime += br + (legPlace == 1 ? "<span class=\"time1\">" : "<span>")
                 + _this.formatTime(legTime, legStatus, _this.showTenthOfSecond) + "</span>";
-              teamresults[teamBib].legDiff += br + (legStatus == 0 ? (legPlace == 1 ? "<span class=\"besttime\">" : "<span>") + (legPlusTime < 0 ? "-" : "+")
+              teamresults[teamBib].legDiff += br + (legStatus == 0 ? (legPlace == 1 ? "<span class=\"time1\">" : "<span>") + (legPlusTime < 0 ? "-" : "+")
                 + _this.formatTime(Math.abs(legPlusTime), 0, _this.showTenthOfSecond) + "</span>" : "");
 
-              teamresults[teamBib].totPlace += br + (totPlace == 1 ? "<span class=\"bestplace\">" : "<span>") + totPlace + " </span>";
-              teamresults[teamBib].totTime += br + (totPlace == 1 ? "<span class=\"besttime\">" : "<span>")
+              teamresults[teamBib].totPlace += br + (totPlace == 1 ? "<span class=\"place1\">" : "<span>") + totPlace + " </span>";
+              teamresults[teamBib].totTime += br + (totPlace == 1 ? "<span class=\"time1\">" : "<span>")
                 + _this.formatTime(legResults[runner].result, legResults[runner].status, _this.showTenthOfSecond) + " </span>";
-              teamresults[teamBib].totDiff += br + (totStatus == 0 ? (totPlace == 1 ? "<span class=\"besttime\">" : "<span>") + (legResults[runner].timeplus < 0 ? "-" : "+")
+              teamresults[teamBib].totDiff += br + (totStatus == 0 ? (totPlace == 1 ? "<span class=\"time1\">" : "<span>") + (legResults[runner].timeplus < 0 ? "-" : "+")
                 + _this.formatTime(Math.abs(legResults[runner].timeplus), 0, _this.showTenthOfSecond) + "</span>" : "");
 
               teamresults[teamBib].placeDiff += br + (leg == 1 ? "" : (placeDiff < 0 ? "<span class=\"gained\">" : (placeDiff > 0 ? "<span class=\"lost\">+" : "<span>")) + placeDiff + "</span>");
@@ -3849,7 +3832,7 @@ var LiveResults;
           columns.push({ "sTitle": "#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeStr" });
           columns.push({ "sTitle": "&#8470", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib" });
           columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "names" });
-          columns.push({ "sTitle": "T#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totPlace" });
+          columns.push({ "sTitle": "#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totPlace" });
           columns.push({ "sTitle": "±#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeDiff" });
           columns.push({ "sTitle": "Tot", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totTime" });
           columns.push({ "sTitle": "Tot&#916;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totDiff" });
@@ -4295,8 +4278,8 @@ var LiveResults;
                       // First line
                       if (passTime > 0 || last) {
                         if (passPlace == 1) {
-                          place += "<span class=\"bestplace\"> ";
-                          txt += "<span class=\"besttime\">";
+                          place += "<span class=\"place1\"> ";
+                          txt += "<span class=\"time1\">";
                         }
                         else if (passPlace == 2 || passPlace == 3) {
                           place += "<span class=\"place23\"> ";
@@ -4328,8 +4311,8 @@ var LiveResults;
                         place = "";
 
                         if (splitPlace == 1) {
-                          place += "<span class=\"bestplace\"> ";
-                          txt += "<span class=\"besttime\">";
+                          place += "<span class=\"place1\"> ";
+                          txt += "<span class=\"time1\">";
                         }
                         else if (splitPlace == 2 || splitPlace == 3) {
                           place += "<span class=\"place23\"> ";

@@ -29,6 +29,8 @@ td{font-family: arial, helvetica, verdana, geneva, sans-serif; font-size:1em; li
 .wrapok{white-space: normal;}
 th{white-space: normal;}
 
+#tblLiveComps td { padding: 0 5px 0 0;}
+
 a:link {font-size:1em; color: var(--livered); text-decoration:none}
 a:visited {font-size:1em; color: var(--livered);}
 a:hover{color:#FFA02B; text-decoration:underline;}
@@ -76,7 +78,7 @@ tr.red_row .relayclub {color: white;}
 .red_cell {color: white; background-color: var(--livered) !important; }
 .red_cell .plustime { color: white;}
 .red_cell .legtime  { color: white;}
-.red_cell .besttime { color: white;}
+.red_cell .besttime { color: white; text-decoration-color: white;}
 .red_cell .place { color: white;}
 .red_cell .bestplace { color: white;}
 .red_cell i { color: white;}
@@ -84,7 +86,7 @@ tr.red_row .relayclub {color: white;}
 .red_cell_sqr {color: white; background-color: var(--livered) !important; }
 .red_cell_sqr .plustime { color: white;}
 .red_cell_sqr .legtime  { color: white;}
-.red_cell_sqr .besttime { color: white;}
+.red_cell_sqr .besttime { color: white; text-decoration-color: white;}
 .red_cell_sqr .place { color: white;}
 .red_cell_sqr .bestplace { color: white;}
 .red_cell_sqr i { color: white;}
@@ -153,8 +155,10 @@ table.dataTable td {vertical-align: top;}
   100% { color: #51ff00; opacity: 0; }
 }
 
-.besttime {color: magenta;}
-.bestplace {color: magenta;}
+.besttime {color: black; text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: red;}
+.bestplace {color: dimgrey;}
+.time1 {color: red;}
+.place1 {color: red;}
 .time23 {color: blue;}
 .place23 {color: blue;}
 .place {color: dimgrey;}
@@ -163,8 +167,9 @@ table.dataTable td {vertical-align: top;}
 .legtime {color: dimgrey;}
 .bib {color: grey; font-style: normal;}
 .estimate {color:grey; font-style: italic;}
-.gained {color: green;}
-.lost {color: red;}
+.estimatebest {color: gray; font-style: italic; text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: red;}
+.gained {color: black;}
+.lost {color: black;}
 a.club {color: var(--livered); }
 a.relayclub {color: var(--livered); }
 
