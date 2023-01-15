@@ -1357,8 +1357,8 @@ var LiveResults;
           dataType: "json"
         });
       }
-
     };
+
     //Handle response for updating the last radio passings..
     AjaxViewer.prototype.handleUpdateRadioPassings = function (data, expTime, code, calltime, minBib, maxBib) {
 
@@ -1618,6 +1618,260 @@ var LiveResults;
 
     };
 
+    //Request data for the last radio passings div
+    AjaxViewer.prototype.updateStartRegistration = function () {
+      var _this = this;
+      clearTimeout(this.radioPassingsUpdateTimer);
+      if (this.updateAutomatically) {
+        $.ajax({
+          url: this.apiURL,
+          data: "comp=" + this.competitionId + "&method=getrunners" + "&last_hash=" + this.lastRadioPassingsUpdateHash,
+          success: function (data, status, resp) {
+            var expTime = new Date();
+            expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+            _this.handleUpdateStartRegistration(data, expTime);
+          },
+          error: function () {
+            _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, _this.radioUpdateInterval);
+          },
+          dataType: "json"
+        });
+      }
+    };
+
+    //Handle response for updating the start registration
+    AjaxViewer.prototype.handleUpdateStartRegistration = function (data, expTime) {
+      if (data.rt != undefined && data.rt > 0)
+        this.radioUpdateInterval = data.rt * 1000;
+      $('#updateinterval').html(this.radioUpdateInterval / 1000);
+      if (expTime) {
+        var lastUpdate = new Date();
+        lastUpdate.setTime(expTime - this.radioUpdateInterval + 1000);
+        $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
+      }
+
+      // Make live blinker pulsing
+      if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
+        $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
+      if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
+        $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+
+      var _this = this;
+
+      // Insert data from query            
+      if (data != null && data.status == "OK") {
+
+        this.lastRadioPassingsUpdateHash = data.hash;
+        this.radioData = data.runners;
+
+        this.radioData.sort(this.startSorter);
+
+
+        // Modify data-table
+        if (this.currentTable == null) // New datatable
+        {
+          if (this.radioData != null && this.radioData.length > 0) {
+            var columns = Array();
+            var col = 0;    
+            columns.push({
+              "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+              "render": function (data, type, row) {
+                if (type === 'display') {
+                  if (data < 0) // Relay
+                    return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
+                  else if (data > 0)    // Ordinary
+                    return " <span class=\"bib\">" + data + "</span>";
+                  else
+                    return "";
+                }
+                else
+                  return Math.abs(data);
+              }
+            });
+            columns.push({
+              "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
+              "render": function (data, type, row) {
+                if (type === 'display') {
+                  if (data.length > _this.maxNameLength)
+                    return _this.nameShort(data);
+                  else
+                    return data;
+                }
+                else
+                  return data;
+              }
+            });
+            columns.push({
+              "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
+              "render": function (data, type, row) {
+                if (type === 'display') {
+                  if (data.length > _this.maxClubLength) {
+                    return _this.clubShort(data);
+                  }
+                  else
+                    return data;
+                }
+                else
+                  return data;
+              }
+            });
+            columns.push({
+              "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
+              "render": function (data, type, row) {
+                var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
+                link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
+                return link;
+              }
+            });
+            columns.push({
+              "sTitle": "Brikke", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
+              "render": function (data, type, row) {
+                var ecards = "";
+                if (row.ecard1 > 0) {
+                  ecards += row.ecard1;
+                  if (row.ecard2 > 0) ecards += " / " + row.ecard2;
+                }
+                else
+                  if (row.ecard2 > 0) ecards += row.ecard2;
+                var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
+                var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards + "');\">";
+                if (row.checked == 1 || row.status == 9)
+                  ecardstr += "&#9989; "; // Green checkmark
+                else
+                  ecardstr += "&#11036; "; // Empty checkbox
+                ecardstr += ecards;
+                ecardstr += "</div>";
+                return ecardstr;
+              }
+            });
+            columns.push({
+              "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
+              "render": function (data, type, row) {
+                return data;
+              }
+            });
+            
+            var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
+            columns.push({
+              "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
+              "render": function (data, type, row) {
+                var defaultDNS = (row.dbid > 0 ? 1 : 0);
+                var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
+                var link = "<button onclick=\"res.popupDialog('" + name + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";
+                if (_this.messageBibs.indexOf(row.dbid) > -1)
+                  link += " &#9679;";
+                return link;
+              }
+            });
+
+            this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
+              "bPaginate": false,
+              "bLengthChange": false,
+              "bFilter": true,
+              "dom": 'lrtip',
+              "bSort": false,
+              "bInfo": false,
+              "bAutoWidth": false,
+              "aaData": this.radioData,
+              "aoColumnDefs": columns,
+              "bDestroy": true,
+              "orderCellsTop": true
+            });
+          }
+        }
+        this.dynamicStartRegistration();
+        if (this.isCompToday())
+          this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, this.radioUpdateInterval);
+        else
+          $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+      };
+    };
+
+    AjaxViewer.prototype.startSorter = function (a, b) {
+      
+      var diffStart = b.starttime - a.starttime;
+      if (diffStart != 0)
+        return diffStart;
+      else
+        return b.bib - a.bib;
+      }
+    
+
+    // Update start list
+    AjaxViewer.prototype.dynamicStartRegistration = function () {
+      if (this.radioData != null) {
+        try {
+          var dt = new Date();
+          var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
+          var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
+          var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
+          var time = Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));          
+          var data = this.currentTable.fnGetData();
+          var table = this.currentTable.api();
+
+          var callTime = parseInt($('#callTime')[0].value)*60;
+          var postTime = parseInt($('#postTime')[0].value)*60;
+          var minBib = parseInt($('#minBib')[0].value);
+          var maxBib = parseInt($('#maxBib')[0].value);
+
+          var preTime  = 30;
+          //var callTime = 3.4*60*60;
+          //var postTime = 8*60*60;
+
+          var firstInPreTime  = true;
+          var firstInCallTime = true;
+          var firstInPostTime = true;
+          var lastStartTime   = -1000; 
+          
+          // *** Hide or highlight rows ***
+
+          //if ($pass['class']=="NOCLAS") 
+          //$ret .= ",$br \"DT_RowClass\": \"red_row\"";
+
+          for (var i = 0; i < data.length; i++) {
+            var row = table.row(i).node();
+            if (data[i].bib < minBib || data[i].bib > maxBib){
+              $(row).hide();
+              continue;
+            }
+            $(row).show();
+            $(row).removeClass();
+            var startTimeSeconds = data[i].starttime/100;
+            var timeToStart = startTimeSeconds-time;
+            if (timeToStart < -postTime)
+              $(row).hide();
+            else if (timeToStart < 0){
+              $(row).addClass('pre_post_start')
+              if (firstInPostTime){
+                $(row).addClass('firststarter');
+                firstInPostTime = false;
+              }
+            }
+            else if (timeToStart <= callTime){
+              if (firstInCallTime)
+              {
+                $(row).addClass('firststarter yellow_row');
+                firstInCallTime = false;
+              }
+              else if (lastStartTime - startTimeSeconds > 29)
+                $(row).addClass('yellow_row_new');
+              else
+                $(row).addClass('yellow_row');
+            }
+            else if (timeToStart <= callTime + preTime){
+              $(row).addClass('pre_post_start');
+            }
+            else
+              $(row).hide(); 
+            lastStartTime = startTimeSeconds;
+          }
+        }
+        catch (e) { };
+      }
+    }
+
+
+    
     // Runner name shortener
     AjaxViewer.prototype.nameShort = function (name) {
       if (!name)

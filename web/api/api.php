@@ -352,7 +352,9 @@ elseif ($_GET['method'] == 'getrunners')
 	{
 		if (!$first)
 			$ret .=",$br";
-		$ret .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\", \"club\": \"".$runner['club']."\", \"start\": \"".formatTime($runner['start'],0,$RunnerStatus)."\", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2']."}";
+		$ret .= "{ \"dbid\": ".$runner['dbid'].", \"bib\": ".$runner['bib'].", \"status\": ".$runner['status'].", \"name\": \"".$runner['name']."\"";
+    $ret .= ", \"club\": \"".$runner['club']."\", \"starttime\": ".$runner['start'].", \"start\": \"".formatTime($runner['start'],0,$RunnerStatus)."\"";
+    $ret .= ", \"class\": \"".$runner['class']."\", \"ecard1\": ".$runner['ecard1'].", \"ecard2\": ".$runner['ecard2'].",\"checked\": ".($runner["ecardchecked"] == 1 ? 1 : 0)."}";
 		$first = false;
 	}
 	$hash = MD5($ret);
