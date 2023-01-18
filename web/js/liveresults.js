@@ -2415,6 +2415,7 @@ var LiveResults;
           });
           var res = "";
           for (var i = 0; i < data.results.length; i++) {
+            var isSprintHeat = (data.results[i].className[i].includes('| Kvart') || data.results[i].className[i].includes('| Semi') || data.results[i].className.includes('| Finale'));
             var distance = (data.results[i].distance != "" ? "&emsp;" + data.results[i].distance + " km" : "");
             res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + data.results[i].className + "</span>";
             res += distance + "</td></tr>";
@@ -2435,11 +2436,16 @@ var LiveResults;
               res += "<tr><td align=\"right\">" + data.results[i].results[j].place + "</td>";
               res += "<td>" + name + "</td>";
               res += "<td>" + club + "</td>";
-              res += "<td align=\"right\">" + this.formatTime(time, data.results[i].results[j].status, _this.showTenthOfSecond) + "</td>";
-              res += "<td align=\"right\"><span class=plustime>"
-              if (data.results[i].results[j].status == 0)
-                res += "+" + this.formatTime(data.results[i].results[j].timeplus, data.results[i].results[j].status, _this.showTenthOfSecond);
-              res += "</span></td>"
+              if (isSprintHeat)         
+                res += "<td></td><td></td>";
+              else
+              {
+                res += "<td align=\"right\">" + this.formatTime(time, data.results[i].results[j].status, _this.showTenthOfSecond) + "</td>";
+                res += "<td align=\"right\"><span class=plustime>"
+                if (data.results[i].results[j].status == 0)
+                  res += "+" + this.formatTime(data.results[i].results[j].timeplus, data.results[i].results[j].status, _this.showTenthOfSecond);
+                res += "</span></td>";
+              }
               if (hasDistance) {
                 res += "<td align=\"right\"><span class=plustime>";
                 if (data.results[i].results[j].status == 0 && kmTime > 0)
@@ -2552,6 +2558,7 @@ var LiveResults;
           var col = 0;
           var fullView = !this.compactView;
           var isRelayClass = this.relayClasses.includes(data.className);
+          var isSprintHeat = (data.className.includes('| Kvart') || data.className.includes('| Semi') || data.className.includes('| Finale'));
 
           const vertLine = "<span class=\"hideplace\">&#10072;</span>";
 
@@ -2890,7 +2897,8 @@ var LiveResults;
                   place += "&numsp;"
                 place += "&#10072;" + row.place + "&#10072;</span>";
 
-                res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
+                if (!isSprintHeat)
+                  res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
                 res += place + "</span>";
 
                 if ((haveSplitControls || _this.isMultiDayEvent) && fullView && !(_this.curClassIsRelay) && !(_this.curClassLapTimes) && row.status == 0 && row.place > 1) {
@@ -2928,7 +2936,7 @@ var LiveResults;
           col++;
           columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
 
-          if (!(haveSplitControls || _this.isMultiDayEvent) || !fullView || _this.curClassLapTimes) {
+          if ((!(haveSplitControls || _this.isMultiDayEvent) || !fullView || _this.curClassLapTimes) && !isSprintHeat) {
             columns.push({
               "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
               "bVisible": !_this.curClassIsUnranked || _this.fixedTable,
