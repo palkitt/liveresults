@@ -2936,10 +2936,10 @@ var LiveResults;
           col++;
           columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
 
-          if ((!(haveSplitControls || _this.isMultiDayEvent) || !fullView || _this.curClassLapTimes) && !isSprintHeat) {
+          if (!(haveSplitControls || _this.isMultiDayEvent) || !fullView || _this.curClassLapTimes) {
             columns.push({
               "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
-              "bVisible": !_this.curClassIsUnranked || _this.fixedTable,
+              "bVisible": !isSprintHeat && (!_this.curClassIsUnranked || _this.fixedTable),
               "responsivePriority": 2000,
               "sClass": "right",
               "bSortable": false,
