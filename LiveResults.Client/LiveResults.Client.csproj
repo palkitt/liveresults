@@ -25,6 +25,15 @@
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <TargetFrameworkProfile />
     <PublishUrl>c:\OpenSource\EmmaPublishCombined\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Web</InstallFrom>
@@ -43,15 +52,6 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <SccProjectName>
-    </SccProjectName>
-    <SccLocalPath>
-    </SccLocalPath>
-    <SccAuxPath>
-    </SccAuxPath>
-    <SccProvider>
-    </SccProvider>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -226,6 +226,12 @@
     <Compile Include="NewETimingComp.designer.cs">
       <DependentUpon>NewETimingComp.cs</DependentUpon>
     </Compile>
+    <Compile Include="NewBrikkesysComp.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="NewBrikkesysComp.Designer.cs">
+      <DependentUpon>NewBrikkesysComp.cs</DependentUpon>
+    </Compile>
     <Compile Include="NewMeosComp.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -300,6 +306,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="NewETimingComp.resx">
       <DependentUpon>NewETimingComp.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NewBrikkesysComp.resx">
+      <DependentUpon>NewBrikkesysComp.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="NewMeosComp.resx">
       <DependentUpon>NewMeosComp.cs</DependentUpon>
@@ -438,6 +448,7 @@
     <None Include="Resources\iof_logohead.png" />
     <None Include="Resources\iof_logohead1.png" />
     <None Include="Resources\ssftiming.png" />
+    <None Include="Resources\brikkesys.png" />
     <Content Include="Resources\emit.ico" />
     <Content Include="Resources\emitE.png" />
     <Content Include="Wizard\Wizard.bmp" />
