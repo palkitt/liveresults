@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = true;
+      this.local = false;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -2415,9 +2415,10 @@ var LiveResults;
           });
           var res = "";
           for (var i = 0; i < data.results.length; i++) {
-            var isSprintHeat = (data.results[i].className[i].includes('| Kvart') || data.results[i].className[i].includes('| Semi') || data.results[i].className.includes('| Finale'));
+            var className = data.results[i].className;
+            var isSprintHeat = (className.includes('| Kvart') || className.includes('| Semi') || className.includes('| Finale'));
             var distance = (data.results[i].distance != "" ? "&emsp;" + data.results[i].distance + " km" : "");
-            res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + data.results[i].className + "</span>";
+            res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + className + "</span>";
             res += distance + "</td></tr>";
             res += "<tr style=\"font-weight:bold\"><td align=\"right\">#</td><td>" + this.resources["_NAME"] + "</td><td>" + this.resources["_CLUB"] + "</td>";
             res += "<td align=\"right\">Tid</td><td align=\"right\">Diff</td>";
@@ -2448,7 +2449,7 @@ var LiveResults;
               }
               if (hasDistance) {
                 res += "<td align=\"right\"><span class=plustime>";
-                if (data.results[i].results[j].status == 0 && kmTime > 0)
+                if (data.results[i].results[j].status == 0 && kmTime > 0 && !isSprintHeat)
                   res += this.formatTime(kmTime, 0, _this.showTenthOfSecond);
                 res += "&nbsp;</span>";
               }
