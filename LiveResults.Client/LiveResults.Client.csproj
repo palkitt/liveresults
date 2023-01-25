@@ -249,6 +249,7 @@
     <Compile Include="Parsers\IofXmlV3Parser.cs" />
     <Compile Include="Parsers\IOFXmlV2Parser.cs" />
     <Compile Include="Parsers\LiveResultater_no_Parser.cs" />
+    <Compile Include="Parsers\BrikkesysParser.cs" />
     <Compile Include="Parsers\MeOsParser.cs" />
     <Compile Include="Parsers\OlaParser.cs" />
     <Compile Include="Parsers\OriLiveParser.cs" />

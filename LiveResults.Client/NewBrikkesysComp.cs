@@ -220,10 +220,14 @@ namespace LiveResults.Client
             //start
             FrmMonitor monForm = new FrmMonitor();
             this.Hide();
-            //BrikkesysParser pars = new BrikkesysParser(GetDBConnection((cmbBrikkesysComp.SelectedItem as BrikkesysComp).Id), chkCreateRadioControls.Checked);
-            //monForm.SetParser(pars as IExternalSystemResultParser);
+            BrikkesysParser pars = new BrikkesysParser(GetDBConnection(), (cmbBrikkesysComp.SelectedItem as BrikkesysComp).Id);
+            
+
+
+            monForm.SetParser(pars as IExternalSystemResultParser);
             monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
             monForm.ShowDialog(this);
+            
         }
 
        
