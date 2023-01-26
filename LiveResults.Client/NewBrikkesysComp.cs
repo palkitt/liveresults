@@ -157,7 +157,7 @@ namespace LiveResults.Client
 
             return new MySql.Data.MySqlClient.MySqlConnection("Server=" + txtHost.Text + ";User Id=" + txtUser.Text + ";Port=" + txtPort.Text + ";Password=" + txtPw.Text + (schema != null ? ";Initial Catalog=" + schema : "") + ";charset=utf8;ConnectionTimeout=30");
         }
-
+        
         private void wizardPage3_ShowFromNext(object sender, EventArgs e)
         {
             StoreSettings();
@@ -218,18 +218,20 @@ namespace LiveResults.Client
         {
             StoreSettings();
             //start
-            FrmMonitor monForm = new FrmMonitor();
+            FrmBrikkesysMonitor monForm = new FrmBrikkesysMonitor();
             this.Hide();
             BrikkesysParser pars = new BrikkesysParser(GetDBConnection(), (cmbBrikkesysComp.SelectedItem as BrikkesysComp).Id);
-            
 
-
-            monForm.SetParser(pars as IExternalSystemResultParser);
+            monForm.SetParser(pars as IExternalSystemResultParserEtiming);
             monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
+
+            monForm.Organizer = "Freidig";
+            //monForm.CompDate = null;
             monForm.ShowDialog(this);
-            
+
+
         }
 
-       
+
     }
 }

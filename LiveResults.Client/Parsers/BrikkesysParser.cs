@@ -13,19 +13,23 @@ using LiveResults.Model;
 namespace LiveResults.Client
 {
     
-    public class BrikkesysParser : IExternalSystemResultParser
+    public class BrikkesysParser : IExternalSystemResultParserEtiming
     {
         private readonly IDbConnection m_connection;
         private readonly int m_eventID;
         private readonly int m_eventRaceId;
         private readonly bool m_recreateRadioControls;
         private readonly int m_raceID;
+        public event DeleteUnusedIDDelegate OnDeleteUnusedID;
+        public event MergeRadioControlsDelegate OnMergeRadioControls;
+        public event MergeCourseControlsDelegate OnMergeCourseControls;
         public event ResultDelegate OnResult;
         public event LogMessageDelegate OnLogMessage;
         public event DeleteIDDelegate OnDeleteID;
         private bool m_isRelay = false;
         private bool m_continue;
-        
+
+
         public BrikkesysParser(IDbConnection conn, int raceID)
         {
             m_connection = conn;
@@ -72,7 +76,7 @@ namespace LiveResults.Client
                         m_connection.Open();
                     IDbCommand cmd = m_connection.CreateCommand();
                     string baseCommand = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.timecalculation, " +
-                        "N.status, C.name AS cname FROM names N, classes C " +
+                        "N.status, C.name AS cname, C.meter FROM names N, classes C " +
                         "WHERE C.id=N.classid AND N.raceid=" + m_raceID;
 
                     //FROM Name N, Class C, Team T, Cource Co
@@ -90,7 +94,7 @@ namespace LiveResults.Client
                             reader = cmd.ExecuteReader();
                             while (reader.Read())
                             {
-                                int time = -2, runnerID = 0, iStartTime = 0, bib = 0, ecard = 0;
+                                int time = -2, runnerID = 0, iStartTime = 0, bib = 0, ecard = 0, length = 0;
                                 string runnerName = "", club = "", classN = "";
                                 string status = "", timeCalc = "";
 
@@ -102,25 +106,32 @@ namespace LiveResults.Client
                                     club = reader["club"] as string;
                                     classN = reader["cname"] as string;
                                     timeCalc = reader["timecalculation"] as string;
+
                                     if (reader["startnr"] != null && reader["startnr"] != DBNull.Value)
                                         bib = Convert.ToInt32(reader["startnr"]);
+
                                     if (reader["ecardno"] != null && reader["ecardno"] != DBNull.Value)
                                         ecard = Convert.ToInt32(reader["ecardno"]);
+
                                     if (reader["starttime"] != null && reader["starttime"] != DBNull.Value)
                                     {
-                                        DateTime startTime;
-                                        DateTime.TryParse(reader["starttime"].ToString(), out startTime);
-                                        iStartTime = (int)Math.Round(startTime.TimeOfDay.TotalSeconds * 100);
-
+                                        DateTime.TryParse(reader["starttime"].ToString(), out DateTime parseStartTime);
+                                        iStartTime = (int)Math.Round(parseStartTime.TimeOfDay.TotalSeconds * 100);
                                     }
+                                    else // Open start
+                                        iStartTime = -999;
+
                                     if (reader["time"] != null && reader["time"] != DBNull.Value)
                                     {
-                                        DateTime time2;
-                                        DateTime.TryParse(reader["time"].ToString(), out time2);
-                                        time = (int)Math.Round(time2.TimeOfDay.TotalSeconds * 100);                                        
+                                        DateTime.TryParse(reader["time"].ToString(), out DateTime parseTime);
+                                        time = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);                                        
                                     }
+
                                     if (reader["status"] != null && reader["status"] != DBNull.Value)
                                         status = reader["status"] as string;
+
+                                    if (reader["meter"] != null && reader["meter"] != DBNull.Value)
+                                        length = Convert.ToInt32(reader["meter"]);
 
                                 }
                                 catch (Exception ee)
@@ -152,8 +163,8 @@ namespace LiveResults.Client
                                         StartTime = iStartTime,
                                         Time = time,
                                         Ecard1 = ecard,
+                                        Length = length,
                                         Status = rstatus
-
                                     };
                                     FireOnResult(res);
                                 }
