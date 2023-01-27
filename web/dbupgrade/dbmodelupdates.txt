@@ -91,3 +91,6 @@ CREATE TABLE `lastactive` (
 `changed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (`tavid`)
 ) DEFAULT CHARSET=utf8;
+
+-- addition 2023-01-27
+alter table login add column showtimesinsprint tinyint(1) DEFAULT NULL;

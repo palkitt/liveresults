@@ -22,6 +22,7 @@ class Emma
    var $m_ShowInfo = false;
    var $m_ShowEcardTimes = false;
    var $m_ShowFullView = false;
+   var $m_ShowTimesInSprint = false;
    var $m_MultiDayStage = -1;
    var $m_MultiDayParent = -1;
    
@@ -138,8 +139,8 @@ class Emma
 		if ($id < 10000)
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
-		hightime,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,livecenterurl)
-	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,60,'','',0,0,0,'',1,'')") or die(mysqli_error($conn));
+		hightime,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,showtimesinsprint,livecenterurl)
+	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,60,'','',0,0,0,'',1,0,'')") or die(mysqli_error($conn));
 		return $id;
 	}
 
@@ -200,7 +201,8 @@ class Emma
 	}
 
 	public static function UpdateCompetition($id,$name,$org,$date,$public,$timediff,$massstartsort,$tenthofseconds,$fullviewdefault,
-	$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent,$showinfo,$infotext,$showecardtimes,$livecenterurl)
+	$rankedstartlist,$hightime,$quallimits,$qualclasses,$multidaystage,$multidayparent,$showinfo,$infotext,
+  $showecardtimes,$showtimesinsprint,$livecenterurl)
 	{
 		$conn = self::openConnection();
 	 	$sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, public=". (!isset($public) ? "0":"1") ."
@@ -208,7 +210,9 @@ class Emma
 			 , fullviewdefault=". (!isset($fullviewdefault) ? "0":"1") .", rankedstartlist=". (!isset($rankedstartlist) ? "0":"1") ."
 			 , hightime=$hightime, quallimits='$quallimits', qualclasses='$qualclasses'
 			 , multidaystage='$multidaystage', multidayparent='$multidayparent', showinfo=". (!isset($showinfo) ? "0":"1") ."
-			 , showecardtimes=". (!isset($showecardtimes) ? "0":"1") .", infotext='$infotext',livecenterurl='$livecenterurl' where tavid=$id";
+			 , showecardtimes=". (!isset($showecardtimes) ? "0":"1") ."
+       , showtimesinsprint=". (!isset($showtimesinsprint) ? "0":"1") ."
+       , infotext='$infotext',livecenterurl='$livecenterurl' where tavid=$id";
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -229,7 +233,7 @@ class Emma
 		$conn = self::openConnection();
 		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, 
 		          fullviewdefault, rankedstartlist, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, 
-				  multidayparent, showinfo, infotext, showecardtimes, livecenterurl from login where tavid=$compid");
+				  multidayparent, showinfo, infotext, showecardtimes, showtimesinsprint, livecenterurl from login where tavid=$compid");
 		$ret = null;
 		while ($tmp = mysqli_fetch_array($result))
 			$ret = $tmp;
@@ -355,7 +359,8 @@ class Emma
 			$this->m_ShowInfo = $tmp["showinfo"];
 			$this->m_InfoText = str_replace('"','\"', $tmp["infotext"]);
 			$this->m_ShowEcardTimes = $tmp["showecardtimes"];
-			$this->m_LiveCenterURL = $tmp["livecenterurl"];
+		  $this->m_ShowTimesInSprint = $tmp["showtimesinsprint"];
+      $this->m_LiveCenterURL = $tmp["livecenterurl"];
 
 		    if (isset($tmp["videourl"]))
 		    	$this->m_VideoUrl = $tmp["videourl"];
@@ -437,6 +442,11 @@ class Emma
 	function FullView()
 	{
 		return $this->m_ShowFullView;
+	}
+
+  function ShowTimesInSprint()
+	{
+		return $this->m_ShowTimesInSprint;
 	}
 	
 	function RankedStartlist()

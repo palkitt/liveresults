@@ -16,6 +16,7 @@ $currentCompNo = $_GET['comp'];
 $organizer = $currentComp->Organizer();
 $showInfo = $currentComp->ShowInfo();
 $showEcardTimes = $currentComp->ShowEcardTimes();
+$showTimesInSprint = $currentComp->ShowTimesInSprint();
 $image = "";
 
 $isSingleClass = isset($_GET['class']);
@@ -168,13 +169,17 @@ $(document).ready(function()
     res.updateClassList();
 	<?php }?>
 
-    <?php if ($showLastPassings){?>
+  <?php if ($showLastPassings){?>
 		res.updateLastPassings();
 	<?php }?>
 	
 	<?php if ($showEcardTimes){?>
 		res.showEcardTimes = true;
 	<?php }?>
+
+  <?php if ($showTimesInSprint){?>
+		res.showTimesInSprint = true;
+	<?php }?>  
 
 	<?php if ($showTimePrediction){ ?>
 	    res.compDate = "<?=$currentComp->CompDate();?>";

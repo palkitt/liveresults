@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = false;
+      this.local = true;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -31,6 +31,7 @@ var LiveResults;
       this.showEcardTimes = false;
       this.compactView = true;
       this.scrollView = true;
+      this.showTimesInSprint = false;
       this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
       this.clubUpdateInterval = 60000;
@@ -2437,7 +2438,7 @@ var LiveResults;
               res += "<tr><td align=\"right\">" + data.results[i].results[j].place + "</td>";
               res += "<td>" + name + "</td>";
               res += "<td>" + club + "</td>";
-              if (isSprintHeat)         
+              if (isSprintHeat && !this.showTimesInSprint)         
                 res += "<td></td><td></td>";
               else
               {
@@ -2449,7 +2450,7 @@ var LiveResults;
               }
               if (hasDistance) {
                 res += "<td align=\"right\"><span class=plustime>";
-                if (data.results[i].results[j].status == 0 && kmTime > 0 && !isSprintHeat)
+                if (data.results[i].results[j].status == 0 && kmTime > 0 && (!isSprintHeat || this.showTimesInSprint))
                   res += this.formatTime(kmTime, 0, _this.showTenthOfSecond);
                 res += "&nbsp;</span>";
               }
@@ -2898,7 +2899,7 @@ var LiveResults;
                   place += "&numsp;"
                 place += "&#10072;" + row.place + "&#10072;</span>";
 
-                if (!isSprintHeat)
+                if (!isSprintHeat || _this.showTimesInSprint)
                   res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
                 res += place + "</span>";
 
@@ -2940,7 +2941,7 @@ var LiveResults;
           if (!(haveSplitControls || _this.isMultiDayEvent) || !fullView || _this.curClassLapTimes) {
             columns.push({
               "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
-              "bVisible": !isSprintHeat && (!_this.curClassIsUnranked || _this.fixedTable),
+              "bVisible": (!isSprintHeat || _this.showTimesInSprint) && (!_this.curClassIsUnranked || _this.fixedTable),
               "responsivePriority": 2000,
               "sClass": "right",
               "bSortable": false,
