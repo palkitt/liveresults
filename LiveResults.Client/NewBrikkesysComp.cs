@@ -24,6 +24,7 @@ namespace LiveResults.Client
             txtUser.Text = "root";
             txtPw.Text = "passwd";
             txtPort.Text = "3306";
+            lstDB.PreviousSelectedIndex = 0;
             RetreiveSettings();
         }
 
@@ -79,6 +80,12 @@ namespace LiveResults.Client
                     {
                         (c as CheckBox).Checked = val == "True";
                     }
+                }
+                if (c is DBListBox)
+                {
+                    string val = setts.Where(x => x.Key == c.Name).Select(x => x.Value).FirstOrDefault();
+                    if (val != null)
+                        (c as DBListBox).PreviousSelectedIndex = Int32.Parse(val);
                 }
 
                 applyControlValues(c.Controls, setts);
@@ -141,6 +148,14 @@ namespace LiveResults.Client
                         Value = (c as CheckBox).Checked.ToString()
                     });
                 }
+                if (c is DBListBox)
+                {
+                    setts.Add(new Setting
+                    {
+                        Key = (c as DBListBox).Name,
+                        Value = (c as DBListBox).PreviousSelectedIndex.ToString()
+                    });
+                }
 
                 extractControlValues(c.Controls, setts);
             }
@@ -168,27 +183,22 @@ namespace LiveResults.Client
 
                 conn = GetDBConnection();
                 conn.Open();
-
-                IDbCommand cmd = conn.CreateCommand();
-                cmbBrikkesysComp.Items.Clear();
-
-                cmd.CommandText = "SELECT id, name, DATE_FORMAT(racedate,'%Y-%m-%d') AS date FROM races ORDER BY date desc";
-
+                lstDB.DataSource = null; 
+                IDbCommand cmd = conn.CreateCommand();cmd.CommandText = "SELECT id, name, DATE_FORMAT(racedate,'%Y-%m-%d') AS date FROM races ORDER BY date desc";
                 IDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     BrikkesysComp cmp = new BrikkesysComp();
                     cmp.Id = Convert.ToInt32(reader["id"].ToString());
                     cmp.Name = Convert.ToString(reader["name"]);
-                    cmp.Date = Convert.ToString(reader["date"]);                  
-                    cmbBrikkesysComp.Items.Add(cmp);
+                    cmp.Date = Convert.ToString(reader["date"]);
+                    lstDB.Items.Add(cmp);
                 }
                 reader.Close();
                 cmd.Dispose();
 
-                if (cmbBrikkesysComp.Items.Count > 0)
-                    cmbBrikkesysComp.SelectedIndex = 0;
-
+                if (lstDB.Items.Count > lstDB.PreviousSelectedIndex)
+                    lstDB.SetSelected(lstDB.PreviousSelectedIndex, true);
             }
             catch (Exception ee)
             {
@@ -216,22 +226,20 @@ namespace LiveResults.Client
         
         private void wizardPage5_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
         {
+            lstDB.PreviousSelectedIndex = lstDB.SelectedIndex;
             StoreSettings();
             //start
             FrmBrikkesysMonitor monForm = new FrmBrikkesysMonitor();
             this.Hide();
-            BrikkesysParser pars = new BrikkesysParser(GetDBConnection(), (cmbBrikkesysComp.SelectedItem as BrikkesysComp).Id);
+            BrikkesysParser pars = new BrikkesysParser(GetDBConnection(), (lstDB.SelectedItem as BrikkesysComp).Id, Convert.ToInt32(txtCompID.Text));
 
             monForm.SetParser(pars as IExternalSystemResultParserEtiming);
             monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
-
-            monForm.Organizer = "Freidig";
-            //monForm.CompDate = null;
+            monForm.Organizer = txtOrganizer.Text;
+            monForm.CompDate = DateTime.Parse((lstDB.SelectedItem as BrikkesysComp).Date);
             monForm.ShowDialog(this);
-
-
         }
 
-
+        
     }
 }

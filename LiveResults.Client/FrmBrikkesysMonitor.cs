@@ -28,7 +28,6 @@ namespace LiveResults.Client
             set { m_CompetitionID = value; }
         }
 
-
         public string Organizer;
         public DateTime CompDate;
       
@@ -44,9 +43,7 @@ namespace LiveResults.Client
             m_Parser.OnRadioControl += (name, code, className, order) =>
             {
                 foreach (EmmaMysqlClient client in m_Clients)
-                {
                     client.SetRadioControl(className, code, name, order);
-                }
             }; 
         }
 
@@ -172,7 +169,7 @@ namespace LiveResults.Client
                         listBox1.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " Server and eTiming data match!");                         
                     }
                 }
-                if (true) //dateOrganizerOK)
+                if (dateOrganizerOK)
                 {
                     m_Parser.Start();
                     btnStartSTop.Text = "Stop";
@@ -216,6 +213,5 @@ namespace LiveResults.Client
         {
 
         }
-        //private void FrmETimingMonitor_Load
     }
 }
