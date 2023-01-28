@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = true;
+      this.local = false;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -131,7 +131,7 @@ var LiveResults;
       });
 
       $(window).on('resize', function () {
-        if (_this.currentTable != null && _this.curClassName != "plainresults")
+        if (_this.currentTable != null && !_this.curClassName.includes("plainresults"))
           _this.currentTable.fnAdjustColumnSizing();
       });
     }
@@ -236,15 +236,13 @@ var LiveResults;
             var relay = relayNext;
             var sprint = sprintNext;
 
-            param = className.replace('\'', '\\\'');
+            classNameURL = className.replace('\'', '\\\'');
             if (className && className.length > 0) {
               className = this.shortClassName(className);
-
               var classNameClean = className.replace(/-[0-9]{1,2}$/, '');
               classNameClean = classNameClean.replace(/-All$/, '');
               var LegNoStr = className.match(/-[0-9]{1,2}$/);
               var LegNo = parseInt((LegNoStr != null ? -LegNoStr[0] : 0), 10);
-
               var classNameCleanNext = "";
               var LegNoNext = 0;
 
@@ -263,7 +261,7 @@ var LiveResults;
                   if (this.EmmaServer)
                     str += "<b> " + classNameClean + "</b><br/>&nbsp;";
                   else
-                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + param.replace(/-[0-9]{1,2}$/, '') + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
+                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameURL.replace(/-[0-9]{1,2}$/, '') + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
                   leg = 0;
                 }
                 relay = true;
@@ -272,8 +270,8 @@ var LiveResults;
               else {
                 relayNext = false;
                 // Sprint
-                if (className.includes('| Prolog') || className.includes('| Kvart') || className.includes('| Semi') || className.includes('| Finale')) {
-                  var classNameCleanSprint = className.replace(' | ', '');
+                if (classNameURL.includes('| Prolog') || classNameURL.includes('| Kvart') || classNameURL.includes('| Semi') || classNameURL.includes('| Finale')) {
+                  var classNameCleanSprint = classNameURL.replace(' | ', '');
                   classNameCleanSprint = classNameCleanSprint.replace('Prolog', '');
                   classNameCleanSprint = classNameCleanSprint.replace(/Kvart [0-9]/, '');
                   classNameCleanSprint = classNameCleanSprint.replace(/Semi [0-9]/, '');
@@ -281,15 +279,16 @@ var LiveResults;
 
                   var classNameCleanSprintNext = "";
                   if (i < (nClass - 1)) {
-                    classNameCleanSprintNext = this.shortClassName(classes[i + 1].className);
+                    classNameCleanSprintNext = classes[i + 1].className.replace('\'', '\\\'');
                     classNameCleanSprintNext = classNameCleanSprintNext.replace(' | ', '');
                   }
                   classNameCleanSprintNext = classNameCleanSprintNext.replace(/Kvart [0-9]/, '');
                   classNameCleanSprintNext = classNameCleanSprintNext.replace(/Semi [0-9]/, '');
                   classNameCleanSprintNext = classNameCleanSprintNext.replace(/Finale [0-9]/, '');
 
-                  if (!sprint) // First class in sprint or new class  
-                    str += "<b>" + classNameCleanSprint + "</b><br/>&nbsp;";
+                  if (!sprint) // First class in sprint or new class
+                    str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
+                           "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br/>&nbsp;";
                   sprint = true;
                   sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
 
@@ -312,7 +311,7 @@ var LiveResults;
                   legText = "&#9398";
                 else
                   legText = "<span style=\"font-size:1.2em\">&#" + (10111 + leg) + "</span>";
-                str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\" style=\"text-decoration: none\"> " + legText + "</a>";
+                str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\" style=\"text-decoration: none\"> " + legText + "</a>";
                 if (!relayNext)
                   str += "<br/>";
               }
@@ -329,14 +328,14 @@ var LiveResults;
                   heatText = "S" + heat;
                 else
                   heatText = "F" + heat;
-                str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\" style=\"text-decoration: none\"> " + heatText + "</a>";
+                str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\" style=\"text-decoration: none\"> " + heatText + "</a>";
                 if (!sprintNext)
                   str += "<br/>";
                 else if (shiftHeat)
                   str += "<br/>&nbsp;";
               }
               else
-                str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + param + "')\">" + className + "</a><br/>";
+                str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\">" + className + "</a><br/>";
             }
           };
           if (!this.EmmaServer) {
@@ -2339,6 +2338,8 @@ var LiveResults;
       var callStr;
       if (className == "plainresults")
         callStr = "&method=getplainresults&unformattedTimes=true";
+      else if (className.includes("plainresultsclass_"))
+        callStr = "&method=getplainresults&unformattedTimes=true&classmask=" + className.replace("plainresultsclass_","");
       else if (className == "startlist")
         callStr = "&method=getstartlist";
       else
@@ -2386,6 +2387,10 @@ var LiveResults;
             $('#' + this.resultsHeaderDiv).html('<b>Alle klasser</b>');
             $('#' + this.txtResetSorting).html("");
           }
+          else if (data.className.includes("plainresultsclass_")) {
+            $('#' + this.resultsHeaderDiv).html("<b>"+ data.className.replace("plainresultsclass_","") + "</b>"); 
+            $('#' + this.txtResetSorting).html("");
+          }
           else if (data.className == "startlist") {
             $('#' + this.resultsHeaderDiv).html('<b>Startliste</b>');
             $('#' + this.txtResetSorting).html("");
@@ -2404,7 +2409,7 @@ var LiveResults;
           $('#' + this.resultsControlsDiv).show();
         }
 
-        if (data.className == "plainresults") {
+        if (data.className.includes("plainresults")) {
           $('#updateinterval').html("- ");
           $('#liveIndicator').html('');
           var hasDistance = false;

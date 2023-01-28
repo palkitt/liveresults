@@ -396,7 +396,16 @@ elseif ($_GET['method'] == 'getracesplitter')
  {
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
-	$classNames = classesSorted($currentComp);
+  if (isset($_GET['classmask']))
+  {
+	  $classNames = classesSorted($currentComp,$_GET['classmask']);
+    $classNameAdd = "class_".$_GET['classmask'];
+  }
+  else
+  {
+    $classNames = classesSorted($currentComp);
+    $classNameAdd = "";
+  }
 	$ret = "";
 	$first = true;
 	foreach ((array)$classNames as $class)
@@ -412,7 +421,7 @@ elseif ($_GET['method'] == 'getracesplitter')
 		$ret .= "{\"className\": \"$className\", \"distance\": \"".$lengthStr."\", \"results\": [".$res[0]."]}";
 	}
 	$hash = MD5($ret);
-	echo("{ \"status\": \"OK\",$br \"className\": \"plainresults\",$br \"results\": [$br$ret$br]");
+	echo("{ \"status\": \"OK\",$br \"className\": \"plainresults".$classNameAdd."\",$br \"results\": [$br$ret$br]");
 	echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 }
 elseif ($_GET['method'] == 'getstartlist')
@@ -465,14 +474,14 @@ function cmp($a, $b) {
 	return strcmp($a->sortKey, $b->sortKey);
 }	
 
-function classesSorted($currentComp){
+function classesSorted($currentComp,$classMask=null){
 	class sort
 	{	
 		public $sortKey;
 		public $name;
 	}
 	
-	$classes = $currentComp->Classes();
+	$classes = $currentComp->Classes($classMask);
 	$classNames = [];
 
 	foreach ((array)$classes as $class)

@@ -523,10 +523,11 @@ class Emma
 		}
 	}
 	
-	function Classes()
+	function Classes($firstPart = null)
 	{
-		$ret = Array();
-		$q = "SELECT Class From runners where TavId = ". $this->m_CompId ." AND Class NOT LIKE 'NOCLAS' Group By Class";
+		$select = ($firstPart != null ? " AND Class LIKE '".$firstPart."%' " : "");    
+    $ret = Array();
+		$q = "SELECT Class FROM runners WHERE TavId = ". $this->m_CompId ." AND Class NOT LIKE 'NOCLAS' ".$select." GROUP BY Class";
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			while ($row = mysqli_fetch_array($result))
