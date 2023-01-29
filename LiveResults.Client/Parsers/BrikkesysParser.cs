@@ -48,6 +48,7 @@ namespace LiveResults.Client
             FireLogMsg("Brikkesys Monitor thread started");
 
             makeRadioControls();
+            makeCourses();
 
             string messageServer = ConfigurationManager.AppSettings["messageServer"];
             string apiServer = ConfigurationManager.AppSettings["apiServer"];
@@ -263,7 +264,70 @@ namespace LiveResults.Client
             }
             catch (Exception ee)
             {
-                FireLogMsg("eTiming Parser: " + ee.Message);
+                FireLogMsg("Brikkesys Parser makeRadioControls: " + ee.Message);
+            }
+            finally
+            {
+                if (m_connection != null)
+                    m_connection.Close();
+            }
+        }
+
+        private void makeCourses()
+        {
+            try
+            {
+
+                var dlgMergeCourseControls = OnMergeCourseControls;
+                var courses = new Dictionary<int, List<CourseControl>>();
+                if (dlgMergeCourseControls != null) // Read courses
+                {
+                    List<CourseControl> courseControls = new List<CourseControl>();
+                    if (m_connection.State != ConnectionState.Open)
+                        m_connection.Open();
+                    IDbCommand cmd = m_connection.CreateCommand();
+                    string controls = "SELECT name, nosort FROM classes WHERE raceid=" + m_raceID;
+                    cmd.CommandText = controls;
+
+                    //cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype FROM controls ORDER BY courceno, controlno");
+                    using (IDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int courseno = 0, order = 0, code = 0, posttype = 0;
+                            if (reader["posttype"] != null && reader["posttype"] != DBNull.Value)
+                                posttype = Convert.ToInt32(reader["posttype"].ToString());
+                            if (posttype == 1)
+                                continue;
+                            if (reader["courceno"] != null && reader["courceno"] != DBNull.Value)
+                                courseno = Convert.ToInt32(reader["courceno"].ToString());
+                            if (reader["controlno"] != null && reader["controlno"] != DBNull.Value)
+                                order = Convert.ToInt32(reader["controlno"].ToString());
+                            if (reader["code"] != null && reader["code"] != DBNull.Value)
+                                code = Convert.ToInt32(reader["code"].ToString());
+
+                            var control = new CourseControl
+                            {
+                                CourseNo = courseno,
+                                Code = code,
+                                Order = order
+                            };
+                            courseControls.Add(control);
+                            if (!courses.ContainsKey(courseno))
+                                courses.Add(courseno, new List<CourseControl>());
+                            courses[courseno].Add(control);
+                        }
+                        reader.Close();
+                    }
+                    
+                    CourseControl[] courseControlArray = courseControls.ToArray();
+                    dlgMergeCourseControls(courseControlArray, true);
+                }
+
+            }
+            catch (Exception ee)
+            {
+                FireLogMsg("Brikkesys Parser makeCourses: " + ee.Message);
             }
             finally
             {
