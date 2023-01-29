@@ -2798,11 +2798,11 @@ var LiveResults;
                           // Ordinary passing or first place at passing for relay (drop place if code is negative - unranked)
                           {
                             if (row.splits[value.code + "_estimate"])
-                              if (row.splits[value.code + "_place"] == 1)
+                              if (row.splits[value.code + "_place"] == 1 && value.code > 0)
                                 txt += "<span class=\"estimatebest\">";
                               else 
                                 txt += "<span class=\"estimate\">";
-                            else if (row.splits[value.code + "_place"] == 1)
+                            else if (row.splits[value.code + "_place"] == 1 && value.code > 0)
                               txt += "<span class=\"besttime\">";
                             else
                               txt += "<span>";
