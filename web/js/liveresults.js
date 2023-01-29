@@ -273,18 +273,18 @@ var LiveResults;
                 if (classNameURL.includes('| Prolog') || classNameURL.includes('| Kvart') || classNameURL.includes('| Semi') || classNameURL.includes('| Finale')) {
                   var classNameCleanSprint = classNameURL.replace(' | ', '');
                   classNameCleanSprint = classNameCleanSprint.replace('Prolog', '');
-                  classNameCleanSprint = classNameCleanSprint.replace(/Kvart [0-9]/, '');
-                  classNameCleanSprint = classNameCleanSprint.replace(/Semi [0-9]/, '');
-                  classNameCleanSprint = classNameCleanSprint.replace(/Finale [0-9]/, '');
+                  classNameCleanSprint = classNameCleanSprint.replace(/Kvart \d+/, '');
+                  classNameCleanSprint = classNameCleanSprint.replace(/Semi \d+/, '');
+                  classNameCleanSprint = classNameCleanSprint.replace(/Finale \d+/, '');
 
                   var classNameCleanSprintNext = "";
                   if (i < (nClass - 1)) {
                     classNameCleanSprintNext = classes[i + 1].className.replace('\'', '\\\'');
                     classNameCleanSprintNext = classNameCleanSprintNext.replace(' | ', '');
                   }
-                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Kvart [0-9]/, '');
-                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Semi [0-9]/, '');
-                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Finale [0-9]/, '');
+                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Kvart \d+/, '');
+                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Semi \d+/, '');
+                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Finale \d+/, '');
 
                   if (!sprint) // First class in sprint or new class
                     str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
@@ -316,7 +316,7 @@ var LiveResults;
                   str += "<br/>";
               }
               else if (sprint) {
-                var heatStr = className.match(/ [0-9]$/);
+                var heatStr = className.match(/ \d+$/);
                 var heat = parseInt((heatStr != null ? heatStr[0] : 0), 10);
                 if (heat > 1 && (heat - 1) % 3 == 0) // Line shift every 3 heat
                   str += "<br/>&nbsp;"
