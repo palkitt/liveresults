@@ -32,6 +32,8 @@ namespace LiveResults.Client
         private bool m_continue;
         private int m_compID;
 
+        Thread m_monitorThread;
+
         public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID)
         {
             m_connection = conn;
@@ -41,61 +43,11 @@ namespace LiveResults.Client
             m_compID = compID;
         }
 
-        private void FireOnResult(Result newResult)
-        {
-            if (OnResult != null)
-            {
-                OnResult(newResult);
-            }
-        }
-        private void FireLogMsg(string msg)
-        {
-            if (OnLogMessage != null)
-                OnLogMessage(msg);
-        }
-        private void FireOnDeleteID(int runnerID)
-        {
-            if (OnDeleteID != null)
-                OnDeleteID(runnerID);
-        }
-        private void FireOnDeleteUnusedID(List<int> usedIds, bool first = false)
-        {
-            if (OnDeleteUnusedID != null)
-                OnDeleteUnusedID(usedIds, first);
-        }
-
-        Thread m_monitorThread;
-
-        public void Start()
-        {
-            m_continue = true;
-            m_monitorThread = new Thread(Run);
-            m_monitorThread.Start();
-        }
-
-        public void Stop()
-        {
-            m_continue = false;
-        }
-
-        private void SendLiveActive(string apiServer, WebClient client)
-        {
-            string apiResponse = "";
-            try
-            {
-                apiResponse = client.DownloadString(apiServer + "api.php?method=setlastactive&comp=" + m_compID);
-                FireLogMsg("Client live active sent to web server");
-            }
-            catch (Exception ee)
-            {
-                FireLogMsg("Bad network or config file? Error on sending active signal: " + ee.Message);
-            }
-        }
-
-
         private void Run()
         {
             FireLogMsg("Brikkesys Monitor thread started");
+
+            makeRadioControls();
 
             string messageServer = ConfigurationManager.AppSettings["messageServer"];
             string apiServer = ConfigurationManager.AppSettings["apiServer"];
@@ -111,6 +63,7 @@ namespace LiveResults.Client
             bool failedThis;
             bool first = true;
 
+            // Main loop
             while (m_continue)
             {
                 try
@@ -144,6 +97,7 @@ namespace LiveResults.Client
                                 int time = -2, runnerID = 0, iStartTime = 0, bib = 0, ecard = 0, length = 0, noSort = 0;
                                 string runnerName = "", club = "", classN = "";
                                 string status = "", timeCalc = "";
+                                var SplitTimes = new List<ResultStruct>();
 
                                 try
                                 {
@@ -177,11 +131,20 @@ namespace LiveResults.Client
                                         DateTime.TryParse(reader["time"].ToString(), out DateTime parseTime);
                                         time = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);                                        
                                     }
-                                    
+                                    if (noSort == 1 && time > 0) // Unranked, show times
+                                    {
+                                        var FinishTime = new ResultStruct
+                                        {
+                                            ControlCode = -999,
+                                            Time = time
+                                        };
+                                        SplitTimes.Add(FinishTime);
+                                    }
+
                                     if (reader["status"] != null && reader["status"] != DBNull.Value)
                                         status = reader["status"] as string;
 
-                                    if (status == "A" && noSort == 1)
+                                    if (status == "A" && noSort >= 1)
                                         status = "F";
 
                                     if (reader["meter"] != null && reader["meter"] != DBNull.Value)
@@ -220,6 +183,7 @@ namespace LiveResults.Client
                                         Ecard1 = ecard,
                                         Length = length,
                                         EcardTimes = "",
+                                        SplitTimes = SplitTimes,
                                         Status = rstatus
                                     };
                                     FireOnResult(res);
@@ -258,6 +222,103 @@ namespace LiveResults.Client
                     FireLogMsg("Brikkesys Monitor thread stopped");
                 }
             }
-        }  
+        }
+
+        private void makeRadioControls()
+        {
+            try
+            {
+                // Setting up extra times               
+                List<RadioControl> extraTimes = new List<RadioControl>();
+                var dlgMergeRadio = OnMergeRadioControls;
+
+                if (m_connection.State != ConnectionState.Open)
+                    m_connection.Open();
+                IDbCommand cmd = m_connection.CreateCommand();
+                string classTimingType = "SELECT name, nosort FROM classes WHERE raceid=" + m_raceID;
+                cmd.CommandText = classTimingType;
+
+                using (IDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int noSort = 0;
+                        string classN = reader["name"] as string;
+                        if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
+                            noSort = Convert.ToInt32(reader["nosort"]);
+
+                        if (noSort == 1) // Add neg finish passing for not-ranked, show times class
+                            extraTimes.Add(new RadioControl
+                            {
+                                ClassName = classN,
+                                ControlName = "Tid",
+                                Code = -999,
+                                Order = 999
+                            });
+                    }
+                    reader.Close();
+                    RadioControl[] radioControls = extraTimes.ToArray();
+                    dlgMergeRadio(radioControls);
+                }
+            }
+            catch (Exception ee)
+            {
+                FireLogMsg("eTiming Parser: " + ee.Message);
+            }
+            finally
+            {
+                if (m_connection != null)
+                    m_connection.Close();
+            }
+        }
+
+        private void SendLiveActive(string apiServer, WebClient client)
+        {
+            string apiResponse = "";
+            try
+            {
+                apiResponse = client.DownloadString(apiServer + "api.php?method=setlastactive&comp=" + m_compID);
+                FireLogMsg("Client live active sent to web server");
+            }
+            catch (Exception ee)
+            {
+                FireLogMsg("Bad network or config file? Error on sending active signal: " + ee.Message);
+            }
+        }
+
+        private void FireOnResult(Result newResult)
+        {
+            if (OnResult != null)
+            {
+                OnResult(newResult);
+            }
+        }
+        private void FireLogMsg(string msg)
+        {
+            if (OnLogMessage != null)
+                OnLogMessage(msg);
+        }
+        private void FireOnDeleteID(int runnerID)
+        {
+            if (OnDeleteID != null)
+                OnDeleteID(runnerID);
+        }
+        private void FireOnDeleteUnusedID(List<int> usedIds, bool first = false)
+        {
+            if (OnDeleteUnusedID != null)
+                OnDeleteUnusedID(usedIds, first);
+        }
+
+        public void Start()
+        {
+            m_continue = true;
+            m_monitorThread = new Thread(Run);
+            m_monitorThread.Start();
+        }
+
+        public void Stop()
+        {
+            m_continue = false;
+        }
     }
 }
