@@ -48,7 +48,8 @@ namespace LiveResults.Client
             FireLogMsg("Brikkesys Monitor thread started");
 
             makeRadioControls();
-            makeCourses();
+            var courses = new Dictionary<int, List<CourseControl>>();
+            courses = getCourses();
 
             string messageServer = ConfigurationManager.AppSettings["messageServer"];
             string apiServer = ConfigurationManager.AppSettings["apiServer"];
@@ -79,9 +80,11 @@ namespace LiveResults.Client
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
                     IDbCommand cmd = m_connection.CreateCommand();
-                    string baseCommand = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.timecalculation, " +
-                        "N.status, C.name AS cname, C.meter, C.nosort FROM names N, classes C " +
-                        "WHERE C.id=N.classid AND N.raceid=" + m_raceID;                
+                    string baseCommand = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.timecalculation, "+
+                        "N.codesandtimes, N.status, C.name AS cname, C.meter, C.nosort, CC.courceid FROM names N " +
+                        "LEFT JOIN classes C ON C.id=N.classid "+
+                        "LEFT JOIN classcource CC ON CC.classid=N.classid AND CC.raceid=N.raceid "+
+                        "WHERE N.raceid= " + m_raceID;                
                     cmd.CommandText = baseCommand;
                     IDataReader reader = null;
                     
@@ -95,9 +98,9 @@ namespace LiveResults.Client
                             reader = cmd.ExecuteReader();
                             while (reader.Read())
                             {
-                                int time = -2, runnerID = 0, iStartTime = 0, bib = 0, ecard = 0, length = 0, noSort = 0;
+                                int time = -2, runnerID = 0, iStartTime = 0, bib = 0, ecard = 0, length = 0, noSort = 0, courceID = -1;
                                 string runnerName = "", club = "", classN = "";
-                                string status = "", timeCalc = "";
+                                string status = "", timeCalc = "", codesAndTimes = "", EcardTimes ="";
                                 var SplitTimes = new List<ResultStruct>();
 
                                 try
@@ -151,6 +154,14 @@ namespace LiveResults.Client
                                     if (reader["meter"] != null && reader["meter"] != DBNull.Value)
                                         length = Convert.ToInt32(reader["meter"]);
 
+                                    if (reader["courceid"] != null && reader["courceid"] != DBNull.Value)
+                                        courceID = Convert.ToInt32(reader["courceid"]);
+
+                                    if (reader["codesandtimes"] != null && reader["codesandtimes"] != DBNull.Value)
+                                        codesAndTimes = reader["codesandtimes"] as string;
+                                    if (codesAndTimes != "" && courceID >-1 )
+                                        EcardTimes = makeSplitTimes(codesAndTimes, courceID, courses);
+
                                 }
                                 catch (Exception ee)
                                 {
@@ -165,7 +176,7 @@ namespace LiveResults.Client
                                     case "E":  rstatus = 2;  time = -3; break; // DNF
                                     case "D":  rstatus = 3;  time = -3; break; // DSQ 
                                     case "H":  rstatus = 9;  time = -3; break; // Started
-                                    case "W":
+                                    case "W":  rstatus = 10; time = -3; break; // Entered 
                                     case "I":  rstatus = 10; time = -3; break; // Entered 
                                     case "F":  rstatus = 13; time = runnerID; break; // Not ranked
                                     default:   rstatus = 999;  break;  // Unsupported status
@@ -183,8 +194,9 @@ namespace LiveResults.Client
                                         Time = time,
                                         Ecard1 = ecard,
                                         Length = length,
-                                        EcardTimes = "",
+                                        EcardTimes = EcardTimes,
                                         SplitTimes = SplitTimes,
+                                        Course = courceID,
                                         Status = rstatus
                                     };
                                     FireOnResult(res);
@@ -273,57 +285,84 @@ namespace LiveResults.Client
             }
         }
 
-        private void makeCourses()
+        private string makeSplitTimes(string splitTimeString, int course, Dictionary<int, List<CourseControl>> courses)
         {
+            string[] ecardTimes = splitTimeString.Split(',');
+            string ecardTimeString = "";
+            int controlNo = 0, timeNo = 0, timeNoLast = -1, numControls = 0;
+            if (courses.ContainsKey(course))
+                numControls = courses[course].Count;
+            bool first = true;
+            while (controlNo < numControls)
+            {
+                int timeMatch = -1;
+                int[] codeTime = { 0, 0 };
+                timeNo = timeNoLast + 1;
+                while (timeNo < ecardTimes.Length)
+                {
+                    codeTime = Array.ConvertAll(ecardTimes.ElementAt(timeNo).TrimStart().Split(' '), int.Parse);
+                    if (codeTime[0] == courses[course].ElementAt(controlNo).Code)
+                    {
+                        timeNoLast = timeNo;
+                        break;
+                    }
+                    timeNo++;
+                }
+                if (timeNo < ecardTimes.Length) // control found
+                    timeMatch = codeTime[1];
+                if (first)
+                    first = false;
+                else
+                    ecardTimeString += ",";
+                ecardTimeString += timeMatch.ToString();
+                controlNo++;
+            }
+            return ecardTimeString;
+        }
+
+        private Dictionary<int, List<CourseControl>> getCourses()
+        {
+            var courses = new Dictionary<int, List<CourseControl>>();
             try
             {
-
                 var dlgMergeCourseControls = OnMergeCourseControls;
-                var courses = new Dictionary<int, List<CourseControl>>();
+                
                 if (dlgMergeCourseControls != null) // Read courses
                 {
                     List<CourseControl> courseControls = new List<CourseControl>();
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
                     IDbCommand cmd = m_connection.CreateCommand();
-                    string controls = "SELECT name, nosort FROM classes WHERE raceid=" + m_raceID;
+                    string controls = "SELECT id, codes FROM classes WHERE cource=1 AND raceid=" + m_raceID;
                     cmd.CommandText = controls;
-
-                    //cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype FROM controls ORDER BY courceno, controlno");
                     using (IDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            int courseno = 0, order = 0, code = 0, posttype = 0;
-                            if (reader["posttype"] != null && reader["posttype"] != DBNull.Value)
-                                posttype = Convert.ToInt32(reader["posttype"].ToString());
-                            if (posttype == 1)
+                            int id = Convert.ToInt32(reader["id"]);
+                            string codesStr = reader["codes"] as string;
+                            if (codesStr == "")
                                 continue;
-                            if (reader["courceno"] != null && reader["courceno"] != DBNull.Value)
-                                courseno = Convert.ToInt32(reader["courceno"].ToString());
-                            if (reader["controlno"] != null && reader["controlno"] != DBNull.Value)
-                                order = Convert.ToInt32(reader["controlno"].ToString());
-                            if (reader["code"] != null && reader["code"] != DBNull.Value)
-                                code = Convert.ToInt32(reader["code"].ToString());
-
-                            var control = new CourseControl
+                            int[] codes = Array.ConvertAll(codesStr.Split(' '), int.Parse);
+                            for (int i = 0; i < codes.Length; i++)
                             {
-                                CourseNo = courseno,
-                                Code = code,
-                                Order = order
-                            };
-                            courseControls.Add(control);
-                            if (!courses.ContainsKey(courseno))
-                                courses.Add(courseno, new List<CourseControl>());
-                            courses[courseno].Add(control);
+                                var control = new CourseControl
+                                {
+                                    CourseNo = id,
+                                    Code = codes[i],
+                                    Order = i
+                                };
+                                courseControls.Add(control);
+                                if (!courses.ContainsKey(id))
+                                    courses.Add(id, new List<CourseControl>());
+                                courses[id].Add(control);
+                            }
                         }
                         reader.Close();
-                    }
-                    
+                    }                    
                     CourseControl[] courseControlArray = courseControls.ToArray();
                     dlgMergeCourseControls(courseControlArray, true);
                 }
-
             }
             catch (Exception ee)
             {
@@ -332,8 +371,9 @@ namespace LiveResults.Client
             finally
             {
                 if (m_connection != null)
-                    m_connection.Close();
+                    m_connection.Close();                
             }
+            return courses;
         }
 
         private void SendLiveActive(string apiServer, WebClient client)
