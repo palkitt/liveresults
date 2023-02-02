@@ -59,8 +59,8 @@
             // 
             // wizard1
             // 
-            this.wizard1.Controls.Add(this.wizardPage3);
             this.wizard1.Controls.Add(this.wizardPage1);
+            this.wizard1.Controls.Add(this.wizardPage3);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -194,7 +194,7 @@
             this.wizardPage5.IsFinishPage = false;
             this.wizardPage5.Location = new System.Drawing.Point(0, 0);
             this.wizardPage5.Name = "wizardPage5";
-            this.wizardPage5.Size = new System.Drawing.Size(506, 133);
+            this.wizardPage5.Size = new System.Drawing.Size(506, 242);
             this.wizardPage5.TabIndex = 5;
             this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
             // 

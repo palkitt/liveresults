@@ -106,7 +106,6 @@ namespace LiveResults.Client
                                 try
                                 {
                                     runnerID = Convert.ToInt32(reader["id"]);
-                                    usedID.Add(runnerID);
                                     runnerName = reader["name"] as string;
                                     lastRunner = runnerName;
                                     club = reader["club"] as string;
@@ -130,12 +129,19 @@ namespace LiveResults.Client
                                     if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
                                         noSort = Convert.ToInt32(reader["nosort"]);
 
+                                    if (reader["status"] != null && reader["status"] != DBNull.Value)
+                                        status = reader["status"] as string;
+
+                                    if (status == "A" && noSort >= 1)
+                                        status = "F";
+
                                     if (reader["time"] != null && reader["time"] != DBNull.Value)
                                     {
                                         DateTime.TryParse(reader["time"].ToString(), out DateTime parseTime);
                                         time = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);                                        
                                     }
-                                    if (noSort == 1 && time > 0) // Unranked, show times
+
+                                    if (noSort == 1 && time > 0 && (status == "F" || status == "D")) // Unranked, show times
                                     {
                                         var FinishTime = new ResultStruct
                                         {
@@ -143,14 +149,8 @@ namespace LiveResults.Client
                                             Time = time
                                         };
                                         SplitTimes.Add(FinishTime);
-                                    }
-
-                                    if (reader["status"] != null && reader["status"] != DBNull.Value)
-                                        status = reader["status"] as string;
-
-                                    if (status == "A" && noSort >= 1)
-                                        status = "F";
-
+                                    }                                   
+                                                                        
                                     if (reader["meter"] != null && reader["meter"] != DBNull.Value)
                                         length = Convert.ToInt32(reader["meter"]);
 
@@ -183,6 +183,7 @@ namespace LiveResults.Client
                                 }   
                                 if (rstatus != 999)
                                 {
+                                    usedID.Add(runnerID);
                                     var res = new Result
                                     {
                                         ID = runnerID,

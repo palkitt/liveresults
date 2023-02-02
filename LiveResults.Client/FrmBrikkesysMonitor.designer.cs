@@ -96,7 +96,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmBrikkesysMonitor";
-            this.Text = "Brikkesys Monitor. Version 2023-01-26";
+            this.Text = "Brikkesys Monitor. Beta 2023-02-02";
             this.Load += new System.EventHandler(this.FrmETimingMonitor_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
