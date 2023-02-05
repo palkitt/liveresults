@@ -15,8 +15,8 @@ namespace LiveResults.Client
         public FrmNewCompetition()
         {
             InitializeComponent();
-            NewETimingComp cmp = new NewETimingComp();
-            cmp.ShowDialog(this);
+            //NewETimingComp cmp = new NewETimingComp();
+            //cmp.ShowDialog(this);
         }
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -235,7 +235,10 @@ namespace LiveResults.Client
             cmp.ShowDialog(this);
         }
 
-
-       
+        private void button7_Click(object sender, EventArgs e)
+        {
+            NewBrikkesysComp cmp = new NewBrikkesysComp();
+            cmp.ShowDialog(this);
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace LiveResults.Client
 {
-    partial class FrmMonitor
+    partial class FrmBrikkesysMonitor
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmMonitor));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmBrikkesysMonitor));
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnStartSTop = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
@@ -86,7 +86,7 @@
             this.listBox1.Size = new System.Drawing.Size(497, 262);
             this.listBox1.TabIndex = 0;
             // 
-            // FrmMonitor
+            // FrmBrikkesysMonitor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -95,8 +95,9 @@
             this.Controls.Add(this.panel1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "FrmMonitor";
-            this.Text = "Upload Monitor";
+            this.Name = "FrmBrikkesysMonitor";
+            this.Text = "Brikkesys Monitor. Ver 2023-02-05";
+            this.Load += new System.EventHandler(this.FrmETimingMonitor_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.ResumeLayout(false);
