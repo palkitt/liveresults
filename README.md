@@ -8,22 +8,20 @@ This project is forked from Peter Löfås's [liveresults](https://github.com/pet
 New and improved features compared to original project:
 
 * Interface to eTiming with support of individual, mass start, chase start, relay, lap time race. Radio control setup is read from eTiming and automatically configured. Supports both Access and SQL server
+* Interface to Brikkesys with support of individual and chase start races
 * Animated transitions in result table
 * Ecard split times (optional)
 * Estimated radio times when missing times for runners. 
-* Shifting of radio times of muti pass controls that fits better with average split times of the class. 
+* Shifting of radio times of multi pass controls that fits better with average split times of the class. 
 * Auto hiding of radio controls if bad quality (less than 1/3 of runners registered)
 * Integration with Torgeir Aune's [ecard check program](https://github.com/Taune/EmiTagCheck)
 * Responsive web design (mobile phone friendly). Scroll view if too narrow view
 * Shows live rank number on approaching intermediate time and in finish with difference to current leader
 * Highlight single intermediate times (not just whole row) if race with radio controls
-* Single or double row view
 * Relay and chase start views including total time and leg times (with ranking number)
 * Support for classes with no-time or no-rank show
 * Column for bib number with optional sorting
 * Start list and complete result list view
-* Last-update-time view
-* Norwegian language support
 * Organizer views
    * Speaker page with bib numer search and automatically class lookup and runner highlighting
    * Complete start list with ecard numbers and possibility for runners to send ecard number change messages
@@ -35,7 +33,6 @@ New and improved features compared to original project:
    * Configurable highlight duration
    * Select one or two lines view by default
    * Tenths of seconds resolution
-   * Mass start rakning
    * Qualification or price limit setting
    
 ![Mobile view](Doc/LiveResiPhone.png?raw=true "Example of mobile view")
