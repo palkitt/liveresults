@@ -26,6 +26,7 @@
   `showecardtimes` tinyint(1) DEFAULT NULL,
   `showtimesinsprint` tinyint(1) DEFAULT NULL,
   `livecenterurl` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
+  `sport` varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '',
   PRIMARY KEY (`user`)
 ) DEFAULT CHARSET=utf8;
 

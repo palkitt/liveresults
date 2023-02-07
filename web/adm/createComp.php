@@ -3,7 +3,7 @@ include_once("../templates/classEmma.class.php");
 
 if (isset($_POST['btnSubmit']))
 {
-	$id = Emma::CreateCompetition($_POST['name'],$_POST['org'],$_POST['date']);
+	$id = Emma::CreateCompetition($_POST['name'],$_POST['org'],$_POST['date'],$_POST['sport']);
 	header("Location: editComp.php?compid=$id");
 	exit;
 }
@@ -92,28 +92,36 @@ function resetRow(row)
 <form name="form1" action="createComp.php" method="post">
 <h1 class="categoriesheader">New competition</h1>
 <table>
-  <tr><td><b>Competitions Name</b></td>
-  <td><input type="text" name="name" size="15"/></td></tr>
+  <tr><td><b>Competition Name</b></td>
+  <td><input type="text" name="name" style="width: 120px;"></td></tr>
 
   <tr><td><b>Organizer</b></td>
-  <td><input type="text" name="org" size="15"/></td></tr>
+  <td><input type="text" name="org" style="width: 120px;"></td></tr>
 
   <tr><td><b>Date (yyyy-mm-dd)</b></td>
-  <td><input type="text" name="date" size="15"/> (eg. 2022-02-23)</td></tr>
+  <td><input type="text" name="date" style="width: 120px;"> (eg. 2022-02-23)</td></tr>
+
+  <tr><td><b>Sport</b></td>
+  <td>
+    <select name="sport" style="width: 127px;">
+      <option value="">Ikke valgt</option>
+      <option value="Langrenn">Langrenn</option>
+      <option value="Orientering">Orientering</option>
+      <option value="Friidrett">Friidrett</option>
+      <option value="Skiorientering">Skiorientering</option>
+      <option value="Rulleski">Rulleski</option>
+    </select>
+  </td></tr>
 </table>
 <input type="submit" name="btnSubmit" value="Create"/>
 </form>
 		</td>
-	     </tr>
+	  </tr>
 	</table>
      </td>
   </tr>
 </table>
-
 </div>
-
 <br/><br/>
-
 </body>
-
 </html>

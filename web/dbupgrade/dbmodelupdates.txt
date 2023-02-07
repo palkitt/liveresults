@@ -94,3 +94,6 @@ PRIMARY KEY (`tavid`)
 
 -- addition 2023-01-27
 alter table login add column showtimesinsprint tinyint(1) DEFAULT NULL;
+
+-- addition 2023-02-07
+alter table login add column sport varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '';

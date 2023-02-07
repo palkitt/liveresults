@@ -6,7 +6,7 @@ if (isset($_POST['btnSave']))
 	$ok = Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],(isset($_POST['public'])?1:null),$_POST['timediff'],
         0,(isset($_POST['tenthofseconds'])?1:null),0,(isset($_POST['rankedstartlist'])?1:null),$_POST['hightime'],$_POST['quallimits'],
         $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],(isset($_POST['showinfo'])?1:null),$_POST['infotext'],
-        (isset($_POST['showecardtimes'])?1:null),(isset($_POST['showtimesinsprint'])?1:null),$_POST['livecenterurl']);
+        (isset($_POST['showecardtimes'])?1:null),(isset($_POST['showtimesinsprint'])?1:null),$_POST['livecenterurl'],$_POST['sport']);
   if ($ok == 1)
     echo('<b>&nbsp;Competion update OK</b>');
   else
@@ -126,37 +126,49 @@ function confirmDelete(msg,url)
 
 <table>
 <tr><td><b>Competition ID</b></td>
-<td>&nbsp;<input type="text" name="id" size="20" disabled="true" value="<?=$comp['tavid']?>"/></td></tr>
+<td>&nbsp;<input type="text" name="id" style="width: 120px;" disabled="true" value="<?=$comp['tavid']?>"/></td></tr>
 
 <tr><td><b>Competition name</b></td>
-<td>&nbsp;<input type="text" name="name" size="20" value="<?=$comp['compName']?>"/></td></tr>
+<td>&nbsp;<input type="text" name="name" style="width: 120px;" value="<?=$comp['compName']?>"/></td></tr>
 
 <tr><td><b>Organizer</b></td>
-<td>&nbsp;<input type="text" name="org" size="20" value="<?=$comp['organizer']?>"/></td><td>Note: Must match organizer in eTiming</td></tr>
+<td>&nbsp;<input type="text" name="org" style="width: 120px;" value="<?=$comp['organizer']?>"/></td><td>Note: Must match organizer in eTiming</td></tr>
 
 <tr><td><b>Date</b></td>
-<td>&nbsp;<input type="text" name="date" size="20" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/></td><td>Format: yyyy-mm-dd. Must match date in eTiming</td></tr>
+<td>&nbsp;<input type="text" name="date" style="width: 120px;" value="<?=date("Y-m-d",strtotime($comp['compDate']))?>"/></td><td>Format: yyyy-mm-dd. Must match date in eTiming</td></tr>
+
+<tr><td><b>Sport</b></td>
+  <td>
+    &nbsp;<select name="sport" style="width: 127px;">
+      <option value="">Ikke valgt</option>
+      <option value="Langrenn" <?php if ($comp['sport'] == 'Langrenn') echo 'selected'; ?>>Langrenn</option>
+      <option value="Orientering" <?php if ($comp['sport'] == 'Orientering') echo 'selected'; ?>>Orientering</option>
+      <option value="Friidrett" <?php if ($comp['sport'] == 'Friidrett') echo 'selected'; ?>>Friidrett</option>
+      <option value="Skiorientering" <?php if ($comp['sport'] == 'Skiorientering') echo 'selected'; ?>>Skiorientering</option>
+      <option value="Rulleski" <?php if ($comp['sport'] == 'Rulleski') echo 'selected'; ?>>Rulleski</option>
+    </select>
+  </td></tr>
 
 <tr><td><b>Time zone diff</b></td>
-<td>&nbsp;<input type="number" name="timediff" size="20" value="<?=$comp['timediff']?>"/></td><td>1 for Finland, 0 for Norway, -1 for GBR</td></tr>
+<td>&nbsp;<input type="number" name="timediff" style="width: 120px;" value="<?=$comp['timediff']?>"/></td><td>1 for Finland, 0 for Norway, -1 for GBR</td></tr>
 
 <tr><td><b>Highlight time</b></td>
-<td>&nbsp;<input type="number" name="hightime" size="20" value="<?=$comp['hightime']?>"/></td><td>Duration of highlughting new times in seconds</td></tr>
+<td>&nbsp;<input type="number" name="hightime" style="width: 120px;" value="<?=$comp['hightime']?>"/></td><td>Duration of highlughting new times in seconds</td></tr>
 
 <tr><td><b>Qual. classes</b></td>
-<td>&nbsp;<input type="text" name="qualclasses" size="20" value="<?=$qualclasses?>"/></td><td>Format: "D21-", "H21-", "D70". If not given -> same limit for all classes</td></tr>
+<td>&nbsp;<input type="text" name="qualclasses" style="width: 120px;" value="<?=$qualclasses?>"/></td><td>Format: "D21-", "H21-", "D70". If not given -> same limit for all classes</td></tr>
 
 <tr><td><b>Qual. limits</b></td>
-<td>&nbsp;<input type="text" name="quallimits" size="20" value="<?=$comp['quallimits']?>"/></td><td>Format: 3, 4, 5, 6 (Last value used for all other classes)</td></tr>
+<td>&nbsp;<input type="text" name="quallimits" style="width: 120px;" value="<?=$comp['quallimits']?>"/></td><td>Format: 3, 4, 5, 6 (Last value used for all other classes)</td></tr>
 
 <tr><td><b>Multi day stage no</b></td>
-<td>&nbsp;<input type="number" name="multidaystage" size="20" value="<?=$comp['multidaystage']?>"/></td><td>Use 0 for single day competition and day number for multiday competitions</td></tr>
+<td>&nbsp;<input type="number" name="multidaystage" style="width: 120px;"" value="<?=$comp['multidaystage']?>"/></td><td>Use 0 for single day competition and day number for multiday competitions</td></tr>
 
 <tr><td><b>Multi day parent</b></td>
-<td>&nbsp;<input type="number" name="multidayparent" size="20" value="<?=$comp['multidayparent']?>"/></td><td>Use 0 for single day competition and Competition ID for first in multiday series</td></tr>
+<td>&nbsp;<input type="number" name="multidayparent" style="width: 120px;" value="<?=$comp['multidayparent']?>"/></td><td>Use 0 for single day competition and Competition ID for first in multiday series</td></tr>
 
 <tr><td><b>Live center URL</b></td>
-<td>&nbsp;<input type="text" name="livecenterurl" size="20" value="<?=$comp['livecenterurl']?>"/></td><td>URL to competition live center</td></tr>
+<td>&nbsp;<input type="text" name="livecenterurl" style="width: 120px;" value="<?=$comp['livecenterurl']?>"/></td><td>URL to competition live center</td></tr>
 
 <tr><td><b>Public</td>
 <td><input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/></td><td>List competion on liveres.live main page</td></tr>
@@ -177,7 +189,7 @@ function confirmDelete(msg,url)
 <td><input type="checkbox" name="showinfo" <?= $comp['showinfo'] == 1 ? "checked" : "" ?>/></td><td>Display info text (below)</td></tr>
 
 <tr valign="top"><td><b>Info text</td>
-<td>&nbsp;<textarea name="infotext" rows="3" cols="21"><?=$comp['infotext']?></textarea></td><td>Text to be scrolled on top of page</td></tr>
+<td>&nbsp;<textarea name="infotext" style="width:122px; height:50px;"><?=$comp['infotext']?></textarea></td><td>Text to be scrolled on top of page</td></tr>
 
 </table>
 

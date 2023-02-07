@@ -115,6 +115,7 @@ $_CLASS = "Class";
 $_ORGANIZER = "Organizer";
 $_DATE = "Date";
 $_EVENTNAME = "Name";
+$_SPORT = "Sport";
 
 //new Freidig
 $_FREESTART = "open start";
