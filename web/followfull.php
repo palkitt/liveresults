@@ -189,6 +189,7 @@ $(document).ready(function()
 
 	// Insert comp name
 	var compName = "<?=$currentComp->CompName()?>";
+	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 
 	// Turn off scroll view
@@ -278,7 +279,7 @@ function switchTop() {
 }
 
 function openNav() {
-  if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
+  if(res.currentTable != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist")
   {
     $(".firstCol").width("6em");  
     $('#divResults').DataTable().columns.adjust().responsive.recalc();
@@ -290,7 +291,7 @@ function openNav() {
 }
 
 function closeNav() {
-  if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
+  if(res.currentTable != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist")
   {
 		$(".firstCol").width("0px");  
 		$('#divResults').DataTable().columns.adjust().responsive.recalc();
