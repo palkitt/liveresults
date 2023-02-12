@@ -7,13 +7,16 @@ if (isset($_GET['lang']))
 
 include_once("../templates/emmalang_en.php");
 include_once("../templates/emmalang_$lang.php");
-include_once("templates/classEmma.class.php");
+header('Content-Type: text/html; charset=utf-8');
 
-header('Content-Type: text/html; charset='.$CHARSET);
-
-$currentComp = new Emma($_GET['comp']);
 $currentCompNo = $_GET['comp'];
-
+$url = "https://liveresultat.orientering.se/api.php?method=getcompetitioninfo&comp=".$currentCompNo;
+$json = file_get_contents($url);
+$json = preg_replace('/[[:cntrl:]]/', '', $json);
+$currentComp = json_decode($json, true);
+$compName = $currentComp["name"];
+$compDate = $currentComp["date"];
+$compTimeDiff = $currentComp["timediff"];
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
 $setFullView = isset($_GET['fullview']);
@@ -36,13 +39,13 @@ $RunnerStatus = Array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUS
 
 $showTimePrediction = true;
 
-echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
+echo("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <base href="../">
-<head><title><?=$_TITLE?> :: <?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</title>
+<head><title><?=$_TITLE?> :: <?=$compName?> [<?=$compDate?>]</title>
 
 <META HTTP-EQUIV="expires" CONTENT="-1">
 <meta http-equiv="Content-Type" content="text/html;charset=<?=$CHARSET?>">
@@ -147,7 +150,11 @@ var topBar = false;
 $(document).ready(function()
 {
 	
-	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",Resources,<?= ($currentComp->IsMultiDayEvent() ? "true" : "false")?>,<?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", true);
+	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader",
+  "resultsControls","divResults","txtResetSorting",Resources,"false",
+  <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", 
+  runnerStatus, false, "", true);
+  res.rankedStartlist = false;
 	<?php if ($isSingleClass){?>
 		res.chooseClass('<?=$singleClass?>');
 	<?php }
@@ -166,32 +173,20 @@ $(document).ready(function()
 	<?php }?>
 	
 	<?php if ($showTimePrediction){ ?>
-	    res.compDate = "<?=$currentComp->CompDate();?>";
-		res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
+	  res.compDate = "<?=$compDate?>";
+		res.eventTimeZoneDiff = <?=$compTimeDiff?>;
 		res.startPredictionUpdate();
 	<?php }?>
 
 	// Insert comp name
-	var compName = "<?=$currentComp->CompName()?>";
+	var compName = "<?=$compName?>";
 	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 
 	// Turn off scroll view
 	<?php if ($setNotScroll){?>
 		res.setScrollView(false); <?php }?>
-	
-	// Show tenth of seconds
-	<?php if($currentComp->ShowTenthOfSeconds() ){?>
-		res.setShowTenth(true); <?php }?>
-
-	// Modify high time
-	<?php if($currentComp->HighTime() ){?> 
-	    res.highTime = <?=$currentComp->HighTime(); ?> <?php }?>;
-	
-	// Qualification limits and classes (last limit is default)
-	res.qualLimits = [<?=$currentComp->QualLimits();?>];
-	res.qualClasses = [<?=$currentComp->QualClasses();?>];
-
+		
 	// Check for mobile and close top if mobile is detected
 	var isMobile = res.isMobile();
 	if (isMobile)
@@ -329,14 +324,13 @@ function closeTop() {
       <td width="100%">
         <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
 	        <tr>
-  	        <td align="left">
+          <td align="left">
 	            <button id="switchNavClick" class="navbtn" onclick="switchNav()"><span id="navLR">←</span></button>
 	            <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span id="navUD">↑</span></button>
 	            <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
 	            <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
 	            <button class="navbtn" onclick="location.href='emma/index.php?lang=<?=$lang?>'">↗</button>
-            </td>
-  	        <td align="left">
+              &nbsp;
               <b><span id="compname">loading comp name...</b>
             </td>
 	        </tr>

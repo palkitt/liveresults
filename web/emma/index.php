@@ -2,17 +2,14 @@
 date_default_timezone_set("Europe/Oslo");
 
 include_once("../templates/emmalang_no.php");
-include_once("templates/classEmma.class.php");
-   $lang = "no";
-   if (isset($_GET['lang']) && $_GET['lang'] != "")
-   {
+$lang = "no";
+if (isset($_GET['lang']) && $_GET['lang'] != "")
 	$lang = $_GET['lang'];
-   }
 include_once("../templates/emmalang_$lang.php");
 
-header('Content-Type: text/html; charset='.$CHARSET);
+header('Content-Type: text/html; charset=utf-8');
 
-echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
+echo("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
@@ -80,26 +77,34 @@ el.style.backgroundColor = "";
 <table border="0" cellpadding="0px" cellspacing="0" width="100%" id="tblLiveComps">
   <tr><td colspan=3><h1 class="categoriesheader">LIVE TODAY!</h1></td><tr>
 	<tr><th align="left"><?= $_DATE?></th><th align="left"><?= $_EVENTNAME?></th><th align="left"><?= $_ORGANIZER?></th></tr>
-<?php	$comps = Emma::GetCompetitionsToday();
+<?php	
+  $url = "https://liveresultat.orientering.se/api.php?method=getcompetitions";
+  $json = file_get_contents($url);
+  $json = preg_replace('/[[:cntrl:]]/', '', $json);
+  $data = json_decode($json, true);
+  $comps = $data["competitions"];
+  $today = date("Y-m-d");
 	  foreach ($comps as $comp)
-        {
+    {
+      if ($comp["date"] === $today)
+      {
         ?>
-                <tr id="row<?=$comp["tavid"]?>" style="font-weight:bold;"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-                <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="followfull.php?comp=<?=$comp['tavid']?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
-                <td style="font-weight:normal"><?=$comp["organizer"]?></td>
-                </tr>
+        <tr id="row<?=$comp["id"]?>" style="font-weight:bold;"><td><?=date("Y-m-d",strtotime($comp['date']))?></td>
+        <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="followfull.php?comp=<?=$comp['id']?>&amp;lang=<?=$lang?>"><?=$comp["name"]?></a></td>
+        <td style="font-weight:normal"><?=$comp["organizer"]?></td>
+        </tr>
         <?php
-        }
-        ?>
+      }
+    }
+?>
 <tr><td>&nbsp</td></tr>
 <tr><td colspan=3><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td><tr>
 <tr><th align="left"><?= $_DATE?></th><th align="left"><?= $_EVENTNAME?></th><th align="left"><?= $_ORGANIZER?></th></tr>
-<?php
-  $comps = Emma::GetCompetitions();
+<?php  
   $yearPre = 0;
 	foreach ($comps as $comp)
 	{
-    $year = date("Y",strtotime($comp['compDate']));
+    $year = date("Y",strtotime($comp['date']));
     if ($year != $yearPre)
     {
       $yearPre = $year;
@@ -108,11 +113,11 @@ el.style.backgroundColor = "";
       <?php
     }
 	  ?>
-		<tr id="row<?=$comp["tavid"]?>"><td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-		<td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="followfull.php?comp=<?=$comp["tavid"]?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
-		<td><?=$comp["organizer"]?></td>
-		</tr>
-	<?php
+      <tr id="row<?=$comp["id"]?>"><td><?=date("Y-m-d",strtotime($comp['date']))?></td>
+      <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="followfull.php?comp=<?=$comp["id"]?>&amp;lang=<?=$lang?>"><?=$comp["name"]?></a></td>
+      <td><?=$comp["organizer"]?></td>
+      </tr>
+	  <?php
 	}
 	?>
 	</table>
