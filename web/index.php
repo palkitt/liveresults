@@ -5,13 +5,10 @@ include_once("templates/emmalang_no.php");
 include_once("templates/classEmma.class.php");
 $lang = "no";
 if (isset($_GET['lang']) && $_GET['lang'] != "")
-{
 	$lang = $_GET['lang'];
-}
 include_once("templates/emmalang_$lang.php");
 
 header('Content-Type: text/html; charset='.$CHARSET);
-
 echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -33,20 +30,22 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 
   <script language="javascript" type="text/javascript">
-  function colorRow(row)
-  {
+    function colorRow(row)
+    {
+      var el = document.getElementById(row);
+      if (el === null)
+        return;
+      el.style.backgroundColor = "#C0D6FF";
+    }
+    
+    function resetRow(row)
+    {
     var el = document.getElementById(row);
     if (el === null)
       return;
-    el.style.backgroundColor = "#C0D6FF";
-  }
-  function resetRow(row)
-  {
-  var el = document.getElementById(row);
-  if (el === null)
-    return;
-  el.style.backgroundColor = "";
-  }
+    el.style.backgroundColor = "";
+    }
+    
   </script>
 </head>
 
@@ -79,18 +78,23 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <br>
 
   <table border="0" cellpadding="0px" cellspacing="0" width="100%" id="tblLiveComps">
-    <tr><td colspan=4><h1 class="categoriesheader">LIVE TODAY!</h1></td><tr>
+    <tr><td colspan=5><h1 class="categoriesheader">LIVE TODAY!</h1></td><tr>
     <tr>
       <th align="left"><?= $_DATE?></th>
       <th align="left"><?= $_EVENTNAME?></th>
       <th align="left"><?= $_SPORT?></th>
       <th align="left"><?= $_ORGANIZER?></th>
       <th align="left">Livesenter</th></tr>
-    <?php	$comps = Emma::GetCompetitionsToday();
-    foreach ($comps as $comp) { ?>
+    <?php	
+    $isMobile = preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
+    $comps = Emma::GetCompetitionsToday();    
+    foreach ($comps as $comp) { 
+      $compName = $comp["compName"];
+      $compName = substr($compName, 0,  ($isMobile ? 30 : 60) );
+      ?>
       <tr id="row<?=$comp["tavid"]?>" style="font-weight:bold;">
         <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-        <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp['tavid']?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
+        <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp['tavid']?>&amp;lang=<?=$lang?>"><?=$compName?></a></td>
         <td style="font-weight:normal"><?=$comp["sport"]?></td>
         <td style="font-weight:normal"><?=$comp["organizer"]?></td>
         <?php if (strlen($comp['livecenterurl'])>0){ ?>
@@ -102,7 +106,7 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     <?php } ?>
     
     <tr><td>&nbsp</td></tr>
-    <tr><td colspan=4><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td></tr>
+    <tr><td colspan=5><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td></tr>
     <tr>
       <th align="left"><?= $_DATE?></th>
       <th align="left"><?= $_EVENTNAME?></th>
@@ -113,14 +117,16 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     $comps = Emma::GetCompetitions();
     $yearPre = 0;
     foreach ($comps as $comp){
+      $compName = $comp["compName"];
+      $compName = substr($compName, 0,  ($isMobile ? 30 : 60) );
       $year = date("Y",strtotime($comp['compDate']));
       if ($year != $yearPre) { 
         $yearPre = $year;
-        ?>  <tr><td colspan=4><h1 class="categoriesheader"><?=$year?></h1></td></tr>
+        ?>  <tr><td colspan=5><h1 class="categoriesheader"><?=$year?></h1></td></tr>
       <?php } ?>
       <tr id="row<?=$comp["tavid"]?>">
         <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-        <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp["tavid"]?>&amp;lang=<?=$lang?>"><?=$comp["compName"]?></a></td>
+        <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp["tavid"]?>&amp;lang=<?=$lang?>"><?=$compName?></a></td>
         <td><?=$comp["sport"]?></td>
         <td><?=$comp["organizer"]?></td>
         <?php if (strlen($comp['livecenterurl'])>0){ ?>
