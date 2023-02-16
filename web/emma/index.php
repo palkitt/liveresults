@@ -81,6 +81,7 @@ el.style.backgroundColor = "";
   $url = "https://liveresultat.orientering.se/api.php?method=getcompetitions";
   $json = file_get_contents($url);
   $json = preg_replace('/[[:cntrl:]]/', '', $json);
+  $json = str_replace('"O"','O',$json);
   $data = json_decode($json, true);
   $comps = $data["competitions"];
   $today = date("Y-m-d");

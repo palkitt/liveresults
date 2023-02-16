@@ -13,6 +13,7 @@ $currentCompNo = $_GET['comp'];
 $url = "https://liveresultat.orientering.se/api.php?method=getcompetitioninfo&comp=".$currentCompNo;
 $json = file_get_contents($url);
 $json = preg_replace('/[[:cntrl:]]/', '', $json);
+$json = str_replace('"O"','O',$json);
 $currentComp = json_decode($json, true);
 $compName = $currentComp["name"];
 $compDate = $currentComp["date"];
@@ -151,7 +152,7 @@ $(document).ready(function()
 {
 	
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader",
-  "resultsControls","divResults","txtResetSorting",Resources,"false",
+  "resultsControls","divResults","txtResetSorting",Resources,false,
   <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", 
   runnerStatus, false, "", true);
   res.rankedStartlist = false;
