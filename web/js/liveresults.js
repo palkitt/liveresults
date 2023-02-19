@@ -49,6 +49,7 @@ var LiveResults;
       this.runnerListTimer = null;
       this.resUpdateTimeout = null;
       this.updatePredictedTimeTimer = null;
+      this.updateStartRegistrationTimer = null;
       this.lastClassListHash = "";
       this.lastRunnerListHash = "";
       this.lastPassingsUpdateHash = "";
@@ -74,6 +75,7 @@ var LiveResults;
       this.serverTimeDiff = 0;
       this.eventTimeZoneDiff = 0;
       this.radioData = null;
+      this.oldRadioData = null;
       this.compName = "";
       this.compDate = "";
       this.qualLimits = null;
@@ -1661,14 +1663,25 @@ var LiveResults;
       // Insert data from query            
       if (data != null && data.status == "OK") {
 
+        clearTimeout(this.updateStartRegistrationTimer);
         this.lastRadioPassingsUpdateHash = data.hash;
         this.radioData = data.runners;
-
         this.radioData.sort(this.startSorter);
 
-
         // Modify data-table
-        if (this.currentTable == null) // New datatable
+
+        if (this.currentTable != null) // Existing datatable
+        {
+          var scrollX = window.scrollX;
+          var scrollY = window.scrollY;
+          var oldData = $.extend(true, [], this.currentTable.fnGetData());
+          this.currentTable.fnClearTable();
+          this.currentTable.fnAddData(this.radioData, true);
+          this.filterTable();
+          window.scrollTo(scrollX, scrollY);
+          this.animateTable(oldData, this.radioData, this.animTime);
+        }  
+        else if (this.currentTable == null) // New datatable
         {
           if (this.radioData != null && this.radioData.length > 0) {
             var columns = Array();
@@ -1780,11 +1793,9 @@ var LiveResults;
           }
         }
         this.dynamicStartRegistration();
-        if (this.isCompToday())
-          this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, this.radioUpdateInterval);
-        else
-          $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+        this.updateStartRegistrationTimer = setInterval(function () { _this.dynamicStartRegistration(oldData); }, 1000);      
       };
+      this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, this.radioUpdateInterval);
     };
 
     AjaxViewer.prototype.startSorter = function (a, b) {
@@ -1808,6 +1819,8 @@ var LiveResults;
           var time = Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));          
           var data = this.currentTable.fnGetData();
           var table = this.currentTable.api();
+          var newData = [];
+          var modified = false;
 
           var callTime = parseInt($('#callTime')[0].value)*60;
           var postTime = parseInt($('#postTime')[0].value)*60;
@@ -1815,19 +1828,12 @@ var LiveResults;
           var maxBib = parseInt($('#maxBib')[0].value);
 
           var preTime  = 30;
-          //var callTime = 3.4*60*60;
-          //var postTime = 8*60*60;
 
-          var firstInPreTime  = true;
           var firstInCallTime = true;
           var firstInPostTime = true;
           var lastStartTime   = -1000; 
           
           // *** Hide or highlight rows ***
-
-          //if ($pass['class']=="NOCLAS") 
-          //$ret .= ",$br \"DT_RowClass\": \"red_row\"";
-
           for (var i = 0; i < data.length; i++) {
             var row = table.row(i).node();
             if (data[i].bib < minBib || data[i].bib > maxBib){
@@ -1840,14 +1846,17 @@ var LiveResults;
             var timeToStart = startTimeSeconds-time;
             if (timeToStart < -postTime)
               $(row).hide();
-            else if (timeToStart < 0){
+            else if (timeToStart < 0)
+            {
               $(row).addClass('pre_post_start')
               if (firstInPostTime){
                 $(row).addClass('firststarter');
                 firstInPostTime = false;
               }
+              newData.push({dbid: data[i].dbid})
             }
-            else if (timeToStart <= callTime){
+            else if (timeToStart <= callTime)
+            {
               if (firstInCallTime)
               {
                 $(row).addClass('firststarter yellow_row');
@@ -1857,14 +1866,20 @@ var LiveResults;
                 $(row).addClass('yellow_row_new');
               else
                 $(row).addClass('yellow_row');
+              newData.push({dbid: data[i].dbid})
             }
-            else if (timeToStart <= callTime + preTime){
+            else if (timeToStart <= callTime + preTime)
+            {
               $(row).addClass('pre_post_start');
+              newData.push({dbid: data[i].dbid});
             }
             else
               $(row).hide(); 
             lastStartTime = startTimeSeconds;
           }
+          //if (modified)
+          this.animateTable(this.oldRadioData, newData, this.animTime);
+          this.oldRadioData = newData;
         }
         catch (e) { };
       }

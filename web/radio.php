@@ -85,7 +85,7 @@ $(document).ready(function()
 	if (<?= $_GET['code']?>==0 || <?= $_GET['code']?>==-999 || <?= $_GET['code']?>==-10)
 	{ 
 		var clockElement = document.getElementById("clock");
-		function updateClock (clock) 
+		function updateClock(clock) 
 		{
 			var currTime = new Date();
 			var preTime = new Date(currTime.valueOf()+callTime*60*1000);
@@ -103,7 +103,7 @@ $(document).ready(function()
   if (<?= $_GET['code']?>==-10)
 	  res.updateStartRegistration();
   else
-    res.updateRadioPassings(<?= $_GET['code']?>,callTime,minbib,maxbib);
+    res.updateRadioPassings(<?= $_GET['code']?>,callTime,minBib,maxBib);
 
 	$('#filterText').on('keyup', function () {
     res.filterTable();
@@ -113,7 +113,11 @@ $(document).ready(function()
 	$('#callTime').on('keyup', function () 
   {
 		clearTimeout(callTimeTimer); 
-		callTimeTimer = setTimeout(function(){ res.dynamicStartRegistration(); }, 500);
+		callTimeTimer = setTimeout(function(){ 
+      callTime = document.getElementById("callTime").value;
+      res.dynamicStartRegistration(); 
+    }, 500);
+
 	});
   
   var postTimeTimer = null;
@@ -163,6 +167,7 @@ $(document).ready(function()
           else if ($_GET['code']==-2){?> Ute i løypa <?php }
           else {?> Meldepost: <?= $_GET['code']?> <?php } 
         ?>
+        </b></td>
         <?php if ($_GET['code']==0){ ?> 
           <td align="center"><a href="radio.php?comp=<?= $_GET['comp']?>&code=-999<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Fristart</a></td>
         <?php } ?>
@@ -172,7 +177,6 @@ $(document).ready(function()
         </b>
       </td>
       <td align="right"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
-      <td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
       <?php if ($_GET['code']==0 || $_GET['code']==-999 || $_GET['code']==-10){?> 
         <td align="right">(<span id="clock">00:00:00</span>)&nbsp&nbsp</td>
       <?php }?>
