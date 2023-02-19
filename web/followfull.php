@@ -279,7 +279,7 @@ function switchTop() {
 }
 
 function openNav() {
-  if(res.currentTable != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist")
+  if(res.currentTable != null && res.curClassName != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist")
   {
     $(".firstCol").width("6em");  
     $('#divResults').DataTable().columns.adjust().responsive.recalc();
@@ -291,7 +291,7 @@ function openNav() {
 }
 
 function closeNav() {
-  if(res.currentTable != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist")
+  if(res.currentTable != null && res.curClassName != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist")
   {
 		$(".firstCol").width("0px");  
 		$('#divResults').DataTable().columns.adjust().responsive.recalc();

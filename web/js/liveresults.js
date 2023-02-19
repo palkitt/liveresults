@@ -131,7 +131,7 @@ var LiveResults;
       });
 
       $(window).on('resize', function () {
-        if (_this.currentTable != null && !_this.curClassName.includes("plainresults"))
+        if (_this.currentTable != null && _this.curClassName != null && !_this.curClassName.includes("plainresults") && _this.curClassName != "startlist")
           _this.currentTable.fnAdjustColumnSizing();
       });
     }
