@@ -94,16 +94,17 @@ $(document).ready(function()
 		}
 		setInterval(function () {updateClock( clockElement );}, 1000);
 		res.radioStart = true;
-
+	}
+  if (<?= $_GET['code']?>==-10)
+  {
     document.getElementById("callTime").value = callTime;
     document.getElementById("postTime").value = postTime;
     document.getElementById("minBib").value = minBib;
     document.getElementById("maxBib").value = maxBib;
-	}
-  if (<?= $_GET['code']?>==-10)
-	  res.updateStartRegistration();
+	  res.updateStartRegistration(<?=(isset($_GET['openstart'])?1:0)?>);
+  }
   else
-    res.updateRadioPassings(<?= $_GET['code']?>,callTime,minBib,maxBib);
+    res.updateRadioPassings(<?=$_GET['code']?>,callTime,minBib,maxBib);
 
 	$('#filterText').on('keyup', function () {
     res.filterTable();
@@ -157,22 +158,27 @@ $(document).ready(function()
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
     <tr>
       <td>
-        <span id="liveIndicator"></span>
+        <span id="liveIndicator">◉</span>
         <b>
         <?php 
-          if ($_GET['code']==0 || $_GET['code']==-10 ){?> Start <?php }
+          if ($_GET['code']==0){?> Start <?php }
           else if ($_GET['code']==-999){?> Fristart <?php }
           else if ($_GET['code']==1000){?> Mål <?php }
           else if ($_GET['code']==-1){?> Meldepost: Alle <?php }
           else if ($_GET['code']==-2){?> Ute i løypa <?php }
-          else {?> Meldepost: <?= $_GET['code']?> <?php } 
+          else if ($_GET['code']!=-10){?> Meldepost: <?= $_GET['code']?> <?php } 
         ?>
-        </b></td>
         <?php if ($_GET['code']==0){ ?> 
-          <td align="center"><a href="radio.php?comp=<?= $_GET['comp']?>&code=-999<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Fristart</a></td>
+          <a href="radio.php?comp=<?= $_GET['comp']?>&code=-999<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">&nbsp;&nbsp;Fristart→</a>
         <?php } ?>
         <?php if ($_GET['code']==-999){ ?> 
-          <td align="center"><a href="radio.php?comp=<?= $_GET['comp']?>&code=0<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Tidsstart</a></td>
+          <a href="radio.php?comp=<?= $_GET['comp']?>&code=0<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">&nbsp;&nbsp;Tidsstart→</a>
+          <?php } ?>
+        <?php if ($_GET['code']==-10 && !isset($_GET['openstart'])){ ?> 
+          Tidsstart&nbsp;&nbsp;<a href="radio.php?comp=<?= $_GET['comp']?>&code=-10&openstart<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Fri→</a>
+        <?php } ?>
+        <?php if ($_GET['code']==-10 && isset($_GET['openstart'])){ ?> 
+          Fristart&nbsp;&nbsp;<a href="radio.php?comp=<?= $_GET['comp']?>&code=-10<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Tid→</a>
         <?php } ?>
         </b>
       </td>
@@ -184,10 +190,10 @@ $(document).ready(function()
     </tr>
     <?php if ($_GET['code']==-10){?>
       <tr>
-        <td align="left">Oppr.tid [min] <input type="text" id="callTime"  size="1"></td>
-        <td align="right">Etter tid [min] <input type="text" id="postTime" size="1"></td>
-        <td align="right">Min bib <input type="text" id="minBib"  size="1"></td>
-        <td align="right">Max bib <input type="text" id="maxBib"  size="1"></td>
+        <td align="left">Før start [min] <input type="text" id="callTime" size="1"></td>
+        <td align="right">Etter start [min] <input type="text" id="postTime" size="1"></td>
+        <td align="right">Min st.nr <input type="text" id="minBib" size="1"></td>
+        <td align="right">Maks st.nr <input type="text" id="maxBib" size="1"></td>
       </tr>
     <?php } ?>
 	</table>

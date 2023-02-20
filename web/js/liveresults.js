@@ -1621,7 +1621,7 @@ var LiveResults;
     };
 
     //Request data for the last radio passings div
-    AjaxViewer.prototype.updateStartRegistration = function () {
+    AjaxViewer.prototype.updateStartRegistration = function (openStart) {
       var _this = this;
       clearTimeout(this.radioPassingsUpdateTimer);
       if (this.updateAutomatically) {
@@ -1631,7 +1631,7 @@ var LiveResults;
           success: function (data, status, resp) {
             var expTime = new Date();
             expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-            _this.handleUpdateStartRegistration(data, expTime);
+            _this.handleUpdateStartRegistration(data, expTime, openStart);
           },
           error: function () {
             _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, _this.radioUpdateInterval);
@@ -1642,7 +1642,7 @@ var LiveResults;
     };
 
     //Handle response for updating the start registration
-    AjaxViewer.prototype.handleUpdateStartRegistration = function (data, expTime) {
+    AjaxViewer.prototype.handleUpdateStartRegistration = function (data, expTime, openStart) {
       if (data.rt != undefined && data.rt > 0)
         this.radioUpdateInterval = data.rt * 1000;
       $('#updateinterval').html(this.radioUpdateInterval / 1000);
@@ -1674,12 +1674,12 @@ var LiveResults;
         {
           var scrollX = window.scrollX;
           var scrollY = window.scrollY;
-          var oldData = $.extend(true, [], this.currentTable.fnGetData());
+          //var oldData = $.extend(true, [], this.currentTable.fnGetData());
           this.currentTable.fnClearTable();
           this.currentTable.fnAddData(this.radioData, true);
           this.filterTable();
           window.scrollTo(scrollX, scrollY);
-          this.animateTable(oldData, this.radioData, this.animTime);
+          //this.animateTable(oldData, this.radioData, this.animTime);
         }  
         else if (this.currentTable == null) // New datatable
         {
@@ -1693,7 +1693,7 @@ var LiveResults;
                   if (data < 0) // Relay
                     return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
                   else if (data > 0)    // Ordinary
-                    return " <span class=\"bib\">" + data + "</span>";
+                    return "<span class=\"bib\">" + data + "</span>";
                   else
                     return "";
                 }
@@ -1704,11 +1704,12 @@ var LiveResults;
             columns.push({
               "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
               "render": function (data, type, row) {
-                if (type === 'display') {
-                  if (data.length > _this.maxNameLength)
-                    return _this.nameShort(data);
-                  else
-                    return data;
+                if (type === 'display') 
+                {
+                  var name = (data.length > _this.maxNameLength? _this.nameShort(data) : data);
+                  if (row.status == 1)
+                    name = "<del>" + name + "</del>";
+                  return name;
                 }
                 else
                   return data;
@@ -1717,15 +1718,15 @@ var LiveResults;
             columns.push({
               "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
               "render": function (data, type, row) {
-                if (type === 'display') {
-                  if (data.length > _this.maxClubLength) {
-                    return _this.clubShort(data);
-                  }
-                  else
-                    return data;
+                if (type === 'display') 
+                {
+                  var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);
+                  if (row.status == 1)
+                    club = "<del>" + club + "</del>";
+                  return club;
                 }
                 else
-                  return data;
+                  return data;               
               }
             });
             columns.push({
@@ -1733,6 +1734,8 @@ var LiveResults;
               "render": function (data, type, row) {
                 var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
                 link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
+                if (row.status == 1)
+                  link = "<del>" + link + "</del>";
                 return link;
               }
             });
@@ -1754,13 +1757,18 @@ var LiveResults;
                   ecardstr += "&#11036; "; // Empty checkbox
                 ecardstr += ecards;
                 ecardstr += "</div>";
+                if (row.status == 1)
+                  ecardstr = "<del>" + ecardstr + "</del>";
                 return ecardstr;
               }
             });
             columns.push({
               "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
               "render": function (data, type, row) {
-                return data;
+                if (row.status == 1)
+                  return "<del>" + data + "</del>";
+                else
+                  return data;
               }
             });
             
@@ -1792,10 +1800,10 @@ var LiveResults;
             });
           }
         }
-        this.dynamicStartRegistration();
-        this.updateStartRegistrationTimer = setInterval(function () { _this.dynamicStartRegistration(oldData); }, 1000);      
+        this.dynamicStartRegistration(openStart);
+        this.updateStartRegistrationTimer = setInterval(function () { _this.dynamicStartRegistration(openStart); }, 1000);      
       };
-      this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, this.radioUpdateInterval);
+      this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(openStart); }, this.radioUpdateInterval);
     };
 
     AjaxViewer.prototype.startSorter = function (a, b) {
@@ -1803,13 +1811,15 @@ var LiveResults;
       var diffStart = b.starttime - a.starttime;
       if (diffStart != 0)
         return diffStart;
+      else if (a.starttime == -999)
+        return a.bib - b.bib;
       else
         return b.bib - a.bib;
       }
     
 
     // Update start list
-    AjaxViewer.prototype.dynamicStartRegistration = function () {
+    AjaxViewer.prototype.dynamicStartRegistration = function (openStart) {
       if (this.radioData != null) {
         try {
           var dt = new Date();
@@ -1819,8 +1829,6 @@ var LiveResults;
           var time = Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));          
           var data = this.currentTable.fnGetData();
           var table = this.currentTable.api();
-          var newData = [];
-          var modified = false;
 
           var callTime = parseInt($('#callTime')[0].value)*60;
           var postTime = parseInt($('#postTime')[0].value)*60;
@@ -1829,6 +1837,7 @@ var LiveResults;
 
           var preTime  = 30;
 
+          var first = true;
           var firstInCallTime = true;
           var firstInPostTime = true;
           var lastStartTime   = -1000; 
@@ -1836,10 +1845,33 @@ var LiveResults;
           // *** Hide or highlight rows ***
           for (var i = 0; i < data.length; i++) {
             var row = table.row(i).node();
+            
             if (data[i].bib < minBib || data[i].bib > maxBib){
               $(row).hide();
               continue;
             }
+
+            const showStatus = [1,9,10]; // DNS, Started, Entered
+            if (!showStatus.includes(data[i].status))
+            {
+              $(row).hide();
+              continue;
+            }
+
+            if (openStart)
+            {
+              if (data[i].starttime == -999)
+              {
+                $(row).show();
+                if (first)
+                  $(row).addClass('firststarter');
+                first = false;
+              }
+              else
+                $(row).hide();
+              continue
+            }
+
             $(row).show();
             $(row).removeClass();
             var startTimeSeconds = data[i].starttime/100;
@@ -1853,7 +1885,6 @@ var LiveResults;
                 $(row).addClass('firststarter');
                 firstInPostTime = false;
               }
-              newData.push({dbid: data[i].dbid})
             }
             else if (timeToStart <= callTime)
             {
@@ -1866,20 +1897,15 @@ var LiveResults;
                 $(row).addClass('yellow_row_new');
               else
                 $(row).addClass('yellow_row');
-              newData.push({dbid: data[i].dbid})
             }
             else if (timeToStart <= callTime + preTime)
             {
               $(row).addClass('pre_post_start');
-              newData.push({dbid: data[i].dbid});
             }
             else
               $(row).hide(); 
             lastStartTime = startTimeSeconds;
           }
-          //if (modified)
-          this.animateTable(this.oldRadioData, newData, this.animTime);
-          this.oldRadioData = newData;
         }
         catch (e) { };
       }
