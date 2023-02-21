@@ -1706,9 +1706,7 @@ var LiveResults;
               "render": function (data, type, row) {
                 if (type === 'display') 
                 {
-                  var name = (data.length > _this.maxNameLength? _this.nameShort(data) : data);
-                  if (row.status == 1)
-                    name = "<del>" + name + "</del>";
+                  var name = (data.length > _this.maxNameLength? _this.nameShort(data) : data);                  
                   return name;
                 }
                 else
@@ -1720,9 +1718,7 @@ var LiveResults;
               "render": function (data, type, row) {
                 if (type === 'display') 
                 {
-                  var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);
-                  if (row.status == 1)
-                    club = "<del>" + club + "</del>";
+                  var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);                  
                   return club;
                 }
                 else
@@ -1734,8 +1730,6 @@ var LiveResults;
               "render": function (data, type, row) {
                 var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
                 link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
-                if (row.status == 1)
-                  link = "<del>" + link + "</del>";
                 return link;
               }
             });
@@ -1757,18 +1751,13 @@ var LiveResults;
                   ecardstr += "&#11036; "; // Empty checkbox
                 ecardstr += ecards;
                 ecardstr += "</div>";
-                if (row.status == 1)
-                  ecardstr = "<del>" + ecardstr + "</del>";
                 return ecardstr;
               }
             });
             columns.push({
               "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
               "render": function (data, type, row) {
-                if (row.status == 1)
-                  return "<del>" + data + "</del>";
-                else
-                  return data;
+                return data;
               }
             });
             
@@ -1779,8 +1768,6 @@ var LiveResults;
                 var defaultDNS = (row.dbid > 0 ? 1 : 0);
                 var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
                 var link = "<button onclick=\"res.popupDialog('" + name + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";
-                if (_this.messageBibs.indexOf(row.dbid) > -1)
-                  link += " &#9679;";
                 return link;
               }
             });
@@ -1806,10 +1793,13 @@ var LiveResults;
       this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(openStart); }, this.radioUpdateInterval);
     };
 
-    AjaxViewer.prototype.startSorter = function (a, b) {
-      
+    AjaxViewer.prototype.startSorter = function (a, b) {      
       var diffStart = b.starttime - a.starttime;
-      if (diffStart != 0)
+      if (a.dbid < 0 && b.dbid > 0)
+        return -1;
+      else if (a.dbid > 0 && b.dbid < 0)
+        return 1;
+      else if (diffStart != 0)
         return diffStart;
       else if (a.starttime == -999)
         return a.bib - b.bib;
@@ -1817,7 +1807,6 @@ var LiveResults;
         return b.bib - a.bib;
       }
     
-
     // Update start list
     AjaxViewer.prototype.dynamicStartRegistration = function (openStart) {
       if (this.radioData != null) {
@@ -1837,74 +1826,75 @@ var LiveResults;
 
           var preTime  = 30;
 
-          var first = true;
+          var firstUnknown = true;
+          var firstOpen = true;
           var firstInCallTime = true;
           var firstInPostTime = true;
           var lastStartTime   = -1000; 
           
           // *** Hide or highlight rows ***
-          for (var i = 0; i < data.length; i++) {
+          for (var i = 0; i < data.length; i++){
             var row = table.row(i).node();
+            $(row).hide();
             
-            if (data[i].bib < minBib || data[i].bib > maxBib){
-              $(row).hide();
-              continue;
-            }
-
             const showStatus = [1,9,10]; // DNS, Started, Entered
-            if (!showStatus.includes(data[i].status))
-            {
-              $(row).hide();
+            if (data[i].bib < minBib || data[i].bib > maxBib || !showStatus.includes(data[i].status)){
+              continue;
+            }
+            
+            if (data[i].dbid < 0){
+              $(row).show();
+              if (firstUnknown){
+                $(row).addClass('firstnonqualifier');
+                firstUnknown = false;
+              }
+              $(row).addClass('red_row');
               continue;
             }
 
-            if (openStart)
-            {
-              if (data[i].starttime == -999)
+            if (openStart){
+              if (data[i].starttime == -999){
+                $(row).show();
+                if (firstOpen){
+                  $(row).addClass('firstnonqualifier');
+                  firstOpen = false;
+                }
+              }
+            }
+            else{ // Timed start
+              $(row).removeClass();
+              var startTimeSeconds = data[i].starttime/100;
+              var timeToStart = startTimeSeconds-time;
+              if (timeToStart < -postTime)
+                continue;
+              else if (timeToStart < 0){
+                $(row).show();
+                $(row).addClass('pre_post_start')
+                if (firstInPostTime){
+                  $(row).addClass('firststarter');
+                  firstInPostTime = false;
+                }
+              }
+              else if (timeToStart <= callTime){
+                $(row).show();
+                if (firstInCallTime){
+                  $(row).addClass('firststarter yellow_row');
+                  firstInCallTime = false;
+                }
+                else if (lastStartTime - startTimeSeconds > 29)
+                  $(row).addClass('yellow_row_new');
+                else
+                  $(row).addClass('yellow_row');
+              }
+              else if (timeToStart <= callTime + preTime)
               {
                 $(row).show();
-                if (first)
-                  $(row).addClass('firststarter');
-                first = false;
+                $(row).addClass('pre_post_start');
               }
-              else
-                $(row).hide();
-              continue
+              lastStartTime = startTimeSeconds;
             }
-
-            $(row).show();
-            $(row).removeClass();
-            var startTimeSeconds = data[i].starttime/100;
-            var timeToStart = startTimeSeconds-time;
-            if (timeToStart < -postTime)
-              $(row).hide();
-            else if (timeToStart < 0)
-            {
-              $(row).addClass('pre_post_start')
-              if (firstInPostTime){
-                $(row).addClass('firststarter');
-                firstInPostTime = false;
-              }
-            }
-            else if (timeToStart <= callTime)
-            {
-              if (firstInCallTime)
-              {
-                $(row).addClass('firststarter yellow_row');
-                firstInCallTime = false;
-              }
-              else if (lastStartTime - startTimeSeconds > 29)
-                $(row).addClass('yellow_row_new');
-              else
-                $(row).addClass('yellow_row');
-            }
-            else if (timeToStart <= callTime + preTime)
-            {
-              $(row).addClass('pre_post_start');
-            }
-            else
-              $(row).hide(); 
-            lastStartTime = startTimeSeconds;
+            if (data[i].status == 1 || this.messageBibs.indexOf(data[i].dbid) > -1)
+              $(row).addClass('dns');
           }
         }
         catch (e) { };
@@ -2227,7 +2217,8 @@ var LiveResults;
             data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
           }
           );
-        this.messageBibs.push(dbid);
+        if (DNS) 
+          this.messageBibs.push(dbid);
       }
     };
 

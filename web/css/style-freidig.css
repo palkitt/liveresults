@@ -48,6 +48,7 @@ h3{font-size:1em; font-weight:normal; margin-bottom: 0px;}
 .firstnonqualifier {border-top: 3px solid gray !important;} 
 .firststarter {border-top: 5px solid black !important;}
 .pre_post_start {background-color: #DFDFDF !important;}
+.dns {text-decoration: line-through; }
 
 /* Submenu classes */
 /*td.submenu{background: #3A5C9C; border-left:1px solid #ABC9EF; border-right:1px solid #ABC9EF;}*/
