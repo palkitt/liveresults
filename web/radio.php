@@ -111,49 +111,12 @@ $(document).ready(function()
   else
     res.updateRadioPassings(<?=$_GET['code']?>,callTime,minBib,maxBib);
 
-	$('#filterText').on('keyup', function () {
-    res.filterTable();
-	});
-
-  var callTimeTimer = null;
-	$('#callTime').on('keyup', function () 
-  {
-		clearTimeout(callTimeTimer); 
-		callTimeTimer = setTimeout(function(){ 
-      callTime = document.getElementById("callTime").value;
-      res.updateStartRegistration(<?=(isset($_GET['openstart'])?1:0)?>);
-    }, 500);
-	});
-  
-  var postTimeTimer = null;
-	$('#postTime').on('keyup', function () 
-  {
-		clearTimeout(postTimeTimer); 
-		postTimeTimer = setTimeout(function(){ 
-      postTime = document.getElementById("postTime").value;
-      res.updateStartRegistration(<?=(isset($_GET['openstart'])?1:0)?>);
-    }, 500);
-	});
-
-  var minBibTimer = null;
-	$('#minBib').on('keyup', function () 
-  {
-		clearTimeout(minBibTimer); 
-		minBibTimer = setTimeout(function(){
-      minBib = document.getElementById("minBib").value; 
-      res.updateStartRegistration(<?=(isset($_GET['openstart'])?1:0)?>);
-    }, 500);
-	});
-
-  var maxBibTimer = null;
-	$('#maxBib').on('keyup', function () 
-  {
-		clearTimeout(maxBibTimer); 
-		maxBibTimer = setTimeout(function(){ 
-      maxBib = document.getElementById("maxBib").value; 
-      res.updateStartRegistration(<?=(isset($_GET['openstart'])?1:0)?>);
-    }, 500);
-	});
+	$('#filterText').on('keyup', function () { res.filterTable();	});
+	$('#callTime').on('keyup', function () { callTime = document.getElementById("callTime").value	});  
+	$('#postTime').on('keyup', function () { postTime = document.getElementById("postTime").value; });
+	$('#minBib').on('keyup', function () { minBib = document.getElementById("minBib").value; });
+	$('#maxBib').on('keyup', function () { maxBib = document.getElementById("maxBib").value; });
+	
 });	
 </script>
 </head>

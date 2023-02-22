@@ -1669,7 +1669,6 @@ var LiveResults;
         this.radioData.sort(this.startSorter);
 
         // Modify data-table
-
         if (this.currentTable != null) // Existing datatable
         {
           var scrollX = window.scrollX;
@@ -1787,8 +1786,8 @@ var LiveResults;
             });
           }
         }
-        this.dynamicStartRegistration(openStart);
-        this.updateStartRegistrationTimer = setInterval(function () { _this.dynamicStartRegistration(openStart); }, 1000);      
+        this.filterStartRegistration(openStart);
+        this.updateStartRegistrationTimer = setInterval(function () { _this.filterStartRegistration(openStart); }, 1000);      
       };
       this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(openStart); }, this.radioUpdateInterval);
     };
@@ -1808,7 +1807,7 @@ var LiveResults;
       }
     
     // Update start list
-    AjaxViewer.prototype.dynamicStartRegistration = function (openStart) {
+    AjaxViewer.prototype.filterStartRegistration = function (openStart) {
       if (this.radioData != null) {
         try {
           var dt = new Date();
