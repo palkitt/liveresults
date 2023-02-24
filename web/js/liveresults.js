@@ -1830,7 +1830,11 @@ var LiveResults;
           var firstInCallTime = true;
           var firstInPostTime = true;
           var lastStartTime   = -1000; 
-          
+
+          var shownId = Array(0);
+          if (this.prewShownId == undefined)
+            this.prewShownId = Array(0);
+
           // *** Hide or highlight rows ***
           for (var i = 0; i < data.length; i++){
             var row = table.row(i).node();
@@ -1843,6 +1847,7 @@ var LiveResults;
             
             if (data[i].dbid < 0){
               $(row).show();
+              shownId.push({dbid : data[i].dbid});
               if (firstUnknown){
                 $(row).addClass('firstnonqualifier');
                 firstUnknown = false;
@@ -1854,6 +1859,7 @@ var LiveResults;
             if (openStart){
               if (data[i].starttime == -999){
                 $(row).show();
+                shownId.push({dbid : data[i].dbid});
                 if (firstOpen){
                   $(row).addClass('firstnonqualifier');
                   firstOpen = false;
@@ -1868,6 +1874,7 @@ var LiveResults;
                 continue;
               else if (timeToStart < 0){
                 $(row).show();
+                shownId.push({dbid : data[i].dbid});
                 $(row).addClass('pre_post_start')
                 if (firstInPostTime){
                   $(row).addClass('firststarter');
@@ -1876,6 +1883,7 @@ var LiveResults;
               }
               else if (timeToStart <= callTime){
                 $(row).show();
+                shownId.push({dbid : data[i].dbid});
                 if (firstInCallTime){
                   $(row).addClass('firststarter yellow_row');
                   firstInCallTime = false;
@@ -1888,6 +1896,7 @@ var LiveResults;
               else if (timeToStart <= callTime + preTime)
               {
                 $(row).show();
+                shownId.push({dbid : data[i].dbid});
                 $(row).addClass('pre_post_start');
               }
               lastStartTime = startTimeSeconds;
@@ -1895,6 +1904,8 @@ var LiveResults;
             if (data[i].status == 1 || this.messageBibs.indexOf(data[i].dbid) > -1)
               $(row).addClass('dns');
           }
+          this.animateTable(this.prewShownId,shownId,this.animTime,false);
+          this.prewShownId = shownId;
         }
         catch (e) { };
       }
@@ -2383,25 +2394,8 @@ var LiveResults;
         return
       try {
         var _this = this;
-        var tableDT = this.currentTable.api();
         var isResTab = (newData[0].virtual_position != undefined);
-        var table = null;
-        var fixedTable = null;
-        this.currentTable.fnAdjustColumnSizing();
-
-        if (isResTab) // Result table
-        {
-          tableDT.draw();
-          table = $('#' + this.resultsDiv);
-          var order = tableDT.order();
-          var numCol = tableDT.settings().columns()[0].length;
-          if (order[0][0] != numCol - 1) // Not sorted on virtual position
-            return;
-          fixedTable = $(table.DataTable().cell(0, 0).fixedNode()).parents('table')[0];
-        }
-        else // Radio table
-          table = $('#' + this.radioPassingsDiv);
-
+        
         // Make list of indexes and progress for all runners 
         var prevInd = new Object();
         var progress = new Object();
@@ -2416,7 +2410,7 @@ var LiveResults;
         }
 
         var oldIndArray = new Object(); // List of old indexes
-        var updProg = new Object();  // List of progress change
+        var updProg = new Object();     // List of progress change
         for (var i = 0; i < newData.length; i++) {
           var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
           var newInd = (isResTab ? newData[i].virtual_position : i);
@@ -2433,10 +2427,26 @@ var LiveResults;
           }
         }
         if (Object.keys(oldIndArray).length == 0) // No modifications
-        {
-          this.currentTable.api().draw();
           return;
+
+        // Prepare for animation
+        var tableDT = this.currentTable.api();
+        var table = null;
+        var fixedTable = null;
+        this.currentTable.fnAdjustColumnSizing();
+        
+        if (isResTab) // Result table
+        {
+          tableDT.draw();
+          table = $('#' + this.resultsDiv);
+          var order = tableDT.order();
+          var numCol = tableDT.settings().columns()[0].length;
+          if (order[0][0] != numCol - 1) // Not sorted on virtual position
+            return;
+          fixedTable = $(table.DataTable().cell(0, 0).fixedNode()).parents('table')[0];
         }
+        else // Radio table
+          table = $('#' + this.radioPassingsDiv);
 
         if (predRank)
           clearInterval(this.updatePredictedTimeTimer);
@@ -2451,11 +2461,18 @@ var LiveResults;
 
         // Put all the rows back in place
         var rowPosArray = new Array();
+        var rowIndArray = new Array();
+        var ind = -1;
         var tableTop = $(table)[0].getBoundingClientRect().top;
         $(table).find('tr').each(function () {
+          ind ++;  
           var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop > 1 ? -1.5 : -0.5);
-          rowPosArray.push(rowPos);
-          $(this).css('top', rowPos);
+            $(this).css('top', rowPos);
+            if ($(this).is(":visible"))
+            { 
+              rowPosArray.push(rowPos);
+              rowIndArray.push(ind);
+            }
         });
 
         // Set table cells position to absolute
@@ -2479,9 +2496,9 @@ var LiveResults;
           var oldInd = oldIndArray[newInd];
           var oldPos = rowPosArray[oldInd + 1];
           var newPos = rowPosArray[newInd + 1];
-          var row = $(table).find("tbody tr").eq(newInd);
+          var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);
           if (isResTab)
-            var rowFix = $(fixedTable).find("tbody tr").eq(newInd);
+            var rowFix = $(fixedTable).find("tbody tr").eq(rowIndArray[newInd+1]);
           var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : 'white');
           var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : 'white');
           var zind;
