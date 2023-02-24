@@ -2397,44 +2397,38 @@ var LiveResults;
         var isResTab = (newData[0].virtual_position != undefined);
         
         // Make list of indexes and progress for all runners 
-        var prevInd = new Object();
-        var progress = new Object();
+        var prevInd = new Object();  // List of old indexes
+        var prevProg = new Object(); // List of old progress
         for (var i = 0; i < oldData.length; i++) {
           var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
           if (prevInd[oldID] != undefined) {
-            prevInd[oldID] = "noAnimation";
-            continue
+            prevInd[oldID] = "noAnimation"; // Skip if two identical ID
           }
-          prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
-          progress[oldID] = (isResTab ? oldData[i].progress : 100);
+          else {
+            prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
+            prevProg[oldID] = (isResTab ? oldData[i].progress : 100);
+          }
         }
 
-        var oldIndArray = new Object(); // List of old indexes
-        var updProg = new Object();     // List of progress change
+        var lastInd = new Object(); // List of last index for updated entries
+        var updProg = new Object(); // List of progress change
         for (var i = 0; i < newData.length; i++) {
           var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
           var newInd = (isResTab ? newData[i].virtual_position : i);
-          if (prevInd[newID] == "noAnimation")
-            continue;
-          else if (prevInd[newID] == undefined) // New entry
-          {
-            oldIndArray[newInd] = newInd;
-            updProg[newInd] = false;
-          }
-          else if (prevInd[newID] != newInd) {
-            oldIndArray[newInd] = prevInd[newID];
-            updProg[newInd] = (isResTab ? progress[newID] != newData[i].progress : false);
+          if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
+            lastInd[newInd] = prevInd[newID];
+            updProg[newInd] = (isResTab ? prevProg[newID] != newData[i].progress : false);
           }
         }
-        if (Object.keys(oldIndArray).length == 0) // No modifications
+        if (Object.keys(lastInd).length == 0) // No modifications
           return;
 
         // Prepare for animation
-        var tableDT = this.currentTable.api();
         var table = null;
         var fixedTable = null;
+        var tableDT = this.currentTable.api();
         this.currentTable.fnAdjustColumnSizing();
-        
+          
         if (isResTab) // Result table
         {
           tableDT.draw();
@@ -2462,17 +2456,17 @@ var LiveResults;
         // Put all the rows back in place
         var rowPosArray = new Array();
         var rowIndArray = new Array();
-        var ind = -1;
+        var ind = -1; // -1:header; 0:first data
         var tableTop = $(table)[0].getBoundingClientRect().top;
         $(table).find('tr').each(function () {
-          ind ++;  
           var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop > 1 ? -1.5 : -0.5);
             $(this).css('top', rowPos);
             if ($(this).is(":visible"))
-            { 
+            {               
               rowPosArray.push(rowPos);
               rowIndArray.push(ind);
             }
+            ind++;  
         });
 
         // Set table cells position to absolute
@@ -2491,10 +2485,10 @@ var LiveResults;
         // Animation
         this.animating = true;
         this.numAnimElements = 0;
-        for (var newIndStr in oldIndArray) {
-          var newInd = parseInt(newIndStr);
-          var oldInd = oldIndArray[newInd];
-          var oldPos = rowPosArray[oldInd + 1];
+        for (var lastIndStr in lastInd) {
+          var newInd = parseInt(lastIndStr);
+          var oldInd = lastInd[newInd];
+          var oldPos = rowPosArray[oldInd + 1]; // First entry is header
           var newPos = rowPosArray[newInd + 1];
           var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);
           if (isResTab)
