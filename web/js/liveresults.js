@@ -1823,7 +1823,7 @@ var LiveResults;
           var minBib = parseInt($('#minBib')[0].value);
           var maxBib = parseInt($('#maxBib')[0].value);
 
-          var preTime  = 30;
+          var preTime  = 60;
 
           var firstUnknown = true;
           var firstOpen = true;
@@ -1872,7 +1872,7 @@ var LiveResults;
               var timeToStart = startTimeSeconds-time;
               if (timeToStart < -postTime)
                 continue;
-              else if (timeToStart < 0){
+              else if (timeToStart <= 0){
                 $(row).show();
                 shownId.push({dbid : data[i].dbid});
                 $(row).addClass('pre_post_start')
