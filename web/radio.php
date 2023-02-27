@@ -51,8 +51,8 @@ var Resources = null;
 var runnerStatus = null;
 var callTime = 3;
 var postTime = 5;
-var minBib = -10000;
-var maxBib =  10000;
+var minBib = -100000;
+var maxBib =  100000;
 
 function switchOpenTimed(open)
 {
@@ -80,7 +80,7 @@ $(document).ready(function()
 	res.compName = "<?=$currentComp->CompName()?>";
 	res.compDate = "<?=$currentComp->CompDate()?>";
 	
-	if (<?= $_GET['code']?>==0 || <?= $_GET['code']?>==-999 || <?= $_GET['code']?>==-10)
+	if (<?= $_GET['code']?>==0 || <?= $_GET['code']?>==-999)
     res.radioStart = true;
 		
   function updateClock() 
@@ -125,64 +125,65 @@ $(document).ready(function()
 <?php if (!isset($_GET['comp']) || !isset($_GET['code'])) { ?>
   <h1 class="categoriesheader">Feil. Har du satt compID og postkode? Eks: radio.php?comp=15109&code=120</h1>
 <?php } else { ?>
-<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
-	<tr valign=top>
-	<td> 
+	<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
+	<tr valign=top><td> 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
     <tr>
-      <?php if ($_GET['code']==-10) { ?>
-      <td align="left">
-        <span id="liveIndicator">◉</span>
-        <b>
-        <?php if (isset($_GET['openstart'])){ ?> 
-          Fristart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(0)">Tid→</a>
-       <?php } else { ?> 
-          Tidsstart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(1)">Fri→</a>
-        <?php } ?>
+    <?php if ($_GET['code']==-10) { ?>
+      <tr>
+        <td align="left"><span id="liveIndicator">◉</span>
+          <?php if (isset($_GET['openstart'])){ ?> 
+            <b>Fristart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(0)">Tid→</a>
+          <?php } else { ?> 
+            <b>Tidsstart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(1)">Fri→</a>
+          <?php } ?>
         </td>
         <td align="right">Før ⏲ <input type="text" id="callTime" style="width: 20px;"></td>
         <td align="right">Min № <input type="text" id="minBib" style="width: 50px;"></td>
-        <td align="right"><span id="pretime" style="font-style:italic; color:lightgray">00:00:00</span></td>
+        <td align="right" width="10%"><span id="pretime" style="font-style:italic; color:lightgray">00:00:00</span></td>
       </tr>
       <tr>
         <td align="left"><input type="text" id="filterText" placeholder="filter..." style="width: 90px;"></td>
         <td align="right">Etter ⏲ <input type="text" id="postTime" style="width: 20px;"></td>
         <td align="right">Max № <input type="text" id="maxBib" style="width: 50px;"></td>      
-        <td align="right"><span id="time">00:00:00</span></td>
+        <td align="right" width="10%"><span id="time">00:00:00</span></td>
+      </tr>
     <?php } else { ?>
-      <td>
-        <span id="liveIndicator">◉</span>
-        <b>
+      <tr>
+        <td><span id="liveIndicator">◉</span><b>
           <?php 
           if ($_GET['code']==0){?> Start <?php }
           else if ($_GET['code']==-999){?> Fristart <?php }
           else if ($_GET['code']==1000){?> Mål <?php }
           else if ($_GET['code']==-1){?> Meldepost: Alle <?php }
           else if ($_GET['code']==-2){?> Ute i løypa <?php }
-          else {?> Meldepost: <?= $_GET['code']?> <?php } 
+          else {?> Meldepost: <?= $_GET['code']?> <?php }
           if ($_GET['code']==0){ ?> 
             <a href="radio.php?comp=<?= $_GET['comp']?>&code=-999<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">&nbsp;&nbsp;Fristart→</a>
           <?php } ?>
           <?php if ($_GET['code']==-999){ ?> 
             <a href="radio.php?comp=<?= $_GET['comp']?>&code=0<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">&nbsp;&nbsp;Tidsstart→</a>
           <?php } ?>        
-        </b>
-      </td>
-      <td align="right"><input type="text" id="filterText" placeholder="filter..." style="width: 30px;"></td>
-      <?php if ($_GET['code']==0 || $_GET['code']==-999){?> 
-        <td align="right">(<span id="pretime">00:00:00</span>)&nbsp&nbsp</td>
-      <?php }?>
-      <td align="right"><span id="time">00:00:00</span></td>
-    <?php }?>
-    </tr>
-	</table>
-	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
-		<tr valign=top><tr><td><table id="divRadioPassings"></table></td></tr>
-	</table>
-</td>
-</table>
-<?php }?>
-<?php if ($_GET['code']==-2){?> Antall: <span id="numberOfRunners"></span> <?php } ?>
+          </b>
+        </td>
+        <td align="right"><input type="text" id="filterText" placeholder="filter..." style="width: 30px;"></td>
+        <?php if ($_GET['code']==0 || $_GET['code']==-999){?> 
+          <td align="right">(<span id="pretime">00:00:00</span>)&nbsp&nbsp</td>
+        <?php }?>
+        <td align="right"><span id="time">00:00:00</span></td>
+      </tr>
+    <?php } ?>
+  </table>
+  </td></tr>
+  <tr><td>
+    <table width="100%" cellpadding="3px" cellspacing="0px" border="0">
+      <tr valign=top><td><table id="divRadioPassings"></table></td></tr>
+    </table>
+  </td></tr>
+  </table>
+  <?php if ($_GET['code']==-2){?> Antall: <span id="numberOfRunners"></span> <?php } ?>
+<?php } ?>
+
 <p align="left"><font color="#AAA" size="0.7em">
 Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br> 
 </body>

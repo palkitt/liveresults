@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = false;
+      this.local = true;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -75,7 +75,6 @@ var LiveResults;
       this.serverTimeDiff = 0;
       this.eventTimeZoneDiff = 0;
       this.radioData = null;
-      this.oldRadioData = null;
       this.compName = "";
       this.compDate = "";
       this.qualLimits = null;
@@ -84,6 +83,7 @@ var LiveResults;
       this.noSplits = false;
       this.radioStart = false;
       this.filterDiv = filterDiv;
+      this.prewShownId = Array(0);
       this.predData = Array(0);
       this.rankedStartlist = true;
       this.relayClasses = [];
@@ -1824,17 +1824,13 @@ var LiveResults;
           var maxBib = parseInt($('#maxBib')[0].value);
 
           var preTime  = 60;
-
           var firstUnknown = true;
           var firstOpen = true;
           var firstInCallTime = true;
           var firstInPostTime = true;
           var lastStartTime   = -1000; 
-
           var shownId = Array(0);
-          if (this.prewShownId == undefined)
-            this.prewShownId = Array(0);
-
+  
           // *** Hide or highlight rows ***
           for (var i = 0; i < data.length; i++){
             var row = table.row(i).node();
@@ -1870,7 +1866,7 @@ var LiveResults;
               $(row).removeClass();
               var startTimeSeconds = data[i].starttime/100;
               var timeToStart = startTimeSeconds-time;
-              if (timeToStart < -postTime)
+              if (timeToStart <= -postTime)
                 continue;
               else if (timeToStart <= 0){
                 $(row).show();
@@ -1904,7 +1900,14 @@ var LiveResults;
             if (data[i].status == 1 || this.messageBibs.indexOf(data[i].dbid) > -1)
               $(row).addClass('dns');
           }
-          this.animateTable(this.prewShownId,shownId,this.animTime,false);
+
+          for (var i = 0; i < shownId.length; ++i) {
+            if (shownId[i].dbid !== this.prewShownId[i])
+            {
+              this.animateTable(_this.prewShownId,shownId,_this.animTime,false);
+              break;
+            }
+          }
           this.prewShownId = shownId;
         }
         catch (e) { };
@@ -2421,9 +2424,12 @@ var LiveResults;
           }
         }
         if (Object.keys(lastInd).length == 0) // No modifications
+        {
           return;
+        }
 
         // Prepare for animation
+        this.animating = true;
         var table = null;
         var fixedTable = null;
         var tableDT = this.currentTable.api();
