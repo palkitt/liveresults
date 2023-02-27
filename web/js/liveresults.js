@@ -1786,8 +1786,7 @@ var LiveResults;
             });
           }
         }
-        this.filterStartRegistration(openStart);
-        this.updateStartRegistrationTimer = setInterval(function () { _this.filterStartRegistration(openStart); }, 1000);      
+        this.filterStartRegistration(openStart);     
       };
       this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(openStart); }, this.radioUpdateInterval);
     };
@@ -1909,6 +1908,7 @@ var LiveResults;
             }
           }
           this.prewShownId = shownId;
+          this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, 1000);  
         }
         catch (e) { };
       }
