@@ -1842,7 +1842,7 @@ var LiveResults;
             
             if (data[i].dbid < 0){
               $(row).show();
-              shownId.push({dbid : data[i].dbid});
+              shownId.push({dbid: data[i].dbid});
               if (firstUnknown){
                 $(row).addClass('firstnonqualifier');
                 firstUnknown = false;
@@ -1854,7 +1854,7 @@ var LiveResults;
             if (openStart){
               if (data[i].starttime == -999){
                 $(row).show();
-                shownId.push({dbid : data[i].dbid});
+                shownId.push({dbid: data[i].dbid});
                 if (firstOpen){
                   $(row).addClass('firstnonqualifier');
                   firstOpen = false;
@@ -1869,7 +1869,7 @@ var LiveResults;
                 continue;
               else if (timeToStart <= 0){
                 $(row).show();
-                shownId.push({dbid : data[i].dbid});
+                shownId.push({dbid: data[i].dbid});
                 $(row).addClass('pre_post_start')
                 if (firstInPostTime){
                   $(row).addClass('firststarter');
@@ -1878,7 +1878,7 @@ var LiveResults;
               }
               else if (timeToStart <= callTime){
                 $(row).show();
-                shownId.push({dbid : data[i].dbid});
+                shownId.push({dbid: data[i].dbid});
                 if (firstInCallTime){
                   $(row).addClass('firststarter yellow_row');
                   firstInCallTime = false;
@@ -1891,7 +1891,7 @@ var LiveResults;
               else if (timeToStart <= callTime + preTime)
               {
                 $(row).show();
-                shownId.push({dbid : data[i].dbid});
+                shownId.push({dbid: data[i].dbid});
                 $(row).addClass('pre_post_start');
               }
               lastStartTime = startTimeSeconds;
@@ -1913,8 +1913,6 @@ var LiveResults;
         catch (e) { };
       }
     }
-
-
     
     // Runner name shortener
     AjaxViewer.prototype.nameShort = function (name) {
@@ -2424,9 +2422,7 @@ var LiveResults;
           }
         }
         if (Object.keys(lastInd).length == 0) // No modifications
-        {
           return;
-        }
 
         // Prepare for animation
         this.animating = true;
@@ -2498,9 +2494,9 @@ var LiveResults;
           var newPos = rowPosArray[newInd + 1];
           var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);
           if (isResTab)
-            var rowFix = $(fixedTable).find("tbody tr").eq(rowIndArray[newInd+1]);
-          var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : 'white');
-          var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : 'white');
+            var rowFix = $(fixedTable).find("tbody tr").eq(rowIndArray[newInd+1]);                    
+          var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
+          var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
           var zind;
           var zindFix;
           if (predRank) // Update from predictions of running times 
