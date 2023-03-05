@@ -36,7 +36,6 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
-<script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
 <script language="javascript" type="text/javascript">
 
 var noSleep = new NoSleep();
@@ -48,33 +47,32 @@ function enableNoSleep() {
 
 document.addEventListener('click', enableNoSleep, false);
 var res = null;
-var res2 = null;
 var Resources = null;
 var runnerStatus = null;
-var calltime = 3;
-var minbib = -99999999;
-var maxbib =  99999999;
+var callTime = 3;
+var postTime = 5;
+var minBib = -100000;
+var maxBib =  100000;
+
+function switchOpenTimed(open)
+{
+  var url = "radio.php?comp=<?= $_GET['comp']?>&code=-10&calltime="+callTime+"&posttime="+postTime+"&minbib="+minBib+"&maxbib="+maxBib;
+  if (open) 
+    url += "&openstart";
+  window.location = url;
+}
 
 $(document).ready(function()
 {
-	try
-	{
-		time_is_widget.init({Oslo_z71e:{}});
-	}
-	catch (error)
-	{}
-	
 	<?php 
 		if (isset($_GET['calltime']))
-			echo 'calltime = ', $_GET['calltime'] ,';'
-	?>
-	<?php 
+			echo 'callTime = ', $_GET['calltime'] ,';';
+    if (isset($_GET['posttime']))
+			echo 'postTime = ', $_GET['posttime'] ,';';
 		if (isset($_GET['minbib']))
-			echo 'minbib = ', $_GET['minbib'] ,';'
-	?>
-	<?php 
+			echo 'minBib = ', $_GET['minbib'] ,';';
 		if (isset($_GET['maxbib']))
-			echo 'maxbib = ', $_GET['maxbib'] ,';'
+			echo 'maxBib = ', $_GET['maxbib'] ,';';
 	?>
 		
 	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
@@ -83,109 +81,109 @@ $(document).ready(function()
 	res.compDate = "<?=$currentComp->CompDate()?>";
 	
 	if (<?= $_GET['code']?>==0 || <?= $_GET['code']?>==-999)
-	{ 
-		var clockElement = document.getElementById( "clock" );
-		function updateClock ( clock ) 
-		{
-			var currTime = new Date();
-			var preTime = new Date(currTime.valueOf()+calltime*60*1000);
-			var HTMLstring = preTime.toLocaleTimeString('en-GB');
-			clock.innerHTML = HTMLstring;
-		}
-		setInterval(function () {updateClock( clockElement );}, 1000);
-		res.radioStart = true;
-	}
-	res.updateRadioPassings(<?= $_GET['code']?>,calltime,minbib,maxbib);
-
-	$('#filterText').on('keyup', function () {
-        res.filterTable();
-	}); 	
-
-	if (<?= (isset($_GET['code2']) ? 1 : 0 ) ?>)
-	{
-		res2 = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
-		       Resources,false,true,"setAutomaticUpdateText","setCompactViewText", runnerStatus, true,"divRadioPassings2",false, "filterText2");
-  	    res2.compName = "<?=$currentComp->CompName()?>";
-        res2.compDate = "<?=$currentComp->CompDate()?>";
-		res2.updateRadioPassings(<?= (isset($_GET['code2']) ? $_GET['code2'] : 1) ?>,calltime,minbib,maxbib);
+    res.radioStart = true;
 		
-		$('#filterText2').on('keyup', function () {
-        	res2.filterTable();
-	}); 
+  function updateClock() 
+  {
+    var time = document.getElementById("time");
+    var currTime = new Date();
+    var HTMLstringCur = currTime.toLocaleTimeString('en-GB');
+    time.innerHTML = HTMLstringCur;
 
-	}
-
-            
-});
+    var preTimeID = document.getElementById("pretime");
+    if ( preTimeID!= null)
+    {
+      var preTime = new Date(currTime.valueOf()+callTime*60*1000);
+      var HTMLstringPre = preTime.toLocaleTimeString('en-GB');
+      preTimeID.innerHTML = HTMLstringPre;
+    }
+  }
+  setInterval(function () {updateClock( );}, 1000);
 	
+  if (<?=$_GET['code']?>==-10)
+  {
+    document.getElementById("callTime").value = callTime;
+    document.getElementById("postTime").value = postTime;
+    document.getElementById("minBib").value = minBib;
+    document.getElementById("maxBib").value = maxBib;
+	  res.updateStartRegistration(<?=(isset($_GET['openstart'])?1:0)?>);
+  }
+  else
+    res.updateRadioPassings(<?=$_GET['code']?>,callTime,minBib,maxBib);
+
+	$('#filterText').on('keyup', function () { res.filterTable();	});
+	$('#callTime').on('keyup', function () { callTime = document.getElementById("callTime").value	});  
+	$('#postTime').on('keyup', function () { postTime = document.getElementById("postTime").value; });
+	$('#minBib').on('keyup', function () { minBib = document.getElementById("minBib").value; });
+	$('#maxBib').on('keyup', function () { maxBib = document.getElementById("maxBib").value; });
+	
+});	
 </script>
 </head>
 <body>
 
-	<?php if (!isset($_GET['comp']) || !isset($_GET['code'])) 
-	{ ?>
-		<h1 class="categoriesheader">Feil. Har du satt compID og postkode? Eks: radio.php?comp=15109&code=120</h1>
-	<?php }
-	else
-	{ ?>
-<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
-	<tr><td width="<?= (isset($_GET['code2']) ? 50 : 100) ?>%"></td><td width="<?= (isset($_GET['code2']) ? 50 : 0) ?>%"></td></tr>
-	<tr valign=top>
-	<td> 
+<?php if (!isset($_GET['comp']) || !isset($_GET['code'])) { ?>
+  <h1 class="categoriesheader">Feil. Har du satt compID og postkode? Eks: radio.php?comp=15109&code=120</h1>
+<?php } else { ?>
+	<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
+	<tr valign=top><td> 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
-	<tr>
-		<td><span id="liveIndicator"></span>
-		<b>
-   			<?php if ($_GET['code']==0){?> Start <?php }
-			    else if ($_GET['code']==-999){?> Fristart <?php }
-	  			else if ($_GET['code']==1000){?> Mål <?php }
-	  			else if ($_GET['code']==-1){?> Meldepost: Alle <?php }
-	  			else if ($_GET['code']==-2){?> Ute i løypa <?php }
-	  			else {?> Meldepost: <?= $_GET['code']?> <?php } ?>
-		<?php if ($_GET['code']==0){ ?> 
-			<td align="center"><a href="radio.php?comp=<?= $_GET['comp']?>&code=-999<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Fristart</a></td>
-		<?php } ?>
-		<?php if ($_GET['code']==-999){ ?> 
-			<td align="center"><a href="radio.php?comp=<?= $_GET['comp']?>&code=0<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">Tidsstart</a></td>
-		<?php } ?>
-		</b>
-		</td>
-		<td align="center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
-		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-		<?php if ($_GET['code']==0 || $_GET['code']==-999){?> <td align="right"><b>(<span id="clock">00:00:00</span></b>)&nbsp&nbsp</td><?php }?>
-		<td align="right"><a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF">Time.is:</a>
-<span id="Oslo_z71e"></span></td>
-	</tr>
-	</table>
-	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
-		<tr valign=top><tr><td><table id="divRadioPassings"></table></td></tr>
-	</table>
-</td>
-<?php if (isset($_GET['code2'])) { ?>
-	<td>
-	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
-	<tr>
-		<td><b>
-   			<?php if ($_GET['code2']==0){?> Start <?php }
-			    else if ($_GET['code2']==-999){?> Fristart <?php }
-	  			else if ($_GET['code2']==1000){?> Mål <?php }
-	  			else if ($_GET['code2']==-1){?> Meldepost: Alle <?php }
-	  			else if ($_GET['code2']==-2){?> Ute i løypa <?php }
-	  			else {?> Meldepost: <?= $_GET['code2']?> <?php } ?>
-			</b>
-		</td>
-		<td align="center"><input type="text" id="filterText2" placeholder="filter..." size="5"></td>
-		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-	</tr>
-	</table>
-	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
-		<tr valign=top><tr><td><table id="divRadioPassings2"></table></td></tr>
-	</table>
-	</td>
-<?php } ?> 
-</table>
-<?php }?>
-<?php if ($_GET['code']==-2){?> Antall: <span id="numberOfRunners"></span> <?php } ?>
+    <tr>
+    <?php if ($_GET['code']==-10) { ?>
+      <tr>
+        <td align="left"><span id="liveIndicator">◉</span>
+          <?php if (isset($_GET['openstart'])){ ?> 
+            <b>Fristart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(0)">Tid→</a>
+          <?php } else { ?> 
+            <b>Tidsstart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(1)">Fri→</a>
+          <?php } ?>
+        </td>
+        <td align="right">Før ⏲ <input type="text" id="callTime" style="width: 20px;"></td>
+        <td align="right">Min № <input type="text" id="minBib" style="width: 50px;"></td>
+        <td align="right" width="10%"><span id="pretime" style="font-style:italic; color:lightgray">00:00:00</span></td>
+      </tr>
+      <tr>
+        <td align="left"><input type="text" id="filterText" placeholder="filter..." style="width: 90px;"></td>
+        <td align="right">Etter ⏲ <input type="text" id="postTime" style="width: 20px;"></td>
+        <td align="right">Max № <input type="text" id="maxBib" style="width: 50px;"></td>      
+        <td align="right" width="10%"><span id="time">00:00:00</span></td>
+      </tr>
+    <?php } else { ?>
+      <tr>
+        <td><span id="liveIndicator">◉</span><b>
+          <?php 
+          if ($_GET['code']==0){?> Start <?php }
+          else if ($_GET['code']==-999){?> Fristart <?php }
+          else if ($_GET['code']==1000){?> Mål <?php }
+          else if ($_GET['code']==-1){?> Meldepost: Alle <?php }
+          else if ($_GET['code']==-2){?> Ute i løypa <?php }
+          else {?> Meldepost: <?= $_GET['code']?> <?php }
+          if ($_GET['code']==0){ ?> 
+            <a href="radio.php?comp=<?= $_GET['comp']?>&code=-999<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">&nbsp;&nbsp;Fristart→</a>
+          <?php } ?>
+          <?php if ($_GET['code']==-999){ ?> 
+            <a href="radio.php?comp=<?= $_GET['comp']?>&code=0<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">&nbsp;&nbsp;Tidsstart→</a>
+          <?php } ?>        
+          </b>
+        </td>
+        <td align="right"><input type="text" id="filterText" placeholder="filter..." style="width: 30px;"></td>
+        <?php if ($_GET['code']==0 || $_GET['code']==-999){?> 
+          <td align="right">(<span id="pretime">00:00:00</span>)&nbsp&nbsp</td>
+        <?php }?>
+        <td align="right"><span id="time">00:00:00</span></td>
+      </tr>
+    <?php } ?>
+  </table>
+  </td></tr>
+  <tr><td>
+    <table width="100%" cellpadding="3px" cellspacing="0px" border="0">
+      <tr valign=top><td><table id="divRadioPassings"></table></td></tr>
+    </table>
+  </td></tr>
+  </table>
+  <?php if ($_GET['code']==-2){?> Antall: <span id="numberOfRunners"></span> <?php } ?>
+<?php } ?>
+
 <p align="left"><font color="#AAA" size="0.7em">
 Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br> 
 </body>

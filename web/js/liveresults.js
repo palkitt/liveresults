@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = false;
+      this.local = true;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -49,6 +49,7 @@ var LiveResults;
       this.runnerListTimer = null;
       this.resUpdateTimeout = null;
       this.updatePredictedTimeTimer = null;
+      this.updateStartRegistrationTimer = null;
       this.lastClassListHash = "";
       this.lastRunnerListHash = "";
       this.lastPassingsUpdateHash = "";
@@ -82,6 +83,7 @@ var LiveResults;
       this.noSplits = false;
       this.radioStart = false;
       this.filterDiv = filterDiv;
+      this.prewShownId = Array(0);
       this.predData = Array(0);
       this.rankedStartlist = true;
       this.relayClasses = [];
@@ -1357,8 +1359,8 @@ var LiveResults;
           dataType: "json"
         });
       }
-
     };
+
     //Handle response for updating the last radio passings..
     AjaxViewer.prototype.handleUpdateRadioPassings = function (data, expTime, code, calltime, minBib, maxBib) {
 
@@ -1618,6 +1620,300 @@ var LiveResults;
 
     };
 
+    //Request data for the last radio passings div
+    AjaxViewer.prototype.updateStartRegistration = function (openStart) {
+      var _this = this;
+      clearTimeout(this.radioPassingsUpdateTimer);
+      if (this.updateAutomatically) {
+        $.ajax({
+          url: this.apiURL,
+          data: "comp=" + this.competitionId + "&method=getrunners" + "&last_hash=" + this.lastRadioPassingsUpdateHash,
+          success: function (data, status, resp) {
+            var expTime = new Date();
+            expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+            _this.handleUpdateStartRegistration(data, expTime, openStart);
+          },
+          error: function () {
+            _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, _this.radioUpdateInterval);
+          },
+          dataType: "json"
+        });
+      }
+    };
+
+    //Handle response for updating the start registration
+    AjaxViewer.prototype.handleUpdateStartRegistration = function (data, expTime, openStart) {
+      if (data.rt != undefined && data.rt > 0)
+        this.radioUpdateInterval = data.rt * 1000;
+      $('#updateinterval').html(this.radioUpdateInterval / 1000);
+      if (expTime) {
+        var lastUpdate = new Date();
+        lastUpdate.setTime(expTime - this.radioUpdateInterval + 1000);
+        $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
+      }
+
+      // Make live blinker pulsing
+      if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
+        $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
+      if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
+        $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+
+      var _this = this;
+
+      // Insert data from query            
+      if (data != null && data.status == "OK") {
+
+        clearTimeout(this.updateStartRegistrationTimer);
+        this.lastRadioPassingsUpdateHash = data.hash;
+        this.radioData = data.runners;
+        this.radioData.sort(this.startSorter);
+
+        // Modify data-table
+        if (this.currentTable != null) // Existing datatable
+        {
+          var scrollX = window.scrollX;
+          var scrollY = window.scrollY;
+          //var oldData = $.extend(true, [], this.currentTable.fnGetData());
+          this.currentTable.fnClearTable();
+          this.currentTable.fnAddData(this.radioData, true);
+          this.filterTable();
+          window.scrollTo(scrollX, scrollY);
+          //this.animateTable(oldData, this.radioData, this.animTime);
+        }  
+        else if (this.currentTable == null) // New datatable
+        {
+          if (this.radioData != null && this.radioData.length > 0) {
+            var columns = Array();
+            var col = 0;    
+            columns.push({
+              "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+              "render": function (data, type, row) {
+                if (type === 'display') {
+                  if (data < 0) // Relay
+                    return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
+                  else if (data > 0)    // Ordinary
+                    return "<span class=\"bib\">" + data + "</span>";
+                  else
+                    return "";
+                }
+                else
+                  return Math.abs(data);
+              }
+            });
+            columns.push({
+              "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
+              "render": function (data, type, row) {
+                if (type === 'display') 
+                {
+                  var name = (data.length > _this.maxNameLength? _this.nameShort(data) : data);                  
+                  return name;
+                }
+                else
+                  return data;
+              }
+            });
+            columns.push({
+              "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
+              "render": function (data, type, row) {
+                if (type === 'display') 
+                {
+                  var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);                  
+                  return club;
+                }
+                else
+                  return data;               
+              }
+            });
+            columns.push({
+              "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
+              "render": function (data, type, row) {
+                var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
+                link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
+                return link;
+              }
+            });
+            columns.push({
+              "sTitle": "Brikke", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
+              "render": function (data, type, row) {
+                var ecards = "";
+                if (row.ecard1 > 0) {
+                  ecards += row.ecard1;
+                  if (row.ecard2 > 0) ecards += " / " + row.ecard2;
+                }
+                else
+                  if (row.ecard2 > 0) ecards += row.ecard2;
+                var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
+                var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards + "');\">";
+                if (row.checked == 1 || row.status == 9)
+                  ecardstr += "&#9989; "; // Green checkmark
+                else
+                  ecardstr += "&#11036; "; // Empty checkbox
+                ecardstr += ecards;
+                ecardstr += "</div>";
+                return ecardstr;
+              }
+            });
+            columns.push({
+              "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
+              "render": function (data, type, row) {
+                return data;
+              }
+            });
+            
+            var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
+            columns.push({
+              "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
+              "render": function (data, type, row) {
+                var defaultDNS = (row.dbid > 0 ? 1 : 0);
+                var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
+                var link = "<button onclick=\"res.popupDialog('" + name + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";
+                return link;
+              }
+            });
+
+            this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
+              "bPaginate": false,
+              "bLengthChange": false,
+              "bFilter": true,
+              "dom": 'lrtip',
+              "bSort": false,
+              "bInfo": false,
+              "bAutoWidth": false,
+              "aaData": this.radioData,
+              "aoColumnDefs": columns,
+              "bDestroy": true,
+              "orderCellsTop": true
+            });
+          }
+        }
+        this.filterStartRegistration(openStart);     
+      };
+      this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(openStart); }, this.radioUpdateInterval);
+    };
+
+    AjaxViewer.prototype.startSorter = function (a, b) {      
+      var diffStart = b.starttime - a.starttime;
+      if (a.dbid < 0 && b.dbid > 0)
+        return -1;
+      else if (a.dbid > 0 && b.dbid < 0)
+        return 1;
+      else if (diffStart != 0)
+        return diffStart;
+      else if (a.starttime == -999)
+        return a.bib - b.bib;
+      else
+        return b.bib - a.bib;
+      }
+    
+    // Update start list
+    AjaxViewer.prototype.filterStartRegistration = function (openStart) {
+      if (this.radioData != null) {
+        try {
+          var dt = new Date();
+          var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
+          var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
+          var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
+          var time = Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));          
+          var data = this.currentTable.fnGetData();
+          var table = this.currentTable.api();
+
+          var callTime = parseInt($('#callTime')[0].value)*60;
+          var postTime = parseInt($('#postTime')[0].value)*60;
+          var minBib = parseInt($('#minBib')[0].value);
+          var maxBib = parseInt($('#maxBib')[0].value);
+
+          var preTime  = 60;
+          var firstUnknown = true;
+          var firstOpen = true;
+          var firstInCallTime = true;
+          var firstInPostTime = true;
+          var lastStartTime   = -1000; 
+          var shownId = Array(0);
+  
+          // *** Hide or highlight rows ***
+          for (var i = 0; i < data.length; i++){
+            var row = table.row(i).node();
+            $(row).hide();
+            
+            const showStatus = [1,9,10]; // DNS, Started, Entered
+            if (data[i].bib < minBib || data[i].bib > maxBib || !showStatus.includes(data[i].status)){
+              continue;
+            }
+            
+            if (data[i].dbid < 0){
+              $(row).show();
+              shownId.push({dbid: data[i].dbid});
+              if (firstUnknown){
+                $(row).addClass('firstnonqualifier');
+                firstUnknown = false;
+              }
+              $(row).addClass('red_row');
+              continue;
+            }
+
+            if (openStart){
+              if (data[i].starttime == -999){
+                $(row).show();
+                shownId.push({dbid: data[i].dbid});
+                if (firstOpen){
+                  $(row).addClass('firstnonqualifier');
+                  firstOpen = false;
+                }
+              }
+            }
+            else{ // Timed start
+              $(row).removeClass();
+              var startTimeSeconds = data[i].starttime/100;
+              var timeToStart = startTimeSeconds-time;
+              if (timeToStart <= -postTime)
+                continue;
+              else if (timeToStart <= 0){
+                $(row).show();
+                shownId.push({dbid: data[i].dbid});
+                $(row).addClass('pre_post_start')
+                if (firstInPostTime){
+                  $(row).addClass('firststarter');
+                  firstInPostTime = false;
+                }
+              }
+              else if (timeToStart <= callTime){
+                $(row).show();
+                shownId.push({dbid: data[i].dbid});
+                if (firstInCallTime){
+                  $(row).addClass('firststarter yellow_row');
+                  firstInCallTime = false;
+                }
+                else if (lastStartTime - startTimeSeconds > 29)
+                  $(row).addClass('yellow_row_new');
+                else
+                  $(row).addClass('yellow_row');
+              }
+              else if (timeToStart <= callTime + preTime)
+              {
+                $(row).show();
+                shownId.push({dbid: data[i].dbid});
+                $(row).addClass('pre_post_start');
+              }
+              lastStartTime = startTimeSeconds;
+            }
+            if (data[i].status == 1 || this.messageBibs.indexOf(data[i].dbid) > -1)
+              $(row).addClass('dns');
+          }
+
+          for (var i = 0; i < shownId.length; ++i) {
+            if (shownId[i].dbid !== this.prewShownId[i])
+            {
+              this.animateTable(_this.prewShownId,shownId,_this.animTime,false);
+              break;
+            }
+          }
+          this.prewShownId = shownId;
+          this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, 1000);  
+        }
+        catch (e) { };
+      }
+    }
+    
     // Runner name shortener
     AjaxViewer.prototype.nameShort = function (name) {
       if (!name)
@@ -1932,7 +2228,8 @@ var LiveResults;
             data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
           }
           );
-        this.messageBibs.push(dbid);
+        if (DNS) 
+          this.messageBibs.push(dbid);
       }
     };
 
@@ -2098,12 +2395,42 @@ var LiveResults;
         return
       try {
         var _this = this;
-        var tableDT = this.currentTable.api();
         var isResTab = (newData[0].virtual_position != undefined);
+        
+        // Make list of indexes and progress for all runners 
+        var prevInd = new Object();  // List of old indexes
+        var prevProg = new Object(); // List of old progress
+        for (var i = 0; i < oldData.length; i++) {
+          var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
+          if (prevInd[oldID] != undefined) {
+            prevInd[oldID] = "noAnimation"; // Skip if two identical ID
+          }
+          else {
+            prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
+            prevProg[oldID] = (isResTab ? oldData[i].progress : 100);
+          }
+        }
+
+        var lastInd = new Object(); // List of last index for updated entries
+        var updProg = new Object(); // List of progress change
+        for (var i = 0; i < newData.length; i++) {
+          var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
+          var newInd = (isResTab ? newData[i].virtual_position : i);
+          if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
+            lastInd[newInd] = prevInd[newID];
+            updProg[newInd] = (isResTab ? prevProg[newID] != newData[i].progress : false);
+          }
+        }
+        if (Object.keys(lastInd).length == 0) // No modifications
+          return;
+
+        // Prepare for animation
+        this.animating = true;
         var table = null;
         var fixedTable = null;
+        var tableDT = this.currentTable.api();
         this.currentTable.fnAdjustColumnSizing();
-
+          
         if (isResTab) // Result table
         {
           tableDT.draw();
@@ -2116,42 +2443,6 @@ var LiveResults;
         }
         else // Radio table
           table = $('#' + this.radioPassingsDiv);
-
-        // Make list of indexes and progress for all runners 
-        var prevInd = new Object();
-        var progress = new Object();
-        for (var i = 0; i < oldData.length; i++) {
-          var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
-          if (prevInd[oldID] != undefined) {
-            prevInd[oldID] = "noAnimation";
-            continue
-          }
-          prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
-          progress[oldID] = (isResTab ? oldData[i].progress : 100);
-        }
-
-        var oldIndArray = new Object(); // List of old indexes
-        var updProg = new Object();  // List of progress change
-        for (var i = 0; i < newData.length; i++) {
-          var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
-          var newInd = (isResTab ? newData[i].virtual_position : i);
-          if (prevInd[newID] == "noAnimation")
-            continue;
-          else if (prevInd[newID] == undefined) // New entry
-          {
-            oldIndArray[newInd] = newInd;
-            updProg[newInd] = false;
-          }
-          else if (prevInd[newID] != newInd) {
-            oldIndArray[newInd] = prevInd[newID];
-            updProg[newInd] = (isResTab ? progress[newID] != newData[i].progress : false);
-          }
-        }
-        if (Object.keys(oldIndArray).length == 0) // No modifications
-        {
-          this.currentTable.api().draw();
-          return;
-        }
 
         if (predRank)
           clearInterval(this.updatePredictedTimeTimer);
@@ -2166,11 +2457,18 @@ var LiveResults;
 
         // Put all the rows back in place
         var rowPosArray = new Array();
+        var rowIndArray = new Array();
+        var ind = -1; // -1:header; 0:first data
         var tableTop = $(table)[0].getBoundingClientRect().top;
         $(table).find('tr').each(function () {
           var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop > 1 ? -1.5 : -0.5);
-          rowPosArray.push(rowPos);
-          $(this).css('top', rowPos);
+            $(this).css('top', rowPos);
+            if ($(this).is(":visible"))
+            {               
+              rowPosArray.push(rowPos);
+              rowIndArray.push(ind);
+            }
+            ind++;  
         });
 
         // Set table cells position to absolute
@@ -2189,16 +2487,16 @@ var LiveResults;
         // Animation
         this.animating = true;
         this.numAnimElements = 0;
-        for (var newIndStr in oldIndArray) {
-          var newInd = parseInt(newIndStr);
-          var oldInd = oldIndArray[newInd];
-          var oldPos = rowPosArray[oldInd + 1];
+        for (var lastIndStr in lastInd) {
+          var newInd = parseInt(lastIndStr);
+          var oldInd = lastInd[newInd];
+          var oldPos = rowPosArray[oldInd + 1]; // First entry is header
           var newPos = rowPosArray[newInd + 1];
-          var row = $(table).find("tbody tr").eq(newInd);
+          var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);
           if (isResTab)
-            var rowFix = $(fixedTable).find("tbody tr").eq(newInd);
-          var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : 'white');
-          var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : 'white');
+            var rowFix = $(fixedTable).find("tbody tr").eq(rowIndArray[newInd+1]);                    
+          var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
+          var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
           var zind;
           var zindFix;
           if (predRank) // Update from predictions of running times 

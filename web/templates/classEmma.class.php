@@ -805,7 +805,7 @@ class Emma
     function getRunners()
     {
 		$ret = Array();
-		$q = "SELECT runners.name, runners.club, runners.class, runners.ecard1, runners.ecard2, runners.bib, results.time, results.dbid, results.control, results2.status 
+		$q = "SELECT runners.name, runners.club, runners.class, runners.ecard1, runners.ecard2, runners.ecardchecked, runners.bib, results.time, results.dbid, results.control, results2.status 
 		FROM runners, results
 		LEFT JOIN results AS results2 ON results.DbID=results2.DbID
 		WHERE results.dbid = runners.dbid AND runners.tavid = ". $this->m_CompId ." AND results.tavid = ". $this->m_CompId . " AND (results.control=100) 
@@ -826,6 +826,7 @@ class Emma
 				 $ret[$dbId]["class"] = $row['class'];
 				 $ret[$dbId]["ecard1"] = $row['ecard1'];
 				 $ret[$dbId]["ecard2"] = $row['ecard2'];
+         $ret[$dbId]["ecardchecked"] = $row['ecardchecked'];
 				 $ret[$dbId]["bib"] = $row['bib'];
 				 $ret[$dbId]["status"] = "0";
 				 $ret[$dbId]["start"] = "0";
