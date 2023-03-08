@@ -133,7 +133,9 @@ var LiveResults;
       });
 
       $(window).on('resize', function () {
-        if (_this.currentTable != null && (_this.curRelayView !=null || _this.curClassName != null && !_this.curClassName.includes("plainresults") && _this.curClassName != "startlist"))
+        if (_this.currentTable == null || _this.curClassName == "startlist" || (_this.curClassName != null && _this.curClassName.includes("plainresults")))
+          return;
+        else
           _this.currentTable.fnAdjustColumnSizing();
       });
     }
@@ -3891,7 +3893,7 @@ var LiveResults;
           });
           columns.push({
             "sTitle": "bibSortable", "bVisible": false, "mDataProp": (_this.curClassHasBibs ? "bib" : null), "aTargets": [col++], "render": function (data, type, row) {
-              return data;
+              return Math.abs(data);
             }
           });
           columns.push({
