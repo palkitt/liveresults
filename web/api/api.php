@@ -346,6 +346,7 @@ elseif ($_GET['method'] == 'getrunners')
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
 	$runners = $currentComp->getRunners();
+	$isActive = $currentComp->IsCompActive();
 	$ret = "";
 	$first = true;
 	foreach ((array)$runners as $runner)
@@ -359,9 +360,10 @@ elseif ($_GET['method'] == 'getrunners')
 	}
 	$hash = MD5($ret);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
-		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT, \"active\": $isActive}");
 	else
-		echo("{ \"status\": \"OK\",$br \"runners\": [$br$ret$br],$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo("{ \"status\": \"OK\",$br \"runners\": [$br$ret$br],$br \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
+
 }
 elseif ($_GET['method'] == 'getracesplitter')
 {
