@@ -1522,7 +1522,7 @@ var LiveResults;
                 var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.runnerName;
                 runnerName = runnerName.replace("<del>", "");
                 runnerName = runnerName.replace("</del>", "");
-                var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + runnerName + "','" + ecards + "');\">";
+                var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards + "', " + row.checked + ");\">";
                 if (row.checked == 1 || row.status == 9)
                   ecardstr += "&#9989; "; // Green checkmark
                 else
@@ -1745,7 +1745,7 @@ var LiveResults;
                 else
                   if (row.ecard2 > 0) ecards += row.ecard2;
                 var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
-                var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards + "');\">";
+                var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards + "', " + row.checked + ");\">";
                 if (row.checked == 1 || row.status == 9)
                   ecardstr += "&#9989; "; // Green checkmark
                 else
@@ -2192,11 +2192,20 @@ var LiveResults;
     };
 
     //Popup window for setting ecard to checked
-    AjaxViewer.prototype.popupCheckedEcard = function (dbid, name, ecards) {
-      var message = name + ": " + ecards + " ?";
+    AjaxViewer.prototype.popupCheckedEcard = function (dbid, name, ecards, checked) {
+      var message;
+      if (checked)
+        message = "Ta bort markering for " + name + "?";
+      else  
+        message = "Bekrefte: " + name + (ecards.length>0? ", brikke " + ecards : "") + "?";
       var OK = confirm(message);
       if (OK)
-        $.ajax({ url: this.messageURL + "?method=setecardchecked", data: "&comp=" + this.competitionId + "&dbid=" + dbid });
+      {
+        if (checked)
+          $.ajax({ url: this.messageURL + "?method=setecardnotchecked", data: "&comp=" + this.competitionId + "&dbid=" + dbid });
+        else
+          $.ajax({ url: this.messageURL + "?method=setecardchecked", data: "&comp=" + this.competitionId + "&dbid=" + dbid });
+      }
     }
 
     //Popup window for messages to message center
