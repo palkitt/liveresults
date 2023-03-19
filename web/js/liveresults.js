@@ -2202,9 +2202,17 @@ var LiveResults;
       if (OK)
       {
         if (checked)
-          $.ajax({ url: this.messageURL + "?method=setecardnotchecked", data: "&comp=" + this.competitionId + "&dbid=" + dbid });
+          $.ajax({ 
+            url: this.messageURL + "?method=setecardnotchecked", 
+            data: "&comp=" + this.competitionId + "&dbid=" + dbid,
+            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); } 
+          });
         else
-          $.ajax({ url: this.messageURL + "?method=setecardchecked", data: "&comp=" + this.competitionId + "&dbid=" + dbid });
+          $.ajax({ 
+            url: this.messageURL + "?method=setecardchecked", 
+            data: "&comp=" + this.competitionId + "&dbid=" + dbid,
+            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); } 
+          });
       }
     }
 
@@ -2234,12 +2242,12 @@ var LiveResults;
             alert("Ønsket endring av brikkenummer er registrert\n" + message);
           }
         }
-        if (sendOK)
+        if (sendOK)      
           $.ajax({
             url: this.messageURL + "?method=sendmessage",
-            data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange
-          }
-          );
+            data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
+            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
+          });
         if (DNS) 
           this.messageBibs.push(dbid);
       }
