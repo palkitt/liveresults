@@ -116,6 +116,25 @@ else if ($_GET['method'] == 'setecardchecked')
 			echo("{\"status\": \"Error\", \"message\": \"Error setting ecard change\" }");
 	}
 }
+else if ($_GET['method'] == 'setecardnotchecked')
+{
+	insertHeader(1,false);
+	if (!isset($_GET['dbid']) && !isset($_GET['bib']))
+		echo("{\"status\": \"Error\", \"message\": \"dbid or bib not set\"}");
+	elseif (!isset($_GET['comp']))
+		echo("{\"status\": \"Error\", \"message\": \"comp not set\"}");
+	else
+	{
+		$dbid = (isset($_GET['dbid']) ? $_GET['dbid'] : 0);
+		$bib  = (isset($_GET['bib'])  ? $_GET['bib']  : 0);
+		
+		$ret = Emma::SetMessageEcardNotChecked($_GET['comp'],$dbid,$bib);
+		if ($ret > 0)
+			echo("{\"status\": \"OK\"}");
+		else
+			echo("{\"status\": \"Error\", \"message\": \"Error setting ecard change\" }");
+	}
+}
 else if ($_GET['method'] == 'getmessages')
 {
 	$currentComp = new Emma($_GET['comp']);
