@@ -67,7 +67,6 @@ function startRadioControl() {
       <table border="0" cellpadding="0" cellspacing="2" width="100%">
       <tr><td><b>Type</b></td><td><b>Kode</b></td></tr>
       <tr><td><a href="..\radio.php?comp=<?=$_GET['comp']?>&code=0">Start</a></td><td>0</td></tr>
-      <tr><td><a href="..\radio.php?comp=<?=$_GET['comp']?>&code=-10">Start (new version)</a></td><td>-10</td></tr>
       <tr><td><a href="..\radio.php?comp=<?=$_GET['comp']?>&code=1000">Mål</a></td><td>1000</td></tr>
       <tr><td><a href="..\radio.php?comp=<?=$_GET['comp']?>&code=-2">Igjen i løypa</a></td><td>-2</td></tr>
       <tr><td><a href="..\radio.php?comp=<?=$_GET['comp']?>&code=-1">Alle meldeposter</a></td><td>-1</td></tr>

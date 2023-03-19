@@ -89,37 +89,9 @@ if ($_GET['method'] == 'getradiopassings')
 				\"time\": \"".$pre.formatTime($time,$status,$code,$RunnerStatus).$post."\",
 				\"status\" : \"".$pass['Status']."\",
 				\"compName\": \"".$pass['compName']."\"";
-		// Start
-		if ($code==0 || $code==-999) 	
-		{
-			$ret .= ", \"ecard1\": ".$pass['ecard1'].", \"ecard2\": ".$pass['ecard2'].", \"bib\": ".$pass['bib'].", \"dbid\": ".$pass['dbid'].",\"checked\": ".($pass["ecardchecked"] == 1 ? 1 : 0);
-			$currTime = (date('H')*3600 + date('i')*60 + date('s'))*100;
-			$timeToStart = $time - $currTime;
-			// Unknown ecard
-			if ($pass['class']=="NOCLAS") 
-				$ret .= ",$br \"DT_RowClass\": \"red_row\"";
-			// In call zone
-			elseif ($timeToStart > 0 && $timeToStart < $calltime*6000)   
-			{
-				if ($lasttime - $time > 2900)
-					$ret .= ",$br \"DT_RowClass\": \"yellow_row_new\"";
-				else
-					$ret .= ",$br \"DT_RowClass\": \"yellow_row\"";
-			}
-			// First starter (and not registered at start)
-			elseif ($timeToStart <= 0 && $firstStarted == false) 
-			{
-				$firstStarted = true;
-				$ret .= ",$br \"DT_RowClass\": \"firststarter pre_post_start\"";
-			}
-			// Not in call zone, not first starter and not registered at start
-			else 
-				$ret .= ",$br \"DT_RowClass\": \"pre_post_start\"";
-			$lasttime = $time;
-		}
-		
+				
 		// Left in forest
-		elseif ($code == -2) 	
+		if ($code == -2) 	
 		{
 			$timeDiff = -2;
 			$rank = -1;
@@ -127,7 +99,7 @@ if ($_GET['method'] == 'getradiopassings')
 			$ret .= ",\"checked\": ".($pass["ecardchecked"] == 1 ? 1 : 0);
 		}
 		
-		// All cases exept from start and left in forest. Use hash as last updated time
+		// All cases exept from left in forest. Use hash as last updated time
 		else 
 		{	
 			if (($status == 0) || ($status == 9) || ($status == 10))
@@ -157,7 +129,7 @@ if ($_GET['method'] == 'getradiopassings')
 		$first = false;
 	}
 			
-	if ($code == 0 || $code == -999 || $code == -2)
+	if ($code == -2)
 	{
 		$hash = MD5($ret);
 		if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
@@ -187,7 +159,7 @@ function formatTime($time,$status,$code,& $RunnerStatus)
   global $lang;
   global $_FREESTART;
   
-  if ( ($code != 0 && $code != -999 ) && ($status != "0") && ($status != "9") && ($status != "10"))
+  if (($status != "0") && ($status != "9") && ($status != "10"))
     return $RunnerStatus[$status]; //$status;
 
   if ($time == -999)

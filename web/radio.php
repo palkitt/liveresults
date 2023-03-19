@@ -56,7 +56,7 @@ var maxBib =  100000;
 
 function switchOpenTimed(open)
 {
-  var url = "radio.php?comp=<?= $_GET['comp']?>&code=-10&calltime="+callTime+"&posttime="+postTime+"&minbib="+minBib+"&maxbib="+maxBib;
+  var url = "radio.php?comp=<?= $_GET['comp']?>&code=0&calltime="+callTime+"&posttime="+postTime+"&minbib="+minBib+"&maxbib="+maxBib;
   if (open) 
     url += "&openstart";
   window.location = url;
@@ -79,9 +79,6 @@ $(document).ready(function()
 		  Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
 	res.compName = "<?=$currentComp->CompName()?>";
 	res.compDate = "<?=$currentComp->CompDate()?>";
-	
-	if (<?= $_GET['code']?>==0 || <?= $_GET['code']?>==-999)
-    res.radioStart = true;
 		
   function updateClock() 
   {
@@ -100,7 +97,7 @@ $(document).ready(function()
   }
   setInterval(function () {updateClock( );}, 1000);
 	
-  if (<?=$_GET['code']?>==-10)
+  if (<?=$_GET['code']?>==0)
   {
     document.getElementById("callTime").value = callTime;
     document.getElementById("postTime").value = postTime;
@@ -129,7 +126,7 @@ $(document).ready(function()
 	<tr valign=top><td> 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
     <tr>
-    <?php if ($_GET['code']==-10) { ?>
+    <?php if ($_GET['code']==0) { ?>
       <tr>
         <td align="left"><span id="liveIndicator">◉</span>
           <?php if (isset($_GET['openstart'])){ ?> 
@@ -152,24 +149,13 @@ $(document).ready(function()
       <tr>
         <td><span id="liveIndicator">◉</span><b>
           <?php 
-          if ($_GET['code']==0){?> Start <?php }
-          else if ($_GET['code']==-999){?> Fristart <?php }
-          else if ($_GET['code']==1000){?> Mål <?php }
+          if ($_GET['code']==1000){?> Mål <?php }
           else if ($_GET['code']==-1){?> Meldepost: Alle <?php }
           else if ($_GET['code']==-2){?> Ute i løypa <?php }
-          else {?> Meldepost: <?= $_GET['code']?> <?php }
-          if ($_GET['code']==0){ ?> 
-            <a href="radio.php?comp=<?= $_GET['comp']?>&code=-999<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">&nbsp;&nbsp;Fristart→</a>
-          <?php } ?>
-          <?php if ($_GET['code']==-999){ ?> 
-            <a href="radio.php?comp=<?= $_GET['comp']?>&code=0<?php if (isset($_GET['calltime'])) {?>&calltime=<?= $_GET['calltime']?><?php }?>">&nbsp;&nbsp;Tidsstart→</a>
-          <?php } ?>        
+          else {?> Meldepost: <?= $_GET['code']?> <?php } ?>        
           </b>
         </td>
         <td align="right"><input type="text" id="filterText" placeholder="filter..." style="width: 30px;"></td>
-        <?php if ($_GET['code']==0 || $_GET['code']==-999){?> 
-          <td align="right">(<span id="pretime">00:00:00</span>)&nbsp&nbsp</td>
-        <?php }?>
         <td align="right"><span id="time">00:00:00</span></td>
       </tr>
     <?php } ?>
