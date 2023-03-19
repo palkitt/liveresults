@@ -1811,6 +1811,7 @@ var LiveResults;
     AjaxViewer.prototype.filterStartRegistration = function (openStart) {
       if (this.radioData != null) {
         try {
+          var _this = this;
           var dt = new Date();
           var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
