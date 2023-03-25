@@ -81,7 +81,6 @@ var LiveResults;
       this.qualClasses = null;
       this.messageBibs = [];
       this.noSplits = false;
-      this.radioStart = false;
       this.filterDiv = filterDiv;
       this.prewShownId = Array(0);
       this.predData = Array(0);
@@ -1407,7 +1406,7 @@ var LiveResults;
       }
 
       // Modify data-table
-      if (this.radioData != null && !this.radioStart) {
+      if (this.radioData != null) {
         var dt = new Date();
         var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
         $.each(this.radioData, function (idx, passing) {
@@ -1454,7 +1453,7 @@ var LiveResults;
         if (this.radioData != null && this.radioData.length > 0) {
           var columns = Array();
           var col = 0;
-          if (!this.radioStart && !leftInForest) {
+          if (!leftInForest) {
             columns.push({ "sTitle": "Sted", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName" });
             columns.push({ "sTitle": "Tidsp.", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "passtime" });
           }
@@ -1508,31 +1507,6 @@ var LiveResults;
               return link;
             }
           });
-          if (this.radioStart) {
-            columns.push({
-              "sTitle": "Brikke", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
-              "render": function (data, type, row) {
-                var ecards = "";
-                if (row.ecard1 > 0) {
-                  ecards += row.ecard1;
-                  if (row.ecard2 > 0) ecards += " / " + row.ecard2;
-                }
-                else
-                  if (row.ecard2 > 0) ecards += row.ecard2;
-                var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.runnerName;
-                runnerName = runnerName.replace("<del>", "");
-                runnerName = runnerName.replace("</del>", "");
-                var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards + "', " + row.checked + ");\">";
-                if (row.checked == 1 || row.status == 9)
-                  ecardstr += "&#9989; "; // Green checkmark
-                else
-                  ecardstr += "&#11036; "; // Empty checkbox
-                ecardstr += ecards;
-                ecardstr += "</div>";
-                return ecardstr;
-              }
-            });
-          }
           if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
             columns.push({
               "sTitle": "#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
@@ -1544,7 +1518,7 @@ var LiveResults;
             });
 
           var timeTitle = "Tid";
-          if (this.radioStart || leftInForest)
+          if (leftInForest)
             timeTitle = "Starttid";
           columns.push({ "sTitle": timeTitle, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time" });
 
@@ -1577,23 +1551,6 @@ var LiveResults;
               "render": function (data, type, row) {
                 var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.runnerName;
                 var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + ",1);\">&#128172;</button>";
-                return link;
-              }
-            });
-          }
-          if (this.radioStart) {
-            var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
-
-            columns.push({
-              "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
-              "render": function (data, type, row) {
-                var defaultDNS = (row.dbid > 0 ? (code == -999 ? -1 : 1) : 0);
-                var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.runnerName;
-                runnerName = runnerName.replace("<del>", "");
-                runnerName = runnerName.replace("</del>", "");
-                var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";
-                if (_this.messageBibs.indexOf(row.dbid) > -1)
-                  link += " &#9679;";
                 return link;
               }
             });
