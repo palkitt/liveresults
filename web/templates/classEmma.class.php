@@ -654,7 +654,7 @@ class Emma
 		  and results.Status <> 10  and results.Status <> 6 and results.control <> 100 and (results.control = 1000 or splitcontrols.tavid is not null)
 		  AND results.control <> 999 AND results.control <> -999 AND results.control <> 0 AND results.control < 100000
 		  AND runners.class NOT LIKE '%-All' 
-		  ORDER BY results.changed desc, runners.name limit 3";
+		  ORDER BY results.changed desc, runners.name, results.control limit 3";
 
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
