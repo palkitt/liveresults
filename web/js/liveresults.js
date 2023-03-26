@@ -472,9 +472,6 @@ var LiveResults;
         }
         this.curClassSplitsOK = classSplitsOK;
 
-        if (raceOK)
-          return;
-
         // Calculate split fractions and sprint times per runner
         var splitFracRunner = new Array(this.curClassNumSplits + 1); // Fraction of next split - prev split
         for (var sp = 0; sp < this.curClassNumSplits; sp++)
@@ -528,7 +525,7 @@ var LiveResults;
           }
         }
 
-        // Make correlation for split estimates
+        // Check if sprint is short
         if (sprintTimeNum > 0) {
           var sprintTimeAvg = sprintTimeSum / sprintTimeNum;
           this.shortSprint = (sprintTimeAvg > 0 && sprintTimeAvg < sprintTimeLim * 100);
@@ -536,6 +533,10 @@ var LiveResults;
         else
           this.shortSprint = false;
 
+       if (raceOK)
+          return;
+
+        // Make correlation for split estimates
         var splitsPar = [];
         var classSplitsUpdated = new Array(classSplits.length).fill(false);
 
