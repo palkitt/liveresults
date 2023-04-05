@@ -2696,15 +2696,41 @@ var LiveResults;
             }
           });
           var res = "";
+          var isSprint = (data.className.includes("plainresultsclass"));
+          if (isSprint)
+            res += "<tr>";
+          var sprintStageLast = -1;
+          var first = true;
           for (var i = 0; i < data.results.length; i++) {
             var className = data.results[i].className;
-            var isSprintHeat = (className.includes('| Kvart') || className.includes('| Semi') || className.includes('| Finale'));
+            var classNameHeader = className;
             var distance = (data.results[i].distance != "" ? "&emsp;" + data.results[i].distance + " km" : "");
-            res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + className + "</span>";
+
+            var sprintStage = (className.includes('| Prolog')? 0 : ( 
+                               className.includes('| Kvart') ? 1 : ( 
+                               className.includes('| Semi')  ? 2 : (
+                               className.includes('| Finale')? 3 : -1 )))); 
+            var isSprintHeat = sprintStage > 0;
+
+            if (isSprint)
+            {
+              if (first)
+                res += "<td style=\"vertical-align:top\"><table style=\"width:100%;\">";
+              else if (sprintStage != sprintStageLast)
+                res += "</table></td><td style=\"vertical-align:top\"><table style=\"width:100%;\">";
+              sprintStageLast = sprintStage;
+              first = false;
+              var classPre = data.className.replace("plainresultsclass_","") + " | ";
+              classNameHeader = className.replace(classPre, "");                       
+            }
+            
+            res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + classNameHeader + "</span>";
             res += distance + "</td></tr>";
-            res += "<tr style=\"font-weight:bold\"><td align=\"right\">#</td><td>" + this.resources["_NAME"] + "</td><td>" + this.resources["_CLUB"] + "</td>";
+            res += "<tr style=\"font-weight:bold\"><td align=\"right\">#</td><td>" + this.resources["_NAME"] + "</td>"
+            if (!isSprintHeat)
+              res += "<td>" + this.resources["_CLUB"] + "</td>";
             res += "<td align=\"right\">Tid</td><td align=\"right\">Diff</td>";
-            if (hasDistance)
+            if (!isSprintHeat && hasDistance)
               res += "<td align=\"right\">m/km&nbsp;</td>";
             res + "</tr>";
             for (var j = 0; j < data.results[i].results.length; j++) {
@@ -2718,7 +2744,8 @@ var LiveResults;
                 club = this.clubShort(club);
               res += "<tr><td align=\"right\">" + data.results[i].results[j].place + "</td>";
               res += "<td>" + name + "</td>";
-              res += "<td>" + club + "</td>";
+              if (!isSprintHeat)
+                res += "<td>" + club + "</td>";
               if (isSprintHeat && !this.showTimesInSprint)         
                 res += "<td></td><td></td>";
               else
@@ -2729,9 +2756,9 @@ var LiveResults;
                   res += "+" + this.formatTime(data.results[i].results[j].timeplus, data.results[i].results[j].status, _this.showTenthOfSecond);
                 res += "</span></td>";
               }
-              if (hasDistance) {
+              if (!isSprintHeat && hasDistance) {
                 res += "<td align=\"right\"><span class=plustime>";
-                if (data.results[i].results[j].status == 0 && kmTime > 0 && (!isSprintHeat || this.showTimesInSprint))
+                if (data.results[i].results[j].status == 0 && kmTime > 0)
                   res += this.formatTime(kmTime, 0, _this.showTenthOfSecond);
                 res += "&nbsp;</span>";
               }
@@ -2739,6 +2766,8 @@ var LiveResults;
             }
             res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
           }
+          if (isSprint)
+              res += "</table></td></tr>"
           $('#' + this.resultsDiv).html(res);
           $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
           if (this.browserType == 1)
