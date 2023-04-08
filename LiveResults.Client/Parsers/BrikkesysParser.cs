@@ -62,10 +62,13 @@ namespace LiveResults.Client
                     courses = getCourses();
 
                     string baseCommandInd = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, " +
-                                "N.timecalculation, N.codesandtimes, N.status, C.name AS cname, C.meter, C.nosort, C.starttime AS cstarttime, CC.courceid FROM names N " +
-                                "LEFT JOIN classes C ON C.id=N.classid " +
-                                "LEFT JOIN classcource CC ON CC.classid=N.classid AND CC.raceid=N.raceid " +
-                                "WHERE N.raceid= " + m_raceID;
+                                            "N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
+                                            "C.name AS cname, C.meter, C.nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
+                                            "FROM names N " +
+                                            "LEFT JOIN classes C ON C.id = N.classid " +
+                                            "LEFT JOIN(SELECT MIN(raceid) AS raceid, MIN(courceid) AS courceid, MIN(classid) AS cclassid " +
+                                            "FROM classcource WHERE raceid = " + m_raceID + " GROUP BY classid) AS CC ON CC.cclassid = N.classid " +
+                                            "WHERE N.raceid = " + m_raceID;
                     cmdInd.CommandText = baseCommandInd;
 
                     string lastRunner = "";
@@ -171,6 +174,10 @@ namespace LiveResults.Client
 
                         if (reader["courceid"] != null && reader["courceid"] != DBNull.Value)
                             courceID = Convert.ToInt32(reader["courceid"]);
+                        
+                        // If no cource id set for runner (by auto selection), use class cource
+                        if (courceID == -1 && reader["ccourceid"] != null && reader["ccourceid"] != DBNull.Value)
+                            courceID = Convert.ToInt32(reader["ccourceid"]);
 
                         if (reader["nulltime"] != null && reader["nulltime"] != DBNull.Value)
                         {
