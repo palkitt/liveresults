@@ -1,0 +1,135 @@
+/**
+ * CSS which compliments the jquery.prompt.js plugin
+ * @Author Andrew Dodson
+ * @since Jan 2012
+ */
+
+ .jquery_prompt{
+	position:fixed;
+	top:0;
+	left:0; 
+	right: 0;
+	bottom:0;
+	width:100%;
+	height:100%;
+	margin:0;
+	padding:0;
+	filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0,startColorstr='#30000000', endColorstr='#30000000');
+	background-color:transparent;
+	background-color:rgba(0,0,0,0.2);
+	color:#444;
+	font-family:arial;
+	font-weight:bold;
+	z-index:10000;
+	border:none;
+
+
+	/* display content vertically, with flex box */
+	display: -webkit-box; 
+	-webkit-box-align: center;
+	display: -moz-box; 
+	-moz-box-align: center;
+	display: -ms-box; 
+	-ms-box-align: center;
+	display: box; 
+	box-align: center;
+}
+iframe.jquery_prompt{
+	display:table;
+	filter: alpha(Opacity=20);
+}
+.jquery_prompt ~ *:not(.jquery_prompt) {
+	-webkit-filter: blur(2px);
+}
+
+	.jquery_prompt form{
+		margin:5% auto;
+		/* display:table seems to work at positioning horizontally in all but IE, however it means we can't use IE filters*/;
+		display:table;
+		box-sizing:border-box;
+		-moz-box-sizing:border-box;
+	}
+
+	.plugin form{
+		text-align:center;
+		background-color:white;
+		max-width: 100%;
+		border-radius: 5px;
+		box-shadow:0 20px 60px black;
+		box-shadow:0 20px 60px rgba(0,0,0,0.8);
+		padding:0;
+		font-size:1.3em;
+		position: relative;
+		line-height:1.2em;
+	}
+	.plugin form > *,
+	.plugin form h1,
+	.plugin form .footer{
+		padding-left:20px;
+		padding-right:20px;
+	}
+	.plugin form > :first-child{
+		padding-top:20px;
+	}
+	.plugin form .footer{
+		padding-bottom:20px;
+		position: relative;
+	}
+
+		.plugin input{
+			width:100%;
+			font-size:inherit;
+			margin-top:20px;
+		}
+		.plugin button{
+			color:white;
+			margin-top:20px;
+			font-weight:normal;
+			vertical-align: top;
+			font-size:inherit;
+			border-radius:5px;
+		}
+		.plugin button[type=button]{
+			font-size:0.7em;
+			padding:9px 10px;
+		}
+		
+		.plugin button[type=submit]{
+			background-color:lime;
+			font-weight:bold;
+		}
+
+		.plugin input[type=checkbox],.plugin input[type=checkbox] + label{
+			width:auto;
+			font-size:12px;
+		}
+
+
+/**
+ * Add Gradients
+ */
+	.plugin form, 
+	.plugin button,
+	.plugin .gradient{
+		/* IE<=9 */
+		filter: progid:DXImageTransform.Microsoft.gradient(gradientType=0,startColorstr='#00000000', endColorstr='#99000000');
+		/* Safari 4-5, Chrome 1-9 */
+		background-image: -webkit-gradient(linear, 0 0, 0 100%, from(transparent), to(rgba(0,0,0,0.6)));
+		/* Safari 5.1, Chrome 10+ */
+		background-image: -webkit-linear-gradient(top, transparent, rgba(0,0,0,0.6));
+		/* Firefox 3.6+ */
+		background-image: -moz-linear-gradient(top, transparent, rgba(0,0,0,0.6));
+		/* IE 10 */
+		background-image: -ms-linear-gradient(top, transparent, rgba(0,0,0,0.6));
+		/* Opera 11.10+ */
+		background-image: -o-linear-gradient(top, transparent, rgba(0,0,0,0.6));
+		/* future */
+		background-image: linear-gradient(top, transparent, rgba(0,0,0,0.6));	
+	}	
+	.plugin button{
+		color:white;
+		border:1px solid #777;
+		background-color:#bbb;
+		cursor: pointer;
+		padding: 5px 10px;
+	}

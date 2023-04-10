@@ -43,6 +43,9 @@ var LiveResults;
       this.animTime = 700;
       this.animating = false;
       this.numAnimElements = 0;
+      this.startBeepActive = false;
+      this.audioMute = true;
+      this.audioCtx = null; 
       this.classUpdateTimer = null;
       this.passingsUpdateTimer = null;
       this.radioPassingsUpdateTimer = null;
@@ -1771,10 +1774,8 @@ var LiveResults;
         try {
           var _this = this;
           var dt = new Date();
-          var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
-          var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
-          var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
-          var time = Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));          
+          this.updateStartClock(dt);
+          var time = dt.getSeconds() + 60*dt.getMinutes() + 3600*dt.getHours();
           var data = this.currentTable.fnGetData();
           var table = this.currentTable.api();
 
@@ -1790,6 +1791,8 @@ var LiveResults;
           var firstInPostTime = true;
           var lastStartTime   = -1000; 
           var shownId = Array(0);
+          var timeBeforeStartMakeSound = 4;  
+          var initiateStartSound = false;
   
           // *** Hide or highlight rows ***
           for (var i = 0; i < data.length; i++){
@@ -1826,6 +1829,10 @@ var LiveResults;
               $(row).removeClass();
               var startTimeSeconds = data[i].starttime/100;
               var timeToStart = startTimeSeconds-time;
+              
+              if (timeToStart > 0 && timeToStart <= timeBeforeStartMakeSound)
+                initiateStartSound = true; 
+
               if (timeToStart <= -postTime)
                 continue;
               else if (timeToStart <= 0){
@@ -1869,9 +1876,31 @@ var LiveResults;
             }
           }
           this.prewShownId = shownId;
-          this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, 1000);  
+          if (initiateStartSound && !this.audioMute)
+            this.makeStartSound();
+          
+          var dt = new Date();
+          var ms = dt.getMilliseconds();
+          var timer = (ms>800 ? 2000-ms : 1000-ms);
+          this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, timer);  
         }
         catch (e) { };
+      }
+    }
+    
+    AjaxViewer.prototype.updateStartClock = function (dt) {
+      var currTime = new Date(Math.round(dt.getTime()/1000)*1000);
+      var timeID = document.getElementById("time");
+      var HTMLstringCur = currTime.toLocaleTimeString('en-GB');
+      timeID.innerHTML = HTMLstringCur;
+
+      var callTime = document.getElementById("callTime").value;	
+      var preTimeID = document.getElementById("pretime");
+      if ( preTimeID!= null )
+      {
+        var preTime = new Date(currTime.valueOf() + callTime*60*1000);
+        var HTMLstringPre = preTime.toLocaleTimeString('en-GB');
+        preTimeID.innerHTML = HTMLstringPre;
       }
     }
     
@@ -2151,31 +2180,34 @@ var LiveResults;
 
     //Popup window for setting ecard to checked
     AjaxViewer.prototype.popupCheckedEcard = function (dbid, name, ecards, checked) {
+      _this = this;
       var message;
       if (checked)
         message = "Ta bort markering for " + name + "?";
       else  
         message = "Bekrefte: " + name + (ecards.length>0? ", brikke " + ecards : "") + "?";
-      var OK = confirm(message);
-      if (OK)
-      {
-        if (checked)
+      $('<p>'+message+'</p>').confirm(function(e){
+        if(e.response)
+        {
+          if (checked)
           $.ajax({ 
-            url: this.messageURL + "?method=setecardnotchecked", 
-            data: "&comp=" + this.competitionId + "&dbid=" + dbid,
+            url: _this.messageURL + "?method=setecardnotchecked", 
+            data: "&comp=" + _this.competitionId + "&dbid=" + dbid,
             error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); } 
           });
         else
           $.ajax({ 
-            url: this.messageURL + "?method=setecardchecked", 
-            data: "&comp=" + this.competitionId + "&dbid=" + dbid,
+            url: _this.messageURL + "?method=setecardchecked", 
+            data: "&comp=" + _this.competitionId + "&dbid=" + dbid,
             error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); } 
           });
-      }
+        }
+      });
     }
 
     //Popup window for messages to message center
     AjaxViewer.prototype.popupDialog = function (promptText, dbid, defaultDNS, startListChange = -1) {
+      _this = this;
       var defaultText = "";
       if (defaultDNS == 1)
         defaultText = "ikke startet";
@@ -2183,32 +2215,34 @@ var LiveResults;
         defaultText = "startet";
       else if (dbid < 0)
         defaultText = "startnummer:";
-      var message = prompt(promptText, defaultText);
-      if (message != null && message != "") {
-        message = message.substring(0, 250); // limit number of characters
-        var DNS = (message == "ikke startet" ? 1 : 0);
-        var ecardChange = (dbid < 0 && message.match(/\d+/g) != null);
-        var sendOK = true;
-        if (startListChange > 0) {
-          var senderName = prompt("Innsenders navn og mobilnummer");
-          if (senderName == null || senderName == "") {
-            alert("Innsender må registreres!");
-            sendOK = false;
+      $('<p>'+promptText+'</p>').prompt(function(e){
+        var message = e.response;
+        if (message != null && message != "") {
+          message = message.substring(0, 250); // limit number of characters
+          var DNS = (message == "ikke startet" ? 1 : 0);
+          var ecardChange = (dbid < 0 && message.match(/\d+/g) != null);
+          var sendOK = true;
+          if (startListChange > 0) {
+            var senderName = prompt("Innsenders navn og mobilnummer");
+            if (senderName == null || senderName == "") {
+              alert("Innsender må registreres!");
+              sendOK = false;
+            }
+            else {
+              message = senderName + " registrerte: " + promptText + message;
+              alert("Ønsket endring av brikkenummer er registrert\n" + message);
+            }
           }
-          else {
-            message = senderName + " registrerte: " + promptText + message;
-            alert("Ønsket endring av brikkenummer er registrert\n" + message);
-          }
-        }
-        if (sendOK)      
-          $.ajax({
-            url: this.messageURL + "?method=sendmessage",
-            data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
-            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
-          });
-        if (DNS) 
-          this.messageBibs.push(dbid);
-      }
+          if (sendOK)      
+            $.ajax({
+              url: _this.messageURL + "?method=sendmessage",
+              data: "&comp=" + _this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
+              error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
+            });
+          if (DNS) 
+            _this.messageBibs.push(dbid);
+        } 
+      }, defaultText);      
     };
 
     //Popup window for requesting RaceSplitter file
@@ -4778,6 +4812,34 @@ var LiveResults;
     AjaxViewer.prototype.showCourses = function () {
       document.getElementById('myDropdown').classList.toggle("show");
     };
+
+    AjaxViewer.prototype.makeStartSound = function () {
+      _this = this;
+      if (this.startBeepActive)
+        return;
+      this.startBeepActive = true;
+      var oscillator = this.audioCtx.createOscillator();
+      var gainNode = this.audioCtx.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = 900;
+      oscillator.connect(gainNode);
+      gainNode.connect(this.audioCtx.destination);
+      
+      oscillator.start();
+      // 4 short beep
+      var i;
+      for (i=0; i<4; i++) 
+      {
+        setTimeout(function () {gainNode.gain.value = 1; }, i*1000);
+        setTimeout(function () {gainNode.gain.value = 0; }, i*1000+200);
+      } 
+      // One long beep
+      setTimeout(function () {gainNode.gain.value = 1; }, i*1000);
+      setTimeout(function () {oscillator.frequency.value = 1100; }, i*1000);
+      setTimeout(function () {
+        oscillator.stop(); 
+        _this.startBeepActive = false}, i*1000+1000);     
+    }             
 
     // ReSharper disable once InconsistentNaming
     AjaxViewer.VERSION = "2016-08-06-01";

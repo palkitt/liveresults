@@ -29,10 +29,12 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
 <link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
 <script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
@@ -62,6 +64,31 @@ function switchOpenTimed(open)
   window.location = url;
 }
 
+function switchSound()
+{
+	if (res.audioMute)
+	{	
+    // Initiate sound
+    if (res.audioCtx == null)
+    {
+      res.audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+      var buffer = res.audioCtx.createBuffer(1, 1, 22050);
+      var source = res.audioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(res.audioCtx.destination);
+      source.start ? source.start(0) : source.noteOn(0);
+    }
+    
+    $('#audioOnOff').html(" &#128264; ")
+		res.audioMute = false;
+	}
+	else
+	{
+		$('#audioOnOff').html(" &#128263; ")
+		res.audioMute = true;
+	}
+}
+
 $(document).ready(function()
 {
 	<?php 
@@ -79,7 +106,7 @@ $(document).ready(function()
 		  Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
 	res.compName = "<?=$currentComp->CompName()?>";
 	res.compDate = "<?=$currentComp->CompDate()?>";
-		
+	
   function updateClock() 
   {
     var time = document.getElementById("time");
@@ -95,7 +122,8 @@ $(document).ready(function()
       preTimeID.innerHTML = HTMLstringPre;
     }
   }
-  setInterval(function () {updateClock( );}, 1000);
+  if (<?=$_GET['code']?>!=0)
+    setInterval(function () {updateClock( );}, 1000);
 	
   if (<?=$_GET['code']?>==0)
   {
@@ -129,6 +157,7 @@ $(document).ready(function()
     <?php if ($_GET['code']==0) { ?>
       <tr>
         <td align="left"><span id="liveIndicator">◉</span>
+        <span style="cursor:pointer; color:#FFF;" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
           <?php if (isset($_GET['openstart'])){ ?> 
             <b>Fristart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(0)">Tid→</a>
           <?php } else { ?> 
