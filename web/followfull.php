@@ -360,6 +360,8 @@ function closeTop() {
 					    case "ok moss":          $image = "images/OKMoss.png"; break;
 					    case "halden sk":        $image = "images/haldensk.png"; break;
 					    case "indre Østfold ok": $image = "images/indereook.jpg"; break;
+						case "bækkelagets sk":
+						case "bækkelagets sportsklub": $image = "images/bakkelaget.png"; break;
 					    default:                 $image = "images/LiveRes60.png";
 				    }
 			      if ($image != ""){ ?> <td width="60"><img src="<?php echo($image) ?>" height="60" ></td>  <?php }?>
