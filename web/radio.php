@@ -64,22 +64,24 @@ function switchOpenTimed(open)
   window.location = url;
 }
 
+var audioContext = null
+
 function switchSound()
 {
 	if (res.audioMute)
 	{	
-    // Initiate sound
-    if (res.audioCtx == null)
-    {
-      res.audioCtx = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
-      var buffer = res.audioCtx.createBuffer(1, 1, 22050);
-      var source = res.audioCtx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(res.audioCtx.destination);
-      source.start ? source.start(0) : source.noteOn(0);
-    }
-    
-    $('#audioOnOff').html(" &#128264; ")
+		// Initiate sound 
+		if (audioContext == null) {
+		    audioContext = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+		
+			  var buffer = audioContext.createBuffer(1, 1, 22050);
+        var source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start ? source.start(0) : source.noteOn(0);
+		}
+
+		$('#audioOnOff').html(" &#128264; ")
 		res.audioMute = false;
 	}
 	else
@@ -88,6 +90,18 @@ function switchSound()
 		res.audioMute = true;
 	}
 }
+
+function makeStartBeep (longBeep) {      
+    var oscillator = audioContext.createOscillator();
+    var duration  = (longBeep ? 1000 : 200);
+    var frequency = (longBeep ? 1100 : 900);
+    oscillator.type = "sine";
+    oscillator.frequency.value = (frequency);
+    oscillator.connect(audioContext.destination);
+    oscillator.start(0);
+    oscillator.stop(audioContext.currentTime + duration/1000);
+  }             
+
 
 $(document).ready(function()
 {

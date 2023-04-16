@@ -45,7 +45,6 @@ var LiveResults;
       this.numAnimElements = 0;
       this.startBeepActive = false;
       this.audioMute = true;
-      this.audioCtx = null; 
       this.classUpdateTimer = null;
       this.passingsUpdateTimer = null;
       this.radioPassingsUpdateTimer = null;
@@ -1792,7 +1791,7 @@ var LiveResults;
           var lastStartTime   = -1000; 
           var shownId = Array(0);
           var timeBeforeStartMakeSound = 4;  
-          var initiateStartSound = false;
+          var startBeep = 0; // 0: no, 1: short, 2: long
   
           // *** Hide or highlight rows ***
           for (var i = 0; i < data.length; i++){
@@ -1830,8 +1829,10 @@ var LiveResults;
               var startTimeSeconds = data[i].starttime/100;
               var timeToStart = startTimeSeconds-time;
               
-              if (timeToStart > 0 && timeToStart <= timeBeforeStartMakeSound)
-                initiateStartSound = true; 
+              if (timeToStart == 0)
+                startBeep = 2;
+              else if (startBeep == 0 && timeToStart > 0 && timeToStart <= timeBeforeStartMakeSound)
+                startBeep = 1; 
 
               if (timeToStart <= -postTime)
                 continue;
@@ -1876,8 +1877,8 @@ var LiveResults;
             }
           }
           this.prewShownId = shownId;
-          if (initiateStartSound && !this.audioMute)
-            this.makeStartSound();
+          if (startBeep>0 && !this.audioMute)
+            window.makeStartBeep(startBeep==2); // 2 : long beep
           
           var dt = new Date();
           var ms = dt.getMilliseconds();
@@ -4813,34 +4814,7 @@ var LiveResults;
       document.getElementById('myDropdown').classList.toggle("show");
     };
 
-    AjaxViewer.prototype.makeStartSound = function () {
-      _this = this;
-      if (this.startBeepActive)
-        return;
-      this.startBeepActive = true;
-      var oscillator = this.audioCtx.createOscillator();
-      var gainNode = this.audioCtx.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.value = 900;
-      oscillator.connect(gainNode);
-      gainNode.connect(this.audioCtx.destination);
-      
-      oscillator.start();
-      // 4 short beep
-      var i;
-      for (i=0; i<4; i++) 
-      {
-        setTimeout(function () {gainNode.gain.value = 1; }, i*1000);
-        setTimeout(function () {gainNode.gain.value = 0; }, i*1000+200);
-      } 
-      // One long beep
-      setTimeout(function () {gainNode.gain.value = 1; }, i*1000);
-      setTimeout(function () {oscillator.frequency.value = 1100; }, i*1000);
-      setTimeout(function () {
-        oscillator.stop(); 
-        _this.startBeepActive = false}, i*1000+1000);     
-    }             
-
+    
     // ReSharper disable once InconsistentNaming
     AjaxViewer.VERSION = "2016-08-06-01";
     return AjaxViewer;
