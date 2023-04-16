@@ -54,10 +54,29 @@ function enableNoSleep() {
   document.removeEventListener('click', enableNoSleep, false);
 }
 
+let soundBuffer;
+var audioContext = null
+
 function switchSound()
 {
 	if (mess.audioMute)
-	{
+	{	
+		// Initiate sound 
+		if (audioContext == null) {
+		    audioContext = new (window.AudioContext || window.webkitAudioContext || window.audioContext);
+		
+			var buffer = audioContext.createBuffer(1, 1, 22050);
+        	var source = audioContext.createBufferSource();
+        	source.buffer = buffer;
+        	source.connect(audioContext.destination);
+        	source.start ? source.start(0) : source.noteOn(0);
+
+			window.fetch('images/maybe-one-day.mp3')
+				.then(response => response.arrayBuffer())
+				.then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+				.then(audioBuffer => {soundBuffer = audioBuffer;  });
+		}
+
 		$('#audioOnOff').html(" &#128264; ")
 		mess.audioMute = false;
 	}
@@ -66,6 +85,13 @@ function switchSound()
 		$('#audioOnOff').html(" &#128263; ")
 		mess.audioMute = true;
 	}
+}
+
+function playNotification() {
+	const source = audioContext.createBufferSource();
+	source.buffer = soundBuffer;
+	source.connect(audioContext.destination);
+	source.start();
 }
 
 

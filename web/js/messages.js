@@ -16,7 +16,6 @@ var Messages;
             this.currentTable = null;
             this.messagesData = null;
             this.showAllMessages = true;
-            this.newMessageAudio = new Audio(src="images/maybe-one-day.mp3");
             this.audioMute = true;
             this.lastNumberOfMessages = null;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
@@ -109,7 +108,7 @@ var Messages;
                 {
                     this.lastNumberOfMessages = this.messagesData.length;
                     if (!this.audioMute)
-                        this.newMessageAudio.play();
+                        window.playNotification();
                 }
 						
                 // Existing datatable
