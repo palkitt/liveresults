@@ -409,7 +409,10 @@ elseif ($_GET['method'] == 'getracesplitter')
   else
   {
     $classNames = classesSorted($currentComp);
-    $classNameAdd = "";
+    if (isset($_GET['includetotal']) && $_GET['includetotal'] == "true")
+      $classNameAdd = "total";
+    else
+      $classNameAdd = "";
   }
 	$ret = "";
 	$first = true;
@@ -498,19 +501,18 @@ function classesSorted($currentComp,$classMask=null){
 		if (stripos($sortKey,'Åpen') !== false || stripos($sortKey,'åpen') !== false || stripos($sortKey,'open') !== false || 
 	    stripos($sortKey,'gjest') !== false || stripos($sortKey,'dir') !== false || stripos($sortKey,'utv') !== false)
 			$sortKey = 'z'.$sortKey;
-		$sortKey = preg_replace('/(^|[^\d])(\d)($|[^\d])/','$1 00 $2 $3',$sortKey);      // Add 00 ahead of single digits
-		$sortKey = preg_replace('/(^|[^\d])(\d)(\d)($|[^\d])/','$1 0 $2 $3 $4',$sortKey); // Add 0 ahead of double digits
-		$sortKey = str_replace(' ','',$sortKey);
-        $sortKey = str_replace('-','',$sortKey);
-        $sortKey = str_replace('+','',$sortKey);
-        $sortKey = str_replace('prolog','a',$sortKey);
-        $sortKey = str_replace('kvart' ,'b',$sortKey);
-        $sortKey = str_replace('semi'  ,'c',$sortKey);
-        $sortKey = str_replace('finale','d',$sortKey);
-
-		$classSort->sortKey = $sortKey;
-		$classNames[] = $classSort;
-	}
+    $sortKey = preg_replace('/(^|[^\d])(\d)($|[^\d])/','$1 00 $2 $3',$sortKey);       // Add 00 ahead of single digits
+    $sortKey = preg_replace('/(^|[^\d])(\d)(\d)($|[^\d])/','$1 0 $2 $3 $4',$sortKey); // Add 0 ahead of double digits
+    $sortKey = str_replace(' ','',$sortKey);
+    $sortKey = str_replace('-','',$sortKey);
+    $sortKey = str_replace('+','',$sortKey);
+    $sortKey = str_replace('prolog','a',$sortKey);
+    $sortKey = str_replace('kvart' ,'b',$sortKey);
+    $sortKey = str_replace('semi'  ,'c',$sortKey);
+    $sortKey = str_replace('finale','d',$sortKey);
+    $classSort->sortKey = $sortKey;
+    $classNames[] = $classSort;
+}
 	
 	usort($classNames, "cmp");
 	return $classNames;
@@ -534,17 +536,26 @@ function classResults($class,$plain,$relay=false)
 	$total = null;
 	$retTotal = false;
 	if (isset($_GET['includetotal']) && $_GET['includetotal'] == "true")
-	{
-		$retTotal = true;
-		$total = $currentComp->getTotalResultsForClass($class);
-
+	{		
+    if (!$plain)
+      $retTotal = true;
+    $total = $currentComp->getTotalResultsForClass($class);
 		foreach ((array)$results as $key=>$res)
 		{
 			$id = $res['DbId'];
-			$results[$key]["totaltime"] = $total[$id]["Time"];
-			$results[$key]["totalstatus"] = $total[$id]["Status"];
-			$results[$key]["totalplace"] = $total[$id]["Place"];
-			$results[$key]["totalplus"] = $total[$id]["TotalPlus"];
+      if ($plain) // Replace todays results with total results
+      {
+        $results[$key]["Time"] = $total[$id]["Time"];
+        $results[$key]["Status"] = $total[$id]["Status"];
+        $results[$key]["Length"] = null;
+      }
+      else
+      {
+        $results[$key]["totaltime"] = $total[$id]["Time"];
+        $results[$key]["totalstatus"] = $total[$id]["Status"];
+        $results[$key]["totalplace"] = $total[$id]["Place"];
+        $results[$key]["totalplus"] = $total[$id]["TotalPlus"];
+      }
 		}
 	}
 	$ret = "";

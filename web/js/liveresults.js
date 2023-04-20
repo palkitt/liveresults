@@ -346,6 +346,8 @@ var LiveResults;
           if (!this.EmmaServer) {
             str += "<hr><a href=\"javascript:LiveResults.Instance.chooseClass('plainresults')\" style=\"text-decoration: none\">Alle klasser</a>";
             str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('startlist')\" style=\"text-decoration: none\">Startliste</a>";
+            if (this.isMultiDayEvent)
+              str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('plainresultstotal')\" style=\"text-decoration: none\">" + this.resources["_TOTAL"] + "</a>";
           }
           str += "<hr></nowrap>";
           $("#" + this.classesDiv).html(str);
@@ -2649,6 +2651,8 @@ var LiveResults;
       var callStr;
       if (className == "plainresults")
         callStr = "&method=getplainresults&unformattedTimes=true";
+      else if (className == "plainresultstotal")
+        callStr = "&method=getplainresults&unformattedTimes=true&includetotal=true";
       else if (className.includes("plainresultsclass_"))
         callStr = "&method=getplainresults&unformattedTimes=true&classmask=" + className.replace("plainresultsclass_","");
       else if (className == "startlist")
@@ -2695,7 +2699,11 @@ var LiveResults;
         $('#divInfoText').html(data.infotext);
         if (data.className != null) {
           if (data.className == "plainresults") {
-            $('#' + this.resultsHeaderDiv).html('<b>Alle klasser</b>');
+            $('#' + this.resultsHeaderDiv).html("<b>Alle klasser</b>");
+            $('#' + this.txtResetSorting).html("");
+          }
+          else if (data.className == "plainresultstotal") {
+            $('#' + this.resultsHeaderDiv).html("<b>Sammenlagt alle klasser</b>");
             $('#' + this.txtResetSorting).html("");
           }
           else if (data.className.includes("plainresultsclass_")) {
@@ -2703,7 +2711,7 @@ var LiveResults;
             $('#' + this.txtResetSorting).html("");
           }
           else if (data.className == "startlist") {
-            $('#' + this.resultsHeaderDiv).html('<b>Startliste</b>');
+            $('#' + this.resultsHeaderDiv).html("<b>Startliste</b>");
             $('#' + this.txtResetSorting).html("");
           }
           else {
