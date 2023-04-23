@@ -1540,7 +1540,7 @@ namespace LiveResults.Client
                         IDbCommand cmd = m_connection.CreateCommand();
 
                         if (kid > 0) // use Eventor ID
-                            cmd.CommandText = string.Format(@"SELECT id, ename, name, status FROM name WHERE kid={0}", kid);
+                            cmd.CommandText = string.Format(@"SELECT id, ename, name, status FROM name WHERE kid='{0}'", kid);
                         else       // use eTiming ID
                             cmd.CommandText = string.Format(@"SELECT id, ename, name, status FROM name WHERE id={0}", dbid);
 
