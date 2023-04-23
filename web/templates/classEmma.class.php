@@ -1209,13 +1209,16 @@ class Emma
 			}
 			mysqli_free_result($result);
 			
-			/* Set DNS on those missing any comp*/
+			/* Set DNS on those missing any comp previos to the current one*/
 			foreach($ret as $key => $val)
 			{
 				$haveAll = true;
+        $numComp = count($ar);
 				foreach ($ar as $c)
 				{
-					if (!$val["c_".$c] )
+					if (--$numComp <= 0)
+            break;
+          if (!$val["c_".$c])
 					{
 						$haveAll = false;
 						break;
