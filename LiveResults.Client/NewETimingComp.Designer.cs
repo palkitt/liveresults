@@ -36,6 +36,9 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewETimingComp));
             this.wizard1 = new Gui.Wizard.Wizard();
+            this.wizardPage2 = new Gui.Wizard.WizardPage();
+            this.lstDB = new LiveResults.Client.NewETimingComp.DBListBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.wizardPage5 = new Gui.Wizard.WizardPage();
             this.chkAddEcardSplits = new System.Windows.Forms.CheckBox();
             this.txtCompType = new System.Windows.Forms.TextBox();
@@ -60,9 +63,6 @@
             this.label10 = new System.Windows.Forms.Label();
             this.txtCompID = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.wizardPage2 = new Gui.Wizard.WizardPage();
-            this.lstDB = new LiveResults.Client.NewETimingComp.DBListBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.wizardPage1 = new Gui.Wizard.WizardPage();
             this.panel1 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
@@ -78,17 +78,18 @@
             this.label2 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.chkEcardAsBackup = new System.Windows.Forms.CheckBox();
             this.wizard1.SuspendLayout();
-            this.wizardPage5.SuspendLayout();
             this.wizardPage2.SuspendLayout();
+            this.wizardPage5.SuspendLayout();
             this.wizardPage1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // wizard1
             // 
-            this.wizard1.Controls.Add(this.wizardPage2);
             this.wizard1.Controls.Add(this.wizardPage5);
+            this.wizard1.Controls.Add(this.wizardPage2);
             this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -98,11 +99,43 @@
             this.wizardPage1,
             this.wizardPage2,
             this.wizardPage5});
-            this.wizard1.Size = new System.Drawing.Size(506, 277);
+            this.wizard1.Size = new System.Drawing.Size(514, 277);
             this.wizard1.TabIndex = 0;
+            // 
+            // wizardPage2
+            // 
+            this.wizardPage2.Controls.Add(this.lstDB);
+            this.wizardPage2.Controls.Add(this.label6);
+            this.wizardPage2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wizardPage2.IsFinishPage = false;
+            this.wizardPage2.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage2.Name = "wizardPage2";
+            this.wizardPage2.Size = new System.Drawing.Size(506, 229);
+            this.wizardPage2.TabIndex = 2;
+            this.wizardPage2.ShowFromBack += new System.EventHandler(this.wizardPage2_ShowFromBack);
+            this.wizardPage2.ShowFromNext += new System.EventHandler(this.wizardPage2_ShowFromNext);
+            // 
+            // lstDB
+            // 
+            this.lstDB.FormattingEnabled = true;
+            this.lstDB.Location = new System.Drawing.Point(13, 26);
+            this.lstDB.Name = "lstDB";
+            this.lstDB.PreviousSelectedIndex = 0;
+            this.lstDB.Size = new System.Drawing.Size(218, 186);
+            this.lstDB.TabIndex = 1;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(12, 9);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(79, 13);
+            this.label6.TabIndex = 0;
+            this.label6.Text = "SQL databases";
             // 
             // wizardPage5
             // 
+            this.wizardPage5.Controls.Add(this.chkEcardAsBackup);
             this.wizardPage5.Controls.Add(this.chkAddEcardSplits);
             this.wizardPage5.Controls.Add(this.txtCompType);
             this.wizardPage5.Controls.Add(this.label15);
@@ -130,7 +163,7 @@
             this.wizardPage5.IsFinishPage = false;
             this.wizardPage5.Location = new System.Drawing.Point(0, 0);
             this.wizardPage5.Name = "wizardPage5";
-            this.wizardPage5.Size = new System.Drawing.Size(506, 229);
+            this.wizardPage5.Size = new System.Drawing.Size(514, 229);
             this.wizardPage5.TabIndex = 5;
             this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
             this.wizardPage5.ShowFromNext += new System.EventHandler(this.wizardPage5_ShowFromNext);
@@ -348,37 +381,6 @@
             this.label9.Text = "Competiton ID";
             this.label9.Click += new System.EventHandler(this.label9_Click);
             // 
-            // wizardPage2
-            // 
-            this.wizardPage2.Controls.Add(this.lstDB);
-            this.wizardPage2.Controls.Add(this.label6);
-            this.wizardPage2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wizardPage2.IsFinishPage = false;
-            this.wizardPage2.Location = new System.Drawing.Point(0, 0);
-            this.wizardPage2.Name = "wizardPage2";
-            this.wizardPage2.Size = new System.Drawing.Size(506, 229);
-            this.wizardPage2.TabIndex = 2;
-            this.wizardPage2.ShowFromBack += new System.EventHandler(this.wizardPage2_ShowFromBack);
-            this.wizardPage2.ShowFromNext += new System.EventHandler(this.wizardPage2_ShowFromNext);
-            // 
-            // lstDB
-            // 
-            this.lstDB.FormattingEnabled = true;
-            this.lstDB.Location = new System.Drawing.Point(13, 26);
-            this.lstDB.Name = "lstDB";
-            this.lstDB.PreviousSelectedIndex = 0;
-            this.lstDB.Size = new System.Drawing.Size(218, 186);
-            this.lstDB.TabIndex = 1;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 9);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(79, 13);
-            this.label6.TabIndex = 0;
-            this.label6.Text = "SQL databases";
-            // 
             // wizardPage1
             // 
             this.wizardPage1.Controls.Add(this.panel1);
@@ -521,20 +523,30 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Type of eTiming server";
             // 
+            // chkEcardAsBackup
+            // 
+            this.chkEcardAsBackup.AutoSize = true;
+            this.chkEcardAsBackup.Location = new System.Drawing.Point(256, 159);
+            this.chkEcardAsBackup.Name = "chkEcardAsBackup";
+            this.chkEcardAsBackup.Size = new System.Drawing.Size(259, 17);
+            this.chkEcardAsBackup.TabIndex = 26;
+            this.chkEcardAsBackup.Text = "Use ecard (strekktider) as backup for radio times";
+            this.chkEcardAsBackup.UseVisualStyleBackColor = true;
+            // 
             // NewETimingComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(506, 277);
+            this.ClientSize = new System.Drawing.Size(514, 277);
             this.Controls.Add(this.wizard1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "NewETimingComp";
             this.Text = "New eTiming connection";
             this.wizard1.ResumeLayout(false);
-            this.wizardPage5.ResumeLayout(false);
-            this.wizardPage5.PerformLayout();
             this.wizardPage2.ResumeLayout(false);
             this.wizardPage2.PerformLayout();
+            this.wizardPage5.ResumeLayout(false);
+            this.wizardPage5.PerformLayout();
             this.wizardPage1.ResumeLayout(false);
             this.wizardPage1.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -588,5 +600,6 @@
         private System.Windows.Forms.TextBox txtCompType;
         private System.Windows.Forms.Label label15;
         public System.Windows.Forms.CheckBox chkAddEcardSplits;
+        public System.Windows.Forms.CheckBox chkEcardAsBackup;
     }
 }

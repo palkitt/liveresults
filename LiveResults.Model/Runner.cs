@@ -125,6 +125,12 @@ namespace LiveResults.Model
             set;
         }
 
+        public int RadioCode
+        {
+            get;
+            set;
+        }
+
         public int Order
         {
             get;

@@ -96,7 +96,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FrmETimingMonitor";
-            this.Text = "eTiming Monitor. Ver 2023-04-23";
+            this.Text = "eTiming Monitor";
             this.Load += new System.EventHandler(this.FrmETimingMonitor_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);

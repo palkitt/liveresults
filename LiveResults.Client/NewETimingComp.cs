@@ -42,6 +42,7 @@ namespace LiveResults.Client
             chkEventorID.Checked = false;
             chkUpdateMessage.Checked = false;
             chkAddEcardSplits.Checked = true;
+            chkEcardAsBackup.Checked = true;
             RetreiveSettings();
         }
 
@@ -405,7 +406,7 @@ namespace LiveResults.Client
             
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
                     SleepTime, 
-                    chkNotUpdateRadioControls.Checked, false, MSSQL, false, 
+                    chkNotUpdateRadioControls.Checked, false, MSSQL, chkEcardAsBackup.Checked, 
                     chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
                     chkUpdateMessage.Checked, chkAddEcardSplits.Checked, CompID, OsOffset);
             monForm.SetParser(pars as IExternalSystemResultParserEtiming);
