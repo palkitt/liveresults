@@ -660,13 +660,19 @@ function classResults($class,$plain,$relay=false)
 		if ($first || $length>$lengthMax)
 		   $lengthMax = $length;
 		if ($first || $length<$lengthMin)
-		   $lengthMin = $length;
-		
+		   $lengthMin = $length;	
 		if (!$first && !$plain)
 			$ret .=",";
-		$time = $res['Time'];
-		$pace = ($length>0 && $time>0 ? round(1000*$time/$length) : 0);
-
+    
+    $paceTime = 0;
+    if ($relay)
+      if (isset($res["999_time"]))
+        $paceTime = $res["999_time"];
+    else
+		  $paceTime = $res['Time']; 
+		$pace = ($length>0 && $paceTime>0 ? round(1000*$paceTime/$length) : 0); 
+    
+    $time = $res['Time']; 
 		if ($first)
 			$winnerTime = $time;
 
