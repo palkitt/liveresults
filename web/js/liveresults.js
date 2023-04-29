@@ -424,6 +424,32 @@ var LiveResults;
         this.curClassSplitsBests = classSplitsBest;
       }
     };
+    
+    AjaxViewer.prototype.checkForMassStart = function (data) {
+      var isMassStart = false;
+      if (data != null && data.status == "OK" && data.results != null) {        
+        var firstStart = 0;
+        var lastStart = 999;
+        var first = true;
+        for (var i = 0; i < data.results.length; i++) {
+          if (data.results[i].start != undefined && data.results[i].start > 0 ) {
+            if (first)
+            {
+              first = false;
+              firstStart = data.results[i].start;
+              lastStart = data.results[i].start;
+            } 
+            else
+            { 
+              firstStart = Math.min(data.results[i].start,firstStart);
+              lastStart = Math.max(data.results[i].start,lastStart);
+            }
+          }
+        }
+        isMassStart = (lastStart-firstStart<100);
+      }
+      return isMassStart;
+    };
 
     // Quality check of radio controls and estimate missing passing times
     AjaxViewer.prototype.checkRadioControls = function (data) {
@@ -2894,7 +2920,7 @@ var LiveResults;
             this.curClassNumSplits = this.curClassSplits.length;
 
           this.compactView = !(this.curClassIsRelay || this.curClassLapTimes || this.isMultiDayEvent);
-          this.curClassIsMassStart = this.curClassIsRelay;
+          this.curClassIsMassStart = (this.checkForMassStart(data) || this.curClassIsRelay);
 
           this.curClassSplitsOK = new Array(this.curClassNumSplits).fill(true);
           this.checkRadioControls(data);
