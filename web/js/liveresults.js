@@ -2332,8 +2332,8 @@ var LiveResults;
                 var reqTime = resp.getResponseHeader("date");
                 if (reqTime) {
                   var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
-                  if (Math.abs(newTimeDiff - _this.serverTimeDiff) > 1.5 * varTime)
-                    _this.serverTimeDiff = newTimeDiff;
+                  if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
+                    _this.serverTimeDiff = 0.9*_this.serverTimeDiff + 0.1*newTimeDiff;
                 }
                 expTime = new Date(resp.getResponseHeader("expires")).getTime();
               }
