@@ -665,11 +665,8 @@ function classResults($class,$plain,$relay=false)
 			$ret .=",";
     
     $paceTime = 0;
-    if ($relay)
-	{
-      if (isset($res["999_time"]))
+    if ($relay && isset($res["999_time"]))
     	$paceTime = $res["999_time"];
-	}
     else
 		$paceTime = $res['Time']; 
 	$pace = ($length>0 && $paceTime>0 ? round(1000*$paceTime/$length) : 0); 
