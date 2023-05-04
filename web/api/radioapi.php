@@ -1,10 +1,19 @@
 <?php
 date_default_timezone_set("Europe/Oslo");
-$lang = "no";
-$compid   = $_GET['comp'];
+if (isset($_GET['comp']) && is_numeric($_GET['comp']))
+  $compid = $_GET['comp'];
+else
+{
+  insertHeader(60,false);
+	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+  header($protocol . ' ' . 400 . ' Bad Request');
+	echo("{ \"status\": \"ERR\", \"message\": \"Wrong comp id\"}");
+  return;
+}
+
 $hightime = 60;
 $refreshTime = 5;
-
+$lang = "no";
 if (isset($_GET['lang']))
 	$lang = $_GET['lang'];
 
