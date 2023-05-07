@@ -160,6 +160,7 @@ $(document).ready(function()
   res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		Resources, <?= ($currentComp->IsMultiDayEvent() ? "true" : "false")?>, <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", false);
   res.speakerView = true;
+  res.inactiveTimeout = 24*3600;
   <?php if ($isSingleClass){?>
 		res.chooseClass('<?=$singleClass?>');
 	<?php }
