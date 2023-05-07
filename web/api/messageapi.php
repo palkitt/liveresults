@@ -1,9 +1,7 @@
 <?php
 date_default_timezone_set("Europe/Oslo");
 
-if (isset($_GET['comp']) && is_numeric($_GET['comp']))
-  $compid = $_GET['comp'];
-else
+if (isset($_GET['comp']) && !is_numeric($_GET['comp']))
 {
   insertHeader(60,false);
 	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
@@ -11,6 +9,8 @@ else
 	echo("{ \"status\": \"ERR\", \"message\": \"Wrong comp id\"}");
   return;
 }
+else if(isset($_GET['comp']))
+	$compid = $_GET['comp'];
 
 $refreshTime = 5;
 $lang = "no";
