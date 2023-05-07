@@ -963,11 +963,11 @@ class Emma
 		if (!function_exists("timeSorter"))
 		{
 			function timeSorter($a,$b)
-			{
+			{			
 				if ($a['Status'] != $b['Status'])
-					return $a['Status'] - $b['Status'];
+					return intval($a['Status']) - intval($b['Status']);
 				else
-					return $a['Time'] - $b['Time'];
+					return intval($a['Time']) - intval($b['Time']);
 			}
 		}
 
