@@ -13,6 +13,7 @@ using System.Data.H2;
 using System.IO;
 using System.Xml.Serialization;
 using LiveResults.Model;
+using System.Globalization;
 
 namespace LiveResults.Client
 {
@@ -37,6 +38,7 @@ namespace LiveResults.Client
             txtSleepTime.Text = "3";
             txtIdOffset.Text = "0";
             txtOsOffset.Text = "0";
+            txtMinPace.Text = "0";
             chkNotUpdateRadioControls.Checked = false;
             chkLapTimes.Checked = false;
             chkEventorID.Checked = false;
@@ -398,15 +400,19 @@ namespace LiveResults.Client
             if (comboBox1.SelectedIndex == 1) MSSQL = true;
 
             int CompID = 0, IdOffset = 0, SleepTime = 0, OsOffset = 0;
+            double MinPace = 0;
 
+            if (!Int32.TryParse(txtSleepTime.Text, out SleepTime))
+                SleepTime = 3; 
             parseOK = Int32.TryParse(txtCompID.Text, out CompID);
-            parseOK = Int32.TryParse(txtSleepTime.Text, out SleepTime);
             parseOK = Int32.TryParse(txtIdOffset.Text, out IdOffset);
             parseOK = Int32.TryParse(txtOsOffset.Text, out OsOffset);
-            
+            if (!Double.TryParse(txtMinPace.Text, out MinPace))
+                parseOK = Double.TryParse(txtMinPace.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out MinPace);
+
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
                     SleepTime, 
-                    chkNotUpdateRadioControls.Checked, false, MSSQL, chkEcardAsBackup.Checked, 
+                    chkNotUpdateRadioControls.Checked, MinPace, MSSQL, chkEcardAsBackup.Checked, 
                     chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
                     chkUpdateMessage.Checked, chkAddEcardSplits.Checked, CompID, OsOffset);
             monForm.SetParser(pars as IExternalSystemResultParserEtiming);
@@ -489,6 +495,11 @@ namespace LiveResults.Client
         private void chkEventorID_CheckedChanged(object sender, EventArgs e)
         {
 
-        }       
+        }
+
+        private void label18_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

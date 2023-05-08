@@ -50,9 +50,13 @@ namespace LiveResults.Client
 
         private void button6_MouseEnter(object sender, EventArgs e)
         {
-            lblInfo.Text = "Export live results from eTiming";
+            lblInfo.Text = "Export liveresults from eTiming";
         }
 
+        private void button7_MouseEnter(object sender, EventArgs e)
+        {
+            lblInfo.Text = "Export liveresults from Brikkesys";
+        }
 
         private void btn_MouseLeave(object sender, EventArgs e)
         {

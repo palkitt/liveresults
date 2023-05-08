@@ -16,6 +16,10 @@ using LiveResults.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.CSharp;
+using Org.BouncyCastle.Asn1.Crmf;
+using System.Collections;
+using System.Net.Sockets;
+
 namespace LiveResults.Client
 {
     
@@ -33,6 +37,7 @@ namespace LiveResults.Client
         private bool m_updateRadioControls;
         private bool m_continue;
         private int  m_sleepTime;
+        private double m_minPaceTime;
         private bool m_oneLineRelayRes;
         private bool m_lapTimes;
         private bool m_MSSQL;
@@ -44,14 +49,14 @@ namespace LiveResults.Client
         private int day;
         private int m_OsOffset;
 
-        public ETimingParser(IDbConnection conn, int sleepTime, bool notUpdateRadioControls = true, bool oneLineRelayRes = false, 
+        public ETimingParser(IDbConnection conn, int sleepTime, bool notUpdateRadioControls = true, double minPaceTime = 0, 
             bool MSSQL = false, bool ecardAsBackup = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0, 
             bool updateMessage = false, bool addEcardSplits = false, int compID = 0, int OsOffset = 0)
         {
             m_connection = conn;
             m_updateRadioControls = !notUpdateRadioControls;
             m_sleepTime = sleepTime;
-            m_oneLineRelayRes = oneLineRelayRes;
+            m_minPaceTime = minPaceTime;
             m_MSSQL = MSSQL;
             m_ecardAsBackup = ecardAsBackup;
             m_lapTimes = lapTimes;
@@ -122,7 +127,6 @@ namespace LiveResults.Client
 
         public class RelayLegInfo
         {
-            public string LegName;
             public string LegStatus;
             public int LegTime;
             public int TotalTime;
@@ -130,13 +134,10 @@ namespace LiveResults.Client
 
         private class RelayTeam
         {
-            public string ClassName;
-            public string TeamName;
             public string TeamStatus;
             public int StartTime;
             public int TotalTime;
             public int TeamBib;
-            public List<ResultStruct> SplitTimes;
             public Dictionary<int,RelayLegInfo> TeamMembers;
         }
         
@@ -155,6 +156,7 @@ namespace LiveResults.Client
             public string TimingPoint;
             public int Leg;
             public int Order;
+            public int Distance;
         };
 
         private void Run()
@@ -293,7 +295,7 @@ namespace LiveResults.Client
                         List<RadioControl> extraTimes = new List<RadioControl>();
                         
                         // radiotype, 2=finish/finish-passing, 4 = normal, 10 = exchange
-                        cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, timingpointtype, description, etappe, radiorundenr, live 
+                        cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, timingpointtype, description, etappe, radiorundenr, live, radiodist 
                                             FROM radiopost WHERE radioday={0} ORDER BY radiorundenr", day);
                         var RadioPosts = new Dictionary<int, List<RadioStruct>>();
 
@@ -301,7 +303,7 @@ namespace LiveResults.Client
                         {
                             while (reader.Read())
                             {
-                                int course = 0, code = 0, radiotype = -1, leg = 0, order = 0;
+                                int course = 0, code = 0, radiotype = -1, leg = 0, order = 0, distance = 0;
                                 bool live = false;
                                 if (reader["live"] != null && reader["live"] != DBNull.Value)
                                     live = Convert.ToBoolean(reader["live"].ToString());
@@ -335,6 +337,9 @@ namespace LiveResults.Client
                                 if (reader["radiorundenr"] != null && reader["radiorundenr"] != DBNull.Value)
                                     order = Convert.ToInt32(reader["radiorundenr"].ToString());
 
+                                if (reader["radiodist"] != null && reader["radiodist"] != DBNull.Value)
+                                    distance = Convert.ToInt32(reader["radiodist"].ToString());
+
                                 string description = reader["description"] as string;
                                 if (!string.IsNullOrEmpty(description))
                                     description = description.Trim();
@@ -346,7 +351,8 @@ namespace LiveResults.Client
                                     RadioType   = radiotype,
                                     TimingPoint = timingpoint,
                                     Order       = order,
-                                    Leg         = leg
+                                    Leg         = leg,
+                                    Distance    = distance
                                 };
 
                                 if (!RadioPosts.ContainsKey(course))
@@ -449,23 +455,7 @@ namespace LiveResults.Client
                                         Code = 999,
                                         Order = 999
                                     });
-                                }
-
-                                string classAll = className;
-                                if (!classAll.EndsWith("-"))
-                                    classAll += "-";
-                                classAll += "All";
-
-                                if (numLegs > 0 && m_oneLineRelayRes)
-                                { // Add leg time for last leg in one-line results
-                                    extraTimes.Add(new RadioControl
-                                    {
-                                        ClassName = classAll,
-                                        ControlName = "Leg",
-                                        Code = 999,
-                                        Order = 999
-                                    });
-                                }
+                                }                          
 
                                 if (RadioPosts.ContainsKey(course))
                                 {   // Add radio controls to course
@@ -511,7 +501,8 @@ namespace LiveResults.Client
                                                 ClassName = classN,
                                                 ControlName = radioControl.Description,
                                                 Code = sign*(Code + radioCnt[CodeforCnt] * 1000 + AddforLeg),
-                                                Order = nStep*radioControl.Order
+                                                Order = nStep*radioControl.Order,
+                                                Distance = radioControl.Distance
                                             });
 
                                             // Add leg passing time for relay, chase start and lap times
@@ -525,34 +516,6 @@ namespace LiveResults.Client
                                                     Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
                                                 });
                                             }
-                                        }
-                                            
-                                        // Add codes for one-line relay classes
-                                        if (numLegs > 0 && m_oneLineRelayRes)  
-                                        {
-                                            string Description = Convert.ToString(radioControl.Leg) +":"+ radioControl.Description;
-                                            int position = 0;
-                                            if (radioControl.TimingPoint == "VK") // Exchange
-                                                position = 999 + 1000 + AddforLeg;
-                                            else // Normal radio control
-                                                position = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg;
-
-                                            intermediates.Add(new RadioControl
-                                            {
-                                                ClassName = classAll,
-                                                ControlName = Description,
-                                                Code = position,
-                                                Order = 2*radioControl.Order
-                                            });
-
-                                            // Passing time
-                                            intermediates.Add(new RadioControl
-                                            {
-                                                ClassName = classAll,
-                                                ControlName = Description + "PassTime",
-                                                Code = position + 100000,
-                                                Order = 2*radioControl.Order - 1
-                                            });
                                         }
                                     }
                                 }
@@ -726,7 +689,7 @@ namespace LiveResults.Client
                     int bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1, heat = 0, stage = 0, sprintOffset = 0;
                     int length = 0;
                     int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
-                    string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", name = "", shortName = "-";
+                    string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", name = "";
                     bool chaseStart = false, freeStart = false, parseOK = false, useEcardTime = false;
                     string ecardTimeString = "";
                     var SplitTimes = new List<ResultStruct>();
@@ -858,23 +821,13 @@ namespace LiveResults.Client
                             {
                                 RelayTeams.Add(teambib, new RelayTeam());
                                 RelayTeams[teambib].TeamMembers = new Dictionary<int, RelayLegInfo>();
-                                RelayTeams[teambib].SplitTimes = new List<ResultStruct>();
                             }
                             RelayTeams[teambib].TeamBib = teambib;
-                            RelayTeams[teambib].ClassName = classN;
                             if (leg == 1)
                                 RelayTeams[teambib].StartTime = iStartTime;
 
                             if (!(RelayTeams[teambib].TeamMembers).ContainsKey(leg))
                                 RelayTeams[teambib].TeamMembers.Add(leg, new RelayLegInfo());
-
-                            if (givName != null)
-                            {
-                                if (givName.Length == 0) givName = "-";
-                                shortName = givName[0] + "." + famName;
-                            }
-
-                            RelayTeams[teambib].TeamMembers[leg].LegName = shortName;
 
                             if (!classN.EndsWith("-"))
                                 classN += "-";
@@ -882,7 +835,6 @@ namespace LiveResults.Client
 
                             if (reader["teamno"] != null && reader["teamno"] != DBNull.Value)
                                 club += "-" + Convert.ToString(reader["teamno"]);
-                            RelayTeams[teambib].TeamName = club;
 
                             if (reader["cfirststart"] != null && reader["cfirststart"] != DBNull.Value)
                                 iStartClass = ConvertFromDay2cs(Convert.ToDouble(reader["cfirststart"]));
@@ -918,27 +870,7 @@ namespace LiveResults.Client
                                 if (RelayTeams[teambib].TeamMembers[legs].LegTime > 0)
                                 {
                                     TeamTime += RelayTeams[teambib].TeamMembers[legs].LegTime;
-                                    RelayTeams[teambib].TeamMembers[legs].TotalTime = TeamTime;
-
-                                    var SplitTime = new ResultStruct
-                                    {
-                                        ControlCode = 999 + 1000 + 10000 * legs,           // Note code 999 for change-over!
-                                        Time = TeamTime
-                                    };
-                                    RelayTeams[teambib].SplitTimes.Add(SplitTime);
-
-                                    int controlCode = 0;
-                                    if (legs == numlegs)
-                                        controlCode = 999;
-                                    else
-                                        controlCode = 999 + 1000 + 10000 * legs + 100000;
-
-                                    var LegTime = new ResultStruct
-                                    {
-                                        ControlCode = controlCode,
-                                        Time = RelayTeams[teambib].TeamMembers[legs].LegTime
-                                    };
-                                    RelayTeams[teambib].SplitTimes.Add(LegTime);
+                                    RelayTeams[teambib].TeamMembers[legs].TotalTime = TeamTime;                                    
                                 }
 
                                 // Accumulated status
@@ -1092,13 +1024,13 @@ namespace LiveResults.Client
                                 splitPassTime += 86400 * 100;
 
                             if (splitPassTime < iStartTime || (splitPassTime - lastSplitTime < 3000 && split.controlCode == lastSplitCode))
-                                continue;         // Neglect passing before starttime, passing less than 3 s from last when the same splitCode
+                                continue;         // Neglect passing before starttime, passing less than 30 s from last when the same splitCode
                             if (m_lapTimes && !isRelay && split.controlCode < 0)
                                 continue;         // Do not accept negative control codes in cases where lap times are to be calculated
 
                             passTime = -2;        // Total time at passing
                             int passLegTime = -2; // Time used on leg at passing
-                            if ((time < 0 || (split.netTime>0 && split.netTime<time)) && (freeStart || useEcardTime))
+                            if (split.netTime > 0 && (time < 0 || split.netTime < time) && (freeStart || useEcardTime) )
                                 passTime = split.netTime;
                             else if (isRelay)
                             {
@@ -1107,14 +1039,16 @@ namespace LiveResults.Client
                             }
                             else if (chaseStart)
                             {
+                                passLegTime = splitPassTime - iStartTime; 
                                 passTime = splitPassTime - iStartTime + totalTime;
-                                passLegTime = splitPassTime - iStartTime;
                             }
                             else if (!freeStart)
                                 passTime = splitPassTime - iStartTime;
+
                             if (passTime < 1000 || (time > 0 && passTime > time))  // Neglect pass times less than 10 s from start and pass times longer than finish time
                                 continue;
-                            if (m_lapTimes && !isRelay)
+                            
+                            if (m_lapTimes && !isRelay) // Set lap time in for pass leg time
                             {
                                 if (lastSplitTime < 0) // First pass
                                     passLegTime = passTime;
@@ -1134,9 +1068,21 @@ namespace LiveResults.Client
 
                             while (lsplitCodes.Contains(iSplitcode))
                                 iSplitcode += sign * 1000;
+
+                            // Skip radio passings where pacetime is less than minimum
+                            int radioCode = iSplitcode + 10000 * leg;
+                            var distance = intermediates.Where(item => item.ClassName == classN && item.Code == radioCode).Select(item => item.Distance).FirstOrDefault();
+                            if (distance > 0)
+                            {
+                                var timeToRadio = ((m_lapTimes && !isRelay) || passLegTime < 0 ? passTime : passLegTime);
+                                double paceToRadio = ((double)timeToRadio/6000) / ((double)distance/1000); // min/km
+                                if (paceToRadio < m_minPaceTime)
+                                    continue;
+                            }
+
+                            // All checks passed. Add split time to SplitTime struct
                             lsplitCodes.Add(iSplitcode);
 
-                            // Add split time to SplitTime struct
                             if (timingType == 2) // Not show times
                                 passTime = -10;
                             var SplitTime = new ResultStruct
@@ -1146,20 +1092,14 @@ namespace LiveResults.Client
                             };
                             SplitTimes.Add(SplitTime);
 
-                            if (isRelay)
-                                RelayTeams[teambib].SplitTimes.Add(SplitTime);
-
-                            if (passLegTime > 0)
+                            if (passLegTime > 0 && (leg > 1 || chaseStart || m_lapTimes))
                             {
                                 var passLegTimeStruct = new ResultStruct
                                 {
                                     ControlCode = iSplitcode + 10000 * leg + 100000,
                                     Time = passLegTime
                                 };
-                                if (leg > 1 || chaseStart || m_lapTimes)
-                                    SplitTimes.Add(passLegTimeStruct);
-                                if (isRelay)
-                                    RelayTeams[teambib].SplitTimes.Add(passLegTimeStruct);
+                                SplitTimes.Add(passLegTimeStruct);
                             }
 
                             if (freeStart && calcStartTime < 0)
@@ -1245,36 +1185,54 @@ namespace LiveResults.Client
                                 }
 
                                 // Check if ecardTime should be used as backup for radio times                            
-                                if (m_ecardAsBackup && timingType == 0 && !isRelay && !m_lapTimes)
+                                if (m_ecardAsBackup && timingType == 0 && !m_lapTimes)
                                 {
-                                    int radioCode = courses[course].ElementAt(controlNo).RadioCode;
+                                    int radioCode = courses[course].ElementAt(controlNo).RadioCode + 10000 * leg;
                                     bool radioControlExist = intermediates.Any(item => item.ClassName == classN && item.Code == radioCode);
                                     bool radioTimeExist = SplitTimes.Any(item => item.ControlCode == radioCode);
                                     if (radioControlExist && !radioTimeExist && timeMatch > 0)
                                     {
-                                        var radioBackup = new ResultStruct
+                                        var distance = intermediates.Where(item => item.ClassName == classN && 
+                                                         item.Code == radioCode).Select(item => item.Distance).FirstOrDefault();
+                                        double paceToRadio = 999999;
+                                        if (distance > 0)
+                                            paceToRadio = ((double)timeMatch / 60) / ((double)distance / 1000); // min/km
+                                        if (paceToRadio > m_minPaceTime)
                                         {
-                                            ControlCode = radioCode,
-                                            Time = timeMatch * 100 + (chaseStart? totalTime : 0)
-                                        };
-                                        backupRadioTimes.Add(radioBackup);
+                                            int backupTime = timeMatch * 100;
+                                            if (chaseStart)
+                                                backupTime += totalTime;
+                                            if (isRelay)
+                                                backupTime += Math.Max(TeamTimePre, iStartTime - iStartClass);
 
-                                        if (chaseStart)
-                                        {
-                                            var radioBackupLeg = new ResultStruct
+                                            var radioBackup = new ResultStruct
                                             {
-                                                ControlCode = radioCode + 100000,
-                                                Time = timeMatch * 100
+                                                ControlCode = radioCode,
+                                                Time = backupTime
                                             };
-                                            backupRadioTimes.Add(radioBackupLeg);
+                                            backupRadioTimes.Add(radioBackup);
+
+                                            if (chaseStart || isRelay) // Leg time
+                                            {
+                                                var radioBackupLeg = new ResultStruct
+                                                {
+                                                    ControlCode = radioCode + 100000,
+                                                    Time = timeMatch * 100
+                                                };
+                                                backupRadioTimes.Add(radioBackupLeg);
+                                            }
                                         }
                                     }
                                 }
                                 controlNo++;
                             }
 
-                            int timeToFinish = time - lastMatchedTime - (chaseStart ? totalTime : 0);
-                            if (timeToFinish > 0  && timeToFinish < 5*60*100) // Last ecard control within 0-5 min from finish time
+                            int timeToFinish = time - lastMatchedTime;
+                            if (chaseStart)
+                                timeToFinish -= totalTime;
+                            if (isRelay)
+                                timeToFinish -= Math.Max(TeamTimePre, iStartTime - iStartClass);                             
+                            if (timeToFinish > 0 && timeToFinish < 5*60*100) // Last ecard control within 0-5 min from finish time
                             {
                                 foreach (ResultStruct backupTime in backupRadioTimes)
                                     SplitTimes.Add(backupTime);
@@ -1312,49 +1270,6 @@ namespace LiveResults.Client
                     }
                 }
                 reader.Close();
-            }
-
-            // Loop through relay teams and add one-line results
-            if (isRelay && m_oneLineRelayRes)
-            {
-                foreach (var Team in RelayTeams)
-                {
-                    int rstatus = GetStatusFromCode(ref Team.Value.TotalTime, Team.Value.TeamStatus);
-                    if (rstatus != 999)
-                    {
-                        const int maxLength = 50; // Max lenght of one-line name
-                        int numlegs   = Team.Value.TeamMembers.Count;
-                        int legLength = maxLength / numlegs;
-                        string name = "", classAll = "";
-                        foreach (var Runner in Team.Value.TeamMembers)
-                        {
-                            int numChars = Math.Min(Runner.Value.LegName.Length, legLength);
-                            if (Runner.Key == 1)
-                                name = Runner.Value.LegName.Substring(0,numChars);
-                            else
-                                name += ", " + Runner.Value.LegName.Substring(0, numChars);
-                        }
-
-                        classAll = Team.Value.ClassName;
-                        if (!classAll.EndsWith("-"))
-                            classAll += "-";
-                        classAll += "All";
-
-                        var res = new Result
-                        {
-                            ID = 100000 + Team.Value.TeamBib,
-                            RunnerName = name,
-                            RunnerClub = Team.Value.TeamName,
-                            Bib = Team.Value.TeamBib,
-                            Class = classAll,
-                            StartTime = Team.Value.StartTime,
-                            Time = Team.Value.TotalTime,
-                            Status = rstatus,
-                            SplitTimes = Team.Value.SplitTimes
-                        };
-                        FireOnResult(res);
-                    }
-                }
             }
         }
 

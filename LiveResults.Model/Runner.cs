@@ -104,6 +104,12 @@ namespace LiveResults.Model
             get;
             set;
         }
+
+        public int Distance
+        {
+            get;
+            set;
+        } = 0;
     }
 
     class DelCourseControl : DbItem
