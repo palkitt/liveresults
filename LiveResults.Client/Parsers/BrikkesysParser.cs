@@ -63,7 +63,7 @@ namespace LiveResults.Client
 
                     string baseCommandInd = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, " +
                                             "N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
-                                            "C.name AS cname, C.meter, C.nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
+                                            "C.name AS cname, C.meter, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
                                             "FROM names N " +
                                             "LEFT JOIN classes C ON C.id = N.classid " +
                                             "LEFT JOIN(SELECT MIN(raceid) AS raceid, MIN(courceid) AS courceid, MIN(classid) AS cclassid " +
@@ -113,7 +113,7 @@ namespace LiveResults.Client
                         }
                         catch (Exception ee)
                         {
-                            FireLogMsg("eTiming Parser: " + ee.Message + " {parsing: " + lastRunner + "}");
+                            FireLogMsg("Brikkesys Parser: " + ee.Message + " {parsing: " + lastRunner + "}");
                             Thread.Sleep(100);
                             switch (m_connection.State)
                             {
@@ -297,7 +297,7 @@ namespace LiveResults.Client
                 if (m_connection.State != ConnectionState.Open)
                     m_connection.Open();
                 IDbCommand cmd = m_connection.CreateCommand();
-                string classTimingType = "SELECT name, nosort, timecalculation FROM classes WHERE raceid=" + m_raceID;
+                string classTimingType = "SELECT name, cast(nosort AS signed) AS nosort, timecalculation FROM classes WHERE raceid=" + m_raceID;
                 cmd.CommandText = classTimingType;
 
                 using (IDataReader reader = cmd.ExecuteReader())
@@ -462,7 +462,7 @@ namespace LiveResults.Client
             }
             catch (Exception ee)
             {
-                FireLogMsg("Bad network or config file? eTiming Message error: " + ee.Message);
+                FireLogMsg("Bad network or config file? LiveRes Message error: " + ee.Message);
             }
 
             var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
@@ -626,7 +626,7 @@ namespace LiveResults.Client
                     }
                     catch (Exception ee)
                     {
-                        FireLogMsg("Bad network or config file? eTiming Message ecard: " + ee.Message);
+                        FireLogMsg("Bad network or config file? LiveRes Message ecard: " + ee.Message);
                     }
                 }
             }
