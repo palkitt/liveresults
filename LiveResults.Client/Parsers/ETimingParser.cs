@@ -19,10 +19,11 @@ using Microsoft.CSharp;
 using Org.BouncyCastle.Asn1.Crmf;
 using System.Collections;
 using System.Net.Sockets;
+using System.Linq.Expressions;
 
 namespace LiveResults.Client
 {
-    
+
     public class ETimingParser : IExternalSystemResultParserEtiming
     {
         private readonly IDbConnection m_connection;
@@ -36,7 +37,7 @@ namespace LiveResults.Client
         private bool m_updateEcardTimes;
         private bool m_updateRadioControls;
         private bool m_continue;
-        private int  m_sleepTime;
+        private int m_sleepTime;
         private double m_minPaceTime;
         private bool m_oneLineRelayRes;
         private bool m_lapTimes;
@@ -46,11 +47,10 @@ namespace LiveResults.Client
         private int m_IdOffset;
         private bool m_updateMessage;
         private int m_compID;
-        private int day;
         private int m_OsOffset;
 
-        public ETimingParser(IDbConnection conn, int sleepTime, bool notUpdateRadioControls = true, double minPaceTime = 0, 
-            bool MSSQL = false, bool ecardAsBackup = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0, 
+        public ETimingParser(IDbConnection conn, int sleepTime, bool notUpdateRadioControls = true, double minPaceTime = 0,
+            bool MSSQL = false, bool ecardAsBackup = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0,
             bool updateMessage = false, bool addEcardSplits = false, int compID = 0, int OsOffset = 0)
         {
             m_connection = conn;
@@ -67,7 +67,7 @@ namespace LiveResults.Client
             m_compID = compID;
             m_OsOffset = OsOffset;
         }
-        
+
         private void FireOnResult(Result newResult)
         {
             if (OnResult != null)
@@ -138,12 +138,12 @@ namespace LiveResults.Client
             public int StartTime;
             public int TotalTime;
             public int TeamBib;
-            public Dictionary<int,RelayLegInfo> TeamMembers;
+            public Dictionary<int, RelayLegInfo> TeamMembers;
         }
-        
+
         public struct ClassStruct
         {
-            public int Cource; 
+            public int Cource;
             public string ClassName;
             public int NumLegs;
         };
@@ -165,373 +165,27 @@ namespace LiveResults.Client
             {
                 try
                 {
+                    FireLogMsg("eTiming Monitor thread started");
+
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
 
-                    IDbCommand cmd           = m_connection.CreateCommand();
-                    IDbCommand cmdInd        = m_connection.CreateCommand();
-                    IDbCommand cmdRelay      = m_connection.CreateCommand();
-                    IDbCommand cmdSplits     = m_connection.CreateCommand();
-                    IDbCommand cmdEcardTimes = m_connection.CreateCommand();
+                    setEventType(out bool isRelay, out bool isSprint, out bool isSprintRelay, out int day);
+                    setRadioControls(isRelay, isSprint, day, out List<RadioControl> intermediates);
+                    setCourses(out Dictionary<int, List<CourseControl>> courses);
+
                     
-                    /*Detect event type*/
-                    bool isRelay = false;
-                    bool isSprint = false;
-                    bool isSprintRelay = false;
-                    day = 1;
-                    cmd.CommandText = "SELECT kid, sub, boloffset FROM arr";
-                    using (IDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            if (reader[0] != null && reader[0] != DBNull.Value)
-                            {
-                                if (reader["boloffset"] != null && reader["boloffset"] != DBNull.Value)
-                                    isSprintRelay = Convert.ToBoolean(reader["boloffset"].ToString());
-                                string eventType;
-                                int kid = Convert.ToInt16(reader["kid"]);
-                                if (kid == 2)
-                                {
-                                    isSprint = true;
-                                    eventType = " (Sprint)";
-                                }
-                                else if (kid == 3 || kid == 6)
-                                {
-                                    isRelay = true;
-                                    if (isSprintRelay)
-                                        eventType = " (Sprintrelay)";
-                                    else
-                                        eventType = " (Relay)";
-                                }
-                                else
-                                    eventType = " (Individual)";
-                                FireLogMsg("Event type: " + kid + eventType);
-                                day = Convert.ToInt16(reader["sub"]);
-                            }
-                        }
-                        reader.Close();
-                    }
-
-                    /* Set up courses */
-                    var dlgMergeCourseControls = OnMergeCourseControls;
-                    var courses = new Dictionary<int, List<CourseControl>>();
-                    if (dlgMergeCourseControls != null) // Read courses
-                    {
-                        List<CourseControl> courseControls = new List<CourseControl>();
-                        Dictionary<int, int> radioCnt = new Dictionary<int, int>();
-                        if (m_updateEcardTimes || m_ecardAsBackup)
-                        {
-                            int lastCourse = -1;
-                            cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype FROM controls ORDER BY courceno, controlno");
-                            using (IDataReader reader = cmd.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    int courseno = 0, order = 0, code = 0, radiocode = 0, posttype=0;
-                                    if (reader["posttype"] != null && reader["posttype"] != DBNull.Value)
-                                        posttype = Convert.ToInt32(reader["posttype"].ToString());
-                                    if (posttype == 1)
-                                        continue;
-                                    if (reader["courceno"] != null && reader["courceno"] != DBNull.Value)
-                                        courseno = Convert.ToInt32(reader["courceno"].ToString());
-                                    if (reader["controlno"] != null && reader["controlno"] != DBNull.Value)
-                                        order = Convert.ToInt32(reader["controlno"].ToString());
-                                    if (reader["code"] != null && reader["code"] != DBNull.Value)
-                                        code = Convert.ToInt32(reader["code"].ToString());
-
-                                    if (courseno != lastCourse)
-                                        radioCnt.Clear();
-                                    lastCourse = courseno;
-
-                                    if (!radioCnt.ContainsKey(code))
-                                        radioCnt.Add(code, 0);
-                                    radioCnt[code]++;
-                                    radiocode = code + radioCnt[code] * 1000;
-
-                                    var control = new CourseControl
-                                    {
-                                        CourseNo = courseno,
-                                        Code = code,
-                                        RadioCode = radiocode,
-                                        Order = order
-                                    };
-                                    courseControls.Add(control);
-                                    if (!courses.ContainsKey(courseno))
-                                        courses.Add(courseno, new List<CourseControl>());
-                                    courses[courseno].Add(control);
-                                }
-                                reader.Close();
-                            }
-                        }
-                        if (m_updateEcardTimes)
-                        {
-                            CourseControl[] courseControlArray = courseControls.ToArray();
-                            bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
-                            dlgMergeCourseControls(courseControlArray, deleteUnused);
-                        }
-                    }
-
-
-                    // *** Set up radiocontrols ***
-                    /* ****************************
-                     *  Ordinary controls       =  code + 1000*N
-                     *  Pass/leg time           =  code + 1000*N           + 100000
-                     *  Relay controls          =  code + 1000*N + 10000*L 
-                     *  Pass/leg time for relay =  code + 1000*N + 10000*L + 100000
-                     *  Change-over code        =  999  + 1000   + 10000*L
-                     *  Exchange time code      =  0
-                     *  Leg time code           =  999
-                     *  Unranked fin. time code = -999
-                     *  Unranked ord. controls  = -(code + 1000*N)
-                     * 
-                     *  N = number of occurrence
-                     *  L = leg number
-                     */
-
-                    List<RadioControl> intermediates = new List<RadioControl>();
-                    var dlgMergeRadio = OnMergeRadioControls;                              
-                    if (m_updateRadioControls && dlgMergeRadio != null)
-                    {
-                        List<RadioControl> extraTimes = new List<RadioControl>();
-                        
-                        // radiotype, 2=finish/finish-passing, 4 = normal, 10 = exchange
-                        cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, timingpointtype, description, etappe, radiorundenr, live, radiodist 
-                                            FROM radiopost WHERE radioday={0} ORDER BY radiorundenr", day);
-                        var RadioPosts = new Dictionary<int, List<RadioStruct>>();
-
-                        using (IDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                int course = 0, code = 0, radiotype = -1, leg = 0, order = 0, distance = 0;
-                                bool live = false;
-                                if (reader["live"] != null && reader["live"] != DBNull.Value)
-                                    live = Convert.ToBoolean(reader["live"].ToString());
-                                if (!live) continue;
-
-                                string timingpoint = reader["timingpointtype"] as string;
-                                if (!string.IsNullOrEmpty(timingpoint))
-                                {
-                                    timingpoint = timingpoint.Trim();
-                                    if (timingpoint != "IM" && timingpoint != "VK")
-                                        continue;
-                                }
-                                else
-                                    continue;
-
-                                if (reader["code"] != null && reader["code"] != DBNull.Value)
-                                    code = Convert.ToInt32(reader["code"].ToString());
-
-                                if (code > 1000)
-                                    code = code / 100; // Take away last to digits if code 1000+
-
-                                if (reader["radiocourceno"] != null && reader["radiocourceno"] != DBNull.Value)
-                                    course = Convert.ToInt32(reader["radiocourceno"].ToString());
-                                   
-                                if (reader["radiotype"] != null && reader["radiotype"] != DBNull.Value)
-                                    radiotype = Convert.ToInt32(reader["radiotype"].ToString());
-
-                                if (reader["etappe"] != null && reader["etappe"] != DBNull.Value)
-                                    leg = Convert.ToInt32(reader["etappe"].ToString());
-
-                                if (reader["radiorundenr"] != null && reader["radiorundenr"] != DBNull.Value)
-                                    order = Convert.ToInt32(reader["radiorundenr"].ToString());
-
-                                if (reader["radiodist"] != null && reader["radiodist"] != DBNull.Value)
-                                    distance = Convert.ToInt32(reader["radiodist"].ToString());
-
-                                string description = reader["description"] as string;
-                                if (!string.IsNullOrEmpty(description))
-                                    description = description.Trim();
-
-                                var radioControl = new RadioStruct
-                                {
-                                    Code        = code,         
-                                    Description = description,
-                                    RadioType   = radiotype,
-                                    TimingPoint = timingpoint,
-                                    Order       = order,
-                                    Leg         = leg,
-                                    Distance    = distance
-                                };
-
-                                if (!RadioPosts.ContainsKey(course))
-                                    RadioPosts.Add(course, new List<RadioStruct>());
-                                RadioPosts[course].Add(radioControl);
-                            }
-                            reader.Close();
-                        }
-
-                        // Class table
-                        cmd.CommandText = @"SELECT code, cource, class, purmin, timingtype, cheaseing FROM class";
-                        using (IDataReader reader = cmd.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                int course = 0, numLegs = 0, timingType = 0, sign = 1;
-                                bool chaseStart = Convert.ToBoolean(reader["cheaseing"].ToString());
-
-                                string classCode = reader["code"] as string;
-                                if (!string.IsNullOrEmpty(classCode))
-                                    classCode = classCode.Trim();
-                                else
-                                    continue;
-                                   
-                                string className = reader["class"] as string;
-                                if (!string.IsNullOrEmpty(className))
-                                    className = className.Trim();
-                                if (className == "NOCLAS") continue; // Skip if NOCLAS
-
-                                if (reader["cource"] != null && reader["cource"] != DBNull.Value)
-                                    course = Convert.ToInt32(reader["cource"].ToString());
-
-                                if (isRelay && reader["purmin"] != null && reader["purmin"] != DBNull.Value)
-                                    numLegs = Convert.ToInt32(reader["purmin"].ToString());
-
-                                if (reader["timingtype"] != null && reader["timingtype"] != DBNull.Value)
-                                    timingType = Convert.ToInt32(reader["timingtype"].ToString());
-
-                                if (timingType == 1 || timingType == 2) // 0 = normal, 1 = not ranked, 2 = not show times
-                                    sign = -1; // Use negative sign for these timing types
-                                if (timingType == 1) // Add neg finish passing for not-ranked class
-                                    extraTimes.Add(new RadioControl
-                                    {
-                                        ClassName = className,
-                                        ControlName = "Tid",
-                                        Code = -999,
-                                        Order = 999
-                                    });
-                                    
-                                // Add starttime and leg times for chase start
-                                if (chaseStart)
-                                {
-                                    extraTimes.Add(new RadioControl
-                                    {
-                                        ClassName = className,
-                                        ControlName = "Start",
-                                        Code = 0,
-                                        Order = 0
-                                    });
-
-                                    extraTimes.Add(new RadioControl
-                                    {
-                                        ClassName = className,
-                                        ControlName = "Leg",
-                                        Code = 999,
-                                        Order = 999
-                                    });
-                                }
-
-                                // Add lap time for last lap
-                                if (m_lapTimes && !isRelay)
-                                    extraTimes.Add(new RadioControl
-                                    {
-                                        ClassName = className,
-                                        ControlName = "Leg",
-                                        Code = 999,
-                                        Order = 999
-                                    });
-
-                                // Add exchange and leg times for legs 2 and up
-                                for (int i = 2; i <= numLegs; i++) 
-                                {
-                                    string classN = className;
-                                    if (!classN.EndsWith("-"))
-                                            classN += "-";
-                                    classN += Convert.ToString(i);
-
-                                    extraTimes.Add(new RadioControl
-                                    {
-                                        ClassName = classN,
-                                        ControlName = "Exchange",
-                                        Code = 0,
-                                        Order = 0
-                                    });
-
-                                    extraTimes.Add(new RadioControl
-                                    {
-                                        ClassName = classN,
-                                        ControlName = "Leg",
-                                        Code = 999,
-                                        Order = 999
-                                    });
-                                }                          
-
-                                if (RadioPosts.ContainsKey(course))
-                                {   // Add radio controls to course
-                                    Dictionary<int, int> radioCnt = new Dictionary<int, int>();
-                                    foreach (var radioControl in RadioPosts[course])
-                                    {
-                                        if (radioControl.TimingPoint == "ST") // Skip if radiocontrol is start
-                                            continue;
-                                        int Code = radioControl.Code;    
-                                        if (numLegs == 0 && (Code == 999 || Code == 0))
-                                            continue;       // Skip if not relay and finish or start code
-
-                                        string classN = className;
-                                        if (isSprint)
-                                            classN += " | Prolog";
-                                        
-                                        int CodeforCnt = 0; // Code for counter
-                                        int AddforLeg = 0;  // Addition for relay legs
-                                        int nStep = 1;      // Multiplicator used in relay order  
-
-                                        if (numLegs > 0 || chaseStart || (m_lapTimes && !isRelay)) // Make ready for pass times
-                                            nStep = 2;
-
-                                        if (numLegs > 0)    // Relay
-                                        {
-                                            if (!classN.EndsWith("-"))
-                                                classN += "-";
-                                            classN += Convert.ToString(radioControl.Leg);
-                                            AddforLeg = 10000 * radioControl.Leg;
-                                        }
-
-                                        if (Code < 999 && Code != 90 && radioControl.TimingPoint != "VK") // Not 90, not 999 and not exchange)
-                                        {
-                                            CodeforCnt = Code + AddforLeg;
-                                            if (!radioCnt.ContainsKey(CodeforCnt))
-                                                radioCnt.Add(CodeforCnt, 0);
-                                            radioCnt[CodeforCnt]++;
-
-                                            // Add codes for ordinary classes and leg based classes
-                                            // sign = -1 for unranked classes
-                                            intermediates.Add(new RadioControl
-                                            {
-                                                ClassName = classN,
-                                                ControlName = radioControl.Description,
-                                                Code = sign*(Code + radioCnt[CodeforCnt] * 1000 + AddforLeg),
-                                                Order = nStep*radioControl.Order,
-                                                Distance = radioControl.Distance
-                                            });
-
-                                            // Add leg passing time for relay, chase start and lap times
-                                            if (((numLegs > 0) && (radioControl.Leg > 1)) || chaseStart || (m_lapTimes && !isRelay)) 
-                                            {
-                                                intermediates.Add(new RadioControl
-                                                {
-                                                    ClassName = classN,
-                                                    ControlName = radioControl.Description + "PassTime",
-                                                    Code = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg + 100000,
-                                                    Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
-                                                });
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            reader.Close();
-                        }
-                        intermediates.AddRange(extraTimes);
-                        RadioControl[] radioControls = intermediates.ToArray();
-                        dlgMergeRadio(radioControls);
-                        
-                    }
+                    string purmin = (isRelay ? "AND(C.purmin IS NULL OR C.purmin < 2)" : "");
+                    IDbCommand cmdInd = m_connection.CreateCommand();
+                    cmdInd.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
+                            N.cource, N.place, N.status, N.cource, N.starttime, N.races, N.heat, N.ecard, N.ecard2, N.ecard3, N.ecard4,
+                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cheaseing, C.purmin, C.direct, Co.length 
+                            FROM Name N, Class C, Team T, Cource Co 
+                            WHERE N.class=C.code AND Co.code=N.cource AND T.code=N.team {0}", purmin);
 
                     string modulus = (m_MSSQL ? "%" : "MOD");
-                    string purmin = (isRelay ? "AND(C.purmin IS NULL OR C.purmin < 2)" : "");
-                    
-                    string baseCommandRelay = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime,
+                    IDbCommand cmdRelay = m_connection.CreateCommand();
+                    cmdRelay.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime,
                             N.cource, N.place, N.status, N.cource, N.starttime, N.ecard, N.ecard2, N.ecard3, N.ecard4,
                             T.name AS tname, C.class AS cclass, C.timingtype, C.freestart,  
                             C.firststart AS cfirststart, C.purmin AS cpurmin, C.direct, Co.length,
@@ -539,58 +193,34 @@ namespace LiveResults.Client
                             FROM Name N, Class C, Team T, Relay R, Cource Co 
                             WHERE N.class=C.code AND T.code=R.lgteam AND N.rank=R.lgstartno AND Co.code=N.cource AND (N.startno {0} 100)<=C.purmin 
                             ORDER BY N.startno", modulus);
-
-                    string baseCommandInd = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
-                            N.cource, N.place, N.status, N.cource, N.starttime, N.races, N.heat, N.ecard, N.ecard2, N.ecard3, N.ecard4,
-                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cheaseing, C.purmin, C.direct, Co.length 
-                            FROM Name N, Class C, Team T, Cource Co 
-                            WHERE N.class=C.code AND Co.code=N.cource AND T.code=N.team {0}", purmin);
-
-                    string baseSplitCommand = string.Format(@"SELECT mellomid, iplace, stasjon, mintime, nettotid, timechanged, mecard 
+                    
+                    IDbCommand cmdSplits = m_connection.CreateCommand();
+                    cmdSplits.CommandText = string.Format(@"SELECT mellomid, iplace, stasjon, mintime, nettotid, timechanged, mecard 
                             FROM mellom 
                             WHERE stasjon>=0 AND stasjon<250 AND mecard>0 AND day={0}
-                            ORDER BY mintime",day);
-
-                    string baseEcardTimesCommand = string.Format(@"SELECT times, control, ecardno, nr FROM ecard ORDER BY ecardno, times");
-
+                            ORDER BY mintime", day);
+                    
+                    IDbCommand cmdEcardTimes = m_connection.CreateCommand();
+                    cmdEcardTimes.CommandText = string.Format(@"SELECT times, control, ecardno, nr FROM ecard ORDER BY ecardno, times");
+                    
                     Dictionary<int, List<EcardTimesRawStruct>> ecardTimesList = null;
                     Dictionary<int, List<SplitRawStruct>> splitList = null;
                     List<int> unknownRunners = new List<int>();
-
-                    string lastRunner = "";
                     List<int> usedID = new List<int>();
-
-                    if (m_updateEcardTimes || m_ecardAsBackup)
-                    {
-                        cmdEcardTimes.CommandText = baseEcardTimesCommand;
-                        ParseReaderEcardTimes(cmdEcardTimes, out ecardTimesList, out lastRunner);
-                    }
-
-                    cmdSplits.CommandText = baseSplitCommand;
-                    ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
-
-                    cmdInd.CommandText = baseCommandInd;
-                    ParseReader(cmdInd, ref splitList, ref ecardTimesList, ref courses, ref intermediates, false, isSprint, false, usedID, out lastRunner, out usedID);
-
-                    if (isRelay)
-                    {
-                        cmdRelay.CommandText = baseCommandRelay;
-                        ParseReader(cmdRelay, ref splitList, ref ecardTimesList, ref courses, ref intermediates, true, false, isSprintRelay, usedID, out lastRunner, out usedID);
-                    }
-
-                    FireLogMsg("eTiming Monitor thread started");
-
+                    string lastRunner = "No runners parsed yet";
+                    
                     string messageServer = ConfigurationManager.AppSettings["messageServer"];
                     string apiServer = ConfigurationManager.AppSettings["apiServer"];
                     WebClient client = new WebClient();
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
-                    int maxSleepTimeMessage = 9; // Time between reading messages
-                    int sleepTimeMessage = maxSleepTimeMessage;
-                    int maxSleepTimeCleanupID = 60; // Time between cleaning/deleting unused IDs
-                    int sleepTimeCleanupID = maxSleepTimeCleanupID;
-                    int maxSleepTimeLiveActive = 60; //Time between setting new live active signal
-                    int sleepTimeLiveActive = maxSleepTimeLiveActive;
+                    int maxSleepTimeMessage    = 9;                    // Time between reading messages
+                    int sleepTimerMessage      = maxSleepTimeMessage;
+                    int maxSleepTimeCleanupID  = 20;                   // Time between cleaning/deleting unused IDs
+                    int sleepTimerCleanupID    = maxSleepTimeCleanupID;
+                    int maxSleepTimeLiveActive = 60;                   //Time between sending new live active signal
+                    int sleepTimerLiveActive   = maxSleepTimeLiveActive;
+                    
                     bool failedLast = false;
                     bool failedThis;
                     bool first = true;
@@ -604,41 +234,38 @@ namespace LiveResults.Client
                             if (m_updateEcardTimes || m_ecardAsBackup)
                                 ParseReaderEcardTimes(cmdEcardTimes, out ecardTimesList, out lastRunner);
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
-                            ParseReader(cmdInd, ref splitList, ref ecardTimesList, ref courses, ref intermediates, false, isSprint, false, new List<int>(), out lastRunner, out usedID);
+                            ParseReader(cmdInd, ref splitList, ref ecardTimesList, ref courses, ref intermediates, false, isSprint, false, day, new List<int>(), out lastRunner, out usedID);
                             if (isRelay)
-                                ParseReader(cmdRelay, ref splitList, ref ecardTimesList, ref courses, ref intermediates, true, false, isSprintRelay, usedID, out lastRunner, out usedID);
+                                ParseReader(cmdRelay, ref splitList, ref ecardTimesList, ref courses, ref intermediates, true, false, isSprintRelay, day, usedID, out lastRunner, out usedID);
                             lastRunner = "Finished parsing runners";
-
-                            if (first && m_IdOffset==0 && !isSprint)
-                                FireOnDeleteUnusedID(usedID, first);
-                            first = false;
 
                             handleUnknowns(splitList, ref unknownRunners);
 
-                            sleepTimeMessage += m_sleepTime;
-                            if (m_updateMessage && sleepTimeMessage >= maxSleepTimeMessage)
+                            sleepTimerMessage += m_sleepTime;
+                            if (m_updateMessage && sleepTimerMessage >= maxSleepTimeMessage)
                             {
                                 UpdateFromMessages(messageServer, client, failedLast, out failedThis);
                                 failedLast = failedThis;
-                                sleepTimeMessage = 0;
+                                sleepTimerMessage = 0;
                             }
 
-                            sleepTimeCleanupID += m_sleepTime;
-                            if (sleepTimeCleanupID >= maxSleepTimeCleanupID)
+                            sleepTimerCleanupID += m_sleepTime;
+                            if (sleepTimerCleanupID >= maxSleepTimeCleanupID)
                             {
                                 if (m_IdOffset == 0 && !isSprint) //  Delete only when no offset is used and not sprint
-                                    FireOnDeleteUnusedID(usedID);
-                                sleepTimeCleanupID = 0;
+                                    FireOnDeleteUnusedID(usedID,first);
+                                sleepTimerCleanupID = 0;
+                                first = false;
                             }
 
-                            sleepTimeLiveActive += m_sleepTime;
-                            if (sleepTimeLiveActive >= maxSleepTimeLiveActive)
+                            sleepTimerLiveActive += m_sleepTime;
+                            if (sleepTimerLiveActive >= maxSleepTimeLiveActive)
                             {
                                 SendLiveActive(apiServer, client);
-                                sleepTimeLiveActive = 0;
+                                sleepTimerLiveActive = 0;
                             }
-                            
-                            Thread.Sleep(1000*m_sleepTime);
+
+                            Thread.Sleep(1000 * m_sleepTime);
                         }
                         catch (Exception ee)
                         {
@@ -657,24 +284,405 @@ namespace LiveResults.Client
                 }
                 catch (Exception ee)
                 {
-                    FireLogMsg("eTiming Parser: " +ee.Message);
+                    FireLogMsg("eTiming Parser: " + ee.Message);
                 }
                 finally
                 {
                     if (m_connection != null)
-                        m_connection.Close();                    
+                        m_connection.Close();
                     FireLogMsg("eTiming Monitor thread stopped");
                 }
             }
         }
 
+        private void setEventType(out bool isRelay, out bool isSprint, out bool isSprintRelay, out int day)
+        {
+            isRelay = false;
+            isSprint = false;
+            isSprintRelay = false;
+            day = 1;
+
+            IDbCommand cmd = m_connection.CreateCommand();
+            cmd.CommandText = "SELECT kid, sub, boloffset FROM arr";
+            using (IDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (reader[0] != null && reader[0] != DBNull.Value)
+                    {
+                        if (reader["boloffset"] != null && reader["boloffset"] != DBNull.Value)
+                            isSprintRelay = Convert.ToBoolean(reader["boloffset"].ToString());
+                        string eventType;
+                        int kid = Convert.ToInt16(reader["kid"]);
+                        if (kid == 2)
+                        {
+                            isSprint = true;
+                            eventType = " (Sprint)";
+                        }
+                        else if (kid == 3 || kid == 6)
+                        {
+                            isRelay = true;
+                            if (isSprintRelay)
+                                eventType = " (Sprintrelay)";
+                            else
+                                eventType = " (Relay)";
+                        }
+                        else
+                            eventType = " (Individual)";
+                        FireLogMsg("Event type: " + kid + eventType);
+                        day = Convert.ToInt16(reader["sub"]);
+                    }
+                }
+                reader.Close();
+            }
+        }
+        private void setCourses(out Dictionary<int, List<CourseControl>> courses)
+        {
+            courses = new Dictionary<int, List<CourseControl>>();
+            try
+            {
+                var dlgMergeCourseControls = OnMergeCourseControls;
+                if (dlgMergeCourseControls != null) // Read courses
+                {
+                    List<CourseControl> courseControls = new List<CourseControl>();
+                    Dictionary<int, int> radioCnt = new Dictionary<int, int>();
+                    if (m_updateEcardTimes || m_ecardAsBackup)
+                    {
+                        int lastCourse = -1;
+                        IDbCommand cmd = m_connection.CreateCommand();
+                        cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype FROM controls ORDER BY courceno, controlno");
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int courseno = 0, order = 0, code = 0, radiocode = 0, posttype = 0;
+                                if (reader["posttype"] != null && reader["posttype"] != DBNull.Value)
+                                    posttype = Convert.ToInt32(reader["posttype"].ToString());
+                                if (posttype == 1)
+                                    continue;
+                                if (reader["courceno"] != null && reader["courceno"] != DBNull.Value)
+                                    courseno = Convert.ToInt32(reader["courceno"].ToString());
+                                if (reader["controlno"] != null && reader["controlno"] != DBNull.Value)
+                                    order = Convert.ToInt32(reader["controlno"].ToString());
+                                if (reader["code"] != null && reader["code"] != DBNull.Value)
+                                    code = Convert.ToInt32(reader["code"].ToString());
+
+                                if (courseno != lastCourse)
+                                    radioCnt.Clear();
+                                lastCourse = courseno;
+
+                                if (!radioCnt.ContainsKey(code))
+                                    radioCnt.Add(code, 0);
+                                radioCnt[code]++;
+                                radiocode = code + radioCnt[code] * 1000;
+
+                                var control = new CourseControl
+                                {
+                                    CourseNo = courseno,
+                                    Code = code,
+                                    RadioCode = radiocode,
+                                    Order = order
+                                };
+                                courseControls.Add(control);
+                                if (!courses.ContainsKey(courseno))
+                                    courses.Add(courseno, new List<CourseControl>());
+                                courses[courseno].Add(control);
+                            }
+                            reader.Close();
+                        }
+                    }
+                    if (m_updateEcardTimes)
+                    {
+                        CourseControl[] courseControlArray = courseControls.ToArray();
+                        bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
+                        dlgMergeCourseControls(courseControlArray, deleteUnused);
+                    }
+                }
+            }
+            catch (Exception ee)
+            {
+                FireLogMsg("eTiming parser setCourses: " + ee.Message);
+            }
+
+        }
+
+        private void setRadioControls(bool isRelay, bool isSprint, int day, out List<RadioControl> intermediates)
+        {
+            /* ****************************
+            *  Ordinary controls       =  code + 1000*N
+            *  Pass/leg time           =  code + 1000*N           + 100000
+            *  Relay controls          =  code + 1000*N + 10000*L 
+            *  Pass/leg time for relay =  code + 1000*N + 10000*L + 100000
+            *  Change-over code        =  999  + 1000   + 10000*L
+            *  Exchange time code      =  0
+            *  Leg time code           =  999
+            *  Unranked fin. time code = -999
+            *  Unranked ord. controls  = -(code + 1000*N)
+            * 
+            *  N = number of occurrence
+            *  L = leg number
+            */
+
+            intermediates = new List<RadioControl>();
+            try
+            {
+                List<RadioControl> extraTimes = new List<RadioControl>();
+                IDbCommand cmd = m_connection.CreateCommand();
+                cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, timingpointtype, description, etappe, radiorundenr, live, radiodist 
+                                        FROM radiopost WHERE radioday={0} ORDER BY radiorundenr", day);
+                var RadioPosts = new Dictionary<int, List<RadioStruct>>();
+                using (IDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int course = 0, code = 0, radiotype = -1, leg = 0, order = 0, distance = 0;
+                        bool live = false;
+                        if (reader["live"] != null && reader["live"] != DBNull.Value)
+                            live = Convert.ToBoolean(reader["live"].ToString());
+                        if (!live) continue;
+
+                        string timingpoint = reader["timingpointtype"] as string;
+                        if (!string.IsNullOrEmpty(timingpoint))
+                        {
+                            timingpoint = timingpoint.Trim();
+                            if (timingpoint != "IM" && timingpoint != "VK")
+                                continue;
+                        }
+                        else
+                            continue;
+
+                        if (reader["code"] != null && reader["code"] != DBNull.Value)
+                            code = Convert.ToInt32(reader["code"].ToString());
+
+                        if (code > 1000)
+                            code = code / 100; // Take away last to digits if code 1000+
+
+                        if (reader["radiocourceno"] != null && reader["radiocourceno"] != DBNull.Value)
+                            course = Convert.ToInt32(reader["radiocourceno"].ToString());
+                        
+                        // Radiotype: 2 = finish/finish-passing; 4 = normal; 10 = exchange
+                        if (reader["radiotype"] != null && reader["radiotype"] != DBNull.Value)
+                            radiotype = Convert.ToInt32(reader["radiotype"].ToString());
+
+                        if (reader["etappe"] != null && reader["etappe"] != DBNull.Value)
+                            leg = Convert.ToInt32(reader["etappe"].ToString());
+
+                        if (reader["radiorundenr"] != null && reader["radiorundenr"] != DBNull.Value)
+                            order = Convert.ToInt32(reader["radiorundenr"].ToString());
+
+                        if (reader["radiodist"] != null && reader["radiodist"] != DBNull.Value)
+                            distance = Convert.ToInt32(reader["radiodist"].ToString());
+
+                        string description = reader["description"] as string;
+                        if (!string.IsNullOrEmpty(description))
+                            description = description.Trim();
+
+                        var radioControl = new RadioStruct
+                        {
+                            Code = code,
+                            Description = description,
+                            RadioType = radiotype,
+                            TimingPoint = timingpoint,
+                            Order = order,
+                            Leg = leg,
+                            Distance = distance
+                        };
+
+                        if (!RadioPosts.ContainsKey(course))
+                            RadioPosts.Add(course, new List<RadioStruct>());
+                        RadioPosts[course].Add(radioControl);
+                    }
+                    reader.Close();
+                }
+
+                // Class table
+                cmd.CommandText = @"SELECT code, cource, class, purmin, timingtype, cheaseing FROM class";
+                using (IDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int course = 0, numLegs = 0, timingType = 0, sign = 1;
+                        bool chaseStart = Convert.ToBoolean(reader["cheaseing"].ToString());
+
+                        string classCode = reader["code"] as string;
+                        if (!string.IsNullOrEmpty(classCode))
+                            classCode = classCode.Trim();
+                        else
+                            continue;
+
+                        string className = reader["class"] as string;
+                        if (!string.IsNullOrEmpty(className))
+                            className = className.Trim();
+                        if (className == "NOCLAS") continue; // Skip if NOCLAS
+
+                        if (reader["cource"] != null && reader["cource"] != DBNull.Value)
+                            course = Convert.ToInt32(reader["cource"].ToString());
+
+                        if (isRelay && reader["purmin"] != null && reader["purmin"] != DBNull.Value)
+                            numLegs = Convert.ToInt32(reader["purmin"].ToString());
+
+                        if (reader["timingtype"] != null && reader["timingtype"] != DBNull.Value)
+                            timingType = Convert.ToInt32(reader["timingtype"].ToString());
+
+                        if (timingType == 1 || timingType == 2) // 0 = normal, 1 = not ranked, 2 = not show times
+                            sign = -1; // Use negative sign for these timing types
+                        if (timingType == 1) // Add neg finish passing for not-ranked class
+                            extraTimes.Add(new RadioControl
+                            {
+                                ClassName = className,
+                                ControlName = "Tid",
+                                Code = -999,
+                                Order = 999
+                            });
+
+                        // Add starttime and leg times for chase start
+                        if (chaseStart)
+                        {
+                            extraTimes.Add(new RadioControl
+                            {
+                                ClassName = className,
+                                ControlName = "Start",
+                                Code = 0,
+                                Order = 0
+                            });
+
+                            extraTimes.Add(new RadioControl
+                            {
+                                ClassName = className,
+                                ControlName = "Leg",
+                                Code = 999,
+                                Order = 999
+                            });
+                        }
+
+                        // Add lap time for last lap
+                        if (m_lapTimes && !isRelay)
+                            extraTimes.Add(new RadioControl
+                            {
+                                ClassName = className,
+                                ControlName = "Leg",
+                                Code = 999,
+                                Order = 999
+                            });
+
+                        // Add exchange and leg times for legs 2 and up
+                        for (int i = 2; i <= numLegs; i++)
+                        {
+                            string classN = className;
+                            if (!classN.EndsWith("-"))
+                                classN += "-";
+                            classN += Convert.ToString(i);
+
+                            extraTimes.Add(new RadioControl
+                            {
+                                ClassName = classN,
+                                ControlName = "Exchange",
+                                Code = 0,
+                                Order = 0
+                            });
+
+                            extraTimes.Add(new RadioControl
+                            {
+                                ClassName = classN,
+                                ControlName = "Leg",
+                                Code = 999,
+                                Order = 999
+                            });
+                        }
+
+                        if (RadioPosts.ContainsKey(course))
+                        {   // Add radio controls to course
+                            Dictionary<int, int> radioCnt = new Dictionary<int, int>();
+                            foreach (var radioControl in RadioPosts[course])
+                            {
+                                if (radioControl.TimingPoint == "ST") // Skip if radiocontrol is start
+                                    continue;
+                                int Code = radioControl.Code;
+                                if (numLegs == 0 && (Code == 999 || Code == 0))
+                                    continue;       // Skip if not relay and finish or start code
+
+                                string classN = className;
+                                if (isSprint)
+                                    classN += " | Prolog";
+
+                                int CodeforCnt = 0; // Code for counter
+                                int AddforLeg = 0;  // Addition for relay legs
+                                int nStep = 1;      // Multiplicator used in relay order  
+
+                                if (numLegs > 0 || chaseStart || (m_lapTimes && !isRelay)) // Make ready for pass times
+                                    nStep = 2;
+
+                                if (numLegs > 0)    // Relay
+                                {
+                                    if (!classN.EndsWith("-"))
+                                        classN += "-";
+                                    classN += Convert.ToString(radioControl.Leg);
+                                    AddforLeg = 10000 * radioControl.Leg;
+                                }
+
+                                if (Code < 999 && Code != 90 && radioControl.TimingPoint != "VK") // Not 90, not 999 and not exchange)
+                                {
+                                    CodeforCnt = Code + AddforLeg;
+                                    if (!radioCnt.ContainsKey(CodeforCnt))
+                                        radioCnt.Add(CodeforCnt, 0);
+                                    radioCnt[CodeforCnt]++;
+
+                                    // Add codes for ordinary classes and leg based classes
+                                    // sign = -1 for unranked classes
+                                    intermediates.Add(new RadioControl
+                                    {
+                                        ClassName = classN,
+                                        ControlName = radioControl.Description,
+                                        Code = sign * (Code + radioCnt[CodeforCnt] * 1000 + AddforLeg),
+                                        Order = nStep * radioControl.Order,
+                                        Distance = radioControl.Distance
+                                    });
+
+                                    // Add leg passing time for relay, chase start and lap times
+                                    if (((numLegs > 0) && (radioControl.Leg > 1)) || chaseStart || (m_lapTimes && !isRelay))
+                                    {
+                                        intermediates.Add(new RadioControl
+                                        {
+                                            ClassName = classN,
+                                            ControlName = radioControl.Description + "PassTime",
+                                            Code = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg + 100000,
+                                            Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
+                                        });
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    reader.Close();
+                }
+            
+
+                var dlgMergeRadio = OnMergeRadioControls;
+                if (dlgMergeRadio != null)
+                {
+                    RadioControl[] radioControls;
+                    if (m_updateRadioControls)
+                    {
+                        intermediates.AddRange(extraTimes);
+                        radioControls = intermediates.ToArray();
+                    }
+                    else
+                        radioControls = extraTimes.ToArray();
+                    dlgMergeRadio(radioControls, m_updateRadioControls);
+                }
+            }
+            catch (Exception ee)
+            {
+                   FireLogMsg("eTiming parser setRadioControls: " + ee.Message);
+            }
+        }
 
         private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, ref Dictionary<int, List<EcardTimesRawStruct>> ecardTimesList, 
                                  ref Dictionary<int, List<CourseControl>> courses, ref List<RadioControl> intermediates,
-                                 bool isRelay, bool isSprint, bool isSprintRelay,
+                                 bool isRelay, bool isSprint, bool isSprintRelay, int day,
                                  List<int> usedIDin, out string lastRunner, out List<int> usedIDout)
         {
-            lastRunner = "";
+            lastRunner = "No runner parsed yet";
             usedIDout = usedIDin;
 
             Dictionary<int, RelayTeam> RelayTeams;
@@ -1193,7 +1201,7 @@ namespace LiveResults.Client
                                     if (radioControlExist && !radioTimeExist && timeMatch > 0)
                                     {
                                         var distance = intermediates.Where(item => item.ClassName == classN && 
-                                                         item.Code == radioCode).Select(item => item.Distance).FirstOrDefault();
+                                                            item.Code == radioCode).Select(item => item.Distance).FirstOrDefault();
                                         double paceToRadio = 999999;
                                         if (distance > 0)
                                             paceToRadio = ((double)timeMatch / 60) / ((double)distance / 1000); // min/km
@@ -1238,7 +1246,6 @@ namespace LiveResults.Client
                                     SplitTimes.Add(backupTime);
                             }
                         }
-                        
                     }
                     catch (Exception ee)
                     {
@@ -1248,7 +1255,6 @@ namespace LiveResults.Client
                     int rstatus = GetStatusFromCode(ref time, status);
                     if (rstatus != 999)
                     {
-                        
                         var res = new Result
                         {
                             ID = runnerID,
@@ -1262,7 +1268,7 @@ namespace LiveResults.Client
                             Status = rstatus,
                             Ecard1 = ecard1,
                             Ecard2 = ecard2,
-                            Bib = (isRelay? -bib : bib),
+                            Bib = (isRelay ? -bib : bib),
                             SplitTimes = SplitTimes,
                             EcardTimes = ecardTimeString
                         };
@@ -1272,7 +1278,6 @@ namespace LiveResults.Client
                 reader.Close();
             }
         }
-
         private void handleUnknowns(Dictionary<int, List<SplitRawStruct>> splitList, ref List<int> unknownRunnersLast)
         {
             // Loop through the remaining entries in the splitList (those linked to runners are removed)
