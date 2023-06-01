@@ -133,8 +133,8 @@ namespace LiveResults.Client
 
                 File.WriteAllBytes(GetSettingsFile(), data);
             }
-
-
+ 
+ 
         }
 
         private static string GetSettingsFile()

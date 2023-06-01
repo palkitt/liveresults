@@ -57,12 +57,12 @@ namespace LiveResults.Client
         }
 
 
-        void m_Parser_OnMergeRadioControls(RadioControl[] radioControls)
+        void m_Parser_OnMergeRadioControls(RadioControl[] radioControls, bool update)
         {
             foreach (EmmaMysqlClient client in m_Clients)
             {
                 if (radioControls != null)
-                    client.MergeRadioControls(radioControls);
+                    client.MergeRadioControls(radioControls, update);
             }
         }
 

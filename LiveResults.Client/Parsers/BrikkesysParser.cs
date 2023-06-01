@@ -342,7 +342,7 @@ namespace LiveResults.Client
                     }
                     reader.Close();
                     RadioControl[] radioControls = extraTimes.ToArray();
-                    dlgMergeRadio(radioControls);
+                    dlgMergeRadio(radioControls, true);
                 }
             }
             catch (Exception ee)

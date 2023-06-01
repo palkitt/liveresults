@@ -717,64 +717,63 @@ namespace LiveResults.Model
         }              
                
   
-        public void MergeRadioControls(RadioControl[] radios)
+        public void MergeRadioControls(RadioControl[] radios, bool update = true)
         {
             if (radios == null)
                 return;
 
             foreach (var kvp in radios.GroupBy(x => x.ClassName))
             {
-                RadioControl[] controls = kvp.OrderBy(x => x.Order).ToArray();
+                RadioControl[] newControls = kvp.OrderBy(x => x.Order).ToArray();
                 if (m_classRadioControls.ContainsKey(kvp.Key))
                 {
                     RadioControl[] existingRadios = m_classRadioControls[kvp.Key];
-                    for (int i = 0; i < controls.Length; i++)
+                    foreach (RadioControl newControl in newControls)
                     {
-                        if (existingRadios.Length > i)
+                        bool radioControlExist = existingRadios.Any(item => 
+                            item.Order == newControl.Order &&
+                            item.Code == newControl.Code &&
+                            item.ControlName == newControl.ControlName);
+                        if (!radioControlExist)
                         {
-                            if (existingRadios[i].Order != controls[i].Order
-                                || existingRadios[i].Code != controls[i].Code
-                                || existingRadios[i].ControlName != controls[i].ControlName)
-                            {
-                                m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingRadios[i] });
-                                m_itemsToUpdate.Add(controls[i]);
-                            }
-                        }
-                        else
-                        {
-                            m_itemsToUpdate.Add(controls[i]);
+                            m_itemsToUpdate.Add(newControl);
+                            m_classRadioControls[kvp.Key] = m_classRadioControls[kvp.Key].Append(newControl).ToArray();
                         }
                     }
-                    if (existingRadios.Length > controls.Length)
-                    {
-                        for (int i = controls.Length; i < existingRadios.Length; i++)
-                        {
-                            m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingRadios[i] });
-                        }
-                    }
-                    m_classRadioControls[kvp.Key] = controls;
 
+                    if (update)
+                    {
+                        foreach (RadioControl existingControl in existingRadios)
+                        {
+                            bool radioControlExist = newControls.Any(item =>
+                                item.Order == existingControl.Order &&
+                                item.Code == existingControl.Code &&
+                                item.ControlName == existingControl.ControlName);
+                            if (!radioControlExist)
+                                m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingControl });
+                        }
+                        m_classRadioControls[kvp.Key] = newControls;
+                    }
                 }
                 else
                 {
-                    foreach (var control in controls)
-                    {
-                        m_itemsToUpdate.Add(control);
-                    }
-                    m_classRadioControls.Add(kvp.Key, controls);
+                    foreach (var newControl in newControls)
+                        m_itemsToUpdate.Add(newControl);
+                    m_classRadioControls.Add(kvp.Key, newControls);
                 }
             }
 
             // Delete all radio controls for classes that are not in the radios array
-            var radiosClassName = radios.GroupBy(x => x.ClassName).ToDictionary(x => x.Key);
-            foreach (var classRadios in m_classRadioControls)
+            if (update)
             {
-                if (!radiosClassName.ContainsKey(classRadios.Key))
+                var radiosClassName = radios.GroupBy(x => x.ClassName).ToDictionary(x => x.Key);
+                foreach (var classRadios in m_classRadioControls)
                 {
-                    RadioControl[] existingRadios = m_classRadioControls[classRadios.Key];
-                    for (int i = 0; i < existingRadios.Length; i++)
+                    if (!radiosClassName.ContainsKey(classRadios.Key))
                     {
-                        m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingRadios[i] });
+                        RadioControl[] existingRadios = m_classRadioControls[classRadios.Key];
+                        for (int i = 0; i < existingRadios.Length; i++)
+                            m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingRadios[i] });
                     }
                 }
             }
