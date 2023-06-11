@@ -15,6 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 using LiveResults.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+
 namespace LiveResults.Client
 {
 
@@ -36,6 +37,13 @@ namespace LiveResults.Client
 
         Thread m_monitorThread;
 
+        public struct SplitRawStruct
+        {
+            public int controlCode;
+            public int passTime;
+            public int netTime;
+        }
+
         public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID)
         {
             m_connection = conn;
@@ -55,13 +63,14 @@ namespace LiveResults.Client
 
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
-                    IDbCommand cmdInd = m_connection.CreateCommand();
+                    
 
                     makeRadioControls();
                     var courses = new Dictionary<int, List<CourseControl>>();
                     courses = getCourses();
 
-                    string baseCommandInd = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, " +
+                    IDbCommand cmdInd = m_connection.CreateCommand();
+                    cmdInd.CommandText = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, " +
                                             "N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
                                             "C.name AS cname, C.meter, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
                                             "FROM names N " +
@@ -69,11 +78,14 @@ namespace LiveResults.Client
                                             "LEFT JOIN(SELECT MIN(raceid) AS raceid, MIN(courceid) AS courceid, MIN(classid) AS cclassid " +
                                             "FROM classcource WHERE raceid = " + m_raceID + " GROUP BY classid) AS CC ON CC.cclassid = N.classid " +
                                             "WHERE N.raceid = " + m_raceID;
-                    cmdInd.CommandText = baseCommandInd;
+
+                    IDbCommand cmdSplits = m_connection.CreateCommand();
+                    cmdSplits.CommandText = string.Format(@"SELECT controlno, ecardno, time, ecardtime FROM onlinecontrols WHERE raceid={0} ORDER BY time", m_raceID);
 
                     string lastRunner = "";
                     List<int> usedID = new List<int>();
-
+                    Dictionary<int, List<SplitRawStruct>> splitList = null;
+                    
                     string messageServer = ConfigurationManager.AppSettings["messageServer"];
                     string apiServer = ConfigurationManager.AppSettings["apiServer"];
                     WebClient client = new WebClient();
@@ -92,7 +104,8 @@ namespace LiveResults.Client
                     {
                         try
                         {
-                            ParseReader(cmdInd, ref courses, out lastRunner, out usedID);
+                            ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
+                            ParseReader(cmdInd, ref splitList, ref courses, out lastRunner, out usedID);
                             FireOnDeleteUnusedID(usedID);
 
                             sleepTimeLiveActive += m_sleepTime;
@@ -140,7 +153,7 @@ namespace LiveResults.Client
 
         }
 
-        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<CourseControl>> courses, out string lastRunner, out List<int> usedID)
+        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, ref Dictionary<int, List<CourseControl>> courses, out string lastRunner, out List<int> usedID)
         {
             lastRunner = "";
             usedID = new List<int>();
@@ -150,8 +163,14 @@ namespace LiveResults.Client
                 {
                     int time = -2, runnerID = 0, iStartTime = 0, iNullTime = 0, iCStartTime = 0, bib = 0, ecard = 0,
                         length = 0, noSort = 0, courceID = -1, timeOffset = 0;
+                    int startBehind = 0;
+                    int sign = 1;
+                    bool chaseStart = false;
+                    bool freeStart = false;
+                    bool useEcardTime = false;
                     string runnerName = "", club = "", classN = "";
                     string status = "", timeCalc = "", codesAndTimes = "", EcardTimes = "";
+                    
                     var SplitTimes = new List<ResultStruct>();
 
                     try
@@ -197,24 +216,13 @@ namespace LiveResults.Client
                             iStartTime = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);
                         }
                         else // Open start
+                        {
+                            freeStart = true;
                             iStartTime = -999;
+                        }
 
                         if ((timeCalc == "J" || timeCalc == "S") && (iStartTime - iNullTime > 0))
-                            timeOffset = (iStartTime - iNullTime) / 100;                        
-
-                        if (reader["codesandtimes"] != null && reader["codesandtimes"] != DBNull.Value)
-                            codesAndTimes = reader["codesandtimes"] as string;
-                        if (codesAndTimes != "" && courceID > -1)
-                            EcardTimes = makeSplitTimes(codesAndTimes, timeOffset, courceID, courses);
-
-                        if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
-                            noSort = Convert.ToInt32(reader["nosort"]);
-
-                        if (reader["status"] != null && reader["status"] != DBNull.Value)
-                            status = reader["status"] as string;
-
-                        if (status == "A" && noSort >= 1)
-                            status = "F";
+                            timeOffset = (iStartTime - iNullTime) / 100;
 
                         if (reader["time"] != null && reader["time"] != DBNull.Value)
                         {
@@ -222,12 +230,36 @@ namespace LiveResults.Client
                             time = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);
                         }
 
-                        if (noSort == 1 && time > 0 && (status == "F" || status == "D")) // Unranked, show times
-                            SplitTimes.Add(new ResultStruct { ControlCode = -999, Time = time });
+                        if (reader["codesandtimes"] != null && reader["codesandtimes"] != DBNull.Value)
+                            codesAndTimes = reader["codesandtimes"] as string;
+
+                        bool allEcardTimesOK = (time > 0 && codesAndTimes != "" || time < 0 && codesAndTimes == "");
+                        if (codesAndTimes != "" && courceID > -1)
+                            EcardTimes = makeSplitTimes(codesAndTimes, timeOffset, courceID, courses, out allEcardTimesOK);
+
+                        if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
+                            noSort = Convert.ToInt32(reader["nosort"]);
+
+                        if (reader["status"] != null && reader["status"] != DBNull.Value)
+                            status = reader["status"] as string;
+                        
+                        if (noSort >= 1)
+                        {
+                            sign = -1;
+                            if (status == "A")
+                                status = "F";
+
+                            if (noSort == 1 && time > 0 && (status == "F" || status == "D")) // Unranked, show times
+                                SplitTimes.Add(new ResultStruct { ControlCode = -999, Time = time });
+                        }                                                
+
+                        if (timeCalc == "B") // Use ecard time
+                            useEcardTime = true;
 
                         if (timeCalc == "J") // Chase start
                         {
-                            int startBehind = iStartTime - iCStartTime;
+                            chaseStart = true;
+                            startBehind = iStartTime - iCStartTime;
                             if (startBehind >= 0)                                
                                 SplitTimes.Add(new ResultStruct{ ControlCode = 0, Time = startBehind });
                             
@@ -237,6 +269,14 @@ namespace LiveResults.Client
                         }
                         int rstatus = GetStatusFromCode(ref time, status, runnerID);
 
+                        // Add radio times
+                        int calcStartTime = -2;
+                        if (splitList.ContainsKey(ecard))                                                   
+                            AddSplits(ecard, iStartTime, time, startBehind, sign, noSort, chaseStart, freeStart, useEcardTime, allEcardTimesOK, splitList[ecard], ref SplitTimes, out calcStartTime);
+
+                        if (freeStart && (calcStartTime > 0) && (Math.Abs(calcStartTime - iStartTime) > 2000))  // Update starttime if deviation more than 20 sec
+                            iStartTime = calcStartTime;
+                        
                         if (rstatus != 999)
                         {
                             usedID.Add(runnerID);
@@ -267,6 +307,133 @@ namespace LiveResults.Client
                 reader.Close();
             }
         }
+
+        private void AddSplits(int ecard, int iStartTime, int time, int startBehind, int sign, int noSort, bool chaseStart, bool freeStart, bool useEcardTime, bool allEcardOK,
+            List<SplitRawStruct> splits, ref List<ResultStruct> SplitTimes, out int calcStartTime)
+        {
+            var lsplitCodes = new List<int>();
+            calcStartTime = -2;
+            int lastSplitTime = -1;
+            int lastSplitCode = -999;
+            foreach (var split in splits)
+            {
+                int splitPassTime = split.passTime;
+                if (splitPassTime < iStartTime || (splitPassTime - lastSplitTime < 3000 && split.controlCode == lastSplitCode))
+                    continue;         // Neglect passing before starttime, passing less than 30 s from last when the same splitCode
+
+                int passTime = -2;    // Total time at passing
+                int passLegTime = -2; // Time used on leg at passing
+                if (split.netTime > 0 && (time < 0 || split.netTime < time) && (freeStart || useEcardTime) && allEcardOK)
+                    passTime = split.netTime;
+                else if (m_isRelay)
+                {
+                    //Not implemented yet
+                    //passLegTime = splitPassTime - Math.Max(iStartTime, iStartClass); // In case ind. start time not set
+                    //passTime = passLegTime + Math.Max(TeamTimePre, iStartTime - iStartClass); // Absolute pass time
+                }
+                else if (chaseStart)
+                {
+                    passLegTime = splitPassTime - iStartTime;
+                    passTime = splitPassTime - iStartTime + startBehind;
+                }
+                else if (!freeStart)
+                    passTime = splitPassTime - iStartTime;
+
+                if (passTime < 1000 || (time > 0 && passTime > time))  // Neglect pass times less than 10 s from start and pass times longer than finish time
+                    continue;
+
+                // Add split code to list
+                lastSplitCode = split.controlCode;
+                if (time < 0 || passTime < time - 300) // Update only last split time when before finish with 3 sec margin
+                    lastSplitTime = splitPassTime;
+
+                int iSplitcode = sign * (split.controlCode + 1000);
+                while (lsplitCodes.Contains(iSplitcode))
+                    iSplitcode += sign * 1000;
+
+                // All checks passed. Add split time to SplitTime struct
+                lsplitCodes.Add(iSplitcode);
+
+                if (noSort == 2) // Not show times
+                    passTime = -10;
+                var SplitTime = new ResultStruct
+                {
+                    ControlCode = iSplitcode,
+                    Time = passTime
+                };
+                SplitTimes.Add(SplitTime);
+
+                if (passLegTime > 0 && chaseStart)
+                {
+                    var passLegTimeStruct = new ResultStruct
+                    {
+                        ControlCode = iSplitcode + 100000,
+                        Time = passLegTime
+                    };
+                    SplitTimes.Add(passLegTimeStruct);
+                }
+
+                if (freeStart && calcStartTime < 0)
+                    calcStartTime = split.passTime - split.netTime;
+            }
+        }
+
+
+        private void ParseReaderSplits(IDbCommand cmd, out Dictionary<int, List<SplitRawStruct>> splitList, out string lastRunner)
+        {
+            splitList = new Dictionary<int, List<SplitRawStruct>>();
+            lastRunner = "";
+            using (IDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    int ecard = 0, code = 0, passTime = -2, netTime = -2;
+                    try
+                    {
+                        if (reader["ecardno"] != null && reader["ecardno"] != DBNull.Value)
+                        {
+                            ecard = Convert.ToInt32(reader["ecardno"].ToString());
+                            lastRunner = "Ecard no:" + reader["ecardno"].ToString();
+                        }
+                        else
+                            continue;
+
+                        if (reader["time"] != null && reader["time"] != DBNull.Value)
+                        {
+                            DateTime.TryParse(reader["time"].ToString(), out DateTime parseTime);
+                            passTime = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);
+                        }
+                        if (reader["ecardtime"] != null && reader["ecardtime"] != DBNull.Value)
+                        {
+                            DateTime.TryParse(reader["ecardtime"].ToString(), out DateTime parseTime);
+                            netTime = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);
+                        }
+                        if (reader["controlno"] != null && reader["controlno"] != DBNull.Value)
+                            code = Convert.ToInt32(reader["controlno"].ToString());
+
+                        var res = new SplitRawStruct
+                        {
+                            controlCode = code,                            
+                            passTime = passTime,
+                            netTime = netTime,
+                        };
+
+                        if (!splitList.ContainsKey(ecard))
+                        {
+                            splitList.Add(ecard, new List<SplitRawStruct>());
+                        };
+                        splitList[ecard].Add(res);
+
+                    }
+                    catch (Exception ee)
+                    {
+                        FireLogMsg("Brikkesys Parser: " + ee.Message);
+                    }
+                }
+                reader.Close();
+            }
+        }
+
 
         private static int GetStatusFromCode(ref int time, string status, int runnerID)
         {
@@ -342,7 +509,7 @@ namespace LiveResults.Client
                     }
                     reader.Close();
                     RadioControl[] radioControls = extraTimes.ToArray();
-                    dlgMergeRadio(radioControls, true);
+                    dlgMergeRadio(radioControls, false);
                 }
             }
             catch (Exception ee)
@@ -351,8 +518,9 @@ namespace LiveResults.Client
             }            
         }
 
-        private string makeSplitTimes(string splitTimeString, int timeOffset, int course, Dictionary<int, List<CourseControl>> courses)
+        private string makeSplitTimes(string splitTimeString, int timeOffset, int course, Dictionary<int, List<CourseControl>> courses, out bool allOK)
         {
+            allOK = true;
             string[] ecardTimes = splitTimeString.Split(',');
             string ecardTimeString = "";
             int controlNo = 0, timeNo = 0, timeNoLast = -1, numControls = 0;
@@ -376,6 +544,9 @@ namespace LiveResults.Client
                 }
                 if (timeNo < ecardTimes.Length) // control found
                     timeMatch = codeTime[1] - timeOffset;
+                else
+                    allOK = false;
+
                 if (first)
                     first = false;
                 else
@@ -383,6 +554,7 @@ namespace LiveResults.Client
                 ecardTimeString += timeMatch.ToString();
                 controlNo++;
             }
+            allOK = (ecardTimes.Length > 0 ? allOK : true);
             return ecardTimeString;
         }
 
@@ -658,8 +830,11 @@ namespace LiveResults.Client
         public void Start()
         {
             m_continue = true;
-            m_monitorThread = new Thread(Run);
-            m_monitorThread.Start();
+            if (m_monitorThread == null || !m_monitorThread.IsAlive)
+            {
+                m_monitorThread = new Thread(Run);
+                m_monitorThread.Start();
+            }
         }
 
         public void Stop()
