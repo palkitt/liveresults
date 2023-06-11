@@ -3732,8 +3732,12 @@ var LiveResults;
         if (this.curClassSplits != null) {
           for (var s = this.curClassSplits.length - 1; s >= 0; s--) {
             var splitCode = this.curClassSplits[s].code;
-            if (a.splits[splitCode] != "") {
-              return a.splits[splitCode + "_place"] - b.splits[splitCode + "_place"];
+            if (a.splits[splitCode + "_place"] != "") {                  
+              var diff = a.splits[splitCode + "_place"] - b.splits[splitCode + "_place"];
+              if (diff == 0 && a.bib != undefined && b.bib != undefined)
+                  return Math.abs(a.bib) - Math.abs(b.bib);
+              else
+                return diff;
             }
           }
         }
