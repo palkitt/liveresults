@@ -264,7 +264,7 @@ elseif ($_GET['method'] == 'getsplitcontrols')
 	{
 		if (!$first)
 			$splitJSON .=",$br";
-		$splitJSON .= "{ \"class\": ".$split['className'].", \"code\": ".$split['code'] .", \"name\": \"".$split['name']."\", \"order\": \"".$split['corder']."\"}";
+		$splitJSON .= "{ \"class\": \"".$split['classname']."\", \"code\": ".$split['code'] .", \"name\": \"".$split['name']."\", \"order\": \"".$split['corder']."\"}";
 		$first = false;
 	}
 	$splitJSON .="$br]";
@@ -279,6 +279,71 @@ elseif ($_GET['method'] == 'getsplitcontrols')
 		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 	}
 }
+elseif ($_GET['method'] == 'deleteradiocontrol')
+{
+	insertHeader(1,false);
+	if (!isset($_GET['comp']))
+		echo("{\"status\": \"Error\", \"message\": \"comp not set\"}");
+	elseif (!isset($_GET['code']))
+		echo("{\"status\": \"Error\", \"message\": \"code not set\"}");
+	elseif (!isset($_GET['classname']))
+		echo("{\"status\": \"Error\", \"message\": \"classname not set\"}");
+	else
+	{
+    $compid = $_GET['comp'];
+    $currentComp = new Emma($compid);
+	  $code = $_GET['code'];
+    $classname = $_GET['classname'];
+    $currentComp->DelRadioControl($compid,$code,$classname);
+		echo("{\"status\": \"OK\"}");
+  }
+}
+elseif ($_GET['method'] == 'addradiocontrol')
+{
+	insertHeader(1,false);
+	if (!isset($_GET['comp']))
+		echo("{\"status\": \"Error\", \"message\": \"comp not set\"}");
+	elseif (!isset($_GET['code']))
+		echo("{\"status\": \"Error\", \"message\": \"code not set\"}");
+	elseif (!isset($_GET['classname']))
+		echo("{\"status\": \"Error\", \"message\": \"classname not set\"}");
+  elseif (!isset($_GET['name']))
+		echo("{\"status\": \"Error\", \"message\": \"name not set\"}");
+  else
+	{
+    $compid = $_GET['comp'];
+    $currentComp = new Emma($compid);
+	  $code = $_GET['code'];
+    $classname = $_GET['classname'];
+    $name = $_GET['name'];
+    $currentComp->AddRadioControl($compid,$classname,$name,$code);
+		echo("{\"status\": \"OK\"}");
+  }
+}
+elseif ($_GET['method'] == 'addradiocontrolforallclasses')
+{
+	insertHeader(1,false);
+	if (!isset($_GET['comp']))
+		echo("{\"status\": \"Error\", \"message\": \"comp not set\"}");
+	elseif (!isset($_GET['code']))
+		echo("{\"status\": \"Error\", \"message\": \"code not set\"}");
+	elseif (!isset($_GET['order']))
+		echo("{\"status\": \"Error\", \"message\": \"order not set\"}");
+  elseif (!isset($_GET['name']))
+		echo("{\"status\": \"Error\", \"message\": \"name not set\"}");
+  else
+	{
+    $compid = $_GET['comp'];
+    $currentComp = new Emma($compid);
+	  $code = $_GET['code'];
+    $order = $_GET['order'];
+    $name = $_GET['name'];
+    $currentComp->AddRadioControlsForAllClasses($compid,$name,$code,$order);
+		echo("{\"status\": \"OK\"}");
+  }
+}
+
+
 elseif ($_GET['method'] == 'getclassresults')
 {
 	$class = $_GET['class'];
