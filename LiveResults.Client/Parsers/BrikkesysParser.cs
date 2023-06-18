@@ -267,8 +267,7 @@ namespace LiveResults.Client
                             if (legTime > 0)
                                 SplitTimes.Add(new ResultStruct{ ControlCode = 999,  Time = legTime });                            
                         }
-                        int rstatus = GetStatusFromCode(ref time, status, runnerID);
-
+                        
                         // Add radio times
                         int calcStartTime = -2;
                         if (splitList.ContainsKey(ecard))                                                   
@@ -276,7 +275,8 @@ namespace LiveResults.Client
 
                         if (freeStart && (calcStartTime > 0) && (Math.Abs(calcStartTime - iStartTime) > 2000))  // Update starttime if deviation more than 20 sec
                             iStartTime = calcStartTime;
-                        
+
+                        int rstatus = GetStatusFromCode(ref time, status, runnerID);
                         if (rstatus != 999)
                         {
                             usedID.Add(runnerID);
