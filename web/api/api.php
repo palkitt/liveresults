@@ -574,18 +574,21 @@ function classesSorted($currentComp,$classMask=null){
 		if (stripos($sortKey,'Åpen') !== false || stripos($sortKey,'åpen') !== false || stripos($sortKey,'open') !== false || 
 	    stripos($sortKey,'gjest') !== false || stripos($sortKey,'dir') !== false || stripos($sortKey,'utv') !== false)
 			$sortKey = 'z'.$sortKey;
-    $sortKey = preg_replace('/(^|[^\d])(\d)($|[^\d])/','$1 00 $2 $3',$sortKey);       // Add 00 ahead of single digits
-    $sortKey = preg_replace('/(^|[^\d])(\d)(\d)($|[^\d])/','$1 0 $2 $3 $4',$sortKey); // Add 0 ahead of double digits
-    $sortKey = str_replace(' ','',$sortKey);
-    $sortKey = str_replace('-','',$sortKey);
-    $sortKey = str_replace('+','',$sortKey);
-    $sortKey = str_replace('prolog','a',$sortKey);
-    $sortKey = str_replace('kvart' ,'b',$sortKey);
-    $sortKey = str_replace('semi'  ,'c',$sortKey);
-    $sortKey = str_replace('finale','d',$sortKey);
-    $classSort->sortKey = $sortKey;
-    $classNames[] = $classSort;
-}
+		if (preg_match("/(-e| e|\d+e|elite)(\d*)$/", $sortKey))
+			$sortKey = "A" . $sortKey;
+							
+		$sortKey = preg_replace('/(^|[^\d])(\d)($|[^\d])/','$1 00 $2 $3',$sortKey);       // Add 00 ahead of single digits
+		$sortKey = preg_replace('/(^|[^\d])(\d)(\d)($|[^\d])/','$1 0 $2 $3 $4',$sortKey); // Add 0 ahead of double digits
+		$sortKey = str_replace(' ','',$sortKey);
+		$sortKey = str_replace('-','',$sortKey);
+		$sortKey = str_replace('+','',$sortKey);
+		$sortKey = str_replace('prolog','a',$sortKey);
+		$sortKey = str_replace('kvart' ,'b',$sortKey);
+		$sortKey = str_replace('semi'  ,'c',$sortKey);
+		$sortKey = str_replace('finale','d',$sortKey);
+		$classSort->sortKey = $sortKey;
+		$classNames[] = $classSort;
+	}
 	
 	usort($classNames, "cmp");
 	return $classNames;

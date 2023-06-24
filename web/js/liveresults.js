@@ -235,13 +235,13 @@ var LiveResults;
           var leg = 0;
           var sprintNext = false;
           var shiftHeat = false;
+          var elitLast = false;
           for (var i = 0; i < nClass; i++) {
             var className = classes[i].className;
             this.courses[className] = (classes[i].courses != undefined ? classes[i].courses : []);
             var relay = relayNext;
             var sprint = sprintNext;
-
-            classNameURL = className.replace('\'', '\\\'');
+            var classNameURL = className.replace('\'', '\\\'');
             if (className && className.length > 0) {
               className = this.shortClassName(className);
               var classNameClean = className.replace(/-[0-9]{1,2}$/, '');
@@ -340,7 +340,13 @@ var LiveResults;
                   str += "<br/>&nbsp;";
               }
               else
+              {
+                var elit = (className.toLowerCase().match(/(-e| e|\d+e|elite)(\d*)$/) != null);
+                if (!elit && elitLast)
+                  str += "<hr>";
                 str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\">" + className + "</a><br/>";
+                elitLast = elit;
+              }
             }
           };
           if (!this.EmmaServer) {
