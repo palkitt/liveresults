@@ -340,7 +340,7 @@ function closeTop() {
 	    <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		    <tr>
 			    <?php 
-				    if (in_array($_GET['comp'], array("10098","10099","10100","10101")))	$image = "images/SG21.png";
+				    if (in_array($_GET['comp'], array("10098","10099","10100","10101","10473","10474","10475","10476")))	$image = "images/SG.png";
 				    else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
 				    else if (in_array($_GET['comp'], array("10215")))	$image = "images/Skien.png";
 				    else switch (strtolower($organizer))
