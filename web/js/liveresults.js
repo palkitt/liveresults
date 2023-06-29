@@ -2485,7 +2485,10 @@ var LiveResults;
           var order = tableDT.order();
           var numCol = tableDT.settings().columns()[0].length;
           if (order[0][0] != numCol - 1) // Not sorted on virtual position
+          {
+            this.animating = false;
             return;
+          }
           fixedTable = $(table.DataTable().cell(0, 0).fixedNode()).parents('table')[0];
         }
         else // Radio table
@@ -2532,7 +2535,6 @@ var LiveResults;
         $(table).height(height).width('100%');
 
         // Animation
-        this.animating = true;
         this.numAnimElements = 0;
         for (var lastIndStr in lastInd) {
           var newInd = parseInt(lastIndStr);
