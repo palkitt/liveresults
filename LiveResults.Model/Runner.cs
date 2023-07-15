@@ -142,6 +142,12 @@ namespace LiveResults.Model
             get;
             set;
         }
+        
+        public int AccDist
+        {
+            get;
+            set;
+        }
     }
 
 

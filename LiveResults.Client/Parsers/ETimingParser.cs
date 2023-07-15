@@ -171,8 +171,8 @@ namespace LiveResults.Client
                         m_connection.Open();
 
                     setEventType(out bool isRelay, out bool isSprint, out bool isSprintRelay, out int day);
-                    setRadioControls(isRelay, isSprint, day, out List<RadioControl> intermediates);
                     setCourses(out Dictionary<int, List<CourseControl>> courses);
+                    setRadioControls(isRelay, isSprint, day, courses, out List<RadioControl> intermediates);
 
                     
                     string purmin = (isRelay ? "AND(C.purmin IS NULL OR C.purmin < 2)" : "");
@@ -350,12 +350,13 @@ namespace LiveResults.Client
                     {
                         int lastCourse = -1;
                         IDbCommand cmd = m_connection.CreateCommand();
-                        cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype FROM controls ORDER BY courceno, controlno");
+                        cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype, dist FROM controls ORDER BY courceno, controlno");
                         using (IDataReader reader = cmd.ExecuteReader())
                         {
+                            int accDist = 0;
                             while (reader.Read())
                             {
-                                int courseno = 0, order = 0, code = 0, radiocode = 0, posttype = 0;
+                                int courseno = 0, order = 0, code = 0, radiocode = 0, posttype = 0, dist = 0;
                                 if (reader["posttype"] != null && reader["posttype"] != DBNull.Value)
                                     posttype = Convert.ToInt32(reader["posttype"].ToString());
                                 if (posttype == 1)
@@ -366,9 +367,15 @@ namespace LiveResults.Client
                                     order = Convert.ToInt32(reader["controlno"].ToString());
                                 if (reader["code"] != null && reader["code"] != DBNull.Value)
                                     code = Convert.ToInt32(reader["code"].ToString());
+                                if (reader["dist"] != null && reader["dist"] != DBNull.Value)
+                                    dist = Convert.ToInt32(reader["dist"].ToString());
 
-                                if (courseno != lastCourse)
+                                if (courseno != lastCourse){
                                     radioCnt.Clear();
+                                    accDist = dist;
+                                }
+                                else
+                                    accDist += dist;
                                 lastCourse = courseno;
 
                                 if (!radioCnt.ContainsKey(code))
@@ -381,7 +388,8 @@ namespace LiveResults.Client
                                     CourseNo = courseno,
                                     Code = code,
                                     RadioCode = radiocode,
-                                    Order = order
+                                    Order = order,
+                                    AccDist = accDist
                                 };
                                 courseControls.Add(control);
                                 if (!courses.ContainsKey(courseno))
@@ -406,7 +414,7 @@ namespace LiveResults.Client
 
         }
 
-        private void setRadioControls(bool isRelay, bool isSprint, int day, out List<RadioControl> intermediates)
+        private void setRadioControls(bool isRelay, bool isSprint, int day, Dictionary<int, List<CourseControl>> courses, out List<RadioControl> intermediates)
         {
             /* ****************************
             *  Ordinary controls       =  code + 1000*N
@@ -435,7 +443,7 @@ namespace LiveResults.Client
                 {
                     while (reader.Read())
                     {
-                        int course = 0, code = 0, radiotype = -1, leg = 0, order = 0, distance = 0;
+                        int course = 0, code = 0, radioCode = 0, radiotype = -1, leg = 0, order = 0, distance = 0;
                         bool live = false;
                         if (reader["live"] != null && reader["live"] != DBNull.Value)
                             live = Convert.ToBoolean(reader["live"].ToString());
@@ -452,11 +460,17 @@ namespace LiveResults.Client
                             continue;
 
                         if (reader["code"] != null && reader["code"] != DBNull.Value)
-                            code = Convert.ToInt32(reader["code"].ToString());
+                            radioCode = Convert.ToInt32(reader["code"].ToString());
 
-                        if (code > 1000)
-                            code = code / 100; // Take away last to digits if code 1000+
-
+                        // Take away last to digits if code 1000+ and convert radioCode to Liveres standard
+                        if (radioCode > 1000)
+                        {
+                            code = radioCode / 100;
+                            radioCode = code + 1000*(radioCode % 100);
+                        }
+                        else
+                            code = radioCode; 
+                    
                         if (reader["radiocourceno"] != null && reader["radiocourceno"] != DBNull.Value)
                             course = Convert.ToInt32(reader["radiocourceno"].ToString());
                         
@@ -470,12 +484,28 @@ namespace LiveResults.Client
                         if (reader["radiorundenr"] != null && reader["radiorundenr"] != DBNull.Value)
                             order = Convert.ToInt32(reader["radiorundenr"].ToString());
 
-                        if (reader["radiodist"] != null && reader["radiodist"] != DBNull.Value)
-                            distance = Convert.ToInt32(reader["radiodist"].ToString());
-
                         string description = reader["description"] as string;
                         if (!string.IsNullOrEmpty(description))
                             description = description.Trim();
+
+                        if (reader["radiodist"] != null && reader["radiodist"] != DBNull.Value)
+                            distance = Convert.ToInt32(reader["radiodist"].ToString());
+                        
+                        if (description == "{auto}" && courses.ContainsKey(course))                      
+                        {
+                            foreach (var control in courses[course])
+                            {
+                                if (control.RadioCode == radioCode && control.AccDist > 0)
+                                {
+                                    if (distance == 0)
+                                        distance = control.AccDist;
+                                    double distanceInKilometers = Math.Round(control.AccDist / 100.0) / 10.0;
+                                    string distanceString = distanceInKilometers.ToString("0.0") + "km";
+                                    description = distanceString.Replace(".", ",");                
+                                    break;
+                                }
+                            }
+                        }
 
                         var radioControl = new RadioStruct
                         {
