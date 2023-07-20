@@ -156,18 +156,19 @@ class Emma
 	 	return $id;
 	}
 
-	public static function AddRadioControl($compid,$classname,$name,$code)
+	public static function AddRadioControl($compid,$classname,$name,$code,$order = null)
 	{
 		$conn = self::openConnection();
-		$res = mysqli_query($conn, "select count(*)+1 from splitcontrols where classname='$classname' and tavid=$compid");
+		$res = mysqli_query($conn, "select max(corder)+1 from splitcontrols where classname='$classname' and tavid=$compid");
 		list($id) = mysqli_fetch_row($res);
-		mysqli_query($conn, "insert into splitcontrols(tavid,classname,name,code,corder) values($compid,'$classname','$name',$code,$id)") or die(mysqli_error($conn));
+		$orderStr = ($order !== null && $order > 0 ? $order : ($id !== null ? $id : 1));
+		mysqli_query($conn, "insert into splitcontrols(tavid,classname,name,code,corder) values($compid,'$classname','$name',$code,$orderStr)") or die(mysqli_error($conn));
 	}
 
 	public static function AddRadioControlsForAllClasses($compid,$name,$code,$order)
 	{
 		$ret = false;
-    $conn = self::openConnection();
+    	$conn = self::openConnection();
 	 	$ret1 = mysqli_query($conn, "SELECT class From runners where tavid=$compid AND Class NOT LIKE 'NOCLAS' GROUP BY class");
 		if ($ret1)
 		{
@@ -182,13 +183,13 @@ class Emma
 				$ret = mysqli_query($conn,$sql) or die(mysqli_error($conn));
 				if (!$ret)
 				{
-					die(mysqli_error($this->m_Conn));
+					die(mysqli_error($conn));
 					break;
 				}
 			}
 		}
 		else
-			die(mysqli_error($this->m_Conn));
+			die(mysqli_error($conn));
 		return $ret;
  		
 	}
