@@ -74,16 +74,7 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <?php } else {?>
 	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
 <?php }?>
-<script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
 <script language="javascript" type="text/javascript">
-
-var noSleep = new NoSleep();
-
-function enableNoSleep() {
-  noSleep.enable();
-  document.removeEventListener('click', enableNoSleep, false);
-}
-document.addEventListener('click', enableNoSleep, false);
 
 var res = null;
 var Resources = {
@@ -153,8 +144,8 @@ var sideBar = true;
 var topBar = false;
 
 $(document).ready(function()
-{
-	res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
+{  
+  res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
 		Resources, <?= ($currentComp->IsMultiDayEvent() ? "true" : "false")?>, <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", false);
 	<?php if ($isSingleClass){?>
 		res.chooseClass('<?=$singleClass?>');
@@ -231,6 +222,9 @@ $(document).ready(function()
 
 	loadFontSize();
 
+  // Add no screen sleep
+  setTimeout(function() { enableNoSleep(); }, 100);
+
 	// Add function for dropdown list
 	window.onclick = function(event) {
   	if (!event.target.matches('.dropbtn')) {
@@ -246,6 +240,12 @@ $(document).ready(function()
 }
 
 });
+
+async function enableNoSleep() {
+  try {
+    const wakeLock = await navigator.wakeLock.request("screen");
+  } catch (err) {}
+}
 
 function loadFontSize() {
 	if (typeof(Storage) !== "undefined") {
@@ -343,7 +343,8 @@ function closeTop() {
 				    if (in_array($_GET['comp'], array("10098","10099","10100","10101","10473","10474","10475","10476")))	$image = "images/SG.png";
 				    else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
 				    else if (in_array($_GET['comp'], array("10215")))	$image = "images/Skien.png";
-				    else switch (strtolower($organizer))
+				    else if (in_array($_GET['comp'], array("10532","10533","10534"))) $image = "images/HL2023.png";
+            else switch (strtolower($organizer))
 				    {
 					    case "freidig":	         $image = "images/Freidig60.png"; break;
 					    case "porsgrunn ol":     $image = "images/POL.png";	break;

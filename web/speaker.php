@@ -67,19 +67,8 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
-<script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
 <script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
-
-
 <script language="javascript" type="text/javascript">
-
-var noSleep = new NoSleep();
-
-function enableNoSleep() {
-  noSleep.enable();
-  document.removeEventListener('click', enableNoSleep, false);
-}
-document.addEventListener('click', enableNoSleep, false);
 
 var res = null;
 var Resources = {
@@ -238,6 +227,9 @@ $(document).ready(function()
 
   loadFontSize();
 
+  // Add no screen sleep
+  setTimeout(function() { enableNoSleep(); }, 100);
+
 	// Add function for dropdown list
 	window.onclick = function(event) 
   {
@@ -263,6 +255,12 @@ $(document).ready(function()
 	}); 
 
 });
+
+async function enableNoSleep() {
+  try {
+    const wakeLock = await navigator.wakeLock.request("screen");
+  } catch (err) {}
+}
 
 function loadFontSize() {
 	if (typeof(Storage) !== "undefined") {
