@@ -343,7 +343,7 @@ function closeTop() {
 				    if (in_array($_GET['comp'], array("10098","10099","10100","10101","10473","10474","10475","10476")))	$image = "images/SG.png";
 				    else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
 				    else if (in_array($_GET['comp'], array("10215")))	$image = "images/Skien.png";
-				    else if (in_array($_GET['comp'], array("10532","10533","10534"))) $image = "images/HL2023.png";
+				    else if (in_array($_GET['comp'], array("10532","10533","10534","10535"))) $image = "images/HL2023.png";
             else switch (strtolower($organizer))
 				    {
 					    case "freidig":	         $image = "images/Freidig60.png"; break;
