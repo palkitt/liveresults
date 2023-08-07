@@ -95,7 +95,9 @@ addControl = function (className, code, name)
   var nameParts = name.split("|");
   var nameStr = nameParts[0].trim();
   var order = nameParts.length > 1 ? parseInt(nameParts[1].replace(/\D/g,'')) : -1;
- 
+  if (isNaN(order) || nameStr === "")
+    return;
+
   var ret = $.ajax({
           url: "/api/api.php?method=addradiocontrol",
           data: "comp=" + comp + "&code=" + code + "&classname=" + className + "&name=" + nameStr + "&order=" + order, 
@@ -105,10 +107,12 @@ addControl = function (className, code, name)
 
 addControlForAllClasses = function (idcode, idorder, idname) 
 {  
-  var code = idcode.value;
-  var order = idorder.value;
-  var name = idname.value;
-  
+  var code = parseInt(idcode.value.trim());
+  var order = parseInt(idorder.value.trim());
+  var name = idname.value.trim();
+  if (isNaN(code) || isNaN(order) || name === "")
+    return;
+
   var ret = $.ajax({
           url: "/api/api.php?method=addradiocontrolforallclasses",
           data: "comp=" + comp + "&code=" + code + "&order=" + order + "&name=" + name, 
@@ -338,7 +342,7 @@ updateControlTable = function(data, cellData = null){
   <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
     <tr>
       <td width="100%">
-        <b>Code:</b> 1000*(pass count) + control code, eg. 1st pass at control 53 = 1053, 2nd pass = 2053<br>
+        <b>Code:</b> 1000*(pass count) + control code, eg. 1st pass at control 53 = 1053, 2nd pass = 2053. Negative for non-ranking.<br>
         <b>Name:</b> name |order|, eg. "3,4km |2|" means control name "3,4km" and order 2. Drop |order| for automatic setting.<br>
         <b>Add:</b> To include a control for all classes, use upper right fields, and to include a control for a specific class, use the fields in the class row.<br> 
       </td>

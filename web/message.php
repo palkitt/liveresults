@@ -130,8 +130,8 @@ $(document).ready(function()
 	<?php }
 	else
 	{ ?>
-<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
-	<tr><td width=100%"></td></tr>
+<table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
+	<tr><td width=100%></td></tr>
 	<tr valign=top>
 	<td> 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
