@@ -39,8 +39,6 @@ if ($isSingleClub)
 $showLastPassings = !($isSingleClass || $isSingleClub) || (isset($_GET['showLastPassings']) && $_GET['showLastPassings'] == "true");
 $RunnerStatus = Array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUSWO, "12" => $_STATUSMOVEDUP, "9" => $_STATUSNOTSTARTED,"0" => $_STATUSOK, "3" => $_STATUSMP, "4" => $_STATUSDSQ, "5" => $_STATUSOT, "9" => "", "10" => "", "6" => $_STATUSNC);
 
-$showTimePrediction = true;
-
 echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -172,11 +170,9 @@ $(document).ready(function()
 		res.showTimesInSprint = true;
 	<?php }?>  
 
-	<?php if ($showTimePrediction){ ?>
-	    res.compDate = "<?=$currentComp->CompDate();?>";
-		res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
-		res.startPredictionUpdate();
-	<?php }?>
+	// Set date and time zone
+	res.compDate = "<?=$currentComp->CompDate();?>";
+	res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
 
 	// Insert comp name
 	var compName = "<?=$currentComp->CompName()?>";

@@ -399,3 +399,8 @@ table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_
   text-align: center;
 }
 .navbtn:hover {background: gray;}
+
+/* Radicontrol editior */
+.selectControl {
+  cursor: pointer;
+}

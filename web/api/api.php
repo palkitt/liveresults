@@ -22,6 +22,8 @@ if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' ||
 	$refreshTime = 120;
 else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults' || $_GET['method'] == 'getrelayresults')
 	$refreshTime = 60;
+else if ($_GET['method'] == 'getsplitcontrols')
+	$refreshTime = 0;
 else
 	$refreshTime = 5;
 
@@ -307,18 +309,24 @@ elseif ($_GET['method'] == 'addradiocontrol')
 		echo("{\"status\": \"Error\", \"message\": \"code not set\"}");
 	elseif (!isset($_GET['classname']))
 		echo("{\"status\": \"Error\", \"message\": \"classname not set\"}");
-  elseif (!isset($_GET['name']))
+  	elseif (!isset($_GET['name']))
 		echo("{\"status\": \"Error\", \"message\": \"name not set\"}");
-  else
+  	else
 	{
-    $compid = $_GET['comp'];
-    $currentComp = new Emma($compid);
-	  $code = $_GET['code'];
-    $classname = $_GET['classname'];
-    $name = $_GET['name'];
-    $currentComp->AddRadioControl($compid,$classname,$name,$code);
+		$compid = $_GET['comp'];
+		$currentComp = new Emma($compid);
+		$code = $_GET['code'];
+		$classname = $_GET['classname'];
+		$name = $_GET['name'];
+		if (isset($_GET['order']))
+		{
+			$order = $_GET['order'];
+			$currentComp->AddRadioControl($compid,$classname,$name,$code,$order);
+		}
+		else
+			$currentComp->AddRadioControl($compid,$classname,$name,$code);
 		echo("{\"status\": \"OK\"}");
-  }
+  }	
 }
 elseif ($_GET['method'] == 'addradiocontrolforallclasses')
 {
@@ -329,18 +337,18 @@ elseif ($_GET['method'] == 'addradiocontrolforallclasses')
 		echo("{\"status\": \"Error\", \"message\": \"code not set\"}");
 	elseif (!isset($_GET['order']))
 		echo("{\"status\": \"Error\", \"message\": \"order not set\"}");
-  elseif (!isset($_GET['name']))
+  	elseif (!isset($_GET['name']))
 		echo("{\"status\": \"Error\", \"message\": \"name not set\"}");
-  else
+  	else
 	{
-    $compid = $_GET['comp'];
-    $currentComp = new Emma($compid);
-	  $code = $_GET['code'];
-    $order = $_GET['order'];
-    $name = $_GET['name'];
-    $currentComp->AddRadioControlsForAllClasses($compid,$name,$code,$order);
+		$compid = $_GET['comp'];
+		$currentComp = new Emma($compid);
+		$code = $_GET['code'];
+		$order = $_GET['order'];
+		$name = $_GET['name'];
+		$currentComp->AddRadioControlsForAllClasses($compid,$name,$code,$order);
 		echo("{\"status\": \"OK\"}");
-  }
+  	}
 }
 
 

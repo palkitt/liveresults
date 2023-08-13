@@ -141,11 +141,13 @@ var LiveResults;
       });
     }
 
-    AjaxViewer.prototype.startPredictionUpdate = function () {
+    AjaxViewer.prototype.startPredictedTimeTimer = function () {
       var _this = this;
-      clearInterval(this.updatePredictedTimeTimer);
-      this.updatePredictedTimeTimer = setInterval(function () { _this.updatePredictedTimes(); }, 1000);
-      this.updatePredictedTimes();
+      let dt = new Date();
+      let ms = dt.getMilliseconds();
+      let timer = (ms>950 ? 2000-ms : 1000-ms);
+      this.updatePredictedTimeTimer = setTimeout(function () { _this.updatePredictedTimes(); }, timer);      
+      return;
     };
 
     // Function to detect if comp date is today or max 6 hours into next day
@@ -926,7 +928,7 @@ var LiveResults;
     }
 
     // Updated predicted times
-    AjaxViewer.prototype.updatePredictedTimes = function (refresh = false, animate = true) {
+    AjaxViewer.prototype.updatePredictedTimes = function (timesOnly = false) {
       var curClassActive = false;
       if (this.currentTable != null && this.curClassName != null && this.updateAutomatically && this.isCompToday()) {
         try {
@@ -935,6 +937,7 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
+          time = time + 4*3600*100+2*60*60*100*Math.random();
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -1285,19 +1288,29 @@ var LiveResults;
               }
             }
           }
+
           // Update table if required
-          if (updatedVP && this.qualLimits != null && this.qualLimits.length > 0)
-            this.updateQualLimMarks(data, this.curClassName);
-          if (updatedVP)
-            table.rows().invalidate().draw();
-          if (modifiedTable || refresh) {
-            table.fixedColumns().update();
-            table.draw();
+          if (updatedVP){
+            if (this.qualLimits != null && this.qualLimits.length > 0)
+              this.updateQualLimMarks(data, this.curClassName);
+            table.rows().invalidate();
+            table.columns.adjust().draw();
           }
-          if (updatedVP && animate)
-            this.animateTable(oldData, data, this.animTime, true);
+          
+          if (modifiedTable || timesOnly)
+            table.fixedColumns().update().draw();
+          
+          if (!timesOnly){
+            if (updatedVP)
+              this.animateTable(oldData, data, this.animTime, true);
+            else 
+              this.startPredictedTimeTimer();
+          }
         }
-        catch (e) { }
+        catch (e) 
+        { 
+          this.startPredictedTimeTimer();
+        }
       }
 
       // Stop requesting updates if class not active
@@ -1338,6 +1351,7 @@ var LiveResults;
         });
       }
     };
+
     //Handle response for updating the last passings
     AjaxViewer.prototype.handleUpdateLastPassings = function (data) {
       var _this = this;
@@ -1669,12 +1683,10 @@ var LiveResults;
         {
           var scrollX = window.scrollX;
           var scrollY = window.scrollY;
-          //var oldData = $.extend(true, [], this.currentTable.fnGetData());
           this.currentTable.fnClearTable();
           this.currentTable.fnAddData(this.radioData, true);
           this.filterTable();
           window.scrollTo(scrollX, scrollY);
-          //this.animateTable(oldData, this.radioData, this.animTime);
         }  
         else if (this.currentTable == null) // New datatable
         {
@@ -2378,7 +2390,7 @@ var LiveResults;
         }
         var _this = this;
         if (newData.status == "OK") {
-          clearInterval(this.updatePredictedTimeTimer);
+          clearTimeout(this.updatePredictedTimeTimer);
           if (this.animating) // Wait until animation is completed
           {
             setTimeout(function () { _this.handleUpdateClassResults(newData, expTime); }, 100);
@@ -2416,7 +2428,7 @@ var LiveResults;
               }
             }
 
-            this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
+            this.updatePredictedTimes(true); // Insert times only
             $(table.settings()[0].nScrollBody).scrollLeft(posLeft);
             window.scrollTo(scrollX, scrollY);
 
@@ -2424,7 +2436,8 @@ var LiveResults;
             this.animateTable(oldResults, newResults, this.animTime);
 
             this.lastClassHash = newData.hash;
-            setTimeout(function () { _this.startPredictionUpdate(); }, _this.animTime + 200);
+
+            setTimeout(function () { _this.startPredictedTimeTimer(); }, _this.animTime + 200);
           }
         }
       }
@@ -2468,34 +2481,27 @@ var LiveResults;
             updProg[newInd] = (isResTab ? prevProg[newID] != newData[i].progress : false);
           }
         }
-        if (Object.keys(lastInd).length == 0) // No modifications
+        if ( Object.keys(lastInd).length == 0 ) { // No modifications
+          if (predRank)
+            this.startPredictedTimeTimer();
           return;
+        }
+
+        var tableDT = this.currentTable.api();  
+        var order = tableDT.order();
+        var numCol = tableDT.settings().columns()[0].length;
+        if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
+          if (predRank)
+            this.startPredictedTimeTimer();
+          return;
+        }
 
         // Prepare for animation
         this.animating = true;
-        var table = null;
-        var fixedTable = null;
-        var tableDT = this.currentTable.api();
-        this.currentTable.fnAdjustColumnSizing();
-          
-        if (isResTab) // Result table
-        {
-          tableDT.draw();
-          table = $('#' + this.resultsDiv);
-          var order = tableDT.order();
-          var numCol = tableDT.settings().columns()[0].length;
-          if (order[0][0] != numCol - 1) // Not sorted on virtual position
-          {
-            this.animating = false;
-            return;
-          }
-          fixedTable = $(table.DataTable().cell(0, 0).fixedNode()).parents('table')[0];
-        }
-        else // Radio table
-          table = $('#' + this.radioPassingsDiv);
-
-        if (predRank)
-          clearInterval(this.updatePredictedTimeTimer);
+        if (!predRank)
+          this.currentTable.fnAdjustColumnSizing();
+        
+        var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
 
         // Set each td's width
         var column_widths = new Array();
@@ -2525,8 +2531,10 @@ var LiveResults;
         $(table).find('tbody tr').each(function () {
           $(this).css('position', 'absolute').css('z-index', '91');
         });
-
+        
+        var fixedTable = null;
         if (isResTab) {
+          fixedTable = $(table.DataTable().cell(0, 0).fixedNode()).parents('table')[0];
           $(fixedTable).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
           $(fixedTable).find('tr').each(function (index) { $(this).css('top', rowPosArray[index]); });
           $(fixedTable).find('tbody tr').each(function () { $(this).css('position', 'absolute').css('z-index', '92'); });
@@ -2591,7 +2599,7 @@ var LiveResults;
         this.currentTable.api().draw();
         this.animating = false;
         if (predRank)
-          setTimeout(function () { _this.startPredictionUpdate(); }, 100);
+          this.startPredictedTimeTimer();
       }
     };
 
@@ -2667,6 +2675,7 @@ var LiveResults;
         return;
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
+      clearTimeout(this.updatePredictedTimeTimer);
       this.inactiveTimer = 0;
       if (this.currentTable != null) {
         try {
@@ -3497,11 +3506,14 @@ var LiveResults;
           }
 
           this.lastClassHash = data.hash;
-          this.updatePredictedTimes(true, false); // Refresh = true; Animate = false
-          this.currentTable.fnAdjustColumnSizing();
-
+          
           if (this.isCompToday())
+          {
+            this.updatePredictedTimes(true); // Insert times only
+            this.currentTable.fnAdjustColumnSizing();
             this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
+            this.startPredictedTimeTimer();
+          }
         }
       }
     };
@@ -3867,6 +3879,10 @@ var LiveResults;
     AjaxViewer.prototype.viewClubResults = function (clubName) {
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
+      if (this.animating){
+         setTimeout(function () { _this.viewClubResults(clubName); }, 500);
+         return;
+      }
       this.inactiveTimer = 0;
       if (this.currentTable != null) {
         try {
@@ -4514,6 +4530,10 @@ var LiveResults;
         return
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
+      if (this.animating){
+        setTimeout(function () { _this.viewSplitTimeResults(className, course); }, 500);
+        return;
+      }
       if (this.currentTable != null) {
         try {
           this.currentTable.api().destroy();

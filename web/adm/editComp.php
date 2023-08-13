@@ -198,6 +198,7 @@ function confirmDelete(msg,url)
 <br/>
 <hr/>
 <h1 class="categoriesheader">Radio Controls</h1>
+<p><a href="./radiocontrols.php?comp=<?=$_GET['compid']?>">Radio control editor</a>
 <form name="formrdo1" action="editComp.php?what=radio&compid=<?=$comp['tavid']?>" method="post">
 <a href="javascript:confirmDelete('Do you want to delete ALL radiocontrols?','?compid=<?= $_GET['compid']?>&what=delallctr&compid=<?= $_GET['compid']?>');">Delete all radio controls</a>
 <table border="0">
