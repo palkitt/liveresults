@@ -175,6 +175,8 @@ UpgradeLog*.htm
 FakesAssemblies/
 testfiles/iof_xml_notcompeting.xml
 */.vs
+.vs/*
+.vscode/*
 testfiles/oe_speaker_result_0.1sec.xml
 web/js/liveresults – Kopi.js
 web/js/jquery.dataTables.min.js_old
@@ -189,3 +191,6 @@ web/.vscode/launch.json
 .vs/LiveResults.Client/v15/Server/sqlite3/storage.ide
 .vs/LiveResults.Client/v15/Server/sqlite3/storage.ide-shm
 .vs/LiveResults.Client/v15/Server/sqlite3/storage.ide-wal
+
+#osticket
+web/osticket/
