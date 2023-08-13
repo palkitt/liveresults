@@ -490,18 +490,26 @@ namespace LiveResults.Client
 
                         if (reader["radiodist"] != null && reader["radiodist"] != DBNull.Value)
                             distance = Convert.ToInt32(reader["radiodist"].ToString());
-                        
-                        if (description == "{auto}" && courses.ContainsKey(course))                      
+
+                        // If description string contains "{dist}" then try to find and insert distance from course controls
+                        // If description string contains "{no}" then try to find and insert control number from course controls
+                        if ((description.Contains("{dist}") || description.Contains("{no}") ) && courses.ContainsKey(course))                      
                         {
                             foreach (var control in courses[course])
                             {
-                                if (control.RadioCode == radioCode && control.AccDist > 0)
+                                if (control.RadioCode == radioCode)
                                 {
-                                    if (distance == 0)
-                                        distance = control.AccDist;
-                                    double distanceInKilometers = Math.Round(control.AccDist / 100.0) / 10.0;
-                                    string distanceString = distanceInKilometers.ToString("0.0") + "km";
-                                    description = distanceString.Replace(".", ",");                
+                                    if (description.Contains("{dist}") && control.AccDist > 0)
+                                    {
+                                        if (distance == 0)
+                                            distance = control.AccDist;
+                                        double distanceInKilometers = Math.Round(control.AccDist / 100.0) / 10.0;
+                                        string distanceString = distanceInKilometers.ToString("0.0") + "km";
+                                        distanceString = distanceString.Replace(".", ",");
+                                        description = description.Replace("{dist}", distanceString);
+                                    }
+                                    if (description.Contains("{no}"))
+                                        description = description.Replace("{no}", "#" + control.Order.ToString());
                                     break;
                                 }
                             }
