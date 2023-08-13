@@ -204,7 +204,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.KeyPreview = true;
             this.Name = "FrmNewCompetition";
-            this.Text = "Version 2023-06-22 | Create New Competition";
+            this.Text = "Version 2023-08-13 | Create New Competition";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmNewCompetition_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.FrmNewCompetition_KeyPress);
             this.flowLayoutPanel1.ResumeLayout(false);
