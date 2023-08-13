@@ -38,8 +38,6 @@ if ($isSingleClub)
 $showLastPassings = !($isSingleClass || $isSingleClub) || (isset($_GET['showLastPassings']) && $_GET['showLastPassings'] == "true");
 $RunnerStatus = Array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUSWO, "12" => $_STATUSMOVEDUP, "9" => $_STATUSNOTSTARTED,"0" => $_STATUSOK, "3" => $_STATUSMP, "4" => $_STATUSDSQ, "5" => $_STATUSOT, "9" => "", "10" => "", "6" => $_STATUSNC);
 
-$showTimePrediction = true;
-
 echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -175,11 +173,9 @@ $(document).ready(function()
 		res.showTimesInSprint = true;
 	<?php }?>
 
-	<?php if ($showTimePrediction){ ?>
-	  res.compDate = "<?=$currentComp->CompDate();?>";
-		res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
-		res.startPredictionUpdate();
-	<?php }?>
+	res.compDate = "<?=$currentComp->CompDate();?>";
+	res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
+
 
   // Update runner list
 	res.updateRunnerList();
@@ -187,7 +183,7 @@ $(document).ready(function()
 	// Insert comp name
 	var compName = "<?=$currentComp->CompName()?>";
 	$("#compname").html(compName);
-	
+
 	// Turn off scroll view
 	<?php if ($setNotScroll){?>
 		res.setScrollView(false); <?php }?>
@@ -210,7 +206,7 @@ $(document).ready(function()
 
 	// Initialize info text
 	$("#divInfoText").html("<?=$currentComp->InfoText();?>");
-	
+
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
 		if (res.browserType == 1)
@@ -276,6 +272,7 @@ function changeFontSize(val) {
 	$("td").css("font-size",newSize + "px");
   if (typeof(Storage) !== "undefined")
     localStorage.setItem("fontSize",newSize);
+  $('#divResults').DataTable().columns.adjust().responsive.recalc();
 }
 
 function switchNav() {
@@ -310,9 +307,7 @@ function closeNav() {
   if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
 		$(".firstCol").width("0px");  
-		$('#divResults').DataTable()
-		.columns.adjust()
-		.responsive.recalc();
+		$('#divResults').DataTable().columns.adjust().responsive.recalc();
 		$(".firstCol").width("6em");  
   }
   $(".firstCol").animate({'width':'0px'},300);

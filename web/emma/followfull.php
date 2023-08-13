@@ -38,8 +38,6 @@ if ($isSingleClub)
 $showLastPassings = !($isSingleClass || $isSingleClub) || (isset($_GET['showLastPassings']) && $_GET['showLastPassings'] == "true");
 $RunnerStatus = Array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUSWO, "12" => $_STATUSMOVEDUP, "9" => $_STATUSNOTSTARTED,"0" => $_STATUSOK, "3" => $_STATUSMP, "4" => $_STATUSDSQ, "5" => $_STATUSOT, "9" => "", "10" => "", "6" => $_STATUSNC);
 
-$showTimePrediction = true;
-
 echo("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -160,15 +158,13 @@ $(document).ready(function()
     res.updateClassList();
 	<?php }?>
 
-    <?php if ($showLastPassings){?>
+  <?php if ($showLastPassings){?>
 		res.updateLastPassings();
 	<?php }?>
 	
-	<?php if ($showTimePrediction){ ?>
-	  res.compDate = "<?=$compDate?>";
-		res.eventTimeZoneDiff = <?=$compTimeDiff?>;
-		res.startPredictionUpdate();
-	<?php }?>
+	res.compDate = "<?=$compDate?>";
+	res.eventTimeZoneDiff = <?=$compTimeDiff?>;
+
 
 	// Insert comp name
 	var compName = "<?=$compName?>";
@@ -178,7 +174,7 @@ $(document).ready(function()
 	// Turn off scroll view
 	<?php if ($setNotScroll){?>
 		res.setScrollView(false); <?php }?>
-		
+	
 	// Check for mobile and close top if mobile is detected
 	var isMobile = res.isMobile();
 	if (isMobile)
