@@ -164,7 +164,7 @@ $(document).ready(function()
 <?php if (!isset($_GET['comp']) || !isset($_GET['code'])) { ?>
   <h1 class="categoriesheader">Feil. Har du satt compID og postkode? Eks: radio.php?comp=15109&code=120</h1>
 <?php } else { ?>
-	<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
+	<table style="width:100%; table-layout:fixed" cellpadding="0" cellspacing="3" border="0">
 	<tr valign=top><td> 
 	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
     <tr>
