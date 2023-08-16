@@ -40,14 +40,22 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
 <script language="javascript" type="text/javascript">
 
-var noSleep = new NoSleep();
-
-function enableNoSleep() {
-  noSleep.enable();
-  document.removeEventListener('click', enableNoSleep, false);
+let wakeLock = null;
+async function enableNoSleep() {
+  if (wakeLock !== null && !wakeLock.released) {
+    console.log("Wake lock is already active");
+    return;
+  }
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    console.log("Wake lock is now active");
+  } catch (err) {
+    console.error("Failed to acquire wake lock:", err);
+  }
 }
 
-document.addEventListener('click', enableNoSleep, false);
+document.addEventListener("click", enableNoSleep );
+
 var res = null;
 var Resources = null;
 var runnerStatus = null;
