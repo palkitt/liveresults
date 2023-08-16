@@ -937,11 +937,11 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
+          time = time + -6*100*3600 + 100*3600*Math.random();
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
           var highlight = false;
-          var modifiedTable = false;
           var age = 0;
 
           var data = this.currentTable.fnGetData();
@@ -988,7 +988,6 @@ var LiveResults;
                 }
                 if (highlight && !$(row).hasClass('yellow_row')) {
                   if (!$(row).hasClass('red_row') && !$(row).hasClass('new_fnq')) {
-                    modifiedTable = true;
                     if (data[i].DT_RowClass != undefined && (data[i].DT_RowClass == "firstnonqualifier" || data[i].DT_RowClass == "new_fnq"))
                       $(row).addClass('new_fnq');
                     else
@@ -996,7 +995,6 @@ var LiveResults;
                   }
                 }
                 else if ($(row).hasClass('red_row') || $(row).hasClass('new_fnq')) {
-                  modifiedTable = true;
                   $(row).removeClass('red_row');
                   $(row).removeClass('new_fnq');
                 }
@@ -1019,7 +1017,6 @@ var LiveResults;
               if (highlight) {
                 if (this.compactView || this.curClassIsRelay || this.curClassLapTimes) {
                   if (!$(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell_sqr')) {
-                    modifiedTable = true;
                     $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).addClass('red_cell_sqr');
                     $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).addClass('red_cell');
                     if (this.isMultiDayEvent) {
@@ -1030,7 +1027,6 @@ var LiveResults;
                 }
                 else {
                   if (!$(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell')) {
-                    modifiedTable = true;
                     $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).addClass('red_cell');
                     if (this.isMultiDayEvent)
                       $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).addClass('red_cell');
@@ -1041,7 +1037,6 @@ var LiveResults;
               {
                 if (this.compactView || this.curClassIsRelay || this.curClassLapTimes) {
                   if ($(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell_sqr')) {
-                    modifiedTable = true;
                     $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).removeClass('red_cell_sqr');
                     $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).removeClass('red_cell');
                     if (this.isMultiDayEvent) {
@@ -1052,7 +1047,6 @@ var LiveResults;
                 }
                 else {
                   if ($(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell')) {
-                    modifiedTable = true;
                     $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).removeClass('red_cell');
                     if (this.isMultiDayEvent)
                       $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).removeClass('red_cell');
@@ -1080,11 +1074,9 @@ var LiveResults;
                   highlight = (age < this.highTime);
                 }
                 if (highlight && !$(table.cell(i, colNum).node()).hasClass('red_cell')) {
-                  modifiedTable = true;
                   $(table.cell(i, colNum).node()).addClass('red_cell');
                 }
                 else if (!highlight && $(table.cell(i, colNum).node()).hasClass('red_cell')) {
-                  modifiedTable = true;
                   $(table.cell(i, colNum).node()).removeClass('red_cell');
                 }
               }
@@ -1100,7 +1092,6 @@ var LiveResults;
                 if (elapsedTime >= 0) {
                   if (table.cell(i, 0).node().innerHTML == "") {
                     table.cell(i, 0).data("<span class=\"pulsing\">◉</span>");
-                    modifiedTable = true;
                   }
 
                   if (this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked) {
@@ -1295,10 +1286,7 @@ var LiveResults;
             table.rows().invalidate();
             table.columns.adjust().draw();
           }
-          
-          if (modifiedTable || timesOnly)
-            table.fixedColumns().update().draw();
-          
+                    
           if (!timesOnly){
             if (updatedVP)
               this.animateTable(oldData, data, this.animTime, true);
@@ -2497,10 +2485,11 @@ var LiveResults;
 
         // Prepare for animation
         this.animating = true;
-        if (!predRank)
-          this.currentTable.fnAdjustColumnSizing();
+        //if (!predRank)
+        //  this.currentTable.fnAdjustColumnSizing();
         
         var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
+        //this.currentTable.api().draw();
 
         // Set each td's width
         var column_widths = new Array();
@@ -2516,8 +2505,10 @@ var LiveResults;
         var ind = -1; // -1:header; 0:first data
         var tableTop = $(table)[0].getBoundingClientRect().top;
         $(table).find('tr').each(function () {
-          var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop > 1 ? -1.5 : -0.5);
+          var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop > 1 ? -2 : -1);
             $(this).css('top', rowPos);
+            $(this).find('td.dtfc-fixed-left').each(function () {$(this).css('top', rowPos-2)});
+            
             if ($(this).is(":visible"))
             {               
               rowPosArray.push(rowPos);
@@ -2530,15 +2521,7 @@ var LiveResults;
         $(table).find('tbody tr').each(function () {
           $(this).css('position', 'absolute').css('z-index', '91');
         });
-        
-        var fixedTable = null;
-        if (isResTab) {
-          fixedTable = $(table.DataTable().cell(0, 0).fixedNode()).parents('table')[0];
-          $(fixedTable).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
-          $(fixedTable).find('tr').each(function (index) { $(this).css('top', rowPosArray[index]); });
-          $(fixedTable).find('tbody tr').each(function () { $(this).css('position', 'absolute').css('z-index', '92'); });
-          $(fixedTable).height(height).width('100%');
-        }
+                
         $(table).height(height).width('100%');
 
         // Animation
@@ -2548,55 +2531,43 @@ var LiveResults;
           var oldInd = lastInd[newInd];
           var oldPos = rowPosArray[oldInd + 1]; // First entry is header
           var newPos = rowPosArray[newInd + 1];
-          var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);
-          if (isResTab)
-            var rowFix = $(fixedTable).find("tbody tr").eq(rowIndArray[newInd+1]);                    
+          var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);                            
           var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
           var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
           var zind;
-          var zindFix;
-          if (predRank) // Update from predictions of running times 
-          {
+          if (predRank) // Update from predictions of running times         
             zind = (newInd == 0 ? 96 : (newInd > oldInd ? 95 : 93));
-            zindFix = zind + 1;
-          }
           else // Updates from new data from server
-          {
             zind = (updProg[newInd] ? 95 : 93);
-            zindFix = zind + 1;
-          }
           this.numAnimElements++;
+          
+                 
           $(row).css('background-color', oldBkCol).css('top', oldPos).css('z-index', zind);
           $(row).velocity({ translateZ: 0, backgroundColor: newBkCol, top: newPos },
+            { duration: animTime, complete: function () { _this.numAnimElements--; } }); 
+            
+          var fixedCells = $(row).find('td.dtfc-fixed-left'); // get the cells in the fixed columns
+          fixedCells.css('background-color', oldBkCol).css('top', oldPos).css('z-index', zind);
+          fixedCells.velocity({ translateZ: 0, backgroundColor: newBkCol, top: newPos },
             { duration: animTime, complete: function () { _this.numAnimElements--; } });
-          if (isResTab) {
-            this.numAnimElements++;
-            $(rowFix).css('background-color', oldBkCol).css('top', oldPos).css('z-index', zindFix);
-            $(rowFix).velocity({ translateZ: 0, backgroundColor: newBkCol, top: newPos },
-              { duration: animTime, complete: function () { _this.numAnimElements--; } });
-          }
         }
-        setTimeout(function () { _this.endAnimateTable(table, fixedTable, predRank, true) }, _this.animTime + 100);
+        setTimeout(function () { _this.endAnimateTable(table, predRank, true) }, _this.animTime + 100);
       }
       catch (e) { }
     };
 
     // Reset settings after animation is completed
-    AjaxViewer.prototype.endAnimateTable = function (table, fixedTable, predRank, first) {
+    AjaxViewer.prototype.endAnimateTable = function (table, predRank, first) {
       var _this = this;
       if (this.numAnimElements > 0 && first) // Wait for all animations to finish
-        setTimeout(function () { _this.endAnimateTable(table, fixedTable, predRank, false) }, _this.animTime);
+        setTimeout(function () { _this.endAnimateTable(table, predRank, false) }, _this.animTime);
       else {
         $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
         $(table).find('tr').each(function () { $(this).css('position', ''); });
+
         $(table).height(0).width('100%');
-        if (fixedTable != null) {
-          $(fixedTable).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
-          $(fixedTable).find('tr').each(function () { $(this).css('position', ''); });
-          $(fixedTable).height(0).width('100%');
-        }
-        this.currentTable.api().draw();
         this.animating = false;
+        //this.currentTable.api().draw();
         if (predRank)
           this.startPredictedTimeTimer();
       }
@@ -3458,7 +3429,7 @@ var LiveResults;
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
             "scrollX": this.scrollView,
-            "fixedColumns": { leftColumns: 2, heightMatch: 'auto' },
+            "fixedColumns": { leftColumns: 2 },
             "responsive": !(this.scrollView),
             "bPaginate": false,
             "bLengthChange": false,
