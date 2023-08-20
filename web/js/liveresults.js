@@ -1767,6 +1767,8 @@ var LiveResults;
             });
 
             this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
+              "fixedColumns": { leftColumns: 1 },
+              "scrollX": true,
               "bPaginate": false,
               "bLengthChange": false,
               "bFilter": true,
@@ -2484,14 +2486,12 @@ var LiveResults;
         }
 
         // Prepare for animation
-
         this.animating = true;
-        //if (!predRank)
-        //  this.currentTable.fnAdjustColumnSizing();
+        if (!predRank)
+          this.currentTable.fnAdjustColumnSizing();
         
         var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
         $(table).parent().css('overflow-x', 'hidden');
-        //this.currentTable.api().draw();
 
         // Set each td's width
         var column_widths = new Array();
@@ -2563,9 +2563,10 @@ var LiveResults;
       else {
         $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
         $(table).find('tr').each(function () { $(this).css('position', ''); });
+        $(table).height(0).width('100%');
         $(table).parent().css('overflow-x', '');
         this.animating = false;
-        //this.currentTable.api().draw();
+        this.currentTable.api().draw();
         if (predRank)
           this.startPredictedTimeTimer();
       }
@@ -3416,7 +3417,6 @@ var LiveResults;
           $('#' + this.resultsDiv).height(0);
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "fixedHeader" : true,
             "fixedColumns": { leftColumns: 2 },
             "scrollX": true,
             "bPaginate": false,
@@ -3905,7 +3905,7 @@ var LiveResults;
           $('#numberOfRunners').html(numberOfRunners);
           var columns = Array();
           var col = 0;
-          columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
+          columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
           columns.push({
             "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data, type, row) {
               if (type == "sort")
@@ -3937,7 +3937,7 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": "&#8470;&nbsp;&nbsp;", "sClass": "right", "aTargets": [col++], "mDataProp": (_this.curClassHasBibs ? "bib" : null),
+            "sTitle": "&#8470;", "sClass": "right", "aTargets": [col++], "mDataProp": (_this.curClassHasBibs ? "bib" : null),
             "render": function (data, type, row) {
               if (type === 'display') {
                 if (row.bib < 0) // Relay
@@ -3957,7 +3957,7 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": this.resources["_START"] + "&nbsp;&nbsp;", "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
+            "sTitle": this.resources["_START"], "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
             "render": function (data, type, row) {
               if (row.start == "") {
                 return "";
@@ -3969,7 +3969,7 @@ var LiveResults;
           });
           col++;
           columns.push({
-            "sTitle": this.resources["_CONTROLFINISH"] + "&nbsp;&nbsp;", "sClass": "right", "sType": "numeric", "aDataSort": [col + 1, col, 0], "aTargets": [col], "bUseRendered": false, "mDataProp": "result",
+            "sTitle": this.resources["_CONTROLFINISH"], "sClass": "right", "sType": "numeric", "aDataSort": [col + 1, col, 0], "aTargets": [col], "bUseRendered": false, "mDataProp": "result",
             "render": function (data, type, row) {
               if (row.place == "-" || row.place == "" || row.place == "F") {
                 return _this.formatTime(row.result, row.status);
@@ -3982,7 +3982,7 @@ var LiveResults;
           col++;
           columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
           columns.push({
-            "sTitle": "Diff&nbsp;&nbsp;", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "timeplus",
+            "sTitle": "Diff", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "timeplus",
             "render": function (data, type, row) {
               if (type === 'display') {
                 if (row.status == 0)
@@ -4000,7 +4000,7 @@ var LiveResults;
           });
           if (hasPace) {
             columns.push({
-              "sTitle": "m/km&nbsp;&nbsp;", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "pace",
+              "sTitle": "m/km", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "pace",
               "render": function (data, type, row) {
                 if (row.status == 0 && data > 0) {
                   if (type === 'display')
@@ -4016,8 +4016,8 @@ var LiveResults;
             });
           }
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "scrollX": this.scrollView,
-            "fixedColumns": { leftColumns: 3 },
+            "scrollX": true,
+            "fixedColumns": { leftColumns: 2 },
             "bPaginate": false,
             "bLengthChange": false,
             "bFilter": false,
@@ -4220,9 +4220,8 @@ var LiveResults;
           columns.push({ "sTitle": "m/km", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "kmTime" });
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "scrollX": this.scrollView,
-            "fixedColumns": { leftColumns: legs + 3, heightMatch: 'auto' },
-            "responsive": false,
+            "scrollX": true,
+            "fixedColumns": { leftColumns: 3 },
             "bPaginate": false,
             "bLengthChange": false,
             "bFilter": false,
@@ -4326,7 +4325,6 @@ var LiveResults;
               results.push(data.results[i]);
             }
           }
-
 
           var columns = Array();
           var col = 0;
@@ -4725,8 +4723,7 @@ var LiveResults;
             };
 
             this.currentTable = $('#' + this.resultsDiv).dataTable({
-              "fixedColumns": { leftColumns: 3 },
-              "fixedHeader" : true,
+              "fixedColumns": { leftColumns: 2 },
               "scrollX": true,
               "bPaginate": false,
               "bLengthChange": false,

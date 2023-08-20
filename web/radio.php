@@ -25,29 +25,35 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
+
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
-<script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
+
 <script language="javascript" type="text/javascript">
 
-var noSleep = new NoSleep();
-
-function enableNoSleep() {
-  noSleep.enable();
-  document.removeEventListener('click', enableNoSleep, false);
+let wakeLock = null;
+async function enableNoSleep() {
+  if (wakeLock !== null && !wakeLock.released) {
+    console.log("Wake lock is already active");
+    return;
+  }
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    console.log("Wake lock is now active");
+  } catch (err) {
+    console.error("Failed to acquire wake lock:", err);
+  }
 }
 
-document.addEventListener('click', enableNoSleep, false);
+document.addEventListener("click", enableNoSleep );
+
 var res = null;
 var Resources = null;
 var runnerStatus = null;
@@ -101,7 +107,6 @@ function makeStartBeep (longBeep) {
     oscillator.start(0);
     oscillator.stop(audioContext.currentTime + duration/1000);
   }             
-
 
 $(document).ready(function()
 {
@@ -166,9 +171,8 @@ $(document).ready(function()
 <?php } else { ?>
 	<table style="width:100%; table-layout:fixed" cellpadding="0" cellspacing="3" border="0">
 	<tr valign=top><td> 
-	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
-    <tr>
-    <?php if ($_GET['code']==0) { ?>
+	  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
+      <?php if ($_GET['code']==0) { ?>
       <tr>
         <td align="left"><span id="liveIndicator">◉</span>
         <span style="cursor:pointer; color:#FFF;" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
@@ -205,8 +209,10 @@ $(document).ready(function()
   </table>
   </td></tr>
   <tr><td>
-    <table width="100%" cellpadding="3px" cellspacing="0px" border="0">
-      <tr valign=top><td><table id="divRadioPassings"></table></td></tr>
+    <table width="100%" style="table-layout:fixed;" cellpadding="3px" cellspacing="0px" border="0">
+      <tr valign=top><td>
+        <table id="divRadioPassings" width="100%"></table>
+      </td></tr>
     </table>
   </td></tr>
   </table>

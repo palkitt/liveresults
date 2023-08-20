@@ -101,16 +101,16 @@ tr.new_fnq .bestplace {color: white;}
 tr.new_fnq .club {color: white;}
 
 /* Green row for OK at start */
-tr.green_row { color: black; background-color: #00FF00 !important;}
-tr.green_row_new { color: black; background-color: #00FF00 !important; border-top: 2px solid grey !important;}
-tr.green_row_firststarter { color: black; background-color: #00FF00 !important; border-top: 5px solid black ;}
+tr.green_row > td { color: black; background-color: #00FF00 !important;}
+tr.green_row_new > td { color: black; background-color: #00FF00 !important; border-top: 2px solid grey !important;}
+tr.green_row_firststarter > td { color: black; background-color: #00FF00 !important; border-top: 5px solid black ;}
 
 /* Yellow row for inside calltime at start, not OK at finish, highlight for speaker */
-tr.yellow_row { color: black; background-color: #FFFF00 !important; }
-tr.yellow_row_new { color: black; background-color: #FFFF00 !important; border-top: 2px solid grey !important;}
+tr.yellow_row > td { color: black; background-color: #FFFF00 !important; }
+tr.yellow_row_new > td { color: black; background-color: #FFFF00 !important; border-top: 2px solid grey !important;}
 
 /* Yellow row highlight for speaker, first non qualifyer */
-tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-top: 3px solid grey !important;}
+tr.yellow_row_fnq > td { color: black; background-color: #FFFF00 !important; border-top: 3px solid grey !important;}
 
 /* Yellow and green cells for messages */
 .yellow_cell {color: black; background-color: #FFFF00 !important;}

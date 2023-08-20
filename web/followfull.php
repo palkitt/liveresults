@@ -53,11 +53,9 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <meta name="theme-color" content="#555556">
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="css/fixedHeader.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 
 <script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.fixedHeader.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
 
@@ -425,13 +423,7 @@ function closeTop() {
   
           <tr valign="top">
             <td>
-              <table id="divResults" width="100%">
-                <tbody>
-                  <tr>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
+              <table id="divResults" width="100%"></table>
             </td>
           </tr>
         </table>
