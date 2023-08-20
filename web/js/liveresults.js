@@ -937,7 +937,7 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          time = time + -6*100*3600 + 100*3600*Math.random();
+          time = time +4.5*100*3600 + 100*3600*Math.random();
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -1090,10 +1090,9 @@ var LiveResults;
                 if (elapsedTime < -18 * 3600 * 100) // Time passed midnight (between 00:00 and 06:00)
                   elapsedTime += 24 * 3600 * 100;
                 if (elapsedTime >= 0) {
-                  if (table.cell(i, 0).node().innerHTML == "") {
+                  if (table.cell(i, 0).node().innerHTML == "") 
                     table.cell(i, 0).data("<span class=\"pulsing\">◉</span>");
-                  }
-
+                  
                   if (this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked) {
                     var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
                     var elapsedTotalTimeStr = "<i>&#10092;" + this.formatTime(elapsedTotalTime, 0, false) + "&#10093;</i>";
@@ -1103,6 +1102,7 @@ var LiveResults;
                       elapsedTotalTimeStr += "<span class=\"hideplace\"><i>..&#10072;</i></span>";
                     table.cell(i, totalTimeCol).data(elapsedTotalTimeStr);
                   }
+                  
                   var timeDiffStr = "";
                   var elapsedTimeStr = (this.curClassIsRelay ? "<i>⟳" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
                   if (this.curClassSplits == null || this.curClassSplits.length == 0) {
@@ -2484,11 +2484,13 @@ var LiveResults;
         }
 
         // Prepare for animation
+
         this.animating = true;
         //if (!predRank)
         //  this.currentTable.fnAdjustColumnSizing();
         
         var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
+        $(table).parent().css('overflow-x', 'hidden');
         //this.currentTable.api().draw();
 
         // Set each td's width
@@ -2497,7 +2499,7 @@ var LiveResults;
         $(table).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
 
         // Set table height and width
-        var height = $(table).outerHeight() + 20;
+        var height = $(table).outerHeight();
 
         // Put all the rows back in place
         var rowPosArray = new Array();
@@ -2505,10 +2507,8 @@ var LiveResults;
         var ind = -1; // -1:header; 0:first data
         var tableTop = $(table)[0].getBoundingClientRect().top;
         $(table).find('tr').each(function () {
-          var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop > 1 ? -2 : -1);
+          var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
             $(this).css('top', rowPos);
-            $(this).find('td.dtfc-fixed-left').each(function () {$(this).css('top', rowPos-2)});
-            
             if ($(this).is(":visible"))
             {               
               rowPosArray.push(rowPos);
@@ -2517,12 +2517,12 @@ var LiveResults;
             ind++;  
         });
 
+        $(table).height(height).width('100%');
         // Set table cells position to absolute
         $(table).find('tbody tr').each(function () {
           $(this).css('position', 'absolute').css('z-index', '91');
         });
                 
-        $(table).height(height).width('100%');
 
         // Animation
         this.numAnimElements = 0;
@@ -2540,16 +2540,15 @@ var LiveResults;
           else // Updates from new data from server
             zind = (updProg[newInd] ? 95 : 93);
           this.numAnimElements++;
-          
-                 
-          $(row).css('background-color', oldBkCol).css('top', oldPos).css('z-index', zind);
-          $(row).velocity({ translateZ: 0, backgroundColor: newBkCol, top: newPos },
-            { duration: animTime, complete: function () { _this.numAnimElements--; } }); 
-            
-          var fixedCells = $(row).find('td.dtfc-fixed-left'); // get the cells in the fixed columns
-          fixedCells.css('background-color', oldBkCol).css('top', oldPos).css('z-index', zind);
-          fixedCells.velocity({ translateZ: 0, backgroundColor: newBkCol, top: newPos },
+               
+          $(row).css('top', oldPos).css('z-index', zind);
+          $(row).velocity({ translateZ: 0, top: newPos },
             { duration: animTime, complete: function () { _this.numAnimElements--; } });
+          $(row).find('td').each(function () {
+            $(this).css('background-color', oldBkCol);
+            $(this).velocity({backgroundColor: newBkCol}, {duration: animTime});
+          });
+          
         }
         setTimeout(function () { _this.endAnimateTable(table, predRank, true) }, _this.animTime + 100);
       }
@@ -2564,8 +2563,7 @@ var LiveResults;
       else {
         $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
         $(table).find('tr').each(function () { $(this).css('position', ''); });
-
-        $(table).height(0).width('100%');
+        $(table).parent().css('overflow-x', '');
         this.animating = false;
         //this.currentTable.api().draw();
         if (predRank)
@@ -2932,7 +2930,6 @@ var LiveResults;
 
           columns.push({
             "sTitle": "#",
-            "responsivePriority": 1,
             "sClass": "right",
             "bSortable": false,
             "aTargets": [col++],
@@ -2951,7 +2948,6 @@ var LiveResults;
             if (!haveSplitControls || !fullView)
               columns.push({
                 "sTitle": this.resources["_CLUB"],
-                "responsivePriority": 1,
                 "sClass": "left",
                 "bSortable": false,
                 "aTargets": [col++],
@@ -2995,7 +2991,6 @@ var LiveResults;
             if (!(haveSplitControls || _this.isMultiDayEvent) || _this.curClassIsUnranked || (!fullView && !_this.curClassLapTimes))
               columns.push({
                 "sTitle": this.resources["_NAME"],
-                "responsivePriority": 1,
                 "sClass": "left",
                 "bSortable": false,
                 "aTargets": [col++],
@@ -3012,7 +3007,6 @@ var LiveResults;
             columns.push({
               "sTitle": ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
               "sClass": "left",
-              "responsivePriority": ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes)) ? 1 : 10000,
               "bSortable": false,
               "aTargets": [col++],
               "mDataProp": "club",
@@ -3038,8 +3032,7 @@ var LiveResults;
 
           if (_this.curClassHasBibs) {
             columns.push({
-              "sTitle": "&#8470;&nbsp;&nbsp;",
-              "responsivePriority": 1,
+              "sTitle": "&#8470",
               "sClass": "right",
               "bSortable": !_this.fixedTable,
               "aTargets": [col++],
@@ -3061,8 +3054,7 @@ var LiveResults;
           }
 
           columns.push({
-            "sTitle": this.resources["_START"] + "&nbsp;&nbsp;",
-            "responsivePriority": 4,
+            "sTitle": this.resources["_START"],
             "sClass": "right",
             "bSortable": !_this.fixedTable,
             "sType": "numeric",
@@ -3115,9 +3107,8 @@ var LiveResults;
               {
                 columns.push(
                   {
-                    "sTitle": value.name + "&nbsp;&nbsp;",
+                    "sTitle": value.name,
                     "bVisible": _this.curClassSplitsOK[refSp],
-                    "responsivePriority": 100,
                     "sClass": "right",
                     "bSortable": !_this.curClassIsUnranked,
                     "sType": "numeric",
@@ -3233,8 +3224,7 @@ var LiveResults;
           }
 
           columns.push({
-            "sTitle": this.resources["_CONTROLFINISH"] + "&nbsp;&nbsp;",
-            "responsivePriority": 2,
+            "sTitle": this.resources["_CONTROLFINISH"],
             "sClass": "right",
             "sType": "numeric",
             "aDataSort": [col + 1, col, 0],
@@ -3308,7 +3298,6 @@ var LiveResults;
             columns.push({
               "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
               "bVisible": (!isSprintHeat || _this.showTimesInSprint) && (!_this.curClassIsUnranked || _this.fixedTable),
-              "responsivePriority": 2000,
               "sClass": "right",
               "bSortable": false,
               "aTargets": [col++],
@@ -3330,7 +3319,6 @@ var LiveResults;
             if (_this.curClassIsRelay && fullView) {
               columns.push({
                 "sTitle": "Total<br/><span class=\"legtime\">⟳Etp</span>",
-                "responsivePriority": 2000,
                 "sClass": "right",
                 "bSortable": false,
                 "aTargets": [col++],
@@ -3354,7 +3342,7 @@ var LiveResults;
 
           if (this.isMultiDayEvent) {
             columns.push({
-              "sTitle": this.resources["_TOTAL"] + "&nbsp;&nbsp;",
+              "sTitle": this.resources["_TOTAL"],
               "sClass": "right",
               "sType": "numeric",
               "aDataSort": [col + 1, col, 0],
@@ -3428,9 +3416,9 @@ var LiveResults;
           $('#' + this.resultsDiv).height(0);
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "scrollX": this.scrollView,
+            "fixedHeader" : true,
             "fixedColumns": { leftColumns: 2 },
-            "responsive": !(this.scrollView),
+            "scrollX": true,
             "bPaginate": false,
             "bLengthChange": false,
             "bFilter": false,
@@ -3451,7 +3439,7 @@ var LiveResults;
           // Scroll to initial view and hide class column if necessary
           if (this.scrollView && data.results[0].progress != undefined) // Scroll to inital view
           {
-            var scrollBody = $(this.currentTable.api().settings()[0].nScrollBody);
+            var scrollBody = $(this.currentTable).parent();
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
             if (maxScroll > 5) {
               var clubBibWidth = 0;
@@ -4029,8 +4017,7 @@ var LiveResults;
           }
           this.currentTable = $('#' + this.resultsDiv).dataTable({
             "scrollX": this.scrollView,
-            "fixedColumns": { leftColumns: 3, heightMatch: 'auto' },
-            "responsive": !(this.scrollView),
+            "fixedColumns": { leftColumns: 3 },
             "bPaginate": false,
             "bLengthChange": false,
             "bFilter": false,
@@ -4571,7 +4558,7 @@ var LiveResults;
             this.splitAnalyze(data.results);
             var columns = Array();
             var col = 0;
-            columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
+            columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
             columns.push({
               "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data, type, row) {
                 if (type == "sort")
@@ -4624,9 +4611,9 @@ var LiveResults;
                   if (code == 999)
                     title = (i + 1) + "-" + _this.resources["_CONTROLFINISH"];
                   else if (i == 0)
-                    title = "S-1&nbsp;&nbsp;<br/>(" + code + ")";
+                    title = "S-1<br/>(" + code + ")";
                   else
-                    title = i + "-" + (i + 1) + "&nbsp;&nbsp;<br/>(" + code + ")";
+                    title = i + "-" + (i + 1) + "<br/>(" + code + ")";
                 }
                 else {
                   var codePre = (i > 0 ? data.splitcontrols[i - 1] : 0);
@@ -4639,7 +4626,7 @@ var LiveResults;
                 }
 
                 columns.push({
-                  "sTitle": title + "&nbsp;&nbsp;",
+                  "sTitle": title,
                   "bVisible": true,
                   "sClass": "right",
                   "bSortable": true,
@@ -4647,7 +4634,7 @@ var LiveResults;
                   "aDataSort": [col],
                   "aTargets": [col],
                   "bUseRendered": false,
-                  "mDataProp": "",
+                  "mDataProp": "result",
                   "render": function (data, type, row, meta) {
                     var no = meta.col - 4;
                     var last = (no == (row.split_place.length - 1));
@@ -4738,9 +4725,9 @@ var LiveResults;
             };
 
             this.currentTable = $('#' + this.resultsDiv).dataTable({
-              "scrollX": this.scrollView,
               "fixedColumns": { leftColumns: 3 },
-              "responsive": false,
+              "fixedHeader" : true,
+              "scrollX": true,
               "bPaginate": false,
               "bLengthChange": false,
               "bFilter": false,
@@ -4758,7 +4745,7 @@ var LiveResults;
               "bDestroy": true
             });
 
-            var scrollBody = $(this.currentTable.api().settings()[0].nScrollBody);
+            var scrollBody = $(this.currentTable).parent();
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
             if ($(".firstCol").width() > 0 && maxScroll > 5)
               $('#switchNavClick').trigger('click');

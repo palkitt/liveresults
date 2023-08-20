@@ -16,10 +16,6 @@ body {
   -webkit-text-size-adjust: none; 
 }
 
-@media screen and (max-width: 1000px) {
-  body {background-color: #ffffff; margin: 0; font-size: 95%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
-}
-
 /* html documents within iframes */
 body.iframed {margin-left:0px; margin-right:0px; font-size:80%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
 
@@ -45,9 +41,9 @@ h3{font-size:1em; font-weight:normal; margin-bottom: 0px;}
 
 #divClasses {font-size: 1.1em; line-height: 1.4em;}
 
-.firstnonqualifier {border-top: 3px solid gray !important;} 
-.firststarter {border-top: 5px solid black !important;}
-.pre_post_start {background-color: #DFDFDF !important;}
+.firstnonqualifier > td {border-top: 3px solid gray !important;} 
+.firststarter > td {border-top: 5px solid black !important;}
+.pre_post_start > td {background-color: #DFDFDF !important;}
 .dns {text-decoration: line-through; }
 
 /* Submenu classes */
@@ -60,7 +56,7 @@ td.submenu table tr td a:hover {text-decoration: underline; color: var(--livered
 td.searchmenu { padding-left: 5px;}
 
 /* Red row marking */
-tr.red_row {  color: white; background-color: var(--livered) !important; } 
+tr.red_row > td {  color: white; background-color: var(--livered) !important; } 
 tr.red_row a {color: white;}
 tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; }
@@ -93,7 +89,7 @@ tr.red_row .relayclub {color: white;}
 .red_cell_sqr i { color: white;}
 
 /* New first nonqualifier */
-tr.new_fnq {  color: white; background-color: var(--livered) !important; border-top: 3px solid grey !important;} 
+tr.new_fnq > td {  color: white; background-color: var(--livered) !important; border-top: 3px solid grey !important;} 
 tr.new_fnq a {color: white;}
 tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; }
 tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important;}
@@ -120,8 +116,6 @@ tr.yellow_row_fnq { color: black; background-color: #FFFF00 !important; border-t
 .yellow_cell {color: black; background-color: #FFFF00 !important;}
 .green_cell  {color: black; background-color: #00FF00 !important;} 
 
-
-table.dataTable td {vertical-align: top;}
 
 /* Pulsing dot for live runner */
 .pulsing {
@@ -219,20 +213,6 @@ td i { color: var(--livered); font-style: normal;}
   }
 }
 
-
-.eI {
-background: url('../images/sprite_black2.png') no-repeat -63px -63px;
-height: 21px;
-width: 21px;
-}
-
-.eR {
-background: url('../images/sprite_black2.png') no-repeat -21px -63px;
-height: 21px;
-width: 21px;
-}
-
-
 /*-------------------------*/
 /*--- SITE WIDE CLASSES ---*/
 /*-------------------------*/
@@ -313,12 +293,6 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
   width: 6em;
 }
 
-
-/* Fixed columns*/
-table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_Blocker{background-color:white}div.DTFC_LeftWrapper table.dataTable,div.DTFC_RightWrapper table.dataTable{margin-bottom:0;z-index:2}div.DTFC_LeftWrapper table.dataTable.no-footer,div.DTFC_RightWrapper table.dataTable.no-footer{border-bottom:none};
-.DTFC_LeftBodyWrapper {
-    z-index: 999999999 !important;
-}
 
 /* Scroll and full view toggle */
 .noUnderline a{ 
