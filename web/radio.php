@@ -27,10 +27,10 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <meta name="theme-color" content="#555556">
 
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
-<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
@@ -208,13 +208,18 @@ $(document).ready(function()
     <?php } ?>
   </table>
   </td></tr>
-  <tr><td>
+  <tr>
+  <td>
     <table width="100%" style="table-layout:fixed;" cellpadding="3px" cellspacing="0px" border="0">
-      <tr valign=top><td>
-        <table id="divRadioPassings" width="100%"></table>
-      </td></tr>
+      <tr valign=top>
+        <td>
+          <table id="divRadioPassings" width="100%"></table>
+        </td>
+      </tr>
     </table>
-  </td></tr>
+
+  </td>
+  </tr>
   </table>
   <?php if ($_GET['code']==-2){?> Antall: <span id="numberOfRunners"></span> <?php } ?>
 <?php } ?>

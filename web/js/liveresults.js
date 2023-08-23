@@ -937,7 +937,7 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          time = time +4.5*100*3600 + 100*3600*Math.random();
+          time = time -11.5*100*3600 + 100*3600*Math.random();
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -1767,8 +1767,6 @@ var LiveResults;
             });
 
             this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
-              "fixedColumns": { leftColumns: 1 },
-              "scrollX": true,
               "bPaginate": false,
               "bLengthChange": false,
               "bFilter": true,
@@ -2488,10 +2486,9 @@ var LiveResults;
         // Prepare for animation
         this.animating = true;
         if (!predRank)
-          this.currentTable.fnAdjustColumnSizing();
+          this.currentTable.api().columns.adjust().draw();
         
         var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
-        $(table).parent().css('overflow-x', 'hidden');
 
         // Set each td's width
         var column_widths = new Array();
@@ -2505,7 +2502,7 @@ var LiveResults;
         var rowPosArray = new Array();
         var rowIndArray = new Array();
         var ind = -1; // -1:header; 0:first data
-        var tableTop = $(table)[0].getBoundingClientRect().top;
+        var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : 0);
         $(table).find('tr').each(function () {
           var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
             $(this).css('top', rowPos);
@@ -2516,16 +2513,16 @@ var LiveResults;
             }
             ind++;  
         });
-
         $(table).height(height).width('100%');
+        if (isResTab)
+          $(table).css({'table-layout': 'fixed' });
+
         // Set table cells position to absolute
         $(table).find('tbody tr').each(function () {
           $(this).css('position', 'absolute').css('z-index', '91');
-        });
-                
+        });  
 
         // Animation
-        this.numAnimElements = 0;
         for (var lastIndStr in lastInd) {
           var newInd = parseInt(lastIndStr);
           var oldInd = lastInd[newInd];
@@ -2539,37 +2536,30 @@ var LiveResults;
             zind = (newInd == 0 ? 96 : (newInd > oldInd ? 95 : 93));
           else // Updates from new data from server
             zind = (updProg[newInd] ? 95 : 93);
-          this.numAnimElements++;
                
           $(row).css('top', oldPos).css('z-index', zind);
-          $(row).velocity({ translateZ: 0, top: newPos },
-            { duration: animTime, complete: function () { _this.numAnimElements--; } });
+          $(row).velocity({ translateZ: 0, top: newPos }, { duration: animTime });
           $(row).find('td').each(function () {
             $(this).css('background-color', oldBkCol);
             $(this).velocity({backgroundColor: newBkCol}, {duration: animTime});
           });
           
         }
-        setTimeout(function () { _this.endAnimateTable(table, predRank, true) }, _this.animTime + 100);
-      }
+        setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
+      }      
       catch (e) { }
     };
 
     // Reset settings after animation is completed
-    AjaxViewer.prototype.endAnimateTable = function (table, predRank, first) {
-      var _this = this;
-      if (this.numAnimElements > 0 && first) // Wait for all animations to finish
-        setTimeout(function () { _this.endAnimateTable(table, predRank, false) }, _this.animTime);
-      else {
-        $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
-        $(table).find('tr').each(function () { $(this).css('position', ''); });
-        $(table).height(0).width('100%');
-        $(table).parent().css('overflow-x', '');
-        this.animating = false;
-        this.currentTable.api().draw();
-        if (predRank)
-          this.startPredictedTimeTimer();
-      }
+    AjaxViewer.prototype.endAnimateTable = function (table, predRank) {
+      $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
+      $(table).find('tr').each(function () { $(this).css('position', ''); });
+      $(table).height(0).width('100%');
+      $(table).css({'table-layout': '' });
+      this.animating = false;
+      if (predRank)
+        this.startPredictedTimeTimer();
+      
     };
 
     //Check for update in clubresults
