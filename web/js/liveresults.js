@@ -937,7 +937,7 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          time = time -11.5*100*3600 + 100*3600*Math.random();
+          time = time -6*100*3600 + 100*3600*Math.random();
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -2448,7 +2448,13 @@ var LiveResults;
         var prevInd = new Object();  // List of old indexes
         var prevProg = new Object(); // List of old progress
         for (var i = 0; i < oldData.length; i++) {
-          var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
+          var oldID;
+          if (this.EmmaServer)
+            oldID = oldData[i].name + oldData[i].club;
+          else if (!isResTab && oldData[i].controlName != undefined)
+            oldID = oldData[i].controlName + oldData[i].dbid;
+          else 
+            oldID = oldData[i].dbid;
           if (prevInd[oldID] != undefined) {
             prevInd[oldID] = "noAnimation"; // Skip if two identical ID
           }
@@ -2461,7 +2467,13 @@ var LiveResults;
         var lastInd = new Object(); // List of last index for updated entries
         var updProg = new Object(); // List of progress change
         for (var i = 0; i < newData.length; i++) {
-          var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
+          var newID;
+          if (this.EmmaServer)
+            newID = newData[i].name + newData[i].club;
+          else if (!isResTab && newData[i].controlName != undefined)
+            newID = newData[i].controlName + newData[i].dbid;
+          else 
+            newID = newData[i].dbid;
           var newInd = (isResTab ? newData[i].virtual_position : i);
           if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
             lastInd[newInd] = prevInd[newID];
@@ -2490,7 +2502,7 @@ var LiveResults;
         
         var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
 
-        // Set each td's width
+        // Set each td's width. Subtract 9 for the padding width of the td
         var column_widths = new Array();
         $(table).find('tr:first-child th').each(function () { column_widths.push($(this)[0].getBoundingClientRect().width - 9); });
         $(table).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
@@ -2514,7 +2526,7 @@ var LiveResults;
             ind++;  
         });
         $(table).height(height).width('100%');
-        if (isResTab)
+        if (isResTab) // Set fixed table layout to avoid slider 
           $(table).css({'table-layout': 'fixed' });
 
         // Set table cells position to absolute
