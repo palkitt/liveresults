@@ -51,24 +51,19 @@ echo("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
-<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
-<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
-<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min_new.css">
+<link rel="stylesheet" type="text/css" href="css/style-freidig_new.css">
+
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.min_new.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min_new.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <?php if ($beta){?>
 	<script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script> 
 <?php } else {?>
-	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
+	<script language="javascript" type="text/javascript" src="js/liveresults_new.js"></script> 
 <?php }?>
 <script language="javascript" type="text/javascript">
 
@@ -190,28 +185,36 @@ $(document).ready(function()
 	loadFontSize();
 
   // Add no screen sleep
-  setTimeout(function() { enableNoSleep(); }, 100);
+  document.addEventListener("click", enableNoSleep);
 
 	// Add function for dropdown list
 	window.onclick = function(event) {
   	if (!event.target.matches('.dropbtn')) {
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-    	var openDropdown = dropdowns[i];
-    	if (openDropdown.classList.contains('show')) {
-        	openDropdown.classList.remove('show');
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+        }
       }
     }
   }
-}
 
 });
 
+let wakeLock = null;
 async function enableNoSleep() {
+  if (wakeLock !== null && !wakeLock.released) {
+    console.log("Wake lock is already active");
+    return;
+  }
   try {
-    const wakeLock = await navigator.wakeLock.request("screen");
-  } catch (err) {}
+    wakeLock = await navigator.wakeLock.request("screen");
+    console.log("Wake lock is now active");
+  } catch (err) {
+    console.error("Failed to acquire wake lock:", err);
+  }
 }
 
 function loadFontSize() {
@@ -249,7 +252,7 @@ function openNav() {
   if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
     $(".firstCol").width("6em");  
-    $('#divResults').DataTable().columns.adjust().responsive.recalc();
+    $('#divResults').DataTable().columns.adjust();
 	  $(".firstCol").width("0px");  
   }
   $(".firstCol").animate({'width':'6em'},300);
@@ -261,7 +264,7 @@ function closeNav() {
   if(res.currentTable != null)
   {
 		$(".firstCol").width("0px");  
-		$('#divResults').DataTable().columns.adjust().responsive.recalc();
+		$('#divResults').DataTable().columns.adjust();
 		$(".firstCol").width("6em");  
   }
   $(".firstCol").animate({'width':'0px'},300);
@@ -286,6 +289,7 @@ function closeTop() {
   res.autoUpdateLastPassings = false;
   $("#navUD").html("↓") 
 }
+
 </script>
 </head>
 <body>

@@ -26,13 +26,13 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
+
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
@@ -67,7 +67,7 @@ $(document).ready(function()
     <?php }
     else
 	{ ?>
-		<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
+		<table style="width:100%; table-layout:fixed" cellpadding="0" cellspacing="3" border="0">
 	<tr><td width="<?= (isset($_GET['code2']) ? 50 : 100) ?>%"></td><td width="<?= (isset($_GET['code2']) ? 50 : 0) ?>%"></td></tr>
 	<tr valign=top>
 	<td> 

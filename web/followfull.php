@@ -213,7 +213,7 @@ $(document).ready(function()
 	loadFontSize();
 
   // Add no screen sleep
-  setTimeout(function() { enableNoSleep(); }, 100);
+  document.addEventListener("click", enableNoSleep);
 
 	// Add function for dropdown list
 	window.onclick = function(event) {
@@ -231,10 +231,18 @@ $(document).ready(function()
 
 });
 
+let wakeLock = null;
 async function enableNoSleep() {
+  if (wakeLock !== null && !wakeLock.released) {
+    console.log("Wake lock is already active");
+    return;
+  }
   try {
-    const wakeLock = await navigator.wakeLock.request("screen");
-  } catch (err) {}
+    wakeLock = await navigator.wakeLock.request("screen");
+    console.log("Wake lock is now active");
+  } catch (err) {
+    console.error("Failed to acquire wake lock:", err);
+  }
 }
 
 function loadFontSize() {

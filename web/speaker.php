@@ -50,18 +50,12 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
-<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
-<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
@@ -224,7 +218,7 @@ $(document).ready(function()
   loadFontSize();
 
   // Add no screen sleep
-  setTimeout(function() { enableNoSleep(); }, 100);
+  document.addEventListener("click", enableNoSleep);
 
 	// Add function for dropdown list
 	window.onclick = function(event) 
@@ -252,10 +246,18 @@ $(document).ready(function()
 
 });
 
+let wakeLock = null;
 async function enableNoSleep() {
+  if (wakeLock !== null && !wakeLock.released) {
+    console.log("Wake lock is already active");
+    return;
+  }
   try {
-    const wakeLock = await navigator.wakeLock.request("screen");
-  } catch (err) {}
+    wakeLock = await navigator.wakeLock.request("screen");
+    console.log("Wake lock is now active");
+  } catch (err) {
+    console.error("Failed to acquire wake lock:", err);
+  }
 }
 
 function loadFontSize() {

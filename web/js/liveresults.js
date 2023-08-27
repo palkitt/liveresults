@@ -100,37 +100,12 @@ var LiveResults;
       this.messageURL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
       LiveResults.Instance = this;
 
-      window.onload = function (e) {
-        if (window.location.hash) {
-          var hash = window.location.hash.substring(1);
-          var cl;
-          if (hash.indexOf('club::') >= 0) {
-            cl = decodeURIComponent(hash.substring(6));
-            if (cl != _this.curClubName)
-              LiveResults.Instance.viewClubResults(cl);
-          }
-          else if (hash.indexOf('splits::') >= 0 && hash.indexOf('::course::') >= 0) {
-            var coind = hash.indexOf('::course::');
-            cl = decodeURIComponent(hash.substring(8, coind));
-            var co = hash.substring(coind + 10);
-            if (_this.curSplitView == null || cl != _this.curSplitView[0] || co != _this.curSplitView[1])
-              LiveResults.Instance.viewSplitTimeResults(cl, co);
-          }
-          else if (hash.indexOf('relay::') >= 0) {
-            cl = decodeURIComponent(hash.substring(7));
-            if (cl != _this.curRelayView)
-              LiveResults.Instance.viewRelayResults(cl);
-          }
-          else {
-            cl = decodeURIComponent(hash);
-            if (cl != _this.curClassName)
-              setTimeout(function () { _this.chooseClass(cl); }, 100);
-          }
-        }
-      };
+      $(document).ready(function (e) {
+        _this.onload();
+      });
 
       $(window).on('hashchange', function (e) {
-        window.onload();
+        _this.onload();
       });
 
       $(window).on('resize', function () {
@@ -139,6 +114,36 @@ var LiveResults;
         else
           _this.currentTable.fnAdjustColumnSizing();
       });
+    }
+
+    AjaxViewer.prototype.onload = function () {
+      var _this = this;
+      if (window.location.hash) {  
+        var hash = window.location.hash.substring(1);
+        var cl;
+        if (hash.indexOf('club::') >= 0) {
+          cl = decodeURIComponent(hash.substring(6));
+          if (cl != _this.curClubName)
+            LiveResults.Instance.viewClubResults(cl);
+        }
+        else if (hash.indexOf('splits::') >= 0 && hash.indexOf('::course::') >= 0) {
+          var coind = hash.indexOf('::course::');
+          cl = decodeURIComponent(hash.substring(8, coind));
+          var co = hash.substring(coind + 10);
+          if (_this.curSplitView == null || cl != _this.curSplitView[0] || co != _this.curSplitView[1])
+            LiveResults.Instance.viewSplitTimeResults(cl, co);
+        }
+        else if (hash.indexOf('relay::') >= 0) {
+          cl = decodeURIComponent(hash.substring(7));
+          if (cl != _this.curRelayView)
+            LiveResults.Instance.viewRelayResults(cl);
+        }
+        else {
+          cl = decodeURIComponent(hash);
+          if (cl != _this.curClassName)
+            setTimeout(function () { _this.chooseClass(cl); }, 100);
+        }
+      }
     }
 
     AjaxViewer.prototype.startPredictedTimeTimer = function () {
@@ -937,7 +942,7 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          time = time -6*100*3600 + 100*3600*Math.random();
+          //time = time +5*100*3600;// + 100*3600*Math.random();
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -1090,8 +1095,7 @@ var LiveResults;
                 if (elapsedTime < -18 * 3600 * 100) // Time passed midnight (between 00:00 and 06:00)
                   elapsedTime += 24 * 3600 * 100;
                 if (elapsedTime >= 0) {
-                  if (table.cell(i, 0).node().innerHTML == "") 
-                    table.cell(i, 0).data("<span class=\"pulsing\">◉</span>");
+                  table.cell(i, 0).data("<span class=\"pulsing\">◉</span>");
                   
                   if (this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked) {
                     var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
