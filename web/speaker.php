@@ -22,7 +22,6 @@ $image = "";
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
 $setFullView = isset($_GET['fullview']);
-$setNotScroll = isset($_GET['notscroll']);
 $showPath = true;
 
 if (isset($_GET['showpath']) && $_GET['showpath'] == "false")
@@ -177,10 +176,6 @@ $(document).ready(function()
 	// Insert comp name
 	var compName = "<?=$currentComp->CompName()?>";
 	$("#compname").html(compName);
-
-	// Turn off scroll view
-	<?php if ($setNotScroll){?>
-		res.setScrollView(false); <?php }?>
 	
 	// Show tenth of seconds
 	<?php if($currentComp->ShowTenthOfSeconds() ){?>

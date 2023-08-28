@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = true;
+      this.local = false;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -30,7 +30,6 @@ var LiveResults;
       this.autoUpdateLastPassings = true;
       this.showEcardTimes = false;
       this.compactView = true;
-      this.scrollView = true;
       this.showTimesInSprint = false;
       this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
@@ -942,7 +941,6 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          //time = time +5*100*3600;// + 100*3600*Math.random();
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -3443,7 +3441,7 @@ var LiveResults;
           });
 
           // Scroll to initial view and hide class column if necessary
-          if (this.scrollView && data.results[0].progress != undefined) // Scroll to inital view
+          if (data.results[0].progress != undefined) // Scroll to inital view
           {
             var scrollBody = $(this.currentTable).parent();
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
@@ -3525,25 +3523,7 @@ var LiveResults;
         }
       }
     };
-
-
-    AjaxViewer.prototype.setScrollView = function (val) {
-      this.scrollView = val;
-      if (this.scrollView) {
-        $("#scrollView").html("<a href=\"javascript:LiveResults.Instance.setScrollView(false);\">&#8853;</a>");
-        $("#" + this.resultsDiv).removeClass('dtr-inline collapsed');
-      }
-      else {
-        $("#scrollView").html("<a href=\"javascript:LiveResults.Instance.setScrollView(true);\">&harr;</a>");
-      }
-      if (this.curClassName != null) {
-        this.chooseClass(this.curClassName);
-      }
-      else if (this.curClubName != null) {
-        this.viewClubResults(this.curClubName);
-      }
-    };
-
+   
     AjaxViewer.prototype.formatTime = function (time, status, showTenthOs, showHours, padZeros) {
       if (arguments.length == 2 || arguments.length == 3) {
         if (this.language == 'fi' || this.language == 'no') {
@@ -3832,8 +3812,6 @@ var LiveResults;
         url += '&class=' + encodeURIComponent(this.curClassName);
         if (!this.compactView)
           url += '&fullview';
-        if (!this.scrollView)
-          url += '&notscroll';
       }
       else
         url += '&club=' + encodeURIComponent(this.curClubName);

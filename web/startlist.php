@@ -68,22 +68,32 @@ $(document).ready(function()
     else
 	{ ?>
 		<table style="width:100%; table-layout:fixed" cellpadding="0" cellspacing="3" border="0">
-	<tr><td width="<?= (isset($_GET['code2']) ? 50 : 100) ?>%"></td><td width="<?= (isset($_GET['code2']) ? 50 : 0) ?>%"></td></tr>
-	<tr valign=top>
-	<td> 
-	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
-	<tr>
-		<td align="left"><b>Startliste</b></td>
-		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-		<td align="right">
-		<button style="height:18px" onclick="res.raceSplitterDialog();">RaceSplitter CSV</button> <input type="text" id="filterText" placeholder="søk..." size="10"></td>
-	</tr>
-	</table>
-	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
-		<tr valign=top><tr><td><table id="startList"></table></td></tr>
-	</table>
-</td>
-</table>
+    <tr valign=top>
+	    <td> 
+	      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
+	        <tr>
+		        <td align="left"><b>Startliste</b></td>
+		        <td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
+		        <td align="right">
+		          <button style="height:18px" onclick="res.raceSplitterDialog();">RaceSplitter CSV</button> 
+              <input type="text" id="filterText" placeholder="søk..." size="10">
+            </td>
+	        </tr>
+	      </table>
+      </td>
+    </tr>
+    <tr valign=top>
+      <td>
+        <table width="100%" style="table-layout:fixed;" cellpadding="3px" cellspacing="0px" border="0" >
+		      <tr valign=top>
+            <td>
+              <table id="startList"></table>
+            </td>
+          </tr>
+	      </table>
+      </td>
+    </tr>
+    </table>
 <?php }?> 
 </body>
 </html>

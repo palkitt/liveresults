@@ -21,7 +21,6 @@ $compTimeDiff = $currentComp["timediff"];
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
 $setFullView = isset($_GET['fullview']);
-$setNotScroll = isset($_GET['notscroll']);
 $beta = isset($_GET['beta']);
 $showPath = true;
 
@@ -166,10 +165,6 @@ $(document).ready(function()
 	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 
-	// Turn off scroll view
-	<?php if ($setNotScroll){?>
-		res.setScrollView(false); <?php }?>
-	
 	// Check for mobile and close top if mobile is detected
 	var isMobile = res.isMobile();
 	if (isMobile)
