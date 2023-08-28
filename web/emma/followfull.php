@@ -52,17 +52,17 @@ echo("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 <meta name="theme-color" content="#555556">
 
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
-<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min_new.css">
-<link rel="stylesheet" type="text/css" href="css/style-freidig_new.css">
+<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 
 <script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.min_new.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min_new.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <?php if ($beta){?>
 	<script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script> 
 <?php } else {?>
-	<script language="javascript" type="text/javascript" src="js/liveresults_new.js"></script> 
+	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
 <?php }?>
 <script language="javascript" type="text/javascript">
 
