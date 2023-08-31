@@ -32,7 +32,7 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
 <script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
