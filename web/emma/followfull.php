@@ -21,7 +21,6 @@ $compTimeDiff = $currentComp["timediff"];
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
 $setFullView = isset($_GET['fullview']);
-$setNotScroll = isset($_GET['notscroll']);
 $beta = isset($_GET['beta']);
 $showPath = true;
 
@@ -51,18 +50,13 @@ echo("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
-<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
-<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
-<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
+
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <?php if ($beta){?>
@@ -171,10 +165,6 @@ $(document).ready(function()
 	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 
-	// Turn off scroll view
-	<?php if ($setNotScroll){?>
-		res.setScrollView(false); <?php }?>
-	
 	// Check for mobile and close top if mobile is detected
 	var isMobile = res.isMobile();
 	if (isMobile)
@@ -195,16 +185,16 @@ $(document).ready(function()
 	// Add function for dropdown list
 	window.onclick = function(event) {
   	if (!event.target.matches('.dropbtn')) {
-    var dropdowns = document.getElementsByClassName("dropdown-content");
-    var i;
-    for (i = 0; i < dropdowns.length; i++) {
-    	var openDropdown = dropdowns[i];
-    	if (openDropdown.classList.contains('show')) {
-        	openDropdown.classList.remove('show');
+      var dropdowns = document.getElementsByClassName("dropdown-content");
+      var i;
+      for (i = 0; i < dropdowns.length; i++) {
+        var openDropdown = dropdowns[i];
+        if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+        }
       }
     }
   }
-}
 
 });
 
@@ -257,7 +247,7 @@ function openNav() {
   if(res.currentTable != null && res.curClassName != "plainresults" && res.curClassName != "startlist")
   {
     $(".firstCol").width("6em");  
-    $('#divResults').DataTable().columns.adjust().responsive.recalc();
+    $('#divResults').DataTable().columns.adjust();
 	  $(".firstCol").width("0px");  
   }
   $(".firstCol").animate({'width':'6em'},300);
@@ -269,7 +259,7 @@ function closeNav() {
   if(res.currentTable != null)
   {
 		$(".firstCol").width("0px");  
-		$('#divResults').DataTable().columns.adjust().responsive.recalc();
+		$('#divResults').DataTable().columns.adjust();
 		$(".firstCol").width("6em");  
   }
   $(".firstCol").animate({'width':'0px'},300);
@@ -294,6 +284,7 @@ function closeTop() {
   res.autoUpdateLastPassings = false;
   $("#navUD").html("↓") 
 }
+
 </script>
 </head>
 <body>

@@ -22,7 +22,6 @@ $image = "";
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
 $setFullView = isset($_GET['fullview']);
-$setNotScroll = isset($_GET['notscroll']);
 $beta = isset($_GET['beta']);
 $showPath = true;
 
@@ -51,18 +50,12 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
-<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
-<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
@@ -179,10 +172,6 @@ $(document).ready(function()
 	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 
-	// Turn off scroll view
-	<?php if ($setNotScroll){?>
-		res.setScrollView(false); <?php }?>
-	
 	// Show tenth of seconds
 	<?php if($currentComp->ShowTenthOfSeconds() ){?>
 		res.setShowTenth(true); <?php }?>
@@ -265,7 +254,7 @@ function changeFontSize(val) {
 	$("td").css("font-size",newSize + "px");
   if (typeof(Storage) !== "undefined")
     localStorage.setItem("fontSize",newSize);
-  $('#divResults').DataTable().columns.adjust().responsive.recalc();
+  $('#divResults').DataTable().columns.adjust();
 }
 
 function switchNav() {
@@ -286,7 +275,7 @@ function openNav() {
   if(res.currentTable != null && res.curClassName != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist")
   {
     $(".firstCol").width("6em");  
-    $('#divResults').DataTable().columns.adjust().responsive.recalc();
+    $('#divResults').DataTable().columns.adjust();
 	  $(".firstCol").width("0px");  
   }
   $(".firstCol").animate({'width':'6em'},300);
@@ -298,7 +287,7 @@ function closeNav() {
   if(res.currentTable != null && res.curClassName != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist")
   {
 		$(".firstCol").width("0px");  
-		$('#divResults').DataTable().columns.adjust().responsive.recalc();
+		$('#divResults').DataTable().columns.adjust();
 		$(".firstCol").width("6em");  
   }
   $(".firstCol").animate({'width':'0px'},300);
@@ -439,13 +428,7 @@ function closeTop() {
   
           <tr valign="top">
             <td>
-              <table id="divResults" width="100%">
-                <tbody>
-                  <tr>
-                    <td></td>
-                  </tr>
-                </tbody>
-              </table>
+              <table id="divResults" width="100%"></table>
             </td>
           </tr>
         </table>

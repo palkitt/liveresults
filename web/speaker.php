@@ -22,7 +22,6 @@ $image = "";
 $isSingleClass = isset($_GET['class']);
 $isSingleClub = isset($_GET['club']);
 $setFullView = isset($_GET['fullview']);
-$setNotScroll = isset($_GET['notscroll']);
 $showPath = true;
 
 if (isset($_GET['showpath']) && $_GET['showpath'] == "false")
@@ -50,18 +49,12 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
-<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
-<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/dataTables.responsive.js"></script>
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
@@ -183,10 +176,6 @@ $(document).ready(function()
 	// Insert comp name
 	var compName = "<?=$currentComp->CompName()?>";
 	$("#compname").html(compName);
-
-	// Turn off scroll view
-	<?php if ($setNotScroll){?>
-		res.setScrollView(false); <?php }?>
 	
 	// Show tenth of seconds
 	<?php if($currentComp->ShowTenthOfSeconds() ){?>

@@ -112,7 +112,7 @@ $(document).ready(function()
 </head>
 
 <body>
-<table style="width:100%; table-layout=fixed" cellpadding="3px" cellspacing="3" border="0">
+<table style="width:100%; table-layout:fixed" cellpadding="3px" cellspacing="3" border="0">
 	
 	<tr valign=top>
 		<td align="left"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>

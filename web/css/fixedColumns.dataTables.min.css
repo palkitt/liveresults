@@ -1,1 +1,10 @@
-table.DTFC_Cloned thead,table.DTFC_Cloned tfoot{background-color:white}div.DTFC_Blocker{background-color:white}div.DTFC_LeftWrapper table.dataTable,div.DTFC_RightWrapper table.dataTable{margin-bottom:0;z-index:2}div.DTFC_LeftWrapper table.dataTable.no-footer,div.DTFC_RightWrapper table.dataTable.no-footer{border-bottom:none}table.dataTable.display tbody tr.DTFC_NoData{background-color:transparent}.DTFC_LeftBodyLiner {overflow-x: hidden; }
+table.dataTable thead tr>.dtfc-fixed-left,
+table.dataTable thead tr>.dtfc-fixed-right,
+table.dataTable tfoot tr>.dtfc-fixed-left,
+table.dataTable tfoot tr>.dtfc-fixed-right{top:0;bottom:0;z-index:3;background-color:white}
+
+table.dataTable tbody tr>.dtfc-fixed-left,
+table.dataTable tbody tr>.dtfc-fixed-right{z-index:1; background-color:white}
+
+div.dtfc-left-top-blocker,
+div.dtfc-right-top-blocker{background-color:white}

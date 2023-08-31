@@ -22,11 +22,6 @@ echo("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 <meta name="theme-color" content="#555556">
 
 <link rel="stylesheet" type="text/css" href="../css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="../css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="../css/jquery.dataTables_themeroller-eoc.css">
-
-<script language="javascript" type="text/javascript" src="../js/jquery-1.8.0.min.js"></script>
-<script language="javascript" type="text/javascript" src="../js/jquery.dataTables.min.js"></script>
 
 <script language="javascript" type="text/javascript">
 function colorRow(row)
@@ -50,7 +45,7 @@ el.style.backgroundColor = "";
 <!-- MAIN DIV -->
 <div style="font-size: 20px; font-weight: bold; height: 50px; width:100%; background-color: #555555; padding-left: 5px; 
             vertical-align: middle; line-height:45px; color: white;">
- <img src="../images/svenskorientering.png" height="40px" style="vertical-align: middle" />&nbsp Liveresults from Emma server (liveresultat.orientering.se)
+ <img src="../images/svenskorientering.png" height="40px" style="vertical-align: middle" />&nbsp; Liveresults from Emma server (liveresultat.orientering.se)
 </div>
 
 <div class="maindiv" style="padding-left: 5px;">
@@ -58,19 +53,19 @@ el.style.backgroundColor = "";
 <a href='../'>Results from LiveRes</a><br>
 <br>
 <b>Choose language</b><br>
-<a href=index.php?lang=no style='text-decoration: none'><img src='../images/no.png?a' border='0' alt='Norsk'></a>&nbsp
-<a href=index.php?lang=sv style='text-decoration: none'><img src='../images/se.png?a' border='0' alt='Svenska'></a>&nbsp
-<a href=index.php?lang=en style='text-decoration: none'><img src='../images/en.png?a' border='0' alt='English'></a>&nbsp
-<a href=index.php?lang=fi style='text-decoration: none'><img src='../images/fi.png?a' border='0' alt='Suomeksi'></a>&nbsp
-<a href=index.php?lang=ru style='text-decoration: none'><img src='../images/ru.png?a' border='0' alt='Русский'></a>&nbsp
-<a href=index.php?lang=cz style='text-decoration: none'><img src='../images/cz.png?a' border='0' alt='Česky'></a>&nbsp
-<a href=index.php?lang=de style='text-decoration: none'><img src='../images/de.png?a' border='0' alt='Deutsch'></a>&nbsp
-<a href=index.php?lang=bg style='text-decoration: none'><img src='../images/bg.png?a' border='0' alt='български'></a>&nbsp
-<a href=index.php?lang=fr style='text-decoration: none'><img src='../images/fr.png?a' border='0' alt='Français'></a>&nbsp
-<a href=index.php?lang=it style='text-decoration: none'><img src='../images/it.png?a' border='0' alt='Italiano'></a>&nbsp
-<a href=index.php?lang=hu style='text-decoration: none'><img src='../images/hu.png?a' border='0' alt='Magyar'></a>&nbsp
-<a href=index.php?lang=es style='text-decoration: none'><img src='../images/es.png?a' border='0' alt='Español'></a>&nbsp
-<a href=index.php?lang=pl style='text-decoration: none'><img src='../images/pl.png?a' border='0' alt='Polska'></a>&nbsp
+<a href=index.php?lang=no style='text-decoration: none'><img src='../images/no.png?a' border='0' alt='Norsk'></a>&nbsp;
+<a href=index.php?lang=sv style='text-decoration: none'><img src='../images/se.png?a' border='0' alt='Svenska'></a>&nbsp;
+<a href=index.php?lang=en style='text-decoration: none'><img src='../images/en.png?a' border='0' alt='English'></a>&nbsp;
+<a href=index.php?lang=fi style='text-decoration: none'><img src='../images/fi.png?a' border='0' alt='Suomeksi'></a>&nbsp;
+<a href=index.php?lang=ru style='text-decoration: none'><img src='../images/ru.png?a' border='0' alt='Русский'></a>&nbsp;
+<a href=index.php?lang=cz style='text-decoration: none'><img src='../images/cz.png?a' border='0' alt='Česky'></a>&nbsp;
+<a href=index.php?lang=de style='text-decoration: none'><img src='../images/de.png?a' border='0' alt='Deutsch'></a>&nbsp;
+<a href=index.php?lang=bg style='text-decoration: none'><img src='../images/bg.png?a' border='0' alt='български'></a>&nbsp;
+<a href=index.php?lang=fr style='text-decoration: none'><img src='../images/fr.png?a' border='0' alt='Français'></a>&nbsp;
+<a href=index.php?lang=it style='text-decoration: none'><img src='../images/it.png?a' border='0' alt='Italiano'></a>&nbsp;
+<a href=index.php?lang=hu style='text-decoration: none'><img src='../images/hu.png?a' border='0' alt='Magyar'></a>&nbsp;
+<a href=index.php?lang=es style='text-decoration: none'><img src='../images/es.png?a' border='0' alt='Español'></a>&nbsp;
+<a href=index.php?lang=pl style='text-decoration: none'><img src='../images/pl.png?a' border='0' alt='Polska'></a>&nbsp;
 <a href=index.php?lang=pt style='text-decoration: none'><img src='../images/pt.png?a' border='0' alt='Português'></a>
 <br>
 
@@ -98,7 +93,7 @@ el.style.backgroundColor = "";
       }
     }
 ?>
-<tr><td>&nbsp</td></tr>
+<tr><td>&nbsp;</td></tr>
 <tr><td colspan=3><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td><tr>
 <tr><th align="left"><?= $_DATE?></th><th align="left"><?= $_EVENTNAME?></th><th align="left"><?= $_ORGANIZER?></th></tr>
 <?php  

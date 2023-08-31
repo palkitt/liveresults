@@ -26,12 +26,12 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
+
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
@@ -67,23 +67,33 @@ $(document).ready(function()
     <?php }
     else
 	{ ?>
-		<table style="width:100%; table-layout=fixed" cellpadding="0" cellspacing="3" border="0">
-	<tr><td width="<?= (isset($_GET['code2']) ? 50 : 100) ?>%"></td><td width="<?= (isset($_GET['code2']) ? 50 : 0) ?>%"></td></tr>
-	<tr valign=top>
-	<td> 
-	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
-	<tr>
-		<td align="left"><b>Startliste</b></td>
-		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-		<td align="right">
-		<button style="height:18px" onclick="res.raceSplitterDialog();">RaceSplitter CSV</button> <input type="text" id="filterText" placeholder="søk..." size="10"></td>
-	</tr>
-	</table>
-	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
-		<tr valign=top><tr><td><table id="startList"></table></td></tr>
-	</table>
-</td>
-</table>
+		<table style="width:100%; table-layout:fixed" cellpadding="0" cellspacing="3" border="0">
+    <tr valign=top>
+	    <td> 
+	      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
+	        <tr>
+		        <td align="left"><b>Startliste</b></td>
+		        <td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
+		        <td align="right">
+		          <button style="height:18px" onclick="res.raceSplitterDialog();">RaceSplitter CSV</button> 
+              <input type="text" id="filterText" placeholder="søk..." size="10">
+            </td>
+	        </tr>
+	      </table>
+      </td>
+    </tr>
+    <tr valign=top>
+      <td>
+        <table width="100%" style="table-layout:fixed;" cellpadding="3px" cellspacing="0px" border="0" >
+		      <tr valign=top>
+            <td>
+              <table id="startList"></table>
+            </td>
+          </tr>
+	      </table>
+      </td>
+    </tr>
+    </table>
 <?php }?> 
 </body>
 </html>

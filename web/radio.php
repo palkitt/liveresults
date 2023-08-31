@@ -25,19 +25,17 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
+
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
-<script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
+
 <script language="javascript" type="text/javascript">
 
 let wakeLock = null;
@@ -110,7 +108,6 @@ function makeStartBeep (longBeep) {
     oscillator.stop(audioContext.currentTime + duration/1000);
   }             
 
-
 $(document).ready(function()
 {
 	<?php 
@@ -174,9 +171,8 @@ $(document).ready(function()
 <?php } else { ?>
 	<table style="width:100%; table-layout:fixed" cellpadding="0" cellspacing="3" border="0">
 	<tr valign=top><td> 
-	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
-    <tr>
-    <?php if ($_GET['code']==0) { ?>
+	  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
+      <?php if ($_GET['code']==0) { ?>
       <tr>
         <td align="left"><span id="liveIndicator">◉</span>
         <span style="cursor:pointer; color:#FFF;" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
@@ -212,11 +208,18 @@ $(document).ready(function()
     <?php } ?>
   </table>
   </td></tr>
-  <tr><td>
-    <table width="100%" cellpadding="3px" cellspacing="0px" border="0">
-      <tr valign=top><td><table id="divRadioPassings"></table></td></tr>
+  <tr>
+  <td>
+    <table width="100%" style="table-layout:fixed;" cellpadding="3px" cellspacing="0px" border="0">
+      <tr valign=top>
+        <td>
+          <table id="divRadioPassings" width="100%"></table>
+        </td>
+      </tr>
     </table>
-  </td></tr>
+
+  </td>
+  </tr>
   </table>
   <?php if ($_GET['code']==-2){?> Antall: <span id="numberOfRunners"></span> <?php } ?>
 <?php } ?>

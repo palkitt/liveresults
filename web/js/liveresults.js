@@ -30,7 +30,6 @@ var LiveResults;
       this.autoUpdateLastPassings = true;
       this.showEcardTimes = false;
       this.compactView = true;
-      this.scrollView = true;
       this.showTimesInSprint = false;
       this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
@@ -100,37 +99,12 @@ var LiveResults;
       this.messageURL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
       LiveResults.Instance = this;
 
-      window.onload = function (e) {
-        if (window.location.hash) {
-          var hash = window.location.hash.substring(1);
-          var cl;
-          if (hash.indexOf('club::') >= 0) {
-            cl = decodeURIComponent(hash.substring(6));
-            if (cl != _this.curClubName)
-              LiveResults.Instance.viewClubResults(cl);
-          }
-          else if (hash.indexOf('splits::') >= 0 && hash.indexOf('::course::') >= 0) {
-            var coind = hash.indexOf('::course::');
-            cl = decodeURIComponent(hash.substring(8, coind));
-            var co = hash.substring(coind + 10);
-            if (_this.curSplitView == null || cl != _this.curSplitView[0] || co != _this.curSplitView[1])
-              LiveResults.Instance.viewSplitTimeResults(cl, co);
-          }
-          else if (hash.indexOf('relay::') >= 0) {
-            cl = decodeURIComponent(hash.substring(7));
-            if (cl != _this.curRelayView)
-              LiveResults.Instance.viewRelayResults(cl);
-          }
-          else {
-            cl = decodeURIComponent(hash);
-            if (cl != _this.curClassName)
-              setTimeout(function () { _this.chooseClass(cl); }, 100);
-          }
-        }
-      };
+      $(document).ready(function (e) {
+        _this.onload();
+      });
 
       $(window).on('hashchange', function (e) {
-        window.onload();
+        _this.onload();
       });
 
       $(window).on('resize', function () {
@@ -139,6 +113,36 @@ var LiveResults;
         else
           _this.currentTable.fnAdjustColumnSizing();
       });
+    }
+
+    AjaxViewer.prototype.onload = function () {
+      var _this = this;
+      if (window.location.hash) {  
+        var hash = window.location.hash.substring(1);
+        var cl;
+        if (hash.indexOf('club::') >= 0) {
+          cl = decodeURIComponent(hash.substring(6));
+          if (cl != _this.curClubName)
+            LiveResults.Instance.viewClubResults(cl);
+        }
+        else if (hash.indexOf('splits::') >= 0 && hash.indexOf('::course::') >= 0) {
+          var coind = hash.indexOf('::course::');
+          cl = decodeURIComponent(hash.substring(8, coind));
+          var co = hash.substring(coind + 10);
+          if (_this.curSplitView == null || cl != _this.curSplitView[0] || co != _this.curSplitView[1])
+            LiveResults.Instance.viewSplitTimeResults(cl, co);
+        }
+        else if (hash.indexOf('relay::') >= 0) {
+          cl = decodeURIComponent(hash.substring(7));
+          if (cl != _this.curRelayView)
+            LiveResults.Instance.viewRelayResults(cl);
+        }
+        else {
+          cl = decodeURIComponent(hash);
+          if (cl != _this.curClassName)
+            setTimeout(function () { _this.chooseClass(cl); }, 100);
+        }
+      }
     }
 
     AjaxViewer.prototype.startPredictedTimeTimer = function () {
@@ -941,7 +945,6 @@ var LiveResults;
           var timeDiff = 0;
           var timeDiffCol = 0;
           var highlight = false;
-          var modifiedTable = false;
           var age = 0;
 
           var data = this.currentTable.fnGetData();
@@ -988,7 +991,6 @@ var LiveResults;
                 }
                 if (highlight && !$(row).hasClass('yellow_row')) {
                   if (!$(row).hasClass('red_row') && !$(row).hasClass('new_fnq')) {
-                    modifiedTable = true;
                     if (data[i].DT_RowClass != undefined && (data[i].DT_RowClass == "firstnonqualifier" || data[i].DT_RowClass == "new_fnq"))
                       $(row).addClass('new_fnq');
                     else
@@ -996,7 +998,6 @@ var LiveResults;
                   }
                 }
                 else if ($(row).hasClass('red_row') || $(row).hasClass('new_fnq')) {
-                  modifiedTable = true;
                   $(row).removeClass('red_row');
                   $(row).removeClass('new_fnq');
                 }
@@ -1019,7 +1020,6 @@ var LiveResults;
               if (highlight) {
                 if (this.compactView || this.curClassIsRelay || this.curClassLapTimes) {
                   if (!$(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell_sqr')) {
-                    modifiedTable = true;
                     $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).addClass('red_cell_sqr');
                     $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).addClass('red_cell');
                     if (this.isMultiDayEvent) {
@@ -1030,7 +1030,6 @@ var LiveResults;
                 }
                 else {
                   if (!$(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell')) {
-                    modifiedTable = true;
                     $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).addClass('red_cell');
                     if (this.isMultiDayEvent)
                       $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).addClass('red_cell');
@@ -1041,7 +1040,6 @@ var LiveResults;
               {
                 if (this.compactView || this.curClassIsRelay || this.curClassLapTimes) {
                   if ($(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell_sqr')) {
-                    modifiedTable = true;
                     $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).removeClass('red_cell_sqr');
                     $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).removeClass('red_cell');
                     if (this.isMultiDayEvent) {
@@ -1052,7 +1050,6 @@ var LiveResults;
                 }
                 else {
                   if ($(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell')) {
-                    modifiedTable = true;
                     $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).removeClass('red_cell');
                     if (this.isMultiDayEvent)
                       $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).removeClass('red_cell');
@@ -1080,11 +1077,9 @@ var LiveResults;
                   highlight = (age < this.highTime);
                 }
                 if (highlight && !$(table.cell(i, colNum).node()).hasClass('red_cell')) {
-                  modifiedTable = true;
                   $(table.cell(i, colNum).node()).addClass('red_cell');
                 }
                 else if (!highlight && $(table.cell(i, colNum).node()).hasClass('red_cell')) {
-                  modifiedTable = true;
                   $(table.cell(i, colNum).node()).removeClass('red_cell');
                 }
               }
@@ -1098,11 +1093,8 @@ var LiveResults;
                 if (elapsedTime < -18 * 3600 * 100) // Time passed midnight (between 00:00 and 06:00)
                   elapsedTime += 24 * 3600 * 100;
                 if (elapsedTime >= 0) {
-                  if (table.cell(i, 0).node().innerHTML == "") {
-                    table.cell(i, 0).data("<span class=\"pulsing\">◉</span>");
-                    modifiedTable = true;
-                  }
-
+                  table.cell(i, 0).data("<span class=\"pulsing\">◉</span>");
+                  
                   if (this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked) {
                     var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
                     var elapsedTotalTimeStr = "<i>&#10092;" + this.formatTime(elapsedTotalTime, 0, false) + "&#10093;</i>";
@@ -1112,6 +1104,7 @@ var LiveResults;
                       elapsedTotalTimeStr += "<span class=\"hideplace\"><i>..&#10072;</i></span>";
                     table.cell(i, totalTimeCol).data(elapsedTotalTimeStr);
                   }
+                  
                   var timeDiffStr = "";
                   var elapsedTimeStr = (this.curClassIsRelay ? "<i>⟳" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
                   if (this.curClassSplits == null || this.curClassSplits.length == 0) {
@@ -1295,10 +1288,7 @@ var LiveResults;
             table.rows().invalidate();
             table.columns.adjust().draw();
           }
-          
-          if (modifiedTable || timesOnly)
-            table.fixedColumns().update().draw();
-          
+                    
           if (!timesOnly){
             if (updatedVP)
               this.animateTable(oldData, data, this.animTime, true);
@@ -2460,7 +2450,13 @@ var LiveResults;
         var prevInd = new Object();  // List of old indexes
         var prevProg = new Object(); // List of old progress
         for (var i = 0; i < oldData.length; i++) {
-          var oldID = (this.EmmaServer ? (oldData[i].name + oldData[i].club) : oldData[i].dbid);
+          var oldID;
+          if (this.EmmaServer)
+            oldID = oldData[i].name + oldData[i].club;
+          else if (!isResTab && oldData[i].controlName != undefined)
+            oldID = oldData[i].controlName + oldData[i].dbid;
+          else 
+            oldID = oldData[i].dbid;
           if (prevInd[oldID] != undefined) {
             prevInd[oldID] = "noAnimation"; // Skip if two identical ID
           }
@@ -2473,7 +2469,13 @@ var LiveResults;
         var lastInd = new Object(); // List of last index for updated entries
         var updProg = new Object(); // List of progress change
         for (var i = 0; i < newData.length; i++) {
-          var newID = (this.EmmaServer ? (newData[i].name + newData[i].club) : newData[i].dbid);
+          var newID;
+          if (this.EmmaServer)
+            newID = newData[i].name + newData[i].club;
+          else if (!isResTab && newData[i].controlName != undefined)
+            newID = newData[i].controlName + newData[i].dbid;
+          else 
+            newID = newData[i].dbid;
           var newInd = (isResTab ? newData[i].virtual_position : i);
           if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
             lastInd[newInd] = prevInd[newID];
@@ -2498,25 +2500,25 @@ var LiveResults;
         // Prepare for animation
         this.animating = true;
         if (!predRank)
-          this.currentTable.fnAdjustColumnSizing();
+          this.currentTable.api().columns.adjust().draw();
         
         var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
 
-        // Set each td's width
+        // Set each td's width. Subtract 9 for the padding width of the td
         var column_widths = new Array();
         $(table).find('tr:first-child th').each(function () { column_widths.push($(this)[0].getBoundingClientRect().width - 9); });
         $(table).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
 
         // Set table height and width
-        var height = $(table).outerHeight() + 20;
+        var height = $(table).outerHeight();
 
         // Put all the rows back in place
         var rowPosArray = new Array();
         var rowIndArray = new Array();
         var ind = -1; // -1:header; 0:first data
-        var tableTop = $(table)[0].getBoundingClientRect().top;
+        var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : 0);
         $(table).find('tr').each(function () {
-          var rowPos = $(this)[0].getBoundingClientRect().top - tableTop + (this.clientTop > 1 ? -1.5 : -0.5);
+          var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
             $(this).css('top', rowPos);
             if ($(this).is(":visible"))
             {               
@@ -2525,81 +2527,53 @@ var LiveResults;
             }
             ind++;  
         });
+        $(table).height(height).width('100%');
+        if (isResTab) // Set fixed table layout to avoid slider 
+          $(table).css({'table-layout': 'fixed' });
 
         // Set table cells position to absolute
         $(table).find('tbody tr').each(function () {
           $(this).css('position', 'absolute').css('z-index', '91');
-        });
-        
-        var fixedTable = null;
-        if (isResTab) {
-          fixedTable = $(table.DataTable().cell(0, 0).fixedNode()).parents('table')[0];
-          $(fixedTable).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
-          $(fixedTable).find('tr').each(function (index) { $(this).css('top', rowPosArray[index]); });
-          $(fixedTable).find('tbody tr').each(function () { $(this).css('position', 'absolute').css('z-index', '92'); });
-          $(fixedTable).height(height).width('100%');
-        }
-        $(table).height(height).width('100%');
+        });  
 
         // Animation
-        this.numAnimElements = 0;
         for (var lastIndStr in lastInd) {
           var newInd = parseInt(lastIndStr);
           var oldInd = lastInd[newInd];
           var oldPos = rowPosArray[oldInd + 1]; // First entry is header
           var newPos = rowPosArray[newInd + 1];
-          var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);
-          if (isResTab)
-            var rowFix = $(fixedTable).find("tbody tr").eq(rowIndArray[newInd+1]);                    
+          var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);                            
           var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
           var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
           var zind;
-          var zindFix;
-          if (predRank) // Update from predictions of running times 
-          {
+          if (predRank) // Update from predictions of running times         
             zind = (newInd == 0 ? 96 : (newInd > oldInd ? 95 : 93));
-            zindFix = zind + 1;
-          }
           else // Updates from new data from server
-          {
             zind = (updProg[newInd] ? 95 : 93);
-            zindFix = zind + 1;
-          }
-          this.numAnimElements++;
-          $(row).css('background-color', oldBkCol).css('top', oldPos).css('z-index', zind);
-          $(row).velocity({ translateZ: 0, backgroundColor: newBkCol, top: newPos },
-            { duration: animTime, complete: function () { _this.numAnimElements--; } });
-          if (isResTab) {
-            this.numAnimElements++;
-            $(rowFix).css('background-color', oldBkCol).css('top', oldPos).css('z-index', zindFix);
-            $(rowFix).velocity({ translateZ: 0, backgroundColor: newBkCol, top: newPos },
-              { duration: animTime, complete: function () { _this.numAnimElements--; } });
-          }
+               
+          $(row).css('top', oldPos).css('z-index', zind);
+          $(row).velocity({ translateZ: 0, top: newPos }, { duration: animTime });
+          $(row).find('td').each(function () {
+            $(this).css('background-color', oldBkCol);
+            $(this).velocity({backgroundColor: newBkCol}, {duration: animTime});
+          });
+          
         }
-        setTimeout(function () { _this.endAnimateTable(table, fixedTable, predRank, true) }, _this.animTime + 100);
-      }
+        setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
+      }      
       catch (e) { }
     };
 
     // Reset settings after animation is completed
-    AjaxViewer.prototype.endAnimateTable = function (table, fixedTable, predRank, first) {
-      var _this = this;
-      if (this.numAnimElements > 0 && first) // Wait for all animations to finish
-        setTimeout(function () { _this.endAnimateTable(table, fixedTable, predRank, false) }, _this.animTime);
-      else {
-        $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
-        $(table).find('tr').each(function () { $(this).css('position', ''); });
-        $(table).height(0).width('100%');
-        if (fixedTable != null) {
-          $(fixedTable).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
-          $(fixedTable).find('tr').each(function () { $(this).css('position', ''); });
-          $(fixedTable).height(0).width('100%');
-        }
-        this.currentTable.api().draw();
-        this.animating = false;
-        if (predRank)
-          this.startPredictedTimeTimer();
-      }
+    AjaxViewer.prototype.endAnimateTable = function (table, predRank) {
+      $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
+      $(table).find('tr').each(function () { $(this).css('position', ''); });
+      $(table).height(0).width('100%');
+      $(table).css({'table-layout': '' });
+      this.animating = false;
+      if (predRank)
+        this.startPredictedTimeTimer();
+      
     };
 
     //Check for update in clubresults
@@ -2961,7 +2935,6 @@ var LiveResults;
 
           columns.push({
             "sTitle": "#",
-            "responsivePriority": 1,
             "sClass": "right",
             "bSortable": false,
             "aTargets": [col++],
@@ -2980,7 +2953,6 @@ var LiveResults;
             if (!haveSplitControls || !fullView)
               columns.push({
                 "sTitle": this.resources["_CLUB"],
-                "responsivePriority": 1,
                 "sClass": "left",
                 "bSortable": false,
                 "aTargets": [col++],
@@ -3024,7 +2996,6 @@ var LiveResults;
             if (!(haveSplitControls || _this.isMultiDayEvent) || _this.curClassIsUnranked || (!fullView && !_this.curClassLapTimes))
               columns.push({
                 "sTitle": this.resources["_NAME"],
-                "responsivePriority": 1,
                 "sClass": "left",
                 "bSortable": false,
                 "aTargets": [col++],
@@ -3041,7 +3012,6 @@ var LiveResults;
             columns.push({
               "sTitle": ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
               "sClass": "left",
-              "responsivePriority": ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes)) ? 1 : 10000,
               "bSortable": false,
               "aTargets": [col++],
               "mDataProp": "club",
@@ -3067,8 +3037,7 @@ var LiveResults;
 
           if (_this.curClassHasBibs) {
             columns.push({
-              "sTitle": "&#8470;&nbsp;&nbsp;",
-              "responsivePriority": 1,
+              "sTitle": "&#8470",
               "sClass": "right",
               "bSortable": !_this.fixedTable,
               "aTargets": [col++],
@@ -3090,8 +3059,7 @@ var LiveResults;
           }
 
           columns.push({
-            "sTitle": this.resources["_START"] + "&nbsp;&nbsp;",
-            "responsivePriority": 4,
+            "sTitle": this.resources["_START"],
             "sClass": "right",
             "bSortable": !_this.fixedTable,
             "sType": "numeric",
@@ -3144,9 +3112,8 @@ var LiveResults;
               {
                 columns.push(
                   {
-                    "sTitle": value.name + "&nbsp;&nbsp;",
+                    "sTitle": value.name,
                     "bVisible": _this.curClassSplitsOK[refSp],
-                    "responsivePriority": 100,
                     "sClass": "right",
                     "bSortable": !_this.curClassIsUnranked,
                     "sType": "numeric",
@@ -3262,8 +3229,7 @@ var LiveResults;
           }
 
           columns.push({
-            "sTitle": this.resources["_CONTROLFINISH"] + "&nbsp;&nbsp;",
-            "responsivePriority": 2,
+            "sTitle": this.resources["_CONTROLFINISH"],
             "sClass": "right",
             "sType": "numeric",
             "aDataSort": [col + 1, col, 0],
@@ -3337,7 +3303,6 @@ var LiveResults;
             columns.push({
               "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
               "bVisible": (!isSprintHeat || _this.showTimesInSprint) && (!_this.curClassIsUnranked || _this.fixedTable),
-              "responsivePriority": 2000,
               "sClass": "right",
               "bSortable": false,
               "aTargets": [col++],
@@ -3359,7 +3324,6 @@ var LiveResults;
             if (_this.curClassIsRelay && fullView) {
               columns.push({
                 "sTitle": "Total<br/><span class=\"legtime\">⟳Etp</span>",
-                "responsivePriority": 2000,
                 "sClass": "right",
                 "bSortable": false,
                 "aTargets": [col++],
@@ -3383,7 +3347,7 @@ var LiveResults;
 
           if (this.isMultiDayEvent) {
             columns.push({
-              "sTitle": this.resources["_TOTAL"] + "&nbsp;&nbsp;",
+              "sTitle": this.resources["_TOTAL"],
               "sClass": "right",
               "sType": "numeric",
               "aDataSort": [col + 1, col, 0],
@@ -3457,9 +3421,8 @@ var LiveResults;
           $('#' + this.resultsDiv).height(0);
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "scrollX": this.scrollView,
-            "fixedColumns": { leftColumns: 2, heightMatch: 'auto' },
-            "responsive": !(this.scrollView),
+            "fixedColumns": { leftColumns: 2 },
+            "scrollX": true,
             "bPaginate": false,
             "bLengthChange": false,
             "bFilter": false,
@@ -3478,9 +3441,9 @@ var LiveResults;
           });
 
           // Scroll to initial view and hide class column if necessary
-          if (this.scrollView && data.results[0].progress != undefined) // Scroll to inital view
+          if (data.results[0].progress != undefined) // Scroll to inital view
           {
-            var scrollBody = $(this.currentTable.api().settings()[0].nScrollBody);
+            var scrollBody = $(this.currentTable).parent();
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
             if (maxScroll > 5) {
               var clubBibWidth = 0;
@@ -3560,25 +3523,7 @@ var LiveResults;
         }
       }
     };
-
-
-    AjaxViewer.prototype.setScrollView = function (val) {
-      this.scrollView = val;
-      if (this.scrollView) {
-        $("#scrollView").html("<a href=\"javascript:LiveResults.Instance.setScrollView(false);\">&#8853;</a>");
-        $("#" + this.resultsDiv).removeClass('dtr-inline collapsed');
-      }
-      else {
-        $("#scrollView").html("<a href=\"javascript:LiveResults.Instance.setScrollView(true);\">&harr;</a>");
-      }
-      if (this.curClassName != null) {
-        this.chooseClass(this.curClassName);
-      }
-      else if (this.curClubName != null) {
-        this.viewClubResults(this.curClubName);
-      }
-    };
-
+   
     AjaxViewer.prototype.formatTime = function (time, status, showTenthOs, showHours, padZeros) {
       if (arguments.length == 2 || arguments.length == 3) {
         if (this.language == 'fi' || this.language == 'no') {
@@ -3867,8 +3812,6 @@ var LiveResults;
         url += '&class=' + encodeURIComponent(this.curClassName);
         if (!this.compactView)
           url += '&fullview';
-        if (!this.scrollView)
-          url += '&notscroll';
       }
       else
         url += '&club=' + encodeURIComponent(this.curClubName);
@@ -3946,7 +3889,7 @@ var LiveResults;
           $('#numberOfRunners').html(numberOfRunners);
           var columns = Array();
           var col = 0;
-          columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
+          columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
           columns.push({
             "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data, type, row) {
               if (type == "sort")
@@ -3978,7 +3921,7 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": "&#8470;&nbsp;&nbsp;", "sClass": "right", "aTargets": [col++], "mDataProp": (_this.curClassHasBibs ? "bib" : null),
+            "sTitle": "&#8470;", "sClass": "right", "aTargets": [col++], "mDataProp": (_this.curClassHasBibs ? "bib" : null),
             "render": function (data, type, row) {
               if (type === 'display') {
                 if (row.bib < 0) // Relay
@@ -3998,7 +3941,7 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": this.resources["_START"] + "&nbsp;&nbsp;", "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
+            "sTitle": this.resources["_START"], "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
             "render": function (data, type, row) {
               if (row.start == "") {
                 return "";
@@ -4010,7 +3953,7 @@ var LiveResults;
           });
           col++;
           columns.push({
-            "sTitle": this.resources["_CONTROLFINISH"] + "&nbsp;&nbsp;", "sClass": "right", "sType": "numeric", "aDataSort": [col + 1, col, 0], "aTargets": [col], "bUseRendered": false, "mDataProp": "result",
+            "sTitle": this.resources["_CONTROLFINISH"], "sClass": "right", "sType": "numeric", "aDataSort": [col + 1, col, 0], "aTargets": [col], "bUseRendered": false, "mDataProp": "result",
             "render": function (data, type, row) {
               if (row.place == "-" || row.place == "" || row.place == "F") {
                 return _this.formatTime(row.result, row.status);
@@ -4023,7 +3966,7 @@ var LiveResults;
           col++;
           columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
           columns.push({
-            "sTitle": "Diff&nbsp;&nbsp;", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "timeplus",
+            "sTitle": "Diff", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "timeplus",
             "render": function (data, type, row) {
               if (type === 'display') {
                 if (row.status == 0)
@@ -4041,7 +3984,7 @@ var LiveResults;
           });
           if (hasPace) {
             columns.push({
-              "sTitle": "m/km&nbsp;&nbsp;", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "pace",
+              "sTitle": "m/km", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "pace",
               "render": function (data, type, row) {
                 if (row.status == 0 && data > 0) {
                   if (type === 'display')
@@ -4057,9 +4000,8 @@ var LiveResults;
             });
           }
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "scrollX": this.scrollView,
-            "fixedColumns": { leftColumns: 3, heightMatch: 'auto' },
-            "responsive": !(this.scrollView),
+            "scrollX": true,
+            "fixedColumns": { leftColumns: 2 },
             "bPaginate": false,
             "bLengthChange": false,
             "bFilter": false,
@@ -4262,9 +4204,8 @@ var LiveResults;
           columns.push({ "sTitle": "m/km", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "kmTime" });
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "scrollX": this.scrollView,
-            "fixedColumns": { leftColumns: legs + 3, heightMatch: 'auto' },
-            "responsive": false,
+            "scrollX": true,
+            "fixedColumns": { leftColumns: 3 },
             "bPaginate": false,
             "bLengthChange": false,
             "bFilter": false,
@@ -4368,7 +4309,6 @@ var LiveResults;
               results.push(data.results[i]);
             }
           }
-
 
           var columns = Array();
           var col = 0;
@@ -4600,7 +4540,7 @@ var LiveResults;
             this.splitAnalyze(data.results);
             var columns = Array();
             var col = 0;
-            columns.push({ "sTitle": "#&nbsp;&nbsp;", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
+            columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
             columns.push({
               "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data, type, row) {
                 if (type == "sort")
@@ -4653,9 +4593,9 @@ var LiveResults;
                   if (code == 999)
                     title = (i + 1) + "-" + _this.resources["_CONTROLFINISH"];
                   else if (i == 0)
-                    title = "S-1&nbsp;&nbsp;<br/>(" + code + ")";
+                    title = "S-1<br/>(" + code + ")";
                   else
-                    title = i + "-" + (i + 1) + "&nbsp;&nbsp;<br/>(" + code + ")";
+                    title = i + "-" + (i + 1) + "<br/>(" + code + ")";
                 }
                 else {
                   var codePre = (i > 0 ? data.splitcontrols[i - 1] : 0);
@@ -4668,7 +4608,7 @@ var LiveResults;
                 }
 
                 columns.push({
-                  "sTitle": title + "&nbsp;&nbsp;",
+                  "sTitle": title,
                   "bVisible": true,
                   "sClass": "right",
                   "bSortable": true,
@@ -4676,7 +4616,7 @@ var LiveResults;
                   "aDataSort": [col],
                   "aTargets": [col],
                   "bUseRendered": false,
-                  "mDataProp": "",
+                  "mDataProp": "result",
                   "render": function (data, type, row, meta) {
                     var no = meta.col - 4;
                     var last = (no == (row.split_place.length - 1));
@@ -4767,9 +4707,8 @@ var LiveResults;
             };
 
             this.currentTable = $('#' + this.resultsDiv).dataTable({
-              "scrollX": this.scrollView,
-              "fixedColumns": { leftColumns: 3 },
-              "responsive": false,
+              "fixedColumns": { leftColumns: 2 },
+              "scrollX": true,
               "bPaginate": false,
               "bLengthChange": false,
               "bFilter": false,
@@ -4787,7 +4726,7 @@ var LiveResults;
               "bDestroy": true
             });
 
-            var scrollBody = $(this.currentTable.api().settings()[0].nScrollBody);
+            var scrollBody = $(this.currentTable).parent();
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
             if ($(".firstCol").width() > 0 && maxScroll > 5)
               $('#switchNavClick').trigger('click');
