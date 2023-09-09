@@ -2516,7 +2516,7 @@ var LiveResults;
         var rowPosArray = new Array();
         var rowIndArray = new Array();
         var ind = -1; // -1:header; 0:first data
-        var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : 0);
+        var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : -window.scrollY);
         $(table).find('tr').each(function () {
           var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
             $(this).css('top', rowPos);
