@@ -58,7 +58,6 @@ $(document).ready(function()
 </script>
 </head>
 <body>
-
 	<?php if (!isset($_GET['comp']) ) { ?>
 		<h1 class="categoriesheader">Feil. Har du satt compID</h1>	
 	<?php }
@@ -67,33 +66,23 @@ $(document).ready(function()
     <?php }
     else
 	{ ?>
-		<table style="width:100%; table-layout:fixed" cellpadding="0" cellspacing="3" border="0">
-    <tr valign=top>
-	    <td> 
-	      <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
-	        <tr>
-		        <td align="left"><b>Startliste</b></td>
-		        <td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-		        <td align="right">
-		          <button style="height:18px" onclick="res.raceSplitterDialog();">RaceSplitter CSV</button> 
-              <input type="text" id="filterText" placeholder="søk..." size="10">
-            </td>
-	        </tr>
-	      </table>
-      </td>
-    </tr>
-    <tr valign=top>
-      <td>
-        <table width="100%" style="table-layout:fixed;" cellpadding="3px" cellspacing="0px" border="0" >
-		      <tr valign=top>
-            <td>
-              <table id="startList"></table>
-            </td>
-          </tr>
-	      </table>
-      </td>
-    </tr>
-    </table>
+		<table style="min-width:100%; table-layout:fixed; padding:0; border-spacing:3px; border:none">
+    	<tr style="vertical-align: top;">
+	    	<td> 
+				<table style="border:none; background-color:#555556; color:#FFF; padding:10px; margin-top:3px; width:100%;">  
+	        		<tr>
+						<td style="text-align:left"><b>Startliste</b></td>
+						<td style="text-align:center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
+						<td style="text-align:right"><button style="height:18px" onclick="res.raceSplitterDialog();">RaceSplitter CSV</button> 
+              				<input type="text" id="filterText" placeholder="søk..." size="10"></td>
+	        		</tr>
+	      		</table>
+      		</td>
+    	</tr>
+    	<tr style="vertical-align: top;">
+      		<td><table id="startList" style="width:100%"></table></td>
+    	</tr>
+    	</table>
 <?php }?> 
 </body>
 </html>

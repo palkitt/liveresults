@@ -158,15 +158,11 @@ else
 				</table>
 			</td>
 		</tr>
-		<tr valign=top>
-			<td>
-				<table style="width:100%; padding:3px; border-spacing:0x; border:none;">
-					<tr valign=top>
-						<td><table id="divMessages"></table></td>
-					</tr>
-				</table>
-			</td>
-		</tr>
+		<tr>
+      		<td>
+        		<table id="divMessages" style="width:100%"></table>
+      		</td>
+    	</tr>
 	</table>
 <?php }?>
 <p style="text-align: left; color: #AAA; font-size: 0.7em;">
