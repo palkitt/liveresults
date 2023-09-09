@@ -134,36 +134,42 @@ $(document).ready(function()
 </head>
 <body>
 
-	<?php if (!isset($_GET['comp']) ) 
-	{ ?>
-		<h1 class="categoriesheader">Feil. Har du satt compID? Eks: message.php?comp=10016</h1>
-	<?php }
-	else
-	{ ?>
-<table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
-	<tr><td width=100%></td></tr>
-	<tr valign=top>
-	<td> 
-	<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; ">
-	<tr>
-		<td><td><span id="liveIndicator"></span>
-		<span style="cursor:pointer; color:#FFF; font-size:1.3em" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
-		<b>Meldinger</b>
-		</td>
-		<td align="center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
-		<td align="center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
-		<td align="center"><b><span id="clock"></span></b></td>
-		<td align="right"><b>Vis alle<input type="checkbox" checked="checked" onclick="mess.showAllMessages = !(mess.showAllMessages); mess.updateMessageMarking();"></span></b></td>
-
-	</tr>
+<?php if (!isset($_GET['comp']) ) 
+{ ?> 
+	<h1 class="categoriesheader">Feil. Har du satt compID? Eks: message.php?comp=10016</h1>
+<?php }
+else
+{ ?>
+	<table style="min-width:100%; table-layout:fixed; padding:0; border-spacing:3px; border:none">
+		<tr valign=top>
+			<td> 
+				<table style="width:100%; background-color:#555556; color:#FFF; padding: 10px; margin-top: 3px; border-spacing:0; border:none;">
+				<tr>
+					<td>
+						<span id="liveIndicator"></span>
+						<span style="cursor:pointer; color:#FFF; font-size:1.3em" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
+						<b>Meldinger</b>
+					</td>
+					<td style="text-align: center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
+					<td style="text-align: center"><b><?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</b></td>
+					<td style="text-align: center"><b><span id="clock"></span></b></td>
+					<td style="text-align: right"><b>Vis alle<input type="checkbox" checked="checked" onclick="mess.showAllMessages = !(mess.showAllMessages); mess.updateMessageMarking();"></span></b></td>
+				</tr>
+				</table>
+			</td>
+		</tr>
+		<tr valign=top>
+			<td>
+				<table style="width:100%; padding:3px; border-spacing:0x; border:none;">
+					<tr valign=top>
+						<td><table id="divMessages"></table></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
 	</table>
-	<table width="100%" cellpadding="3px" cellspacing="0px" border="0" >
-		<tr valign=top><tr><td><table id="divMessages"></table></td></tr>
-	</table>
-	</td>
-</table>
 <?php }?>
-<p align="left"><font color="#AAA" size="0.7em">
+<p style="text-align: left; color: #AAA; font-size: 0.7em;">
 Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br> 
 </body>
 </html>
