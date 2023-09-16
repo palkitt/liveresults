@@ -90,7 +90,9 @@ class Emma
 	public static function GetCompetitions()
 	{
 		$conn = self::openConnection();
-		$result = mysqli_query($conn, "select compName,compDate,tavid,organizer,timediff,multidaystage,multidayparent,livecenterurl,sport from login where public = 1 order by compDate desc, compName");
+		$result = mysqli_query($conn, "SELECT L.compName, L.compDate, L.tavid, L.organizer, L.timediff, L.multidaystage,
+    L.multidayparent, L.livecenterurl, L.sport, A.changed FROM login L LEFT JOIN lastactive A ON L.tavid = A.tavid
+    WHERE public = 1 ORDER BY compDate DESC, compName");
 		$ret = Array();
 		while ($tmp = mysqli_fetch_array($result))
 			$ret[] = $tmp;
@@ -101,7 +103,9 @@ class Emma
 	public static function GetCompetitionsToday()
 	{
         $conn = self::openConnection();
-	 	$result = mysqli_query($conn, "select compName,compDate,tavid,organizer,timediff,multidaystage,multidayparent,livecenterurl,sport from login where public = 1 and compDate = '".date("Y-m-d")."' order by compName");
+	 	$result = mysqli_query($conn, "SELECT L.compName, L.compDate, L.tavid, L.organizer, L.timediff, L.multidaystage,
+     L.multidayparent, L.livecenterurl, L.sport, A.changed FROM login L LEFT JOIN lastactive A ON L.tavid = A.tavid
+     WHERE public = 1 AND compDate = '".date("Y-m-d")."' ORDER BY compName");
 		$ret = Array();
         while ($tmp = mysqli_fetch_array($result))
 			$ret[] = $tmp;

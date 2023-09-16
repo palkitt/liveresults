@@ -35,6 +35,7 @@ $RunnerStatus = Array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUS
 
 $pretty = isset($_GET['pretty']);
 $br = $pretty ? "\n" : "";
+
 ///Method returns all competitions available
 if ($_GET['method'] == 'getcompetitions')
 {
@@ -46,8 +47,10 @@ if ($_GET['method'] == 'getcompetitions')
 		{
 			if (!$first)
 				echo(",");
-			echo("{\"id\": ".$comp["tavid"].", \"name\": \"".$comp["compName"]."\", \"organizer\": \"".$comp["organizer"]."\", \"date\": \"".date("Y-m-d",strtotime($comp['compDate']))."\"");
-      echo (", \"timediff\": ".$comp["timediff"]);
+			echo("{\"id\": ".$comp["tavid"].", \"name\": \"".$comp["compName"]."\", \"organizer\": \"".$comp["organizer"]."\"");
+      echo(", \"date\": \"".date("Y-m-d",strtotime($comp['compDate']))."\", \"timediff\": ".$comp["timediff"]);
+      echo(", \"sport\": \"".$comp["sport"]."\", \"livecenterurl\": \"".$comp["livecenterurl"]."\"");
+      echo(", \"lastactive\": \"".$comp["changed"]."\"");
       if ($comp["multidaystage"] != "")
 		    echo(", \"multidaystage\": ".$comp["multidaystage"].", \"multidayfirstday\": ".$comp["multidayparent"]);
       echo("}$br");

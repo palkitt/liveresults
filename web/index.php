@@ -46,8 +46,8 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <body>
 <!-- MAIN DIV -->
-<div style="font-size: 20px; font-weight: bold; height: 50px; width:100%; background-color: #555555; padding-left: 5px; 
-  vertical-align: middle; line-height:45px; color: white;">
+<div style="font-size: 20px; font-weight: bold; height: 50px; background-color: #555555; padding-left: 5px; 
+  vertical-align: middle; line-height:45px; color: white; width: 100%">
   <img src="images/LiveRes.png" height="40px" style="vertical-align: middle" />&nbsp; LiveRes online resultater
 </div>
 
@@ -56,84 +56,130 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <a href='emma/index.php'>Results from liveresultat.orientering.se</a><br>
   <br>
   <b>Choose language</b><br>
-  <a href=index.php?lang=no style='text-decoration: none'><img src='images/no.png?a' border='0' alt='Norsk'></a>&nbsp;
-  <a href=index.php?lang=sv style='text-decoration: none'><img src='images/se.png?a' border='0' alt='Svenska'></a>&nbsp;
-  <a href=index.php?lang=en style='text-decoration: none'><img src='images/en.png?a' border='0' alt='English'></a>&nbsp;
-  <a href=index.php?lang=fi style='text-decoration: none'><img src='images/fi.png?a' border='0' alt='Suomeksi'></a>&nbsp;
-  <a href=index.php?lang=ru style='text-decoration: none'><img src='images/ru.png?a' border='0' alt='Русский'></a>&nbsp;
-  <a href=index.php?lang=cz style='text-decoration: none'><img src='images/cz.png?a' border='0' alt='Česky'></a>&nbsp;
-  <a href=index.php?lang=de style='text-decoration: none'><img src='images/de.png?a' border='0' alt='Deutsch'></a>&nbsp;
-  <a href=index.php?lang=bg style='text-decoration: none'><img src='images/bg.png?a' border='0' alt='български'></a>&nbsp;
-  <a href=index.php?lang=fr style='text-decoration: none'><img src='images/fr.png?a' border='0' alt='Français'></a>&nbsp;
-  <a href=index.php?lang=it style='text-decoration: none'><img src='images/it.png?a' border='0' alt='Italiano'></a>&nbsp;
-  <a href=index.php?lang=hu style='text-decoration: none'><img src='images/hu.png?a' border='0' alt='Magyar'></a>&nbsp;
-  <a href=index.php?lang=es style='text-decoration: none'><img src='images/es.png?a' border='0' alt='Español'></a>&nbsp;
-  <a href=index.php?lang=pl style='text-decoration: none'><img src='images/pl.png?a' border='0' alt='Polska'></a>&nbsp;
-  <a href=index.php?lang=pt style='text-decoration: none'><img src='images/pt.png?a' border='0' alt='Português'></a>
+  <a href=index.php?lang=no style='text-decoration: none'><img src='images/no.png?a' alt='Norsk'></a>&nbsp;
+  <a href=index.php?lang=sv style='text-decoration: none'><img src='images/se.png?a' alt='Svenska'></a>&nbsp;
+  <a href=index.php?lang=en style='text-decoration: none'><img src='images/en.png?a' alt='English'></a>&nbsp;
+  <a href=index.php?lang=fi style='text-decoration: none'><img src='images/fi.png?a' alt='Suomeksi'></a>&nbsp;
+  <a href=index.php?lang=ru style='text-decoration: none'><img src='images/ru.png?a' alt='Русский'></a>&nbsp;
+  <a href=index.php?lang=cz style='text-decoration: none'><img src='images/cz.png?a' alt='Česky'></a>&nbsp;
+  <a href=index.php?lang=de style='text-decoration: none'><img src='images/de.png?a' alt='Deutsch'></a>&nbsp;
+  <a href=index.php?lang=bg style='text-decoration: none'><img src='images/bg.png?a' alt='български'></a>&nbsp;
+  <a href=index.php?lang=fr style='text-decoration: none'><img src='images/fr.png?a' alt='Français'></a>&nbsp;
+  <a href=index.php?lang=it style='text-decoration: none'><img src='images/it.png?a' alt='Italiano'></a>&nbsp;
+  <a href=index.php?lang=hu style='text-decoration: none'><img src='images/hu.png?a' alt='Magyar'></a>&nbsp;
+  <a href=index.php?lang=es style='text-decoration: none'><img src='images/es.png?a' alt='Español'></a>&nbsp;
+  <a href=index.php?lang=pl style='text-decoration: none'><img src='images/pl.png?a' alt='Polska'></a>&nbsp;
+  <a href=index.php?lang=pt style='text-decoration: none'><img src='images/pt.png?a' alt='Português'></a>
   <br>
 
-  <table border="0" cellpadding="0px" cellspacing="0" width="100%" id="tblLiveComps">
-    <tr><td colspan=5><h1 class="categoriesheader">LIVE TODAY!</h1></td><tr>
+  <table style="border: none; border-collapse: collapse; width: 100%; padding: 0;" id="tblLiveComps">
+    <td></td>
+      <td colspan=5><h1 class="categoriesheader">LIVE TODAY!</h1></td><tr>
     <tr>
-      <th align="left"><?= $_DATE?></th>
-      <th align="left"><?= $_EVENTNAME?></th>
-      <th align="left"><?= $_SPORT?></th>
-      <th align="left"><?= $_ORGANIZER?></th>
-      <th align="left">Livesenter</th></tr>
+      <th></th>
+      <th style="text-align: left;"><?= $_DATE?></th>
+      <th style="text-align: left;"><?= $_EVENTNAME?></th>
+      <th style="text-align: left;"><?= $_SPORT?></th>
+      <th style="text-align: left;"><?= $_ORGANIZER?></th>
+      <th style="text-align: left;">Livesenter</th>
+    </tr>
+    
     <?php	
     $isMobile = preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
-    $comps = Emma::GetCompetitionsToday();    
-    foreach ($comps as $comp) { 
-      $compName = $comp["compName"];
-      $compName = substr($compName, 0,  ($isMobile ? 30 : 60) );
-      ?>
-      <tr id="row<?=$comp["tavid"]?>" style="font-weight:bold;">
-        <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-        <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp['tavid']?>&amp;lang=<?=$lang?>"><?=$compName?></a></td>
-        <td style="font-weight:normal"><?=$comp["sport"]?></td>
-        <td style="font-weight:normal"><?=$comp["organizer"]?></td>
-        <?php if (strlen($comp['livecenterurl'])>0){ ?>
-          <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="<?=$comp['livecenterurl']?>">Livesenter</a></td>
-        <?php } else { ?>
-          <td></td>
-        <?php } ?>
-      </tr>
-    <?php } ?>
-    
-    <tr><td>&nbsp</td></tr>
-    <tr><td colspan=5><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td></tr>
-    <tr>
-      <th align="left"><?= $_DATE?></th>
-      <th align="left"><?= $_EVENTNAME?></th>
-      <th align="left"><?= $_SPORT?></th>
-      <th align="left"><?= $_ORGANIZER?></th>
-      <th align="left">Livesenter</th></tr>
-    <?php
-    $comps = Emma::GetCompetitions();
-    $yearPre = 0;
+    $url = "https://api.liveres.live/api.php?method=getcompetitions";
+    //$url = "http://localhost/api/api.php?method=getcompetitions";
+    $json = file_get_contents($url);
+    $json = preg_replace('/[[:cntrl:]]/', '', $json);
+    $data = json_decode($json, true);
+    $comps = $data["competitions"];
+    $today = date("Y-m-d");
+    $yearPre = date("Y");
+
+    // Today's competitions
     foreach ($comps as $comp){
-      $compName = $comp["compName"];
+      if ($comp["date"] === $today){
+        $compName = $comp["name"];
+        $compName = substr($compName, 0,  ($isMobile ? 30 : 60) ); 
+        $isActive = false;
+        if ($comp["lastactive"] != "")
+          $isActive = (time() - strtotime($comp["lastactive"])) < 120;
+        ?>
+        <tr id="row<?=$comp["id"]?>" style="font-weight:bold;">
+          <td>
+            <?php if ($isActive){ ?>
+              <span class="pulsing">◉</span>
+            <?php } ?>
+          </td>
+          <td><?=date("Y-m-d",strtotime($comp['date']))?></td>
+          <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="followfull.php?comp=<?=$comp['id']?>&amp;lang=<?=$lang?>"><?=$compName?></a></td>
+          <td style="font-weight:normal"><?=$comp["sport"]?></td>
+          <td style="font-weight:normal"><?=$comp["organizer"]?></td>
+          <?php if (strlen($comp['livecenterurl'])>0){ ?>
+            <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="<?=$comp['livecenterurl']?>">Livesenter</a></td>
+          <?php } else { ?>
+            <td></td>
+          <?php } ?>         
+        </tr>
+        <?php
+      }
+    }
+    ?>
+    <tr>
+      <td>&nbsp;</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan=5><h1 class="categoriesheader"><?=$_CHOOSECMP?></h1></td>
+    <tr>
+      <th></th>
+      <th style="text-align: left;"><?= $_DATE?></th>
+      <th style="text-align: left;"><?= $_EVENTNAME?></th>
+      <th style="text-align: left;"><?= $_SPORT?></th>
+      <th style="text-align: left;"><?= $_ORGANIZER?></th>
+      <th style="text-align: left;">Livesenter</th>
+    </tr>
+
+    <?php  
+    // All competitions
+    foreach ($comps as $comp)	{
+      $compName = $comp["name"];
       $compName = substr($compName, 0,  ($isMobile ? 30 : 60) );
-      $year = date("Y",strtotime($comp['compDate']));
-      if ($year != $yearPre) { 
+      $year = date("Y",strtotime($comp['date']));
+      if ($year != $yearPre){
         $yearPre = $year;
-        ?>  <tr><td colspan=5><h1 class="categoriesheader"><?=$year?></h1></td></tr>
-      <?php } ?>
-      <tr id="row<?=$comp["tavid"]?>">
-        <td><?=date("Y-m-d",strtotime($comp['compDate']))?></td>
-        <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="/followfull.php?comp=<?=$comp["tavid"]?>&amp;lang=<?=$lang?>"><?=$compName?></a></td>
-        <td><?=$comp["sport"]?></td>
-        <td><?=$comp["organizer"]?></td>
-        <?php if (strlen($comp['livecenterurl'])>0){ ?>
-          <td><a onmouseover="colorRow('row<?=$comp["tavid"]?>')" onmouseout="resetRow('row<?=$comp["tavid"]?>')" href="<?=$comp['livecenterurl']?>">Livesenter</a></td>
-        <?php } 
-        else { ?>
-          <td></td>
-        <?php } ?>
-      </tr>
-    <?php	}	?>
+        ?>
+          <tr>
+            <td></td>
+            <td colspan=5><h1 class="categoriesheader"><?=$year?></h1></td>
+          </tr>
+        <?php
+      }
+      $isActive = false;
+      if ($comp["lastactive"] != "")
+        $isActive = (time() - strtotime($comp["lastactive"])) < 120;
+      ?>
+        <tr id="row<?=$comp["id"]?>">
+          <td>
+            <?php if ($isActive){ ?>
+              <span class="pulsing">◉</span>
+            <?php } ?>
+          </td>  
+          <td><?=date("Y-m-d",strtotime($comp['date']))?></td>
+          <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="followfull.php?comp=<?=$comp["id"]?>&amp;lang=<?=$lang?>"><?=$compName?></a></td>
+          <td><?=$comp["sport"]?></td>
+          <td><?=$comp["organizer"]?></td>
+          <?php if (strlen($comp['livecenterurl'])>0){ ?>
+            <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="<?=$comp['livecenterurl']?>">Livesenter</a></td>
+          <?php } 
+          else { ?>
+            <td></td>
+          <?php } ?>
+        </tr>
+      <?php
+    }
+    ?>
   </table>
-  <p align="left"><font color="#AAA" size="0.7em">&copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</font></p>
+<p style="text-align: left; font-size: 0.7em; color:#AAA">&copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults</p>
 </div>
 </body>
 </html>
