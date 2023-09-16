@@ -51,6 +51,9 @@
             this.label2 = new System.Windows.Forms.Label();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.wizardPage2 = new Gui.Wizard.WizardPage();
+            this.lstDB = new LiveResults.Client.NewETimingComp.DBListBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.wizardPage5 = new Gui.Wizard.WizardPage();
             this.txtMinPace = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
@@ -73,19 +76,16 @@
             this.txtOrgName = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
             this.label12 = new System.Windows.Forms.Label();
-            this.chkNotUpdateRadioControls = new System.Windows.Forms.CheckBox();
+            this.chkUpdateRadioControls = new System.Windows.Forms.CheckBox();
             this.txtCompName = new System.Windows.Forms.TextBox();
             this.label10 = new System.Windows.Forms.Label();
             this.txtCompID = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.wizardPage2 = new Gui.Wizard.WizardPage();
-            this.lstDB = new LiveResults.Client.NewETimingComp.DBListBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.wizard1.SuspendLayout();
             this.wizardPage1.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.wizardPage5.SuspendLayout();
             this.wizardPage2.SuspendLayout();
+            this.wizardPage5.SuspendLayout();
             this.SuspendLayout();
             // 
             // wizard1
@@ -246,6 +246,37 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Type of eTiming server";
             // 
+            // wizardPage2
+            // 
+            this.wizardPage2.Controls.Add(this.lstDB);
+            this.wizardPage2.Controls.Add(this.label6);
+            this.wizardPage2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wizardPage2.IsFinishPage = false;
+            this.wizardPage2.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage2.Name = "wizardPage2";
+            this.wizardPage2.Size = new System.Drawing.Size(514, 229);
+            this.wizardPage2.TabIndex = 2;
+            this.wizardPage2.ShowFromBack += new System.EventHandler(this.wizardPage2_ShowFromBack);
+            this.wizardPage2.ShowFromNext += new System.EventHandler(this.wizardPage2_ShowFromNext);
+            // 
+            // lstDB
+            // 
+            this.lstDB.FormattingEnabled = true;
+            this.lstDB.Location = new System.Drawing.Point(13, 26);
+            this.lstDB.Name = "lstDB";
+            this.lstDB.PreviousSelectedIndex = 0;
+            this.lstDB.Size = new System.Drawing.Size(218, 186);
+            this.lstDB.TabIndex = 1;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(12, 9);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(79, 13);
+            this.label6.TabIndex = 0;
+            this.label6.Text = "SQL databases";
+            // 
             // wizardPage5
             // 
             this.wizardPage5.Controls.Add(this.txtMinPace);
@@ -269,7 +300,7 @@
             this.wizardPage5.Controls.Add(this.txtOrgName);
             this.wizardPage5.Controls.Add(this.label7);
             this.wizardPage5.Controls.Add(this.label12);
-            this.wizardPage5.Controls.Add(this.chkNotUpdateRadioControls);
+            this.wizardPage5.Controls.Add(this.chkUpdateRadioControls);
             this.wizardPage5.Controls.Add(this.txtCompName);
             this.wizardPage5.Controls.Add(this.label10);
             this.wizardPage5.Controls.Add(this.txtCompID);
@@ -303,21 +334,21 @@
             // chkEcardAsBackup
             // 
             this.chkEcardAsBackup.AutoSize = true;
-            this.chkEcardAsBackup.Location = new System.Drawing.Point(256, 211);
+            this.chkEcardAsBackup.Location = new System.Drawing.Point(256, 187);
             this.chkEcardAsBackup.Name = "chkEcardAsBackup";
-            this.chkEcardAsBackup.Size = new System.Drawing.Size(259, 17);
+            this.chkEcardAsBackup.Size = new System.Drawing.Size(258, 17);
             this.chkEcardAsBackup.TabIndex = 26;
-            this.chkEcardAsBackup.Text = "Use ecard (strekktider) as backup for radio times";
+            this.chkEcardAsBackup.Text = "Use ecard splits (strekktider) as backup for radio";
             this.chkEcardAsBackup.UseVisualStyleBackColor = true;
             // 
             // chkAddEcardSplits
             // 
             this.chkAddEcardSplits.AutoSize = true;
-            this.chkAddEcardSplits.Location = new System.Drawing.Point(256, 187);
+            this.chkAddEcardSplits.Location = new System.Drawing.Point(256, 163);
             this.chkAddEcardSplits.Name = "chkAddEcardSplits";
-            this.chkAddEcardSplits.Size = new System.Drawing.Size(189, 17);
+            this.chkAddEcardSplits.Size = new System.Drawing.Size(178, 17);
             this.chkAddEcardSplits.TabIndex = 25;
-            this.chkAddEcardSplits.Text = "Add splits from ecard (strekktider)";
+            this.chkAddEcardSplits.Text = "Upload ecard splits (strekktider)";
             this.chkAddEcardSplits.UseVisualStyleBackColor = true;
             // 
             // txtCompType
@@ -367,7 +398,7 @@
             // chkEventorID
             // 
             this.chkEventorID.AutoSize = true;
-            this.chkEventorID.Location = new System.Drawing.Point(256, 163);
+            this.chkEventorID.Location = new System.Drawing.Point(256, 211);
             this.chkEventorID.Name = "chkEventorID";
             this.chkEventorID.Size = new System.Drawing.Size(179, 17);
             this.chkEventorID.TabIndex = 19;
@@ -397,9 +428,9 @@
             this.chkLapTimes.AutoSize = true;
             this.chkLapTimes.Location = new System.Drawing.Point(12, 211);
             this.chkLapTimes.Name = "chkLapTimes";
-            this.chkLapTimes.Size = new System.Drawing.Size(208, 17);
+            this.chkLapTimes.Size = new System.Drawing.Size(164, 17);
             this.chkLapTimes.TabIndex = 16;
-            this.chkLapTimes.Text = "Add lap times (individual multilap race)";
+            this.chkLapTimes.Text = "Add lap times (multi lap race)";
             this.chkLapTimes.UseVisualStyleBackColor = true;
             // 
             // txtSleepTime
@@ -476,16 +507,16 @@
             this.label12.Text = "Client refresh time [s]";
             this.label12.Click += new System.EventHandler(this.label12_Click);
             // 
-            // chkNotUpdateRadioControls
+            // chkUpdateRadioControls
             // 
-            this.chkNotUpdateRadioControls.AutoSize = true;
-            this.chkNotUpdateRadioControls.Location = new System.Drawing.Point(12, 163);
-            this.chkNotUpdateRadioControls.Name = "chkNotUpdateRadioControls";
-            this.chkNotUpdateRadioControls.Size = new System.Drawing.Size(163, 17);
-            this.chkNotUpdateRadioControls.TabIndex = 4;
-            this.chkNotUpdateRadioControls.Text = "Do not update radio controls";
-            this.chkNotUpdateRadioControls.UseVisualStyleBackColor = true;
-            this.chkNotUpdateRadioControls.CheckedChanged += new System.EventHandler(this.chkCreateRadioControls_CheckedChanged);
+            this.chkUpdateRadioControls.AutoSize = true;
+            this.chkUpdateRadioControls.Location = new System.Drawing.Point(12, 163);
+            this.chkUpdateRadioControls.Name = "chkUpdateRadioControls";
+            this.chkUpdateRadioControls.Size = new System.Drawing.Size(193, 17);
+            this.chkUpdateRadioControls.TabIndex = 4;
+            this.chkUpdateRadioControls.Text = "Update radio controls from eTiming";
+            this.chkUpdateRadioControls.UseVisualStyleBackColor = true;
+            this.chkUpdateRadioControls.CheckedChanged += new System.EventHandler(this.chkCreateRadioControls_CheckedChanged);
             // 
             // txtCompName
             // 
@@ -523,37 +554,6 @@
             this.label9.Text = "Competiton ID";
             this.label9.Click += new System.EventHandler(this.label9_Click);
             // 
-            // wizardPage2
-            // 
-            this.wizardPage2.Controls.Add(this.lstDB);
-            this.wizardPage2.Controls.Add(this.label6);
-            this.wizardPage2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wizardPage2.IsFinishPage = false;
-            this.wizardPage2.Location = new System.Drawing.Point(0, 0);
-            this.wizardPage2.Name = "wizardPage2";
-            this.wizardPage2.Size = new System.Drawing.Size(514, 229);
-            this.wizardPage2.TabIndex = 2;
-            this.wizardPage2.ShowFromBack += new System.EventHandler(this.wizardPage2_ShowFromBack);
-            this.wizardPage2.ShowFromNext += new System.EventHandler(this.wizardPage2_ShowFromNext);
-            // 
-            // lstDB
-            // 
-            this.lstDB.FormattingEnabled = true;
-            this.lstDB.Location = new System.Drawing.Point(13, 26);
-            this.lstDB.Name = "lstDB";
-            this.lstDB.PreviousSelectedIndex = 0;
-            this.lstDB.Size = new System.Drawing.Size(218, 186);
-            this.lstDB.TabIndex = 1;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 9);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(79, 13);
-            this.label6.TabIndex = 0;
-            this.label6.Text = "SQL databases";
-            // 
             // NewETimingComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -568,10 +568,10 @@
             this.wizardPage1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            this.wizardPage5.ResumeLayout(false);
-            this.wizardPage5.PerformLayout();
             this.wizardPage2.ResumeLayout(false);
             this.wizardPage2.PerformLayout();
+            this.wizardPage5.ResumeLayout(false);
+            this.wizardPage5.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -595,7 +595,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.TextBox txtCompName;
         private System.Windows.Forms.Label label10;
-        public System.Windows.Forms.CheckBox chkNotUpdateRadioControls;
+        public System.Windows.Forms.CheckBox chkUpdateRadioControls;
         private Gui.Wizard.WizardPage wizardPage2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Button button1;

@@ -39,7 +39,6 @@ namespace LiveResults.Client
         private bool m_continue;
         private int m_sleepTime;
         private double m_minPaceTime;
-        private bool m_oneLineRelayRes;
         private bool m_lapTimes;
         private bool m_MSSQL;
         private bool m_ecardAsBackup;
@@ -49,12 +48,12 @@ namespace LiveResults.Client
         private int m_compID;
         private int m_OsOffset;
 
-        public ETimingParser(IDbConnection conn, int sleepTime, bool notUpdateRadioControls = true, double minPaceTime = 0,
+        public ETimingParser(IDbConnection conn, int sleepTime, bool UpdateRadioControls = true, double minPaceTime = 0,
             bool MSSQL = false, bool ecardAsBackup = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0,
             bool updateMessage = false, bool addEcardSplits = false, int compID = 0, int OsOffset = 0)
         {
             m_connection = conn;
-            m_updateRadioControls = !notUpdateRadioControls;
+            m_updateRadioControls = UpdateRadioControls;
             m_sleepTime = sleepTime;
             m_minPaceTime = minPaceTime;
             m_MSSQL = MSSQL;
@@ -171,10 +170,7 @@ namespace LiveResults.Client
                         m_connection.Open();
 
                     setEventType(out bool isRelay, out bool isSprint, out bool isSprintRelay, out int day);
-                    setCourses(out Dictionary<int, List<CourseControl>> courses);
-                    setRadioControls(isRelay, isSprint, day, courses, out List<RadioControl> intermediates);
-
-                    
+                                   
                     string purmin = (isRelay ? "AND(C.purmin IS NULL OR C.purmin < 2)" : "");
                     IDbCommand cmdInd = m_connection.CreateCommand();
                     cmdInd.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
@@ -202,11 +198,13 @@ namespace LiveResults.Client
                     
                     IDbCommand cmdEcardTimes = m_connection.CreateCommand();
                     cmdEcardTimes.CommandText = string.Format(@"SELECT times, control, ecardno, nr FROM ecard ORDER BY ecardno, times");
-                    
+
                     Dictionary<int, List<EcardTimesRawStruct>> ecardTimesList = null;
                     Dictionary<int, List<SplitRawStruct>> splitList = null;
+                    Dictionary<int, List<CourseControl>> courses = null;
                     List<int> unknownRunners = new List<int>();
                     List<int> usedID = new List<int>();
+                    List<RadioControl> intermediates = new List<RadioControl>();
                     string lastRunner = "No runners parsed yet";
                     
                     string messageServer = ConfigurationManager.AppSettings["messageServer"];
@@ -214,23 +212,30 @@ namespace LiveResults.Client
                     WebClient client = new WebClient();
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
-                    int maxSleepTimeMessage    = 9;                    // Time between reading messages
-                    int sleepTimerMessage      = maxSleepTimeMessage;
-                    int maxSleepTimeCleanupID  = 20;                   // Time between cleaning/deleting unused IDs
-                    int sleepTimerCleanupID    = maxSleepTimeCleanupID;
-                    int maxSleepTimeLiveActive = 60;                   //Time between sending new live active signal
-                    int sleepTimerLiveActive   = maxSleepTimeLiveActive;
-                    
-                    bool failedLast = false;
+                    int maxCleanupIDTimer = 9;                 // Time between cleaning/deleting unused IDs
+                    int cleanupIDTimer    = maxCleanupIDTimer;
+                    int maxMessageTimer   = 9;                 // Time between reading messages
+                    int messageTimer      = maxMessageTimer;
+                    int maxActiveTimer    = 60;                // Time between setting new live active signal
+                    int activeTimer       = maxActiveTimer;
+                    int maxCCTimer        = 60;                // Time between reading courses and controls
+                    int CCTimer           = maxCCTimer;
+                    bool failedLast       = false;
                     bool failedThis;
-                    bool first = true;
+                    bool first            = true;
 
-                    /* ***            Main loop        ***
-                    /* ************************************/
+                    //  Main loop 
                     while (m_continue)
                     {
                         try
                         {
+                            if (CCTimer >= maxCCTimer)
+                            {
+                                setCourses(out courses);
+                                setRadioControls(isRelay, isSprint, day, courses, out intermediates);
+                                CCTimer = 0;
+                            }
+
                             if (m_updateEcardTimes || m_ecardAsBackup)
                                 ParseReaderEcardTimes(cmdEcardTimes, out ecardTimesList, out lastRunner);
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
@@ -241,28 +246,28 @@ namespace LiveResults.Client
 
                             handleUnknowns(splitList, ref unknownRunners);
 
-                            sleepTimerMessage += m_sleepTime;
-                            if (m_updateMessage && sleepTimerMessage >= maxSleepTimeMessage)
+                            messageTimer += m_sleepTime;
+                            if (m_updateMessage && messageTimer >= maxMessageTimer)
                             {
                                 UpdateFromMessages(messageServer, client, failedLast, out failedThis);
                                 failedLast = failedThis;
-                                sleepTimerMessage = 0;
+                                messageTimer = 0;
                             }
 
-                            sleepTimerCleanupID += m_sleepTime;
-                            if (sleepTimerCleanupID >= maxSleepTimeCleanupID)
+                            cleanupIDTimer += m_sleepTime;
+                            if (cleanupIDTimer >= maxCleanupIDTimer)
                             {
                                 if (m_IdOffset == 0 && !isSprint) //  Delete only when no offset is used and not sprint
                                     FireOnDeleteUnusedID(usedID,first);
-                                sleepTimerCleanupID = 0;
+                                cleanupIDTimer = 0;
                                 first = false;
                             }
 
-                            sleepTimerLiveActive += m_sleepTime;
-                            if (sleepTimerLiveActive >= maxSleepTimeLiveActive)
+                            activeTimer += m_sleepTime;
+                            if (activeTimer >= maxActiveTimer)
                             {
                                 SendLiveActive(apiServer, client);
-                                sleepTimerLiveActive = 0;
+                                activeTimer = 0;
                             }
 
                             Thread.Sleep(1000 * m_sleepTime);

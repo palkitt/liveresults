@@ -39,7 +39,7 @@ namespace LiveResults.Client
             txtIdOffset.Text = "0";
             txtOsOffset.Text = "0";
             txtMinPace.Text = "0";
-            chkNotUpdateRadioControls.Checked = false;
+            chkUpdateRadioControls.Checked = true;
             chkLapTimes.Checked = false;
             chkEventorID.Checked = false;
             chkUpdateMessage.Checked = false;
@@ -410,7 +410,7 @@ namespace LiveResults.Client
 
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
                     SleepTime, 
-                    chkNotUpdateRadioControls.Checked, MinPace, MSSQL, chkEcardAsBackup.Checked, 
+                    chkUpdateRadioControls.Checked, MinPace, MSSQL, chkEcardAsBackup.Checked, 
                     chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
                     chkUpdateMessage.Checked, chkAddEcardSplits.Checked, CompID, OsOffset);
             monForm.SetParser(pars as IExternalSystemResultParserEtiming);

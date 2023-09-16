@@ -53,8 +53,20 @@ namespace LiveResults.Client
             m_compID = compID;
         }
 
+         
+
         private void Run()
         {
+            string SQLInd = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, " +
+                            "N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
+                            "C.name AS cname, C.meter, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
+                            "FROM names N " +
+                            "LEFT JOIN classes C ON C.id = N.classid " +
+                            "LEFT JOIN(SELECT MIN(raceid) AS raceid, MIN(courceid) AS courceid, MIN(classid) AS cclassid " +
+                            "FROM classcource WHERE raceid = " + m_raceID + " GROUP BY classid) AS CC ON CC.cclassid = N.classid " +
+                            "WHERE N.raceid = " + m_raceID;
+            string SQLSplits = string.Format(@"SELECT controlno, ecardno, time, ecardtime FROM onlinecontrols WHERE raceid={0} ORDER BY time", m_raceID);
+
             while (m_continue)
             {
                 try
@@ -63,24 +75,12 @@ namespace LiveResults.Client
 
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
-                    
-
-                    makeRadioControls();
-                    var courses = new Dictionary<int, List<CourseControl>>();
-                    courses = getCourses();
 
                     IDbCommand cmdInd = m_connection.CreateCommand();
-                    cmdInd.CommandText = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, " +
-                                            "N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
-                                            "C.name AS cname, C.meter, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
-                                            "FROM names N " +
-                                            "LEFT JOIN classes C ON C.id = N.classid " +
-                                            "LEFT JOIN(SELECT MIN(raceid) AS raceid, MIN(courceid) AS courceid, MIN(classid) AS cclassid " +
-                                            "FROM classcource WHERE raceid = " + m_raceID + " GROUP BY classid) AS CC ON CC.cclassid = N.classid " +
-                                            "WHERE N.raceid = " + m_raceID;
+                    cmdInd.CommandText = SQLInd;
 
                     IDbCommand cmdSplits = m_connection.CreateCommand();
-                    cmdSplits.CommandText = string.Format(@"SELECT controlno, ecardno, time, ecardtime FROM onlinecontrols WHERE raceid={0} ORDER BY time", m_raceID);
+                    cmdSplits.CommandText = SQLSplits;
 
                     string lastRunner = "";
                     List<int> usedID = new List<int>();
@@ -91,36 +91,48 @@ namespace LiveResults.Client
                     WebClient client = new WebClient();
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
-                    int m_sleepTime = 3;
-                    int maxSleepTimeMessage = 9; // Time between reading messages
-                    int sleepTimeMessage = maxSleepTimeMessage;
-                    int maxSleepTimeLiveActive = 60; //Time between setting new live active signal
-                    int sleepTimeLiveActive = maxSleepTimeLiveActive;
-                    bool failedLast = false;
-                    bool failedThis;
+                    var courses = new Dictionary<int, List<CourseControl>>();
+
+                    int m_sleepTime     = 3;                 // Time between each scan
+                    int maxMessageTimer = 9;                 // Time between reading messages
+                    int messageTimer    = maxMessageTimer;
+                    int maxActiveTimer  = 60;                // Time between setting new live active signal
+                    int activeTimer     = maxActiveTimer;
+                    int maxCCTimer      = 60;                // Time between reading courses and controls
+                    int CCTimer         = maxCCTimer;
+                    bool failedLast     = false;
+                    bool failedThis;                    
 
                     // Main loop
                     while (m_continue)
                     {
                         try
                         {
+                            CCTimer += m_sleepTime;
+                            if (CCTimer >= maxCCTimer)
+                            {
+                                makeRadioControls();
+                                courses = getCourses();
+                                CCTimer = 0;
+                            }
+
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
                             ParseReader(cmdInd, ref splitList, ref courses, out lastRunner, out usedID);
                             FireOnDeleteUnusedID(usedID);
 
-                            sleepTimeLiveActive += m_sleepTime;
-                            if (sleepTimeLiveActive >= maxSleepTimeLiveActive)
+                            activeTimer += m_sleepTime;
+                            if (activeTimer >= maxActiveTimer)
                             {
                                 SendLiveActive(apiServer, client);
-                                sleepTimeLiveActive = 0;
+                                activeTimer = 0;
                             }
 
-                            sleepTimeMessage += m_sleepTime;
-                            if (sleepTimeMessage >= maxSleepTimeMessage)
+                            messageTimer += m_sleepTime;
+                            if (messageTimer >= maxMessageTimer)
                             {
                                 UpdateFromMessages(messageServer, client, failedLast, out failedThis);
                                 failedLast = failedThis;
-                                sleepTimeMessage = 0;
+                                messageTimer = 0;
                             }
                             Thread.Sleep(1000 * m_sleepTime);
                         }
@@ -604,7 +616,7 @@ namespace LiveResults.Client
             }
             catch (Exception ee)
             {
-                FireLogMsg("Brikkesys Parser makeCourses: " + ee.Message);
+                FireLogMsg("Brikkesys Parser getCourses: " + ee.Message);
             }
             return courses;
         }

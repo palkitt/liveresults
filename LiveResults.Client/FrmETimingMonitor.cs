@@ -32,7 +32,6 @@ namespace LiveResults.Client
         public string Organizer;
         public DateTime CompDate;
         public bool deleteEmmaIDs;
-        public bool OneLineRelayRes;
         public bool useEventorID;
         public List<IDpar> clientIDpars;
         public int IdOffset;
