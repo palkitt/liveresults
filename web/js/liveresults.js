@@ -1286,9 +1286,11 @@ var LiveResults;
             if (this.qualLimits != null && this.qualLimits.length > 0)
               this.updateQualLimMarks(data, this.curClassName);
             table.rows().invalidate();
-            table.columns.adjust().draw();
           }
-                    
+          
+          if (updatedVP || timesOnly)
+            table.columns.adjust().draw();
+
           if (!timesOnly){
             if (updatedVP)
               this.animateTable(oldData, data, this.animTime, true);
@@ -1907,7 +1909,7 @@ var LiveResults;
           for (var i = 0; i < shownId.length; ++i) {
             if (shownId[i].dbid !== this.prewShownId[i])
             {
-              this.animateTable(_this.prewShownId,shownId,_this.animTime,false);
+              this.animateTable(_this.prewShownId,shownId,_this.animTime);
               break;
             }
           }
@@ -2172,7 +2174,7 @@ var LiveResults;
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
       var table = this.currentTable.api();
-      table.search($('#' + this.filterDiv)[0].value).draw()
+      table.search($('#' + this.filterDiv)[0].value).draw();
     };
 
     // Insert bib and search (speaker view)
@@ -2499,9 +2501,6 @@ var LiveResults;
 
         // Prepare for animation
         this.animating = true;
-        if (!predRank)
-          this.currentTable.api().columns.adjust().draw();
-        
         var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
 
         // Set each td's width. Subtract 9 for the padding width of the td
@@ -2569,7 +2568,7 @@ var LiveResults;
       $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
       $(table).find('tr').each(function () { $(this).css('position', ''); });
       $(table).height(0).width('100%');
-      $(table).css({'table-layout': '' });
+      $(table).css({'table-layout': 'auto' });
       this.animating = false;
       if (predRank)
         this.startPredictedTimeTimer();
