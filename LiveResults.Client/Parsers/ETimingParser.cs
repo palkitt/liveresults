@@ -212,16 +212,14 @@ namespace LiveResults.Client
                     WebClient client = new WebClient();
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
-                    int maxCleanupIDTimer = 9;                 // Time between cleaning/deleting unused IDs
-                    int cleanupIDTimer    = maxCleanupIDTimer;
+                    int maxCCTimer        = 60;                // Time between reading courses and controls
+                    int CCTimer           = maxCCTimer; 
                     int maxMessageTimer   = 9;                 // Time between reading messages
                     int messageTimer      = maxMessageTimer;
                     int maxActiveTimer    = 60;                // Time between setting new live active signal
                     int activeTimer       = maxActiveTimer;
-                    int maxCCTimer        = 60;                // Time between reading courses and controls
-                    int CCTimer           = maxCCTimer;
+
                     bool failedLast       = false;
-                    bool failedThis;
                     bool first            = true;
 
                     //  Main loop 
@@ -229,6 +227,7 @@ namespace LiveResults.Client
                     {
                         try
                         {
+                            CCTimer += m_sleepTime;
                             if (CCTimer >= maxCCTimer)
                             {
                                 setCourses(out courses);
@@ -249,19 +248,14 @@ namespace LiveResults.Client
                             messageTimer += m_sleepTime;
                             if (m_updateMessage && messageTimer >= maxMessageTimer)
                             {
-                                UpdateFromMessages(messageServer, client, failedLast, out failedThis);
+                                UpdateFromMessages(messageServer, client, failedLast, out bool failedThis);
                                 failedLast = failedThis;
                                 messageTimer = 0;
                             }
 
-                            cleanupIDTimer += m_sleepTime;
-                            if (cleanupIDTimer >= maxCleanupIDTimer)
-                            {
-                                if (m_IdOffset == 0 && !isSprint) //  Delete only when no offset is used and not sprint
-                                    FireOnDeleteUnusedID(usedID,first);
-                                cleanupIDTimer = 0;
-                                first = false;
-                            }
+                            if (m_IdOffset == 0 && !isSprint) //  Delete only when no offset is used and not sprint
+                                FireOnDeleteUnusedID(usedID, first);
+                            first = false;
 
                             activeTimer += m_sleepTime;
                             if (activeTimer >= maxActiveTimer)
