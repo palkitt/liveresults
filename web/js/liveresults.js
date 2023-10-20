@@ -3109,9 +3109,13 @@ var LiveResults;
               var refSp = _this.refSplit(key);
               if (value.code != 0 && value.code != 999 && !((_this.curClassIsRelay || _this.curClassLapTimes) && value.code > 100000)) // Code = 0 for exchange, 999 for leg time, 100000+ for leg passing
               {
+                var splitName = value.name;
+                if (splitName.length >= 10)
+                  splitName = splitName.replace("Mellomtid", "M.tid");
+                
                 columns.push(
                   {
-                    "sTitle": value.name,
+                    "sTitle": splitName,
                     "bVisible": _this.curClassSplitsOK[refSp],
                     "sClass": "right",
                     "bSortable": !_this.curClassIsUnranked,
