@@ -263,7 +263,6 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
   border-radius: 5px;
   padding: 0.1em 0.5em;
   position: absolute;
-  z-index: 100;
   bottom: 0px;
   right: 5em; 
 }
