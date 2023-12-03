@@ -170,7 +170,7 @@ strPad = function (num, length) {
 };
 
 resetSorting = function () {
-  this.currentTable.fnSort([[0, 'asc']]);
+  this.currentTable.fnSort([[0]]);
   $("#resetsorting").html("");
 };
 
