@@ -354,6 +354,24 @@ class Emma
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
+	public static function getTestResultsForRunner($name,$races)
+	{		
+		$conn = self::openConnection();
+		$ret = Array();
+		$sql = "SELECT runners.name, runners.class, runners.tavid, results.time, results.status, login.compdate FROM runners, results, login 
+		WHERE runners.name LIKE '%$name%'
+		AND results.dbid = runners.dbid AND results.tavid = runners.tavid AND login.tavid = runners.tavid AND results.tavid IN ($races) 
+		AND results.control = 1000 ORDER BY login.compdate";
+		if ($result = mysqli_query($conn, $sql))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($conn));
+		return $ret;
+	}
 
 	function __construct($compID)
 	{

@@ -353,8 +353,6 @@ elseif ($_GET['method'] == 'addradiocontrolforallclasses')
 		echo("{\"status\": \"OK\"}");
   	}
 }
-
-
 elseif ($_GET['method'] == 'getclassresults')
 {
 	$class = $_GET['class'];
@@ -553,6 +551,33 @@ elseif ($_GET['method'] == 'getstartlist')
    $hash = MD5($ret);
    echo("{ \"status\": \"OK\",$br \"className\": \"startlist\",$br \"results\": [$br$ret$br]");
    echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
+elseif ($_GET['method'] == 'gettestresults')
+{
+	$RT = insertHeader($refreshTime,false);
+	if (isset($_GET['name']))
+		$name = $_GET['name'];
+	else
+		$name = "";
+	if (isset($_GET['races']))
+		$races = $_GET['races'];
+	else
+		$races = "";
+	$results = Emma::getTestResultsForRunner($name,$races);
+	$first = true;
+	$ret = "";
+	foreach ((array)$results as $result)
+	{
+		if (!$first)
+			$ret .= ",$br";
+		$ret .= "{\"name\": \"".$result['name']."\", \"result\": ".$result['time'].", \"status\": ".$result['status'].", \"class\": \"".$result['class']."\"";
+		$ret .= ", \"date\": \"".date("Y-m-d",strtotime($result['compdate']))."\", \"compid\": ".$result['tavid']."}";
+		$first = false;
+	}
+	
+	$hash = MD5($ret);
+	echo("{ \"status\": \"OK\", \"results\": [$ret]");
+	echo(", \"hash\": \"". $hash."\", \"rt\": $RT}");
 }
 else
 {
