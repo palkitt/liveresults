@@ -48,7 +48,7 @@ updateTable = function(data)
   var col = 0;
   columns.push({"sTitle": "Blanl", "sClass": "right", "bVisible": false, "bSortable": true, "aTargets": [col++], "mDataProp": "date"});
   columns.push({"sTitle": "Dato", "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "date"});
-  columns.push({"sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name"});
+  columns.push({"sTitle": "Navn", "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "name"});
   columns.push({"sTitle": "Klasse", "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "class",
           "render": function (data, type, row) {
             var link = "<a href=\"followfull.php?comp=" + row.compid + "&class=" + encodeURIComponent(data);
