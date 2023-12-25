@@ -490,12 +490,20 @@ var LiveResults;
               continue;
 
             // Finish
-            if (sp == (this.curClassNumSplits - 1) && data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=")
+            var finishOK = (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=");
+            if (sp == (this.curClassNumSplits - 1) && finishOK)
               laterSplitOKj[j] = true;
 
             //  Set status: 0=bad, 1=OK, 2=unknown 
             var spRef = this.splitRef(sp);
             var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
+            var finishTime = ( finishOK ? parseInt(data.results[j].result) : 0);
+            if (split < 0 || split > finishTime) // Set split to bad if negative or longer than finish time
+            { 
+              data.results[j].splits[classSplits[spRef].code] = NaN;
+              split = NaN;
+            }
+
             if (!isNaN(split)) // Split exist
             {
               OKSum++;
@@ -521,7 +529,6 @@ var LiveResults;
         var splitFrac;
         var prevSplit;
         var nextSplit;
-        var nextSplitOK;
         var startTime;
         var sprintTimeSum = 0;
         var sprintTimeNum = 0;
@@ -530,12 +537,10 @@ var LiveResults;
           if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
             continue;
 
-          nextSplitOK = false;
           nextSplit = null;
           startTime = (this.curClassIsRelay ? parseInt(data.results[j].splits[0]) : 0);
           if (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=") {  // Finish time
             nextSplit = parseInt(data.results[j].result);
-            nextSplitOK = true;
           }
           for (var sp = this.curClassNumSplits - 1; sp >= 0; sp--) {
             if (!classSplitsOK[sp]) // Bad split
@@ -557,7 +562,6 @@ var LiveResults;
               splitFrac = (nextSplit != null && nextSplit - prevSplit > 0 ? (split - prevSplit) / (nextSplit - prevSplit) : 0);
               splitFracRunner[sp][j] = (splitFrac > 0 && splitFrac < 1 ? splitFrac : null);
               nextSplit = split;
-              nextSplitOK = true;
             }
             else // Split does not exist
             {
@@ -575,7 +579,7 @@ var LiveResults;
         else
           this.shortSprint = false;
 
-       if (raceOK)
+        if (raceOK)
           return;
 
         // Make correlation for split estimates
