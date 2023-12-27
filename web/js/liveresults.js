@@ -2875,7 +2875,7 @@ var LiveResults;
               res += "<tr><td align=\"right\">" + delPre + bib + delPost + "</td>";
               res += "<td>" + delPre + name + delPost + "</td>";
               res += "<td>" + delPre + club + delPost + "</td>";
-              res += "<td align=\"right\">" + delPre + _this.formatTime(data.results[i].results[j].start, 0, false, true, true) + delPost + "</td>";
+              res += "<td align=\"right\">" + delPre + _this.formatTime(data.results[i].results[j].start, 0, false, true, true, true) + delPost + "</td>";
               res += "<td align=\"right\"><span class=small>" + delPre + ecards + delPost + "</span>&nbsp;</td>";
               res += "</tr>";
             }
@@ -3098,10 +3098,10 @@ var LiveResults;
                   txt += vertLine + "<span>";
                   if (!fullView && row.splits["0_place"] >= 1)
                     txt += place;
-                  txt += _this.formatTime(row.start, 0, false, true, true) + "</span>";
+                  txt += _this.formatTime(row.start, 0, false, true, true, true) + "</span>";
                 }
                 else
-                  txt += vertLine + _this.formatTime(row.start, 0, false, true, true);
+                  txt += vertLine + _this.formatTime(row.start, 0, false, true, true, true);
                 return txt;
               }
             }
@@ -3435,7 +3435,7 @@ var LiveResults;
             "bFilter": false,
             "bSort": true,
             "bInfo": false,
-            "bAutoWidth": false,
+            "bAutoWidth": true,
             "aaData": data.results,
             "aaSorting": [[col - 1, "asc"]],
             "aoColumnDefs": columns,
@@ -3531,7 +3531,7 @@ var LiveResults;
       }
     };
    
-    AjaxViewer.prototype.formatTime = function (time, status, showTenthOs, showHours, padZeros) {
+    AjaxViewer.prototype.formatTime = function (time, status, showTenthOs, showHours, padZeros, clocTime) {
       if (arguments.length == 2 || arguments.length == 3) {
         if (this.language == 'fi' || this.language == 'no') {
           showHours = true;
@@ -3567,7 +3567,7 @@ var LiveResults;
           minutes = Math.floor((time - hours * 360000) / 6000);
           seconds = Math.floor((time - minutes * 6000 - hours * 360000) / 100);
           tenth = Math.floor((time - minutes * 6000 - hours * 360000 - seconds * 100) / 10);
-          if (hours > 0) {
+          if (hours > 0 || clocTime) {
             if (padZeros)
               hours = this.strPad(hours, 2);
             return hours + ":" + this.strPad(minutes, 2) + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "");
@@ -3954,7 +3954,7 @@ var LiveResults;
                 return "";
               }
               else {
-                return _this.formatTime(row.start, 0, false, true, true)
+                return _this.formatTime(row.start, 0, false, true, true, true)
               }
             }
           });
