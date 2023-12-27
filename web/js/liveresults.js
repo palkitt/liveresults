@@ -94,7 +94,7 @@ var LiveResults;
       this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
       this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
       this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
-      this.apiURL = (this.local ? "api/api.php" : (EmmaServer ? "https://liveresultat.orientering.se/api.php" : "//api.liveres.live/api.php"));
+      this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.liveres.live/api.php"));
       this.radioURL = (this.local ? "api/radioapi.php" : "//api.liveres.live/radioapi.php");
       this.messageURL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
       LiveResults.Instance = this;

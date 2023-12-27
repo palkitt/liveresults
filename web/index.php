@@ -85,9 +85,11 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     </tr>
     
     <?php	
+    if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
+        $url = "http://localhost/api/api.php?method=getcompetitions";
+    else 
+        $url = "https://api.liveres.live/api.php?method=getcompetitions";    
     $isMobile = preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
-    $url = "https://api.liveres.live/api.php?method=getcompetitions";
-    //$url = "http://localhost/api/api.php?method=getcompetitions";
     $json = file_get_contents($url);
     $json = preg_replace('/[[:cntrl:]]/', '', $json);
     $data = json_decode($json, true);
