@@ -500,8 +500,11 @@ var LiveResults;
             var finishTime = ( finishOK ? parseInt(data.results[j].result) : 0);
             if (split < 0 || split > finishTime) // Set split to bad if negative or longer than finish time
             { 
-              data.results[j].splits[classSplits[spRef].code] = NaN;
-              split = NaN;
+              data.results[j].splits[classSplits[spRef].code] = "";
+              runnerOK[j] = false;
+              raceOK = false;
+              statusN++;
+              continue;
             }
 
             if (!isNaN(split)) // Split exist
