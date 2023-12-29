@@ -218,6 +218,7 @@ table.dataTable > thead > tr > td {
   cursor: pointer;
 	white-space: nowrap;
 	background-color: white;
+  border-bottom: black 1px solid;
 }
 table.dataTable > thead > tr > th:active,
 table.dataTable > thead > tr > td:active {

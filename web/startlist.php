@@ -28,11 +28,13 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <meta name="theme-color" content="#555556">
 
 <link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/fixedHeader.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
 <script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.fixedHeader.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
