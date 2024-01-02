@@ -377,3 +377,7 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 .selectControl {
   cursor: pointer;
 }
+
+/* Fixed header formatting*/
+.dtfh-floatingparent { z-index: 1000 !important; }
+

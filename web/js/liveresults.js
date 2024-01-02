@@ -111,7 +111,12 @@ var LiveResults;
         if (_this.currentTable == null || _this.curClassName == "startlist" || (_this.curClassName != null && _this.curClassName.includes("plainresults")))
           return;
         else
-          _this.currentTable.fnAdjustColumnSizing();
+        {
+          _this.currentTable.api().fixedHeader.disable();
+          _this.currentTable.api().columns.adjust().draw();
+          _this.currentTable.api().fixedHeader.enable();
+        }
+
       });
     }
 
@@ -1296,7 +1301,7 @@ var LiveResults;
           }
           
           if (updatedVP || timesOnly)
-            table.columns.adjust().draw();
+            table.api().columns.adjust().draw();
 
           if (!timesOnly){
             if (updatedVP)
@@ -1606,18 +1611,18 @@ var LiveResults;
           }
 
           this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
-            "bPaginate": false,
-            "bLengthChange": false,
-            "bFilter": true,
-            "dom": 'lrtip',
-            "bSort": false,
-            "bInfo": false,
-            "bAutoWidth": false,
-            "aaData": this.radioData,
-            "aaSorting": [[1, "desc"]],
-            "aoColumnDefs": columns,
-            "bDestroy": true,
-            "orderCellsTop": true
+            fixedHeader: true,
+            paging: false,
+            lengthChange: false,
+            searching: true,
+            info: false,
+            data: this.radioData,
+            ordering : false,
+            order: [[1, "desc"]],
+            columnDefs: columns,
+            destroy: true,
+            dom: 'lrtip',
+            orderCellsTop: true
           });
         }
       }
@@ -1778,17 +1783,17 @@ var LiveResults;
             });
 
             this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
-              "bPaginate": false,
-              "bLengthChange": false,
-              "bFilter": true,
-              "dom": 'lrtip',
-              "bSort": false,
-              "bInfo": false,
-              "bAutoWidth": false,
-              "aaData": this.radioData,
-              "aoColumnDefs": columns,
-              "bDestroy": true,
-              "orderCellsTop": true
+              fixedHeader: true,
+              paging: false,
+              lengthChange: false,
+              searching: true,
+              info: false,
+              data: this.radioData,
+              ordering : false,
+              columnDefs: columns,
+              destroy: true,
+              dom: 'lrtip',
+              orderCellsTop: true
             });
           }
         }
@@ -2119,18 +2124,17 @@ var LiveResults;
         });
 
         this.currentTable = $('#startList').dataTable({
-          "bPaginate": false,
-          "bLengthChange": false,
-          "bFilter": true,
-          "dom": 'lrtip',
-          "bSort": true,
-          "bInfo": false,
-          "bAutoWidth": false,
-          "aaData": data.runners,
-          "aaSorting": [[0, "asc"]],
-          "aoColumnDefs": columns,
-          "bDestroy": true,
-          "orderCellsTop": true
+          fixedHeader: true,
+          paging: false,
+          lengthChange: false,
+          searching: true,
+          info: false,
+          data: data.runners,
+          order: [[0, "asc"]],
+          columnDefs: columns,
+          destroy: true,
+          dom: 'lrtip',
+          orderCellsTop: true
         });
       }
 
@@ -2643,8 +2647,7 @@ var LiveResults;
         $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft(posLeft);
         window.scrollTo(scrollX, scrollY)
         this.lastClubHash = data.hash;
-        this.currentTable.fnAdjustColumnSizing();
-      }
+        this.currentTable.api().columns.adjust().draw();      }
       if (_this.isCompToday())
         this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
     };
@@ -3431,23 +3434,22 @@ var LiveResults;
           $('#' + this.resultsDiv).height(0);
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "fixedColumns": { leftColumns: 2 },
-            "scrollX": true,
-            "bPaginate": false,
-            "bLengthChange": false,
-            "bFilter": false,
-            "bSort": true,
-            "bInfo": false,
-            "bAutoWidth": true,
-            "aaData": data.results,
-            "aaSorting": [[col - 1, "asc"]],
-            "aoColumnDefs": columns,
-            "fnPreDrawCallback": function (oSettings) {
-              if (oSettings.aaSorting[0][0] != col - 1) {
+            fixedHeader: true,
+            fixedColumns: { leftColumns: 2 },
+            scrollX: true,
+            paging: false,
+            lengthChange: false,
+            searching: false,
+            info: false,
+            data: data.results,
+            order: [[col - 1, "asc"]],
+            columnDefs: columns,
+            destroy: true,
+            preDrawCallback: function (settings) {
+              var api = new $.fn.dataTable.Api(settings);
+              if (api.order()[0][0] != col - 1)
                 $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
-              }
             },
-            "bDestroy": true
           });
 
           // Scroll to initial view and hide class column if necessary
@@ -3482,7 +3484,7 @@ var LiveResults;
           if (this.isCompToday())
           {
             this.updatePredictedTimes(true); // Insert times only
-            this.currentTable.fnAdjustColumnSizing();
+            this.currentTable.api().columns.adjust().draw();
             this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
             this.startPredictedTimeTimer();
           }
@@ -4010,25 +4012,23 @@ var LiveResults;
             });
           }
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "scrollX": true,
-            "fixedColumns": { leftColumns: 2 },
-            "bPaginate": false,
-            "bLengthChange": false,
-            "bFilter": false,
-            "bSort": true,
-            "bInfo": false,
-            "bAutoWidth": false,
-            "aaData": data.results,
-            "aaSorting": [[1, "asc"], [5, 'asc']],
-            "aoColumnDefs": columns,
-            "fnPreDrawCallback": function (oSettings) {
-              if (oSettings.aaSorting[0][0] != 1) {
+            fixedHeader: true,
+            fixedColumns: { leftColumns: 2 },
+            scrollX: true,
+            paging: false,
+            lengthChange: false,
+            searching: false,
+            info: false,
+            data: data.results,
+            order: [[1, "asc"], [5, 'asc']],
+            columnDefs: columns,
+            destroy: true,
+            preDrawCallback: function (settings) {
+              var api = new $.fn.dataTable.Api(settings);
+              if (api.order()[0][0] != 1)
                 $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
-              }
-            },
-            "bDestroy": true
+            }
           });
-          this.currentTable.fnAdjustColumnSizing();
           this.lastClubHash = data.hash;
         }
       }
@@ -4214,20 +4214,18 @@ var LiveResults;
           columns.push({ "sTitle": "m/km", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "kmTime" });
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "scrollX": true,
-            "fixedColumns": { leftColumns: 3 },
-            "bPaginate": false,
-            "bLengthChange": false,
-            "bFilter": false,
-            "bSort": true,
-            "bInfo": false,
-            "bAutoWidth": false,
-            "aaData": teamresults,
-            "aaSorting": sorting,
-            "aoColumnDefs": columns,
-            "bDestroy": true
+            fixedHeader: true,
+            fixedColumns: { leftColumns: 3 },
+            scrollX: true,
+            paging: false,
+            lengthChange: false,
+            searching: false,
+            info: false,
+            data: teamresults,
+            order: sorting,
+            columnDefs: columns,
+            destroy: true
           });
-          this.currentTable.fnAdjustColumnSizing();
         };
       };
     };
@@ -4458,16 +4456,14 @@ var LiveResults;
           columns.push({ "sTitle": "sort", "bVisible": false, "aTargets": [col++], "mDataProp": "place" });
 
           this.currentTable = $('#' + this.resultsDiv).dataTable({
-            "bPaginate": false,
-            "bLengthChange": false,
-            "bFilter": false,
-            "bSort": true,
-            "bInfo": false,
-            "bAutoWidth": false,
-            "aaData": results,
-            "aaSorting": [[col - 1, "asc"]],
-            "aoColumnDefs": columns,
-            "bDestroy": true
+            paging: false,
+            lengthChange: false,
+            searching: false,
+            info: false,
+            data: results,
+            order: [[col - 1, "asc"]],
+            columnDefs: columns,
+            destroy: true
           });
         }
       }
@@ -4717,30 +4713,29 @@ var LiveResults;
             };
 
             this.currentTable = $('#' + this.resultsDiv).dataTable({
-              "fixedColumns": { leftColumns: 2 },
-              "scrollX": true,
-              "bPaginate": false,
-              "bLengthChange": false,
-              "bFilter": false,
-              "bSort": true,
-              "bInfo": false,
-              "bAutoWidth": false,
-              "aaData": data.results,
-              "aaSorting": [[1, "asc"]],
-              "aoColumnDefs": columns,
-              "fnPreDrawCallback": function (oSettings) {
-                if (oSettings.aaSorting[0][0] != 1) {
+              fixedHeader: true,
+              fixedColumns: { leftColumns: 2 },
+              scrollX: true,
+              paging: false,
+              lengthChange: false,
+              searching: false,
+              info: false,
+              data: data.results,
+              order: [[1, "asc"]],
+              columnDefs: columns,
+              destroy: true,
+              preDrawCallback: function (settings) {
+                var api = new $.fn.dataTable.Api(settings);
+                if (api.order()[0][0] != 1)
                   $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
-                }
-              },
-              "bDestroy": true
+              }
             });
 
             var scrollBody = $(this.currentTable).parent();
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
             if ($(".firstCol").width() > 0 && maxScroll > 5)
               $('#switchNavClick').trigger('click');
-            this.currentTable.fnAdjustColumnSizing();
+            this.currentTable.api().columns.adjust().draw();
           }
         }
       }
