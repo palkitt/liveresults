@@ -243,17 +243,17 @@ async function enableNoSleep() {
 }
 
 function loadFontSize() {
-	if (typeof(Storage) !== "undefined") {
+  if (typeof(Storage) !== "undefined") {
     var size = localStorage.getItem("fontSize");
     if (size>0)
-      $("td").css("font-size",size + "px");
+      $("table").css("font-size",size + "px");
   }	
 }
 
 function changeFontSize(val) {
-	var size = $("td").css("font-size");
+	var size = $("table").css("font-size");
 	var newSize = parseInt(size.replace(/px/, "")) + val;
-	$("td").css("font-size",newSize + "px");
+	$("table").css("font-size",newSize + "px");
   if (typeof(Storage) !== "undefined")
     localStorage.setItem("fontSize",newSize);
   $('#divResults').DataTable().columns.adjust();
