@@ -228,7 +228,8 @@ function changeFontSize(val) {
 	$("table").css("font-size",newSize + "px");
   if (typeof(Storage) !== "undefined")
     localStorage.setItem("fontSize",newSize);
-  $('#divResults').DataTable().columns.adjust();
+  if ($.fn.dataTable.isDataTable('#divResults'))
+    $('#divResults').DataTable().columns.adjust();
 }
 
 function switchNav() {
