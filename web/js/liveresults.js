@@ -502,10 +502,11 @@ var LiveResults;
             //  Set status: 0=bad, 1=OK, 2=unknown 
             var spRef = this.splitRef(sp);
             var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-            var finishTime = ( finishOK ? parseInt(data.results[j].result) : 0);
-            if (split < 0 || split > finishTime) // Set split to bad if negative or longer than finish time
+            var finishTime = ( finishOK ? parseInt(data.results[j].result) : 8640000); // 24 h
+            if (split < 0 || split > finishTime) // Remove split if negative or longer than finish time
             { 
               data.results[j].splits[classSplits[spRef].code] = "";
+              data.results[j].splits[classSplits[spRef].code + "_changed"] = "";
               runnerOK[j] = false;
               raceOK = false;
               statusN++;
@@ -1301,7 +1302,7 @@ var LiveResults;
           }
           
           if (updatedVP || timesOnly)
-            table.api().columns.adjust().draw();
+            table.columns.adjust().draw();
 
           if (!timesOnly){
             if (updatedVP)
