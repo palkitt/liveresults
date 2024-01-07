@@ -82,7 +82,10 @@ namespace LiveResults.Client.Parsers
                         string familyname;
                         string givenname;
                         string club;
-                        if (!ParseNameClubAndId(personNode, nsMgr, out familyname, out givenname, out club)) 
+                        int bib;
+                        int controlCard;
+
+                        if (!ParsePersonData(personNode, nsMgr, out familyname, out givenname, out club, out controlCard, out bib)) 
                             continue;
 
                         var startTimeNode = personNode.SelectSingleNode("iof:Start/iof:StartTime",nsMgr);
@@ -92,7 +95,7 @@ namespace LiveResults.Client.Parsers
                             continue;
                         string starttime = startTimeNode.InnerText;
 
-                        var runner = new Runner(-1, givenname + " " + familyname, club, className, 0, 0, 0);
+                        var runner = new Runner(-1, givenname + " " + familyname, club, className, controlCard, 0, bib);
 
                         if (!string.IsNullOrEmpty(starttime))
                         {
@@ -111,7 +114,7 @@ namespace LiveResults.Client.Parsers
                 if (classNode == null)
                     continue;
 
-                 XmlNode classNameNode = classNode.SelectSingleNode("iof:Name",nsMgr);
+                XmlNode classNameNode = classNode.SelectSingleNode("iof:Name",nsMgr);
                 if (classNameNode == null)
                     continue;
 
@@ -133,7 +136,7 @@ namespace LiveResults.Client.Parsers
                     }
                 }
 
-
+                //int prevLeg = 0;
                 var teamResultNodes = classResultNode.SelectNodes("iof:TeamResult", nsMgr);
                 if (teamResultNodes != null)
                 {
@@ -144,19 +147,31 @@ namespace LiveResults.Client.Parsers
                             continue;
                         string teamName = teamNameNode.InnerText;
 
+                        var teamBibNode = teamResultNode.SelectSingleNode("iof:BibNumber", nsMgr);
+                        if (teamBibNode == null)
+                            continue;
+                        int teamBib = Int32.Parse(teamBibNode.InnerText);
+
                         var teamMemberResultNodes = teamResultNode.SelectNodes("iof:TeamMemberResult", nsMgr);
                         if (teamMemberResultNodes != null)
                         {
-                            foreach (XmlNode teamMemberResult in teamMemberResultNodes)
+                            string totalTime = "";
+                            foreach(XmlNode teamMemberResult in teamMemberResultNodes)
                             {
                                 string name = GetNameForTeamMember(nsMgr, teamMemberResult);
                                 var legNode = teamMemberResult.SelectSingleNode("iof:Result/iof:Leg", nsMgr);
 
                                 if (legNode != null)
                                 {
-                                    string leg = legNode.InnerText;
+                                    string leg = legNode.InnerText;                                    
+                                    int bib = -(teamBib * 100 + Int32.Parse(leg));
 
-                                    var runner = new Runner(-1, name, teamName, className + "-" + leg);
+                                    var controlCardNode = teamMemberResult.SelectSingleNode("iof:Result/iof:ControlCard", nsMgr);
+                                    int controlCard = 0;
+                                    if (controlCardNode != null)
+                                        controlCard = Int32.Parse(controlCardNode.InnerText);
+
+                                    var runner = new Runner(-1, name, teamName, className + "-" + leg,controlCard,0,bib);
 
                                     var competitorStatusNode = teamMemberResult.SelectSingleNode("iof:Result/iof:OverallResult/iof:Status", nsMgr);
                                     var resultTimeNode = teamMemberResult.SelectSingleNode("iof:Result/iof:OverallResult/iof:Time", nsMgr);
@@ -178,7 +193,27 @@ namespace LiveResults.Client.Parsers
                                     XmlNodeList splittimes = teamMemberResult.SelectNodes("iof:Result/iof:SplitTime", nsMgr);
                                     ParseSplitTimes(nsMgr, runner, time, splittimes);
 
+                                    int legNo = Int32.Parse(leg);
+                                    if (legNo > 1)
+                                    {
+                                        var legTimeNode = teamMemberResult.SelectSingleNode("iof:Result/iof:Time", nsMgr);
+                                        string legTime = "";
+                                        if (legTimeNode != null)
+                                            legTime = legTimeNode.InnerText;
+
+                                        FixKraemerTimeFormat(ref legTime);
+                                        int iLegTime = string.IsNullOrEmpty(legTime) ? -10 : (int)(Convert.ToDouble(legTime, CultureInfo.InvariantCulture) * 100);
+
+                                        if (iLegTime > 0)
+                                            runner.SetSplitTime(999, iLegTime);
+
+                                        int iTotalTime = (int)(Convert.ToDouble(totalTime, CultureInfo.InvariantCulture) * 100);
+                                        if (iTotalTime > 0)
+                                            runner.SetSplitTime(0, iTotalTime);
+                                    }
+
                                     runners.Add(runner);
+                                    totalTime = time;
                                 }
                             }
                         }
@@ -193,10 +228,13 @@ namespace LiveResults.Client.Parsers
                         string familyname;
                         string givenname;
                         string club;
-                        if (!ParseNameClubAndId(personNode, nsMgr, out familyname, out givenname, out club)) continue;
+                        int bib;
+                        int controlCard;
 
+                        if (!ParsePersonData(personNode, nsMgr, out familyname, out givenname, out club, out controlCard, out bib))
+                            continue;
 
-                        var runner = new Runner(-1, givenname + " " + familyname, club, className);
+                        var runner = new Runner(-1, givenname + " " + familyname, club, className, controlCard, 0, bib);
 
                         var competitorStatusNode = personNode.SelectSingleNode("iof:Result/iof:Status",nsMgr);
                         var resultTimeNode = personNode.SelectSingleNode("iof:Result/iof:Time",nsMgr);
@@ -404,14 +442,15 @@ namespace LiveResults.Client.Parsers
             }
         }
 
-        private static bool ParseNameClubAndId(XmlNode personResultNode, XmlNamespaceManager nsMgr, out string familyname, out string givenname,
-           out string club)
+        private static bool ParsePersonData(XmlNode personResultNode, XmlNamespaceManager nsMgr, out string familyname, out string givenname,
+           out string club, out int controlCard, out int bib)
         {
 
             club = null;
             familyname = null;
             givenname = null;
-           
+            bib = 0;
+            controlCard = 0;
 
             XmlNode personNameNode = personResultNode.SelectSingleNode("iof:Person/iof:Name",nsMgr);
             if (personNameNode == null)
@@ -428,7 +467,17 @@ namespace LiveResults.Client.Parsers
 
             familyname = familyNameNode.InnerText;
             givenname = giveNameNode.InnerText;
-           // sourceId = personIdNode.InnerText;
+            // sourceId = personIdNode.InnerText;
+
+            var bibNode = personResultNode.SelectSingleNode("iof:Result/iof:BibNumber", nsMgr);
+            if (bibNode == null)
+                return false;
+            bib = Int32.Parse(bibNode.InnerText);
+
+            var controlCardNode = personResultNode.SelectSingleNode("iof:Result/iof:ControlCard", nsMgr);
+            if (controlCardNode == null)
+                return false;
+            controlCard = Int32.Parse(controlCardNode.InnerText);
 
             var clubNode = personResultNode.SelectSingleNode("iof:Organisation/iof:ShortName",nsMgr);
             club = "";
