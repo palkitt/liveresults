@@ -1,49 +1,80 @@
 <?php
 date_default_timezone_set("Europe/Oslo");
-$lang = "no";
+header('Content-Type: text/html; charset=utf-8');
 
+$lang = "no";
 if (isset($_GET['lang']))
- $lang = $_GET['lang'];
+  $lang = $_GET['lang'];
+$isEmmaComp = isset($_GET['emma']);
+$isSpeaker = isset($_GET['speaker']);
+$compNo = $_GET['comp'];
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
-include_once("templates/classEmma.class.php");
 
-header('Content-Type: text/html; charset='.$CHARSET);
-
-$currentComp = new Emma($_GET['comp']);
-$currentCompNo = $_GET['comp'];
-$organizer = $currentComp->Organizer();
-$showInfo = $currentComp->ShowInfo();
-$showEcardTimes = $currentComp->ShowEcardTimes();
-$showTimesInSprint = $currentComp->ShowTimesInSprint();
+if ($isEmmaComp)
+{
+  $url = "https://liveresultat.orientering.se/api.php?method=getcompetitioninfo&comp=".$compNo;
+  $json = file_get_contents($url);
+  $json = preg_replace('/[[:cntrl:]]/', '', $json);
+  $json = str_replace('"O"','O',$json);
+  $currentComp = json_decode($json, true);
+  $compName = $currentComp["name"];
+  $compDate = $currentComp["date"];
+  $eventTimeZoneDiff = $currentComp["timediff"];
+  $organizer = $currentComp["organizer"];
+  $showInfo = false;
+  $showEcardTimes = false;
+  $showTimesInSprint = false;
+  $isMultiDayEvent = "false";
+  $showTenths = false; 
+  $highTime = false;
+  $rankedStartlist = false;
+	$qualLimits = "";
+	$qualClasses = "";
+  $infoText = "";
+  $indexRef = "indexEmma.php?lang=".$lang;
+}
+else
+{
+  include_once("templates/classEmma.class.php");
+  $currentComp = new Emma($compNo);
+  $compName = $currentComp->CompName();
+  $compDate = $currentComp->CompDate();
+  $eventTimeZoneDiff = $currentComp->TimeZoneDiff();
+  $organizer = $currentComp->Organizer();
+  $showInfo = $currentComp->ShowInfo();
+  $showEcardTimes = $currentComp->ShowEcardTimes();
+  $showTimesInSprint = $currentComp->ShowTimesInSprint();
+  $isMultiDayEvent = ($currentComp->IsMultiDayEvent() ? "true" : "false");
+  $showTenths = $currentComp->ShowTenthOfSeconds(); 
+  $highTime = $currentComp->HighTime();
+  $rankedStartlist = $currentComp->RankedStartList();
+	$qualLimits = $currentComp->QualLimits();
+	$qualClasses = $currentComp->QualClasses();
+  $infoText = $currentComp->InfoText();
+  $indexRef = "index.php?lang=".$lang;
+}
 $image = "";
 
-$isSingleClass = isset($_GET['class']);
-$isSingleClub = isset($_GET['club']);
-$setFullView = isset($_GET['fullview']);
-$beta = isset($_GET['beta']);
-$showPath = true;
-
-if (isset($_GET['showpath']) && $_GET['showpath'] == "false")
-  $showPath = false;
-
 $singleClass = "";
-$singleClub = "";
+$isSingleClass = isset($_GET['class']);
 if ($isSingleClass)
 	$singleClass = $_GET['class'];
+
+$singleClub = "";
+$isSingleClub = isset($_GET['club']);
 if ($isSingleClub)
 	$singleClub = rawurldecode($_GET['club']);
 
 $showLastPassings = !($isSingleClass || $isSingleClub) || (isset($_GET['showLastPassings']) && $_GET['showLastPassings'] == "true");
-$RunnerStatus = Array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUSWO, "12" => $_STATUSMOVEDUP, "9" => $_STATUSNOTSTARTED,"0" => $_STATUSOK, "3" => $_STATUSMP, "4" => $_STATUSDSQ, "5" => $_STATUSOT, "9" => "", "10" => "", "6" => $_STATUSNC);
 
 echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
         "http://www.w3.org/TR/html4/loose.dtd">
 <html>
-<head><title><?=$_TITLE?> :: <?=$currentComp->CompName()?> [<?=$currentComp->CompDate()?>]</title>
+<head><title><?=$_TITLE?> :: <?=$compName?> [<?=$compDate?>]</title>
 
 <META HTTP-EQUIV="expires" CONTENT="-1">
 <meta http-equiv="Content-Type" content="text/html;charset=<?=$CHARSET?>">
@@ -61,12 +92,16 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="js/dataTables.fixedHeader.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
+<?php if ($isSpeaker){?>
+  <script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
+<?php }?>
 
-<?php if ($beta){?>
+<?php if (isset($_GET['beta'])){?>
 	<script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script> 
 <?php } else {?>
 	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
 <?php }?>
+
 <script language="javascript" type="text/javascript">
 
 var res = null;
@@ -128,7 +163,7 @@ runnerStatus[4]  = "<?=$_STATUSDSQ?>";
 runnerStatus[5]  = "<?=$_STATUSOT?>";
 runnerStatus[6]  = "<?=$_STATUSNC?>";
 runnerStatus[9]  = "";
-runnerStatus[10]  = "";
+runnerStatus[10] = "";
 runnerStatus[11] =  "<?=$_STATUSWO?>";
 runnerStatus[12] = "<?=$_STATUSMOVEDUP?>";
 runnerStatus[13] = "<?=$_STATUSFINISHED?>";
@@ -137,10 +172,32 @@ var sideBar = true;
 var topBar = false;
 
 $(document).ready(function()
-{  
-  res = new LiveResults.AjaxViewer(<?= $_GET['comp']?>,"<?= $lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
-		Resources, <?= ($currentComp->IsMultiDayEvent() ? "true" : "false")?>, <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", false);
-	<?php if ($isSingleClass){?>
+{ 
+  <?php if ($isSpeaker){?>
+    try
+    {
+      time_is_widget.init({Oslo_z71e:{}});
+    }
+    catch (error)
+    {}
+  <?php }?>
+
+  res = new LiveResults.AjaxViewer(<?=$compNo?>,"<?=$lang?>","divClasses","divLastPassings","resultsHeader","resultsControls","divResults","txtResetSorting",
+		Resources, <?=$isMultiDayEvent?>, <?= (($isSingleClass || $isSingleClub) ? "true": "false")?>,"setAutomaticUpdateText","setCompactViewText", runnerStatus, false, "", <?=$isEmmaComp?>);
+	
+  <?php if ($isSpeaker){?>
+    res.speakerView = true;
+    res.inactiveTimeout = 24*3600;
+    res.updateRunnerList();
+    var searchTimer = null;
+	  $('#searchBib').on('keyup', function () 
+    {
+		  clearTimeout(searchTimer); 
+		  searchTimer = setTimeout(function(){ res.searchRunner(); }, 500);
+	  }); 
+  <?php }?>
+  
+  <?php if ($isSingleClass){?>
 		res.chooseClass('<?=$singleClass?>');
 	<?php }
 	else if ($isSingleClub)
@@ -166,36 +223,36 @@ $(document).ready(function()
 	<?php }?>  
 
 	// Set date and time zone
-	res.compDate = "<?=$currentComp->CompDate();?>";
-	res.eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
+	res.compDate = "<?=$compDate?>";
+	res.eventTimeZoneDiff = <?=$eventTimeZoneDiff?>;
 
 	// Insert comp name
-	var compName = "<?=$currentComp->CompName()?>";
+  var compName = "<?=$compName?>";
 	compName = compName.substring(0,  (res.browserType == 1 ? 20 : 60) )
 	$("#compname").html(compName);
 
 	// Show tenth of seconds
-	<?php if($currentComp->ShowTenthOfSeconds() ){?>
+	<?php if($showTenths){?>
 		res.setShowTenth(true); <?php }?>
 
 	// Modify high time
-	<?php if($currentComp->HighTime() ){?> 
-	    res.highTime = <?=$currentComp->HighTime(); ?> <?php }?>
+	<?php if($highTime){?> 
+	    res.highTime = <?=$highTime?> <?php }?>
 
 	// Set ranked startlist
-	<?php if($currentComp->RankedStartlist()>-1 ){?> 
-	    res.rankedStartlist = <?=$currentComp->RankedStartList(); ?> <?php }?>
+	<?php if(!$rankedStartlist){?> 
+	    res.rankedStartlist = <?=$rankedStartlist; ?> <?php }?>
 	
 	// Qualification limits and classes (last limit is default)
-	res.qualLimits = [<?=$currentComp->QualLimits();?>];
-	res.qualClasses = [<?=$currentComp->QualClasses();?>];
+	res.qualLimits = [<?=$qualLimits?>];
+	res.qualClasses = [<?=$qualClasses;?>];
 
 	// Initialize info text
-	$("#divInfoText").html("<?=$currentComp->InfoText();?>");
+	$("#divInfoText").html("<?=$infoText?>");
 
 	// Check for mobile and close top if mobile is detected
 	<?php if ((!$isSingleClass && !$isSingleClub) ){?>
-		if (res.browserType == 1 && <?=(in_array($_GET['comp'], array("10203"))?0:1)?>)
+		if (res.browserType == 1 && <?=(in_array($compNo, array("10203"))?0:1)?>)
 			closeTop();
 		else
 		{
@@ -330,17 +387,17 @@ function closeTop() {
       <td colspan="2" align="center">
       <div id="topBar" style="overflow: hidden">
       <?php if($organizer=="Freidig/Wing/Malvik"){?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
-	    <?php if(in_array($_GET['comp'], array("10118","10119","10120","10121"))){?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
-	    <?php if(in_array($_GET['comp'], array("10110","10111","10112"))){?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
-	    <?php if(in_array($_GET['comp'], array("10203"))){?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
+	    <?php if(in_array($compNo, array("10118","10119","10120","10121"))){?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
+	    <?php if(in_array($compNo, array("10110","10111","10112"))){?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
+	    <?php if(in_array($compNo, array("10203"))){?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
 	    <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
 		    <tr>
 			    <?php 
-				    if (in_array($_GET['comp'], array("10098","10099","10100","10101","10473","10474","10475","10476")))	$image = "images/SG.png";
-				    else if (in_array($_GET['comp'], array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
-				    else if (in_array($_GET['comp'], array("10215")))	$image = "images/Skien.png";
-				    else if (in_array($_GET['comp'], array("10532","10533","10534","10535"))) $image = "images/HL2023.png";
-					else if (in_array($_GET['comp'], array("10606")))	$image = "images/Blodslitet.jpg";
+				    if (in_array($compNo, array("10098","10099","10100","10101","10473","10474","10475","10476")))	$image = "images/SG.png";
+				    else if (in_array($compNo, array("10118","10119","10120","10121")))	$image = "images/NM2021.jpg";
+				    else if (in_array($compNo, array("10215")))	$image = "images/Skien.png";
+				    else if (in_array($compNo, array("10532","10533","10534","10535"))) $image = "images/HL2023.png";
+					else if (in_array($compNo, array("10606")))	$image = "images/Blodslitet.jpg";
             else switch (strtolower($organizer))
 				    {
 					    case "freidig":	         $image = "images/Freidig60.png"; break;
@@ -352,7 +409,7 @@ function closeTop() {
 					    case "freidig/wing/malvik":	$image = "images/NM2020.png"; break;
 					    case "eiker o-lag":      $image ="images/Eiker.png"; break; 
 					    case "stokke il":        $image = "images/stokke.png"; break;
-					    case "skien ok":	     $image = "images/Skien.png"; break; 
+					    case "skien ok":	       $image = "images/Skien.png"; break; 
 					    case "byaasen skiklub":	 $image = "images/BSK.png"; break;
 					    case "kristiansand ok":  $image = "images/KOK_60.jpg"; break;
 					    case "ok moss":          $image = "images/OKMoss.png"; break;
@@ -400,11 +457,23 @@ function closeTop() {
 	            <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span id="navUD">↑</span></button>
 	            <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
 	            <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
-	            <button class="navbtn" onclick="location.href='index.php?lang=<?=$lang?>'">↗</button>
+	            <button class="navbtn" onclick="location.href='<?=$indexRef?>'">↗</button>
               &nbsp;
               <b><span id="compname">loading comp name...</b>
             </td>
 	        </tr>
+         <?php if ($isSpeaker){?>
+          <tr>
+            <td align="left">
+              <input type="text" id="searchBib" placeholder="Startno..." size="3em"> <span id="searchRunner">Ukjent startnummer</span>
+            </td>
+            <td align="right">
+              <a href="startlist.php?comp=<?=$compNo?>"><?= $_START?></a> | <a href="radio.php?code=-1&comp=<?=$compNo?>">Melde</a> | 
+              <a href="radio.php?code=1000&comp=<?=$compNo?>"><?= $_CONTROLFINISH?></a> | 
+              <a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF"></a><span id="Oslo_z71e"></span>
+            </td>
+          </tr>
+        <?php }?> 
         </table>
       </td>
     </tr>
@@ -412,9 +481,11 @@ function closeTop() {
     <tr>
       <td class="firstCol" valign="top" style="background-color:#FFF; color:#000;">
         <div id="divClasses"></div>
+        <?php if (!$isEmmaComp){?>
           Totalt: <span id="numberOfRunnersTotal"></span><br>
 	        <?=$_START?>: <span id="numberOfRunnersStarted"></span><br>
 	        <?=$_CONTROLFINISH?>: <span id="numberOfRunnersFinished"></span>
+        <?php }?>
       </td>
       <td valign="top" width="100%">  
 <?php }?> 
@@ -423,7 +494,11 @@ function closeTop() {
             <td>
               <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF">
                 <tr>
-                  <td align="left" ><span id="liveIndicator"></span><span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
+                  <td align="left">
+                    <?php if (!$isEmmaComp){?>
+                      <span id="liveIndicator"></span>
+                    <?php }?>
+                    <span id="resultsHeader" style="font-size: 1.3em;"><b><?=$_NOCLASSCHOSEN?></b></span></td>
                   <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
                 </tr>
               </table>

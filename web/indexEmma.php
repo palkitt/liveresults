@@ -1,11 +1,11 @@
 ﻿<?php
 date_default_timezone_set("Europe/Oslo");
 
-include_once("../templates/emmalang_no.php");
+include_once("templates/emmalang_no.php");
 $lang = "no";
 if (isset($_GET['lang']) && $_GET['lang'] != "")
 	$lang = $_GET['lang'];
-include_once("../templates/emmalang_$lang.php");
+include_once("templates/emmalang_$lang.php");
 
 header('Content-Type: text/html; charset=utf-8');
 
@@ -21,7 +21,7 @@ echo("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#555556">
 
-<link rel="stylesheet" type="text/css" href="../css/style-freidig.css">
+<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 
 <script language="javascript" type="text/javascript">
 function colorRow(row)
@@ -45,28 +45,28 @@ el.style.backgroundColor = "";
 <!-- MAIN DIV -->
 <div style="font-size: 20px; font-weight: bold; height: 50px; width:100%; background-color: #555555; padding-left: 5px; 
             vertical-align: middle; line-height:45px; color: white;">
- <img src="../images/svenskorientering.png" height="40px" style="vertical-align: middle" />&nbsp; Liveresults from Emma server (liveresultat.orientering.se)
+ <img src="images/svenskorientering.png" height="40px" style="vertical-align: middle" />&nbsp; Liveresults from Emma server (liveresultat.orientering.se)
 </div>
 
 <div class="maindiv" style="padding-left: 5px;">
 <br>
-<a href='../'>Results from LiveRes</a><br>
+<a href='index.php'>Results from LiveRes</a><br>
 <br>
 <b>Choose language</b><br>
-<a href=index.php?lang=no style='text-decoration: none'><img src='../images/no.png?a' border='0' alt='Norsk'></a>&nbsp;
-<a href=index.php?lang=sv style='text-decoration: none'><img src='../images/se.png?a' border='0' alt='Svenska'></a>&nbsp;
-<a href=index.php?lang=en style='text-decoration: none'><img src='../images/en.png?a' border='0' alt='English'></a>&nbsp;
-<a href=index.php?lang=fi style='text-decoration: none'><img src='../images/fi.png?a' border='0' alt='Suomeksi'></a>&nbsp;
-<a href=index.php?lang=ru style='text-decoration: none'><img src='../images/ru.png?a' border='0' alt='Русский'></a>&nbsp;
-<a href=index.php?lang=cz style='text-decoration: none'><img src='../images/cz.png?a' border='0' alt='Česky'></a>&nbsp;
-<a href=index.php?lang=de style='text-decoration: none'><img src='../images/de.png?a' border='0' alt='Deutsch'></a>&nbsp;
-<a href=index.php?lang=bg style='text-decoration: none'><img src='../images/bg.png?a' border='0' alt='български'></a>&nbsp;
-<a href=index.php?lang=fr style='text-decoration: none'><img src='../images/fr.png?a' border='0' alt='Français'></a>&nbsp;
-<a href=index.php?lang=it style='text-decoration: none'><img src='../images/it.png?a' border='0' alt='Italiano'></a>&nbsp;
-<a href=index.php?lang=hu style='text-decoration: none'><img src='../images/hu.png?a' border='0' alt='Magyar'></a>&nbsp;
-<a href=index.php?lang=es style='text-decoration: none'><img src='../images/es.png?a' border='0' alt='Español'></a>&nbsp;
-<a href=index.php?lang=pl style='text-decoration: none'><img src='../images/pl.png?a' border='0' alt='Polska'></a>&nbsp;
-<a href=index.php?lang=pt style='text-decoration: none'><img src='../images/pt.png?a' border='0' alt='Português'></a>
+<a href=index.php?lang=no style='text-decoration: none'><img src='images/no.png?a' border='0' alt='Norsk'></a>&nbsp;
+<a href=index.php?lang=sv style='text-decoration: none'><img src='images/se.png?a' border='0' alt='Svenska'></a>&nbsp;
+<a href=index.php?lang=en style='text-decoration: none'><img src='images/en.png?a' border='0' alt='English'></a>&nbsp;
+<a href=index.php?lang=fi style='text-decoration: none'><img src='images/fi.png?a' border='0' alt='Suomeksi'></a>&nbsp;
+<a href=index.php?lang=ru style='text-decoration: none'><img src='images/ru.png?a' border='0' alt='Русский'></a>&nbsp;
+<a href=index.php?lang=cz style='text-decoration: none'><img src='images/cz.png?a' border='0' alt='Česky'></a>&nbsp;
+<a href=index.php?lang=de style='text-decoration: none'><img src='images/de.png?a' border='0' alt='Deutsch'></a>&nbsp;
+<a href=index.php?lang=bg style='text-decoration: none'><img src='images/bg.png?a' border='0' alt='български'></a>&nbsp;
+<a href=index.php?lang=fr style='text-decoration: none'><img src='images/fr.png?a' border='0' alt='Français'></a>&nbsp;
+<a href=index.php?lang=it style='text-decoration: none'><img src='images/it.png?a' border='0' alt='Italiano'></a>&nbsp;
+<a href=index.php?lang=hu style='text-decoration: none'><img src='images/hu.png?a' border='0' alt='Magyar'></a>&nbsp;
+<a href=index.php?lang=es style='text-decoration: none'><img src='images/es.png?a' border='0' alt='Español'></a>&nbsp;
+<a href=index.php?lang=pl style='text-decoration: none'><img src='images/pl.png?a' border='0' alt='Polska'></a>&nbsp;
+<a href=index.php?lang=pt style='text-decoration: none'><img src='images/pt.png?a' border='0' alt='Português'></a>
 <br>
 
 <table border="0" cellpadding="0px" cellspacing="0" width="100%" id="tblLiveComps">
@@ -86,7 +86,7 @@ el.style.backgroundColor = "";
       {
         ?>
         <tr id="row<?=$comp["id"]?>" style="font-weight:bold;"><td><?=date("Y-m-d",strtotime($comp['date']))?></td>
-        <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="followfull.php?comp=<?=$comp['id']?>&amp;lang=<?=$lang?>"><?=$comp["name"]?></a></td>
+        <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="followfull.php?emma&comp=<?=$comp['id']?>&amp;lang=<?=$lang?>"><?=$comp["name"]?></a></td>
         <td style="font-weight:normal"><?=$comp["organizer"]?></td>
         </tr>
         <?php
@@ -110,7 +110,7 @@ el.style.backgroundColor = "";
     }
 	  ?>
       <tr id="row<?=$comp["id"]?>"><td><?=date("Y-m-d",strtotime($comp['date']))?></td>
-      <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="followfull.php?comp=<?=$comp["id"]?>&amp;lang=<?=$lang?>"><?=$comp["name"]?></a></td>
+      <td><a onmouseover="colorRow('row<?=$comp["id"]?>')" onmouseout="resetRow('row<?=$comp["id"]?>')" href="followfull.php?emma&comp=<?=$comp["id"]?>&amp;lang=<?=$lang?>"><?=$comp["name"]?></a></td>
       <td><?=$comp["organizer"]?></td>
       </tr>
 	  <?php

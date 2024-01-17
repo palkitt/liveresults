@@ -53,7 +53,7 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <div class="maindiv" style="padding-left: 5px;">
   <br>
-  <a href='emma/index.php'>Results from liveresultat.orientering.se</a><br>
+  <a href='indexEmma.php'>Results from liveresultat.orientering.se</a><br>
   <br>
   <b>Choose language</b><br>
   <a href=index.php?lang=no style='text-decoration: none'><img src='images/no.png?a' alt='Norsk'></a>&nbsp;

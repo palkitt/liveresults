@@ -96,7 +96,7 @@ function resetRow(row)
           <div class="dropdownAdm-content">
             <a href="/adm/editComp.php?compid=<?=$comp["tavid"]?>">Edit competition</a>
             <a href="/followfull.php?comp=<?=$comp['tavid']?>">Results page</a>
-            <a href="/speaker.php?comp=<?=$comp["tavid"]?>">Speaker view</a>
+            <a href="/followfull.php?speaker&comp=<?=$comp["tavid"]?>">Speaker view</a>
             <a href="/message.php?comp=<?=$comp["tavid"]?>">Messages</a>
             <a href="/radio.php?comp=<?=$comp["tavid"]?>&code=0">Start registration</a>
             <a href="/adm/radiolinks.php?comp=<?=$comp["tavid"]?>">Radio links</a>
