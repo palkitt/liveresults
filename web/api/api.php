@@ -650,25 +650,25 @@ function classResults($class,$plain,$relay=false)
 	$retTotal = false;
 	if (isset($_GET['includetotal']) && $_GET['includetotal'] == "true")
 	{		
-    if (!$plain)
-      $retTotal = true;
-    $total = $currentComp->getTotalResultsForClass($class);
+		if (!$plain)
+			$retTotal = true;
+		$total = $currentComp->getTotalResultsForClass($class);
 		foreach ((array)$results as $key=>$res)
 		{
 			$id = $res['DbId'];
-      if ($plain) // Replace todays results with total results
-      {
-        $results[$key]["Time"] = $total[$id]["Time"];
-        $results[$key]["Status"] = $total[$id]["Status"];
-        $results[$key]["Length"] = null;
-      }
-      else
-      {
-        $results[$key]["totaltime"] = $total[$id]["Time"];
-        $results[$key]["totalstatus"] = $total[$id]["Status"];
-        $results[$key]["totalplace"] = $total[$id]["Place"];
-        $results[$key]["totalplus"] = $total[$id]["TotalPlus"];
-      }
+      		if ($plain) // Replace todays results with total results
+			{
+				$results[$key]["Time"] = $total[$id]["Time"];
+				$results[$key]["Status"] = $total[$id]["Status"];
+				$results[$key]["Length"] = null;
+			}
+			else
+			{
+				$results[$key]["totaltime"] = $total[$id]["Time"];
+				$results[$key]["totalstatus"] = $total[$id]["Status"];
+				$results[$key]["totalplace"] = $total[$id]["Place"];
+				$results[$key]["totalplus"] = $total[$id]["TotalPlus"];
+			}
 		}
 	}
 	$ret = "";
@@ -678,7 +678,6 @@ function classResults($class,$plain,$relay=false)
 	$lastTime = -9999;
 	$winnerTime = 0;
 	$unformattedTimes = false;
-	$firstNonQualifierSet = false;
 
 	if (isset($_GET['unformattedTimes']) && $_GET['unformattedTimes'] == "true")
 		$unformattedTimes = true;
@@ -721,7 +720,6 @@ function classResults($class,$plain,$relay=false)
 			$raceStatus = $res['Status'];
 			if ($raceTime == "")
 				$raceStatus = 9;
-
 			if (isset($res[$split['code']."_time"]))
 			{
 				$sp_time = $res[$split['code']."_time"];
@@ -761,7 +759,7 @@ function classResults($class,$plain,$relay=false)
 	}
 
 	usort($results,"sortByResult");
- 
+
 	$splitJSON .= "]";
 	$first = true;
 	$lengthMin = 0;
@@ -771,20 +769,20 @@ function classResults($class,$plain,$relay=false)
 	{
 		$length = ($res['Length'] == null? 0 : $res['Length'] );
 		if ($first || $length>$lengthMax)
-		   $lengthMax = $length;
+			$lengthMax = $length;
 		if ($first || $length<$lengthMin)
-		   $lengthMin = $length;	
+			$lengthMin = $length;	
 		if (!$first && !$plain)
 			$ret .=",";
-    
-    $paceTime = 0;
-    if ($relay && isset($res["999_time"]))
-    	$paceTime = $res["999_time"];
-    else
-		$paceTime = $res['Time']; 
-	$pace = ($length>0 && $paceTime>0 ? round(1000*$paceTime/$length) : 0); 
-    
-    $time = $res['Time']; 
+
+		$paceTime = 0;
+		if ($relay && isset($res["999_time"]))
+			$paceTime = $res["999_time"];
+		else
+			$paceTime = $res['Time']; 
+		$pace = ($length>0 && $paceTime>0 ? round(1000*$paceTime/$length) : 0); 
+		
+		$time = $res['Time']; 
 		if ($first)
 			$winnerTime = $time;
 
@@ -857,60 +855,61 @@ function classResults($class,$plain,$relay=false)
 		if ($retTotal)
 			$tot = ", \"totalresult\": ".($res['totaltime']). ", \"totalstatus\": ".$res['totalstatus']. ", \"totalplace\": \"".$res['totalplace']."\", \"totalplus\": ".($res['totalplus']);
 		
-    if ($res['Changed']>0)
-      $changed = strtotime($res['Changed']);
-    else
-      $changed = "0";
-    if ($plain)
-    {
-      if ($progress<100)
-        continue;
-      if (!$first)
-        $ret .=",";
-      $ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\", \"pace\": ".$pace.", \"result\": \"".$time."\", \"status\" : ".$status.", \"timeplus\": "; 
-      if (!$first && $res['Status']==0)
-        $ret .= "\"$timeplus\"";
-      else
-        $ret .= "\"\"";
-      $ret .= "}";
-    }
-    else
-      $ret .= "{\"place\": \"$cp\", \"dbid\": ".$res['DbId'].", \"bib\": ".$res['Bib'].", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\", \"pace\": ".$pace.", \"result\": \"".$time."\", \"status\" : ".$status.", \"timeplus\": \"$timeplus\", \"changed\": $changed, \"progress\": $progress $tot"; 
+		if ($res['Changed']>0)
+			$changed = strtotime($res['Changed']);
+		else
+			$changed = "0";
+		if ($plain)
+		{
+			if ($progress<100)
+				continue;
+			if (!$first)
+				$ret .=",";
+			$ret .= "{\"place\": \"$cp\", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\", \"pace\": ".$pace.", \"result\": \"".$time."\", \"status\" : ".$status.", \"timeplus\": "; 
+			if (!$first && $res['Status']==0)
+				$ret .= "\"$timeplus\"";
+			else
+				$ret .= "\"\"";
+			$ret .= "}";
+		}
+		else
+			$ret .= "{\"place\": \"$cp\", \"dbid\": ".$res['DbId'].", \"bib\": ".$res['Bib'].", \"name\": \"".$res['Name']."\", \"club\": \"".str_replace("\"","'",$res['Club'])."\", \"pace\": ".$pace.", \"result\": \"".$time."\", \"status\" : ".$status.", \"timeplus\": \"$timeplus\", \"changed\": $changed, \"progress\": $progress $tot"; 
 
-    if (count((array)$splits) > 0)
-    {
-      $ret .= ", \"splits\": {";
-      $firstspl = true;
-      foreach ((array)$splits as $split)
-      {
-        if (!$firstspl)
-          $ret .=",";
-        if (isset($res[$split['code']."_time"]))
-        {
-          $splitStatus = $status;
-          if ($status == 9 || $status == 10)
-            $splitStatus = 0;
-          if ($res[$split['code'].'_changed']>0)
-            $changed = strtotime($res[$split['code'].'_changed']);
-          else
-            $changed = "0";
-          $ret .= "\"".$split['code']."\": ".$res[$split['code']."_time"].",\"".$split['code']."_status\": ".$splitStatus.",\"".$split['code']."_place\": ".$res[$split['code']."_place"].",\"".$split['code']."_timeplus\": ".$res[$split['code']."_timeplus"].",\"".$split['code']."_changed\": $changed";
-        }
-        else
-          $ret .= "\"".$split['code']."\": \"\",\"".$split['code']."_status\": 1,\"".$split['code']."_place\": \"\"";
-        $firstspl = false;
-      }
-      $ret .="}";
-    }
-    if (!$plain)
-    {
-      if (isset($res["start"]))
-        $ret .= ", \"start\": ".$res["start"];
-      else
-        $ret .= ", \"start\": \"\"";
-      $ret .= "}";
-    }
+		if (count((array)$splits) > 0)
+		{
+			$ret .= ", \"splits\": {";
+			$firstspl = true;
+			foreach ((array)$splits as $split)
+			{
+				if (!$firstspl)
+					$ret .=",";
+				if (isset($res[$split['code']."_time"]))
+				{
+					$splitStatus = $status;
+					if ($status == 9 || $status == 10)
+						$splitStatus = 0;
+					if ($res[$split['code'].'_changed']>0)
+						$changed = strtotime($res[$split['code'].'_changed']);
+					else
+						$changed = "0";
+					$ret .= "\"".$split['code']."\": ".$res[$split['code']."_time"].",\"".$split['code']."_status\": ".$splitStatus.",\"".$split['code']."_place\": ".$res[$split['code']."_place"].",\"".$split['code']."_timeplus\": ".$res[$split['code']."_timeplus"].",\"".$split['code']."_changed\": $changed";
+				}
+				else
+					$ret .= "\"".$split['code']."\": \"\",\"".$split['code']."_status\": 1,\"".$split['code']."_place\": \"\"";
+				$firstspl = false;
+			}
+			$ret .="}";
+		}
 		
+		if (!$plain)
+		{
+			if (isset($res["start"]))
+				$ret .= ", \"start\": ".$res["start"];
+			else
+				$ret .= ", \"start\": \"\"";
+			$ret .= "}";
+		}
+			
 		$first = false;
 		$count++;
 		$lastTime = $time;
