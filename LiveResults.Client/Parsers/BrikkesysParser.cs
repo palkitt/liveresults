@@ -44,6 +44,13 @@ namespace LiveResults.Client
             public int netTime;
         }
 
+        public class CourseInfo
+        {
+            public List<CourseControl> courseControls;
+            public int length;
+            public string name;
+        }
+
         public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID)
         {
             m_connection = conn;
@@ -51,15 +58,13 @@ namespace LiveResults.Client
             m_isRelay = false;
             m_raceID = BrikkesysID;
             m_compID = compID;
-        }
-
-         
+        }      
 
         private void Run()
         {
             string SQLInd = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, " +
                             "N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
-                            "C.name AS cname, C.meter, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
+                            "C.name AS cname, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
                             "FROM names N " +
                             "LEFT JOIN classes C ON C.id = N.classid " +
                             "LEFT JOIN(SELECT MIN(raceid) AS raceid, MIN(courceid) AS courceid, MIN(classid) AS cclassid " +
@@ -91,7 +96,7 @@ namespace LiveResults.Client
                     WebClient client = new WebClient();
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
-                    var courses = new Dictionary<int, List<CourseControl>>();
+                    Dictionary<int, CourseInfo> courses = new Dictionary<int, CourseInfo>();
 
                     int m_sleepTime     = 3;                 // Time between each scan
                     int maxMessageTimer = 9;                 // Time between reading messages
@@ -111,8 +116,8 @@ namespace LiveResults.Client
                             CCTimer += m_sleepTime;
                             if (CCTimer >= maxCCTimer)
                             {
-                                makeRadioControls();
-                                courses = getCourses();
+                                MakeRadioControls();
+                                courses = GetCourses();
                                 CCTimer = 0;
                             }
 
@@ -165,7 +170,7 @@ namespace LiveResults.Client
 
         }
 
-        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, ref Dictionary<int, List<CourseControl>> courses, out string lastRunner, out List<int> usedID)
+        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, ref Dictionary<int, CourseInfo> courses, out string lastRunner, out List<int> usedID)
         {
             lastRunner = "";
             usedID = new List<int>();
@@ -174,7 +179,7 @@ namespace LiveResults.Client
                 while (reader.Read())
                 {
                     int time = -2, runnerID = 0, iStartTime = 0, iNullTime = 0, iCStartTime = 0, bib = 0, ecard = 0,
-                        length = 0, noSort = 0, courceID = -1, timeOffset = 0;
+                        length = 0, noSort = 0, courseID = -1, timeOffset = 0;
                     int startBehind = 0;
                     int sign = 1;
                     bool chaseStart = false;
@@ -198,17 +203,17 @@ namespace LiveResults.Client
                             bib = Convert.ToInt32(reader["startnr"]);
 
                         if (reader["ecardno"] != null && reader["ecardno"] != DBNull.Value)
-                            ecard = Convert.ToInt32(reader["ecardno"]);
-
-                        if (reader["meter"] != null && reader["meter"] != DBNull.Value)
-                            length = Convert.ToInt32(reader["meter"]);
+                            ecard = Convert.ToInt32(reader["ecardno"]);                   
 
                         if (reader["courceid"] != null && reader["courceid"] != DBNull.Value)
-                            courceID = Convert.ToInt32(reader["courceid"]);
+                            courseID = Convert.ToInt32(reader["courceid"]);
                         
                         // If no cource id set for runner (by auto selection), use class cource
-                        if (courceID == -1 && reader["ccourceid"] != null && reader["ccourceid"] != DBNull.Value)
-                            courceID = Convert.ToInt32(reader["ccourceid"]);
+                        if (courseID == -1 && reader["ccourceid"] != null && reader["ccourceid"] != DBNull.Value)
+                            courseID = Convert.ToInt32(reader["ccourceid"]);
+
+                        if (courses.ContainsKey(courseID))
+                            length = courses[courseID].length;
 
                         if (reader["nulltime"] != null && reader["nulltime"] != DBNull.Value)
                         {
@@ -246,8 +251,8 @@ namespace LiveResults.Client
                             codesAndTimes = reader["codesandtimes"] as string;
 
                         bool allEcardTimesOK = (time > 0 && codesAndTimes != "" || time < 0 && codesAndTimes == "");
-                        if (codesAndTimes != "" && courceID > -1)
-                            EcardTimes = makeSplitTimes(codesAndTimes, timeOffset, courceID, courses, out allEcardTimesOK);
+                        if (codesAndTimes != "" && courseID > -1)
+                            EcardTimes = MakeSplitTimes(codesAndTimes, timeOffset, courseID, courses, out allEcardTimesOK);
 
                         if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
                             noSort = Convert.ToInt32(reader["nosort"]);
@@ -305,7 +310,7 @@ namespace LiveResults.Client
                                 Length = length,
                                 EcardTimes = EcardTimes,
                                 SplitTimes = SplitTimes,
-                                Course = courceID,
+                                Course = courseID,
                                 Status = rstatus
                             };
                             FireOnResult(res);
@@ -465,7 +470,7 @@ namespace LiveResults.Client
             return rstatus;
         }
 
-        private void makeRadioControls()
+        private void MakeRadioControls()
         {
             try
             {
@@ -530,14 +535,14 @@ namespace LiveResults.Client
             }            
         }
 
-        private string makeSplitTimes(string splitTimeString, int timeOffset, int course, Dictionary<int, List<CourseControl>> courses, out bool allOK)
+        private string MakeSplitTimes(string splitTimeString, int timeOffset, int course, Dictionary<int, CourseInfo> courses, out bool allOK)
         {
             allOK = true;
             string[] ecardTimes = splitTimeString.Split(',');
             string ecardTimeString = "";
             int controlNo = 0, timeNo = 0, timeNoLast = -1, numControls = 0;
             if (courses.ContainsKey(course))
-                numControls = courses[course].Count;
+                numControls = courses[course].courseControls.Count;
             bool first = true;
             while (controlNo < numControls)
             {
@@ -547,7 +552,7 @@ namespace LiveResults.Client
                 while (timeNo < ecardTimes.Length)
                 {
                     codeTime = Array.ConvertAll(ecardTimes.ElementAt(timeNo).TrimStart().Split(' '), int.Parse);
-                    if (codeTime[0] == courses[course].ElementAt(controlNo).Code)
+                    if (codeTime[0] == courses[course].courseControls.ElementAt(controlNo).Code)
                     {
                         timeNoLast = timeNo;
                         break;
@@ -570,9 +575,9 @@ namespace LiveResults.Client
             return ecardTimeString;
         }
 
-        private Dictionary<int, List<CourseControl>> getCourses()
+        private Dictionary<int, CourseInfo> GetCourses()
         {
-            var courses = new Dictionary<int, List<CourseControl>>();
+            Dictionary<int, CourseInfo> courses = new Dictionary<int, CourseInfo>();
             try
             {
                 var dlgMergeCourseControls = OnMergeCourseControls;
@@ -583,13 +588,15 @@ namespace LiveResults.Client
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
                     IDbCommand cmd = m_connection.CreateCommand();
-                    string controls = "SELECT id, codes FROM classes WHERE cource=1 AND raceid=" + m_raceID;
+                    string controls = "SELECT id, name, meter, codes FROM classes WHERE cource=1 AND raceid=" + m_raceID;
                     cmd.CommandText = controls;
                     using (IDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             int id = Convert.ToInt32(reader["id"]);
+                            string name = reader["name"] as string;
+                            int length = Convert.ToInt32(reader["meter"]);
                             string codesStr = reader["codes"] as string;
                             if (codesStr == "")
                                 continue;
@@ -604,8 +611,13 @@ namespace LiveResults.Client
                                 };
                                 courseControls.Add(control);
                                 if (!courses.ContainsKey(id))
-                                    courses.Add(id, new List<CourseControl>());
-                                courses[id].Add(control);
+                                    courses.Add(id, new CourseInfo
+                                    {
+                                        courseControls = new List<CourseControl>(),
+                                        length = length,
+                                        name = name
+                                    });
+                                courses[id].courseControls.Add(control);
                             }
                         }
                         reader.Close();
