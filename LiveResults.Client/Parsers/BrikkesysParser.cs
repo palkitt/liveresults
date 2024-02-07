@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -62,7 +62,7 @@ namespace LiveResults.Client
 
         private void Run()
         {
-            string SQLInd = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, " +
+            string SQLInd = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, N.classid, " +
                             "N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
                             "C.name AS cname, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
                             "FROM names N " +
@@ -207,10 +207,10 @@ namespace LiveResults.Client
 
                         if (reader["courceid"] != null && reader["courceid"] != DBNull.Value)
                             courseID = Convert.ToInt32(reader["courceid"]);
-                        
-                        // If no cource id set for runner (by auto selection), use class cource
-                        if (courseID == -1 && reader["ccourceid"] != null && reader["ccourceid"] != DBNull.Value)
+                        else if (reader["ccourceid"] != null && reader["ccourceid"] != DBNull.Value)
                             courseID = Convert.ToInt32(reader["ccourceid"]);
+                        else if (reader["classid"] != null && reader["classid"] != DBNull.Value)
+                            courseID = Convert.ToInt32(reader["classid"]); 
 
                         if (courses.ContainsKey(courseID))
                             length = courses[courseID].length;
@@ -588,18 +588,21 @@ namespace LiveResults.Client
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
                     IDbCommand cmd = m_connection.CreateCommand();
-                    string controls = "SELECT id, name, meter, codes FROM classes WHERE cource=1 AND raceid=" + m_raceID;
+                    string controls = "SELECT id, name, meter, codes FROM classes WHERE raceid=" + m_raceID;
                     cmd.CommandText = controls;
                     using (IDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
-                            int id = Convert.ToInt32(reader["id"]);
-                            string name = reader["name"] as string;
-                            int length = Convert.ToInt32(reader["meter"]);
+                            int length = 0;
                             string codesStr = reader["codes"] as string;
                             if (codesStr == "")
                                 continue;
+                            int id = Convert.ToInt32(reader["id"]);
+                            string name = reader["name"] as string;
+                            if (reader["meter"] != null && reader["meter"] != DBNull.Value)
+                                length = Convert.ToInt32(reader["meter"]);
+
                             int[] codes = Array.ConvertAll(codesStr.Split(' '), int.Parse);
                             for (int i = 0; i < codes.Length - 1; i++) // Last control is finish
                             {
