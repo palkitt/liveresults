@@ -25,6 +25,7 @@ namespace LiveResults.Client
             txtPw.Text = "passwd";
             txtPort.Text = "3306";
             lstDB.PreviousSelectedIndex = 0;
+            txtIdOffset.Text = "0";
             RetreiveSettings();
         }
 
@@ -229,17 +230,24 @@ namespace LiveResults.Client
             lstDB.PreviousSelectedIndex = lstDB.SelectedIndex;
             StoreSettings();
             //start
+
+            int CompID = 0, IdOffset = 0;
+            bool parseOK = false;
+
+            parseOK = Int32.TryParse(txtCompID.Text, out CompID);
+            parseOK = Int32.TryParse(txtIdOffset.Text, out IdOffset);           
+                    
             FrmBrikkesysMonitor monForm = new FrmBrikkesysMonitor();
             this.Hide();
-            BrikkesysParser pars = new BrikkesysParser(GetDBConnection(), (lstDB.SelectedItem as BrikkesysComp).Id, Convert.ToInt32(txtCompID.Text));
+            BrikkesysParser pars = new BrikkesysParser(GetDBConnection(), (lstDB.SelectedItem as BrikkesysComp).Id, CompID, IdOffset);
 
             monForm.SetParser(pars as IExternalSystemResultParserEtiming);
-            monForm.CompetitionID = Convert.ToInt32(txtCompID.Text);
+            monForm.CompetitionID = CompID;
+            monForm.IdOffset = IdOffset;
             monForm.Organizer = txtOrganizer.Text;
             monForm.CompDate = DateTime.Parse((lstDB.SelectedItem as BrikkesysComp).Date);
             monForm.ShowDialog(this);
         }
 
-        
     }
 }

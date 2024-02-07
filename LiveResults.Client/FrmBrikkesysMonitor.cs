@@ -30,7 +30,8 @@ namespace LiveResults.Client
 
         public string Organizer;
         public DateTime CompDate;
-      
+        public int IdOffset;
+
         public void SetParser(IExternalSystemResultParserEtiming parser)
         {
             m_Parser = parser;

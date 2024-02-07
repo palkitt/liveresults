@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -34,6 +34,7 @@ namespace LiveResults.Client
         private bool m_isRelay = false;
         private bool m_continue;
         private int m_compID;
+        private int m_IdOffset;
 
         Thread m_monitorThread;
 
@@ -51,13 +52,14 @@ namespace LiveResults.Client
             public string name;
         }
 
-        public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID)
+        public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID, int IdOffset)
         {
             m_connection = conn;
             m_recreateRadioControls = false;
             m_isRelay = false;
             m_raceID = BrikkesysID;
             m_compID = compID;
+            m_IdOffset = IdOffset;
         }      
 
         private void Run()
@@ -123,7 +125,8 @@ namespace LiveResults.Client
 
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
                             ParseReader(cmdInd, ref splitList, ref courses, out lastRunner, out usedID);
-                            FireOnDeleteUnusedID(usedID);
+                            if (m_IdOffset == 0)
+                                FireOnDeleteUnusedID(usedID);
 
                             activeTimer += m_sleepTime;
                             if (activeTimer >= maxActiveTimer)
@@ -192,18 +195,19 @@ namespace LiveResults.Client
 
                     try
                     {
-                        runnerID = Convert.ToInt32(reader["id"]);
+                        runnerID = Convert.ToInt32(reader["id"]) + m_IdOffset;
                         runnerName = reader["name"] as string;
                         lastRunner = runnerName;
                         club = reader["club"] as string;
                         classN = reader["cname"] as string;
+                        
                         timeCalc = reader["timecalculation"] as string;
 
                         if (reader["startnr"] != null && reader["startnr"] != DBNull.Value)
                             bib = Convert.ToInt32(reader["startnr"]);
 
                         if (reader["ecardno"] != null && reader["ecardno"] != DBNull.Value)
-                            ecard = Convert.ToInt32(reader["ecardno"]);                   
+                            ecard = Convert.ToInt32(reader["ecardno"]);
 
                         if (reader["courceid"] != null && reader["courceid"] != DBNull.Value)
                             courseID = Convert.ToInt32(reader["courceid"]);
@@ -626,7 +630,8 @@ namespace LiveResults.Client
                         reader.Close();
                     }
                     CourseControl[] courseControlArray = courseControls.ToArray();
-                    dlgMergeCourseControls(courseControlArray, true);
+                    bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
+                    dlgMergeCourseControls(courseControlArray, deleteUnused);
                 }
             }
             catch (Exception ee)
@@ -674,7 +679,7 @@ namespace LiveResults.Client
                 foreach (JObject element in itemsDNS)
                 {
                     int messid = (element["messid"]).ToObject<int>();
-                    int dbid = (element["dbid"]).ToObject<int>();
+                    int dbid = (element["dbid"]).ToObject<int>() - m_IdOffset;
                     try
                     {
                         IDbCommand cmd = m_connection.CreateCommand();
@@ -758,7 +763,7 @@ namespace LiveResults.Client
                                     status = reader["status"] as string;
                                     statusOK = (status == "I");
                                     name = reader["name"] as string;
-                                    dbid = Convert.ToInt32(reader["id"].ToString());
+                                    dbid = Convert.ToInt32(reader["id"].ToString()) + m_IdOffset;
                                     if (reader["ecardno"] != null && reader["ecardno"] != DBNull.Value)
                                         ecardOld = Convert.ToInt32(reader["ecardno"].ToString());
                                 }
