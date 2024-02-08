@@ -140,12 +140,23 @@ class Emma
     {
 		$conn = self::openConnection();
 		$res = mysqli_query($conn, "select max(tavid)+1 from login");
-		list($id) = mysqli_fetch_row($res);
+		if ($sport == "Orientering" || $sport == "Skiorientering")
+    {
+      $showecardtimes = 1;
+      $hightime = 60;
+    }
+    else
+    {
+      $showecardtimes = 0;
+      $hightime = 30;
+    }        
+    list($id) = mysqli_fetch_row($res);
 		if ($id < 10000)
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
 		hightime,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,showtimesinsprint,livecenterurl,sport)
-	  	values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,60,'','',0,0,0,'',1,0,'','".$sport."')") or die(mysqli_error($conn));
+	   values(".$id.",'".md5($name.$org.$date)."','".md5("liveresultat")."','".$name."','".$org."','".$date."',1,0,0,0,0,".$hightime.",'',
+     '',0,0,0,'',".$showecardtimes.",0,'','".$sport."')") or die(mysqli_error($conn));
 		return $id;
 	}
 
