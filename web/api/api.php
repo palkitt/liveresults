@@ -631,7 +631,7 @@ function classesSorted($currentComp,$classMask=null){
 	return $classNames;
 }
 
-function classResults($class,$plain,$relay=false)
+function classResults($class,$plain,$relay=false,$course=false)
 {
 	global $RunnerStatus;
 	global $currentComp;
