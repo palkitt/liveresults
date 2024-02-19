@@ -1009,6 +1009,69 @@ class Emma
 		return $ret;
 	}
 
+	function getAllSplitsForCourse($course)
+	{
+		$ret = Array();
+		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.Class, runners.Length, results.Time, results.Status, results.Changed, results.DbID, results.Control";
+		$q .= " FROM runners, results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId;
+		$q .= " AND runners.TavId = ".$this->m_CompId ." AND runners.Course = ".$course." ORDER BY results.Dbid";
+
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+			{
+				$dbId = $row['DbID'];
+				if (!isset($ret[$dbId]))
+				{
+					$ret[$dbId] = Array();
+					$ret[$dbId]["DbId"] = $dbId;
+					$ret[$dbId]["Name"] = $row['Name'];
+					$ret[$dbId]["Bib"] = $row['Bib'];
+					$ret[$dbId]["Club"] = $row['Club'];
+					$ret[$dbId]["Length"] = $row['Length'];
+					$ret[$dbId]["Class"] = $row['Class'];
+					$ret[$dbId]["Time"] = "";
+					$ret[$dbId]["Status"] = "9";
+					$ret[$dbId]["Changed"] = "";
+				}
+				$split = $row['Control'];
+				if ($split == 1000)
+				{
+					$ret[$dbId]["Time"] = $row['Time'];
+					$ret[$dbId]["Status"] = $row['Status'];
+					$ret[$dbId]["Changed"] = $row['Changed'];
+				}
+				elseif ($split == 100)
+				{
+					$ret[$dbId]["start"] = $row['Time'];
+				}
+				else
+				{
+					$ret[$dbId][$split."_time"] = $row['Time'];
+					$ret[$dbId][$split."_status"] = $row['Status'];
+					$ret[$dbId][$split."_changed"] = $row['Changed'];
+				}
+			}
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+
+		if (!function_exists("timeSorter"))
+		{
+			function timeSorter($a,$b)
+			{			
+				if ($a['Status'] != $b['Status'])
+					return intval($a['Status']) - intval($b['Status']);
+				else
+					return intval($a['Time']) - intval($b['Time']);
+			}
+		}
+
+		usort($ret,'timeSorter');
+		return $ret;
+	}
+
 	function getCourseControls($course)
 	{
 		$ret = Array();
