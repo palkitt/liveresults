@@ -345,7 +345,7 @@ class Emma
 	public static function SetMessageDNS($messid,$DNS)
 	{
 		$conn = self::openConnection();
-	 	$sql = "update messages set dns = ".$DNS." where messid = ".$messid;
+		$sql = "update messages set dns = ".$DNS." where messid = ".$messid;
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -353,7 +353,7 @@ class Emma
 	public static function SetMessageEcardChange($messid,$ecardchange)
 	{
 		$conn = self::openConnection();
-	 	$sql = "update messages set ecardchange = ".$ecardchange." where messid = ".$messid;
+		$sql = "update messages set ecardchange = ".$ecardchange." where messid = ".$messid;
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -419,7 +419,7 @@ class Emma
 		    {
 		    	if ($tmp['multidaystage'] != null && $tmp['multidayparent'] != null && $tmp['multidaystage'] > 1)
 		    	{
-		    		$this->m_IsMultiDayEvent = true;
+					$this->m_IsMultiDayEvent = true;
 		    		$this->m_MultiDayStage = $tmp['multidaystage'];
 		    		$this->m_MultiDayParent = $tmp['multidayparent'];
 		    	}
@@ -1043,7 +1043,7 @@ class Emma
 				}
 				elseif ($split == 100)
 				{
-					$ret[$dbId]["start"] = $row['Time'];
+					$ret[$dbId]["Start"] = $row['Time'];
 				}
 				else
 				{
