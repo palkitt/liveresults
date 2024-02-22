@@ -360,7 +360,15 @@ elseif ($_GET['method'] == 'getclassresults')
 	$currentComp = new Emma($_GET['comp']);
 	$isActive = $currentComp->IsCompActive();
 	$RT = insertHeader($refreshTime);
-	$res = classresults($class,false);
+
+	if (strpos($class, 'course::') === 0)
+	{
+		$course = substr($class, 8);
+		$res = courseResults($course);
+	}
+	else
+		$res = classresults($class,false);
+	
 	$ret = $res[0];
 	$splitJSON = $res[1];
 	$lengthMin = $res[2];
@@ -609,7 +617,7 @@ function classesSorted($currentComp,$classMask=null){
 		$sortKey = strtolower($class['Class']);
 
 		if (stripos($sortKey,'Åpen') !== false || stripos($sortKey,'åpen') !== false || stripos($sortKey,'open') !== false || 
-	    stripos($sortKey,'gjest') !== false || stripos($sortKey,'dir') !== false || stripos($sortKey,'utv') !== false)
+        stripos($sortKey,'gjest') !== false || stripos($sortKey,'dir') !== false || stripos($sortKey,'utv') !== false)
 			$sortKey = 'z'.$sortKey;
 		if (preg_match("/(-e| e|\d+e|elite)(\d*)$/", $sortKey))
 			$sortKey = "A" . $sortKey;
@@ -631,7 +639,7 @@ function classesSorted($currentComp,$classMask=null){
 	return $classNames;
 }
 
-function classResults($class,$plain,$relay=false,$course=false)
+function classResults($class,$plain,$relay=false)
 {
 	global $RunnerStatus;
 	global $currentComp;
@@ -916,6 +924,115 @@ function classResults($class,$plain,$relay=false,$course=false)
 	}
 	$res[0] = $ret;
 	$res[1] = $splitJSON;
+	$res[2] = $lengthMin;
+	$res[3] = $lengthMax;
+	return $res;
+}
+
+function courseResults($course)
+{
+	global $RunnerStatus;
+	global $currentComp;
+	$results = $currentComp->getAllSplitsForCourse($course);
+	
+	$ret = "";
+	$first = true;
+	$place = 1;
+	$count = 1;
+	$lastTime = -9999;
+	$winnerTime = 0;
+	$unformattedTimes = false;
+	if (isset($_GET['unformattedTimes']) && $_GET['unformattedTimes'] == "true")
+		$unformattedTimes = true;
+
+	usort($results,"sortByResult");
+
+	$first = true;
+	$lengthMin = 0;
+	$lengthMax = 0;
+	$keys = array_keys($results);
+	foreach ((array)$results as $res)
+	{
+		$length = ($res['Length'] == null? 0 : $res['Length'] );
+		if ($first || $length>$lengthMax)
+			$lengthMax = $length;
+		if ($first || $length<$lengthMin)
+			$lengthMin = $length;
+
+		if (!$first)
+			$ret .=",";
+
+		$time = $res['Time']; 
+		$pace = ($length>0 && $time>0 ? round(1000*$time/$length) : 0); 	
+
+		if ($first)
+			$winnerTime = $time;
+
+		$status = $res['Status'];
+
+		if ($time == "")
+			$status = 9;
+
+		$progress = 0;
+		if ($status == 9 || $status == 10)
+			$progress = 0;
+		elseif ($status == 13)
+		{
+			$cp = "F";
+			$progress = 100;
+		}
+		elseif ($status != 0 || $time < 0)
+		{
+			$cp = "-";
+			$progress = 100;
+		}
+		elseif ($time == $lastTime)
+		{
+			$cp = $place;
+			$progress = 100;
+		}
+		else
+		{
+			$place = $count;
+			$cp = $place;
+		}
+
+		$timeplus = "";
+		if ($time > 0 && $status == 0)
+		{
+			if ( $first && sizeof($keys)>1 && $results[$keys[1]]['Time'] > 0 && $results[$keys[1]]['Status'] == 0 ) 
+				$timeplus = $time - $results[$keys[1]]['Time'];
+			else
+				$timeplus = $time - $winnerTime;
+			$progress = 100;
+		}
+
+		if (!$unformattedTimes)
+		{
+			$time = formatTime($res['Time'],$res['Status'],$RunnerStatus);
+			$timeplus = "+".formatTime($timeplus,$res['Status'],$RunnerStatus);
+		}
+		
+		if ($res['Changed'] > 0)
+			$changed = strtotime($res['Changed']);
+		else
+			$changed = "0";
+		
+		$ret .= "{\"place\": \"$cp\", \"dbid\": ".$res['DbId'].", \"bib\": ".$res['Bib'].", \"name\": \"".$res['Name']."\",";
+		$ret .= " \"club\": \"".str_replace("\"","'",$res['Club'])."\",\"class\": \"".$res['Class']."\", \"pace\": ".$pace.",";
+		$ret .= " \"result\": \"".$time."\", \"status\" : ".$status.", \"timeplus\": \"$timeplus\", \"changed\": $changed, \"progress\": $progress";  
+		if (isset($res["Start"]))
+			$ret .= ", \"start\": ".$res["Start"];
+		else
+			$ret .= ", \"start\": \"\"";
+		$ret .= "}";
+		
+		$first = false;
+		$count++;
+		$lastTime = $time;
+	}
+	$res[0] = $ret;
+	$res[1] = "[]";
 	$res[2] = $lengthMin;
 	$res[3] = $lengthMax;
 	return $res;
