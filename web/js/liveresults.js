@@ -499,7 +499,6 @@ var LiveResults;
           if (data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
             continue;
 
-          statusN++;
           var finishOK = (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=");
           if (sp == (this.curClassNumSplits - 1) && finishOK)
             laterSplitOKj[j] = true;
@@ -507,21 +506,22 @@ var LiveResults;
           var spRef = this.splitRef(sp);
           var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
           var finishTime = ( finishOK ? parseInt(data.results[j].result) : 8640000); // 24 h
-          if (split < 0 || split > finishTime){ // Remove split if negative or longer than finish time
+          if (isNaN(split) && laterSplitOKj[j]){ // Split does not exist and missing split detected
+            statusN++;
+            runnerOK[j] = false;
+            raceOK = false;
+          }
+          else if (split < 0 || split > finishTime){ // Remove split if negative or longer than finish time
+            statusN++;
             data.results[j].splits[classSplits[spRef].code] = "";
             data.results[j].splits[classSplits[spRef].code + "_changed"] = "";
             runnerOK[j] = false;
             raceOK = false;
-            continue;
           }
-
-          if (!isNaN(split)){ // Split exist
+          else if (!isNaN(split)){ // Split exists and time is OK
+            statusN++;
             OKSum++;
             laterSplitOKj[j] = true;
-          }
-          else if (laterSplitOKj[j]){ // Split does not exist and missing split detected
-            runnerOK[j] = false;
-            raceOK = false;
           }
         }
         var statusAvg = (statusN >= minNum ? OKSum / statusN : 1);
@@ -742,7 +742,6 @@ var LiveResults;
               }
             }
           }
-          
         }
       }
 
