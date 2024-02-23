@@ -67,6 +67,7 @@ var LiveResults;
       this.curClassIsMassStart = false;
       this.curClassIsRelay = false;
       this.curClassIsLapTimes = false;
+      this.curClassIsCourse = false;
       this.curClassNumSplits = false;
       this.curClassIsUnranked = false;
       this.curClassHasBibs = false;
@@ -1005,8 +1006,8 @@ var LiveResults;
 
           var data = this.currentTable.fnGetData();
           var table = this.currentTable.api();
-          var offset = 3 + (this.curClassHasBibs ? 1 : 0) + ((this.curClassIsUnranked || (this.compactView && !this.curClassLapTimes)) ? 1 : 0);
-          var MDoffset = (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
+          var offset = 3 + (this.curClassHasBibs ? 1 : 0) + ((this.curClassIsUnranked || this.compactView && !this.curClassLapTimes) ? 1 : 0);
+          var MDoffset = (this.curClassIsCourse ? 1 : 0) +  (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
           var rank;
           const predOffset = 1500;
           const predRank = true;
@@ -2952,12 +2953,14 @@ var LiveResults;
           else
             $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
 
-          var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
-          this.curClassSplits = data.splitcontrols;
-          this.curClassIsRelay = (haveSplitControls && this.curClassSplits[0].code == "0");
-          this.curClassLapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
+          var haveSplitControls   = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
+          this.curClassSplits     = data.splitcontrols;
+          this.curClassIsRelay    = (haveSplitControls && this.curClassSplits[0].code == "0");
+          this.curClassLapTimes   = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
           this.curClassIsUnranked = !(this.curClassSplits.every(function check(el) { return el.code != "-999"; })) || !(data.results.every(function check(el) { return el.status != 13; }));
-          this.curClassHasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
+          this.curClassHasBibs    = (data.results[0].bib != undefined && data.results[0].bib != 0);
+          this.curClassIsCourse   = (data.results[0].class != undefined);
+
           if (this.curClassSplits == null)
             this.curClassNumSplits = 0;
           else if (this.curClassIsRelay)
@@ -3089,6 +3092,19 @@ var LiveResults;
                   return clubShort + vertLine;
                 else
                   return link + vertLine;
+              }
+            });
+          }
+
+          if (this.curClassIsCourse) {
+            columns.push({
+              "sTitle": this.resources["_CLASS"], "sClass": "left", "aTargets": [col++], "mDataProp": "class",
+              "render": function (data, type, row) {
+                var classRaw = row["class"];
+                var classDisplay = _this.shortClassName(classRaw);
+                if (classRaw && classRaw.length > 0)
+                  classRaw = classRaw.replace('\'', '\\\'');
+                return "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classRaw + "')\">" + classDisplay + "</a>";
               }
             });
           }
