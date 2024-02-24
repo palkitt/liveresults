@@ -146,6 +146,7 @@ function confirmDelete(msg,url)
       <option value="Friidrett" <?php if ($comp['sport'] == 'Friidrett') echo 'selected'; ?>>Friidrett</option>
       <option value="Skiorientering" <?php if ($comp['sport'] == 'Skiorientering') echo 'selected'; ?>>Skiorientering</option>
       <option value="Rulleski" <?php if ($comp['sport'] == 'Rulleski') echo 'selected'; ?>>Rulleski</option>
+      <option value="Hundekjøring" <?php if ($comp['sport'] == 'Hundekjøring') echo 'selected'; ?>>Hundekjøring</option>
     </select>
   </td></tr>
 

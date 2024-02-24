@@ -90,6 +90,7 @@ header('Content-Type: text/html; charset='.$CHARSET);
                       <option value="Friidrett">Friidrett</option>
                       <option value="Skiorientering">Skiorientering</option>
                       <option value="Rulleski">Rulleski</option>
+                      <option value="Hundekjøring">Hundekjøring</option>
                     </select>
                   </td>
                 </tr>
