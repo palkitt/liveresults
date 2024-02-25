@@ -36,10 +36,10 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#555556">
+<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
+<link rel="stylesheet" type="text/css" href="css/fixedHeader.dataTables.min.css">
 <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-<link rel="stylesheet" type="text/css" href="css/ui-darkness/jquery-ui-1.8.19.custom.css">
-<link rel="stylesheet" type="text/css" href="css/jquery.dataTables_themeroller-eoc.css">
-<link rel="stylesheet" type="text/css" href="css/responsive.dataTables.css">
 <script type="text/javascript">
 
 window.mobilecheck = function() {
@@ -49,21 +49,14 @@ window.mobilecheck = function() {
 }
 </script>
 
-<script language="javascript" type="text/javascript" src="js/jquery-1.8.0.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-<script language="javascript" type="text/javascript" src="js/jquery-ui.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/dataTables.fixedHeader.min.js"></script>
+<script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
 <script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
-<script language="javascript" type="text/javascript" src="js/NoSleep.min.js"></script>
 <script language="javascript" type="text/javascript">
 
-var noSleep = new NoSleep();
-
-function enableNoSleep() {
-  noSleep.enable();
-  document.removeEventListener('click', enableNoSleep, false);
-}
-
-document.addEventListener('click', enableNoSleep, false);
 
 var Resources = {
 	_TITLE: "<?= $_TITLE?>",
@@ -172,7 +165,7 @@ function handleGetClasses(data,compID,first,last) {
 
 							var divR = document.createElement('table');
 							document.body.appendChild(divR);
-							divR.style = ""
+							divR.style = "width: 100%";
                             divR.id = divResults;
 
 							res[j] = new LiveResults.AjaxViewer(compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults,
@@ -184,7 +177,7 @@ function handleGetClasses(data,compID,first,last) {
                             res[j].compDate = "<?=$currentComp->CompDate();?>";
 		                    res[j].eventTimeZoneDiff = <?=$currentComp->TimeZoneDiff();?>;
                             res[j].updateInterval = 6000;
-		                    res[j].startPredictionUpdate();
+		                    //res[j].startPredictionUpdate();
 
                             <?php if($currentComp->MassStartSorting() ){?>
 		                    	res[j].curClassIsMassStart = true; <?php }?>
@@ -240,11 +233,30 @@ $(document).ready(function()
 		document.body.appendChild(divText);
 		divText.style = "margin-top: 20px; font-size: 20px";
 		divText.innerHTML = "<p>...</p>";
-	},10000); 			
+	},10000); 
+	
+	 // Add no screen sleep
+	 document.addEventListener("click", enableNoSleep);
 });
 
 </script>
 <script language="javascript" type="text/javascript">
+
+let wakeLock = null;
+async function enableNoSleep() {
+  if (wakeLock !== null && !wakeLock.released) {
+    console.log("Wake lock is already active");
+    return;
+  }
+  try {
+    wakeLock = await navigator.wakeLock.request("screen");
+    console.log("Wake lock is now active");
+  } catch (err) {
+    console.error("Failed to acquire wake lock:", err);
+  }
+}
+
+
 var delayTime = 25;
 var stepSize = 1;
 function pageScroll() {
@@ -268,6 +280,5 @@ setTimeout('pageScroll()', 5000);
 
 </head>
 <body>
-  
 </body>
 </html>
