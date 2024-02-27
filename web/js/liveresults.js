@@ -367,6 +367,16 @@ var LiveResults;
             if (this.isMultiDayEvent)
               str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('plainresultstotal')\" style=\"text-decoration: none\">" + this.resources["_TOTAL"] + "</a>";
           }
+          if (data.courses != undefined) {
+            str += "<hr></nowrap>";
+            courses = data.courses;
+            var nCourses = courses.length;
+            
+            for (var i = 0; i < nCourses; i++) {
+              str += "<a href=\"javascript:LiveResults.Instance.chooseClass('course::" + courses[i].No + "')\">" + courses[i].Name + "</a><br/>";
+            }
+          }
+
           str += "<hr></nowrap>";
           $("#" + this.classesDiv).html(str);
           $("#numberOfRunnersTotal").html(data.numberOfRunners);
@@ -2773,25 +2783,27 @@ var LiveResults;
       if (data != null && data.status == "OK") {
         $('#divInfoText').html(data.infotext);
         if (data.className != null) {
-          if (data.className == "plainresults") {
+          var headerName = data.className;
+          if (headerName == "plainresults") {
             $('#' + this.resultsHeaderDiv).html("<b>Alle klasser</b>");
             $('#' + this.txtResetSorting).html("");
           }
-          else if (data.className == "plainresultstotal") {
+          else if (headerName == "plainresultstotal") {
             $('#' + this.resultsHeaderDiv).html("<b>Sammenlagt alle klasser</b>");
             $('#' + this.txtResetSorting).html("");
           }
-          else if (data.className.includes("plainresultsclass_")) {
-            $('#' + this.resultsHeaderDiv).html("<b>"+ data.className.replace("plainresultsclass_","") + "</b>"); 
+          else if (headerName.includes("plainresultsclass_")) {
+            $('#' + this.resultsHeaderDiv).html("<b>"+ headerName.replace("plainresultsclass_","") + "</b>"); 
             $('#' + this.txtResetSorting).html("");
           }
-          else if (data.className == "startlist") {
+          else if (headerName == "startlist") {
             $('#' + this.resultsHeaderDiv).html("<b>Startliste</b>");
             $('#' + this.txtResetSorting).html("");
           }
           else {
             var distance = (data.distance != undefined && data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
-            var classHead = "<b>" + data.className + "</b>" + distance;
+            headerName = headerName.replace("course::","Løype ");
+            var classHead = "<b>" + headerName + "</b>" + distance;
             $('#' + this.resultsHeaderDiv).html(classHead);
             var courses = _this.courses[data.className];
             var link = "";

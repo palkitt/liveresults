@@ -150,10 +150,10 @@ elseif ($_GET['method'] == 'getclasses')
 		$numberOfStartedRunners = $currentComp->numberOfStartedRunners();
 		$numberOfFinishedRunners = $currentComp->numberOfFinishedRunners();
 		$infoText = $currentComp->InfoText();
+		$courseNames = $currentComp->CourseNames();
 		
 		$ret = "";
 		$first = true;
-
 		foreach ((array)$classNames as $class)
 		{
 			$className = $class->name;
@@ -172,7 +172,19 @@ elseif ($_GET['method'] == 'getclasses')
 			$ret.="]}";			
 			$first = false;
 		}
-		
+
+		$retcourses = "";
+		$first = true;
+		foreach ((array)$courseNames as $course)
+		{
+			$No = $course['courseno'];
+			$Name = isset($course['coursename']) ? $course['coursename'] : "Løype ".$No;
+			if (!$first)
+				$retcourses.= ",$br";
+			$retcourses.= "{\"No\": ".$No.", \"Name\": \"".$Name."\"}";		
+			$first = false;
+		}
+
 		$retnum = "";
 		foreach ($numberOfRunners as $numrun)
 			$retnum ="\"numberOfRunners\": \"".$numrun['num']."\"";
@@ -187,7 +199,7 @@ elseif ($_GET['method'] == 'getclasses')
 			echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 		else
 		{
-			echo("{ \"status\": \"OK\", \"classes\" : [$br$ret$br], \"infotext\" : \"".$infoText."\"");
+			echo("{ \"status\": \"OK\", \"classes\" : [$br$ret$br], \"courses\": [".$retcourses."], \"infotext\" : \"".$infoText."\"");
 			echo(",$retnum");
 			echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 		}

@@ -604,6 +604,23 @@ class Emma
 		return $ret;
 	}
 
+	function CourseNames()
+	{
+		$ret = Array();
+		$q = "SELECT runners.course AS courseno, coursedata.name AS coursename FROM runners ";
+		$q.= "LEFT JOIN coursedata ON coursedata.tavid = runners.tavid AND coursedata.courseno = runners.course ";
+		$q.= "WHERE runners.tavid = ". $this->m_CompId ." AND course >-1 GROUP BY course";
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while($tmp = mysqli_fetch_array($result))
+				$ret[] = $tmp;
+			mysqli_free_result($result);
+		} 
+		else
+			echo(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+
 	function numberOfRunners()
 	{
 		$ret = [];
@@ -1014,7 +1031,7 @@ class Emma
 		$ret = Array();
 		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.Class, runners.Length, results.Time, results.Status, results.Changed, results.DbID, results.Control";
 		$q .= " FROM runners, results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId;
-		$q .= " AND runners.TavId = ".$this->m_CompId ." AND runners.Course = ".$course." ORDER BY results.Dbid";
+		$q .= " AND runners.TavId = ".$this->m_CompId ." AND runners.Course = ".$course." ORDER BY results.Dbid, results.Control DESC";
 
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
@@ -1041,10 +1058,10 @@ class Emma
 					$ret[$dbId]["Status"] = $row['Status'];
 					$ret[$dbId]["Changed"] = $row['Changed'];
 				}
+				elseif ($split == 999)
+					$ret[$dbId]["Time"] = $row['Time'];
 				elseif ($split == 100)
-				{
 					$ret[$dbId]["Start"] = $row['Time'];
-				}
 				else
 				{
 					$ret[$dbId][$split."_time"] = $row['Time'];

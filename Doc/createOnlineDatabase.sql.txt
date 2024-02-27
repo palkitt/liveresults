@@ -118,6 +118,13 @@ CREATE TABLE `courses` (
   PRIMARY KEY (`tavid`,`courseno`,`corder`,`code`)
 ) DEFAULT CHARSET=utf8;
 
+CREATE TABLE `coursedata` (
+  `tavid` int(11) NOT NULL DEFAULT 0,
+  `courseno` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(50) character set 'utf8' NOT NULL DEFAULT '',
+  PRIMARY KEY (`tavid`,`courseno`)
+) DEFAULT CHARSET=utf8;
+
 CREATE TABLE `lastactive` (
 `tavid` int(11) NOT NULL DEFAULT '0',
 `changed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
