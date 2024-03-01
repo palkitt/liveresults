@@ -600,6 +600,10 @@ var LiveResults;
             numFractions++;
           }
         }
+        if (numFractions == 0){
+          splitsPar.push(null);
+          continue;
+        }
         var median = this.medianFrac(fractions, 0.25);
 
         // Median absolute deviation
@@ -676,10 +680,10 @@ var LiveResults;
       // Shift split times if splits are missing when multi-pass type
       if (multiPass && !raceOK){
         // Calculate nominal split fractions as fraction of total time
-        var splitFracNom = new Array(this.curClassNumSplits);
+        var splitFracNom = new Array(this.curClassNumSplits).fill(1);
         var lastFrac = 1;
         for (var sp = this.curClassNumSplits - 1; sp >= 0; sp--) {
-          if (!classSplitsOK[sp])
+          if (!classSplitsOK[sp] || splitsPar[sp] == null)
             continue;
           var X = splitsPar[sp].median;
           for (var spi = sp - 1; spi >= 0; spi--) {
@@ -4879,6 +4883,8 @@ var LiveResults;
       var length = arr.length;
       if (length == 0 || fraction < 0 || fraction > 1) 
         return null;
+      if (length == 1)
+        return arr[0];
       var nums = arr.sort((a, b) => a - b);
       var nValues = Math.max(1, fraction * length);
       var min = length/2 - nValues/2;
