@@ -6,28 +6,21 @@ if (isset($_POST['btnSave']))
 	$ok = Emma::UpdateCompetition($_GET['compid'],$_POST['name'],$_POST['org'],$_POST['date'],(isset($_POST['public'])?1:null),$_POST['timediff'],
         0,(isset($_POST['tenthofseconds'])?1:null),0,(isset($_POST['rankedstartlist'])?1:null),$_POST['hightime'],$_POST['quallimits'],
         $_POST['qualclasses'],$_POST['multidaystage'],$_POST['multidayparent'],(isset($_POST['showinfo'])?1:null),$_POST['infotext'],
-        (isset($_POST['showecardtimes'])?1:null),(isset($_POST['showtimesinsprint'])?1:null),$_POST['livecenterurl'],$_POST['sport']);
+        (isset($_POST['showecardtimes'])?1:null),(isset($_POST['showtimesinsprint'])?1:null),
+        (isset($_POST['showcourseresults'])?1:null),$_POST['livecenterurl'],$_POST['sport']);
   if ($ok == 1)
     echo('<b>&nbsp;Competion update OK</b>');
   else
-     echo('<b>&nbsp;Competion update failed</b>');
+    echo('<b>&nbsp;Competion update failed</b>');
 }
 else if (isset($_POST['btnAdd']))
-{
 	Emma::AddRadioControl($_GET['compid'],$_POST['classname'],$_POST['controlname'],$_POST['code']);
-}
 else if (isset($_POST['btnAddAll']))
-{
 	Emma::AddRadioControlsForAllClasses($_GET['compid'],$_POST['controlnameall'],$_POST['codeall'],$_POST['order']);
-}
 else if (isset($_GET['what']) && $_GET['what'] == "delctr")
-{
 	Emma::DelRadioControl($_GET['compid'],$_GET['code'],$_GET['class']);
-}
 else if (isset($_GET['what']) && $_GET['what'] == "delallctr")
-{
 	Emma::DelAllRadioControls($_GET['compid']);
-}
 
 include_once("../templates/emmalang_sv.php");
 $lang = "en";
@@ -174,17 +167,20 @@ function confirmDelete(msg,url)
 <tr><td><b>Public</td>
 <td><input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?>/></td><td>List competion on liveres.live main page</td></tr>
 
-<tr><td><b>Tenth of seconds</b></td>
-<td><input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/></td><td>Display times with tenth of seconds</td></tr>
+<tr><td><b>Show ecard split times</td>
+<td><input type="checkbox" name="showecardtimes" <?= $comp['showecardtimes'] == 1 ? "checked" : "" ?>/></td><td>Turn on ecard split times (strekktider)</td></tr>
+
+<tr><td><b>Show course results</td>
+<td><input type="checkbox" name="showcourseresults" <?= $comp['showcourseresults'] == 1 ? "checked" : "" ?>/></td><td>Display listing of all courses with links to results</td></tr>
+
+<tr><td><b>Tenths of seconds</b></td>
+<td><input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?>/></td><td>Display times with tenths of seconds</td></tr>
 
 <tr><td><b>Initial dynamic ranking</td>
 <td><input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?>/></td><td>Use smart sort also for runners before passing first radio control</td></tr>
 
-<tr><td><b>Show ecard split times</td>
-<td><input type="checkbox" name="showecardtimes" <?= $comp['showecardtimes'] == 1 ? "checked" : "" ?>/></td><td>Enable showing ecard split times (strekktider)</td></tr>
-
 <tr><td><b>Show times in sprint heats</td>
-<td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?>/></td><td>If not only places are shown</td></tr>
+<td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?>/></td><td>Show times in addition to places in sprint heats</td></tr>
 
 <tr><td><b>Show info text</td>
 <td><input type="checkbox" name="showinfo" <?= $comp['showinfo'] == 1 ? "checked" : "" ?>/></td><td>Display info text (below)</td></tr>

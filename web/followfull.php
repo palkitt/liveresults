@@ -26,6 +26,7 @@ if ($isEmmaComp)
   $showInfo = false;
   $showEcardTimes = false;
   $showTimesInSprint = false;
+  $showCourseResults = false;
   $isMultiDayEvent = "false";
   $showTenths = false; 
   $highTime = false;
@@ -46,6 +47,7 @@ else
   $showInfo = $currentComp->ShowInfo();
   $showEcardTimes = $currentComp->ShowEcardTimes();
   $showTimesInSprint = $currentComp->ShowTimesInSprint();
+  $showCourseResults = $currentComp->ShowCourseResults();
   $isMultiDayEvent = ($currentComp->IsMultiDayEvent() ? "true" : "false");
   $showTenths = $currentComp->ShowTenthOfSeconds(); 
   $highTime = $currentComp->HighTime();
@@ -219,6 +221,10 @@ $(document).ready(function()
 
   <?php if ($showTimesInSprint){?>
 		res.showTimesInSprint = true;
+	<?php }?> 
+  
+  <?php if ($showCourseResults){?>
+		res.showCourseResults = true;
 	<?php }?>  
 
 	// Set date and time zone

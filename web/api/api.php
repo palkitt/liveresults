@@ -372,11 +372,15 @@ elseif ($_GET['method'] == 'getclassresults')
 	$currentComp = new Emma($_GET['comp']);
 	$isActive = $currentComp->IsCompActive();
 	$RT = insertHeader($refreshTime);
-
+	$courseName = "";
 	if (strpos($class, 'course::') === 0)
 	{
 		$course = substr($class, 8);
 		$res = courseResults($course);
+		$courseNames = $currentComp->CourseNames($course);
+		$courseName = $courseNames[0]['coursename'];
+		if ($courseName == "")
+			$courseName = "Løype ".$course;
 	}
 	else
 		$res = classresults($class,false);
@@ -395,8 +399,10 @@ elseif ($_GET['method'] == 'getclassresults')
 	}
 	else
 	{
-		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"distance\": \"".$lengthStr."\",$br \"splitcontrols\": $splitJSON,$br \"results\": [$br$ret$br],$br \"infotext\": \"$infoText\"");
-		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
+		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"distance\": \"".$lengthStr."\",$br \"splitcontrols\": $splitJSON,$br ");
+		if ($courseName != "")
+			echo("\"courseName\": \"".$courseName."\",$br ");
+		echo("\"results\": [$br$ret$br],$br \"infotext\": \"$infoText\",$br \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
 	}
 }
 elseif ($_GET['method'] == 'getrelayresults')

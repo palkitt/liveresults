@@ -25,12 +25,13 @@ var LiveResults;
       this.runnerStatus = runnerStatus;
       this.EmmaServer = EmmaServer;
       this.fixedTable = fixedTable;
-      this.showTenthOfSecond = false;
       this.updateAutomatically = true;
       this.autoUpdateLastPassings = true;
-      this.showEcardTimes = false;
       this.compactView = true;
+      this.showEcardTimes = false;
       this.showTimesInSprint = false;
+      this.showCourseResults = false;
+      this.showTenthOfSecond = false;
       this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
       this.clubUpdateInterval = 60000;
@@ -89,6 +90,7 @@ var LiveResults;
       this.rankedStartlist = true;
       this.relayClasses = [];
       this.courses = {};
+      this.courseNames = {};
       this.runnerList = null;
       this.speakerView = false;
       this.shortSprint = false;
@@ -234,6 +236,7 @@ var LiveResults;
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
+        this.courseNames = data.courses; 
         $('#divInfoText').html(data.infotext);
         if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0)
           $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
@@ -248,6 +251,7 @@ var LiveResults;
           var sprintNext = false;
           var shiftHeat = false;
           var elitLast = false;
+          
           for (var i = 0; i < nClass; i++) {
             var className = classes[i].className;
             this.courses[className] = (classes[i].courses != undefined ? classes[i].courses : []);
@@ -263,8 +267,7 @@ var LiveResults;
               var classNameCleanNext = "";
               var LegNoNext = 0;
 
-              if (i < (nClass - 1)) {
-                // Relay
+              if (i < (nClass - 1)) { // Relay
                 classNameCleanNext = this.shortClassName(classes[i + 1].className);
                 classNameCleanNext = classNameCleanNext.replace(/-[0-9]{1,2}$/, '');
                 LegNoStr = classes[i + 1].className.match(/-[0-9]{1,2}$/);
@@ -305,7 +308,7 @@ var LiveResults;
 
                   if (!sprint) // First class in sprint or new class
                     str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
-                           "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br/>&nbsp;";
+                            "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br/>&nbsp;";
                   sprint = true;
                   sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
 
@@ -367,13 +370,10 @@ var LiveResults;
             if (this.isMultiDayEvent)
               str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('plainresultstotal')\" style=\"text-decoration: none\">" + this.resources["_TOTAL"] + "</a>";
           }
-          if (data.courses != undefined) {
-            str += "<hr></nowrap>";
-            courses = data.courses;
-            var nCourses = courses.length;
-            
-            for (var i = 0; i < nCourses; i++) {
-              str += "<a href=\"javascript:LiveResults.Instance.chooseClass('course::" + courses[i].No + "')\">" + courses[i].Name + "</a><br/>";
+          if (this.showCourseResults && data.courses != undefined) {
+            str += "<hr></nowrap>";           
+            for (var i = 0; i < this.courseNames.length; i++) {
+              str += "<a href=\"javascript:LiveResults.Instance.chooseClass('course::" + this.courseNames[i].No + "')\">" + this.courseNames[i].Name + "</a><br/>";
             }
           }
 
@@ -2783,33 +2783,32 @@ var LiveResults;
       if (data != null && data.status == "OK") {
         $('#divInfoText').html(data.infotext);
         if (data.className != null) {
-          var headerName = data.className;
-          if (headerName == "plainresults") {
+          if (data.className == "plainresults") {
             $('#' + this.resultsHeaderDiv).html("<b>Alle klasser</b>");
             $('#' + this.txtResetSorting).html("");
           }
-          else if (headerName == "plainresultstotal") {
+          else if (data.className == "plainresultstotal") {
             $('#' + this.resultsHeaderDiv).html("<b>Sammenlagt alle klasser</b>");
             $('#' + this.txtResetSorting).html("");
           }
-          else if (headerName.includes("plainresultsclass_")) {
-            $('#' + this.resultsHeaderDiv).html("<b>"+ headerName.replace("plainresultsclass_","") + "</b>"); 
+          else if (data.className.includes("plainresultsclass_")) {
+            $('#' + this.resultsHeaderDiv).html("<b>"+ data.className.replace("plainresultsclass_","") + "</b>"); 
             $('#' + this.txtResetSorting).html("");
           }
-          else if (headerName == "startlist") {
+          else if (data.className == "startlist") {
             $('#' + this.resultsHeaderDiv).html("<b>Startliste</b>");
             $('#' + this.txtResetSorting).html("");
           }
           else {
+            var headerName = (data.courseName != undefined ? data.courseName : data.className);
             var distance = (data.distance != undefined && data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
-            headerName = headerName.replace("course::","Løype ");
             var classHead = "<b>" + headerName + "</b>" + distance;
             $('#' + this.resultsHeaderDiv).html(classHead);
-            var courses = _this.courses[data.className];
+            var courses = this.courses[data.className];
             var link = "";
-            if (_this.showEcardTimes && courses != undefined && courses.length > 0)
+            if (this.showEcardTimes && courses != undefined && courses.length > 0)
               link = this.splitTimesLink(data.className, courses);
-            $("#" + _this.txtResetSorting).html(link);
+            $("#" + this.txtResetSorting).html(link);
 
           }
           $('#' + this.resultsControlsDiv).show();
@@ -4336,8 +4335,12 @@ var LiveResults;
       else {
         link = "<button onclick=\"res.showCourses()\" class=\"dropbtn\">Strekktider &#5125;</button><div id=\"myDropdown\" class=\"dropdown-content\">";
         link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "',-1);\">Felles poster</a>";
-        for (i = 0; i < courses.length; i++)
-          link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "'," + courses[i] + ");\">Løype " + courses[i] + "</a>";
+        for (i = 0; i < courses.length; i++){
+          let courseName = this.courseNames.find(course => course.No === courses[i]);
+          if (courseName) {
+            link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "'," + courses[i] + ");\">" + courseName.Name + "</a>";
+          }
+        }
         link += "</div>";
       }
       return link;
