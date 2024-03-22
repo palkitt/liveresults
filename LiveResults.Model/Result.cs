@@ -8,6 +8,7 @@ namespace LiveResults.Model
     public delegate void DeleteUnusedIDDelegate(List<int> usedID, bool first = false);
     public delegate void RadioControlDelegate(string controlName, int controlCode, string className, int order);
     public delegate void MergeCourseControlsDelegate(CourseControl[] courseControls, bool deleteUnused);
+    public delegate void MergeCourseNamesDelegate(CourseName[] courseNames);
 
     public class Result
     {

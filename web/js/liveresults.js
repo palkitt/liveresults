@@ -251,7 +251,7 @@ var LiveResults;
           var sprintNext = false;
           var shiftHeat = false;
           var elitLast = false;
-          
+
           for (var i = 0; i < nClass; i++) {
             var className = classes[i].className;
             this.courses[className] = (classes[i].courses != undefined ? classes[i].courses : []);

@@ -25,12 +25,12 @@ namespace LiveResults.Model
         }
 
 
-        private static readonly Dictionary<int,Dictionary<string,int>> m_compsSourceToIdMapping =
+        private static readonly Dictionary<int, Dictionary<string, int>> m_compsSourceToIdMapping =
             new Dictionary<int, Dictionary<string, int>>();
-        private static readonly Dictionary<int,int> m_compsNextGeneratedId = new Dictionary<int, int>();
+        private static readonly Dictionary<int, int> m_compsNextGeneratedId = new Dictionary<int, int>();
 
-        private static readonly Dictionary<int,int[]> m_runnerPreviousDaysTotalTime = new Dictionary<int, int[]>();
-        
+        private static readonly Dictionary<int, int[]> m_runnerPreviousDaysTotalTime = new Dictionary<int, int[]>();
+
         public string organizer;
         public DateTime compDate;
         public string compName;
@@ -131,9 +131,10 @@ namespace LiveResults.Model
         private MySqlConnection m_connection;
         private readonly string m_connStr;
         private int m_compID;
-        public readonly Dictionary<int,Runner> m_runners;
+        public readonly Dictionary<int, Runner> m_runners;
         private readonly Dictionary<string, RadioControl[]> m_classRadioControls;
         private readonly Dictionary<int, CourseControl[]> m_courseControls;
+        private readonly List<CourseName> m_classNames;
         private readonly List<DbItem> m_itemsToUpdate;
         private readonly bool m_assignIDsInternally;
         private int m_nextInternalId = 1;
@@ -146,7 +147,7 @@ namespace LiveResults.Model
             m_itemsToUpdate = new List<DbItem>();
             m_assignIDsInternally = assignIDsInternally;
 
-            m_connStr = "Database=" + database + ";Data Source="+server+";User Id="+user+";Password="+pass;
+            m_connStr = "Database=" + database + ";Data Source=" + server + ";User Id=" + user + ";Password=" + pass;
             m_connection = new MySqlConnection(m_connStr);
             m_compID = competitionID;
         }
@@ -200,7 +201,7 @@ namespace LiveResults.Model
                 OnLogMessage(msg);
         }
 
-          
+
         public Runner GetRunner(int dbId)
         {
             if (!IsRunnerAdded(dbId))
@@ -211,11 +212,11 @@ namespace LiveResults.Model
 
         public string[] GetClasses()
         {
-            Dictionary<string,string> classes = new Dictionary<string, string>();
+            Dictionary<string, string> classes = new Dictionary<string, string>();
             foreach (var r in m_runners)
             {
                 if (!classes.ContainsKey(r.Value.Class))
-                    classes.Add(r.Value.Class,"");
+                    classes.Add(r.Value.Class, "");
             }
             return classes.Keys.ToArray();
         }
@@ -235,7 +236,7 @@ namespace LiveResults.Model
         private bool m_currentlyBuffering;
         private Thread m_mainTh;
 
-        
+
         public void Start()
         {
             FireLogMsg("Buffering existing results..");
@@ -255,7 +256,6 @@ namespace LiveResults.Model
                     m_compsSourceToIdMapping.Add(m_compID, new Dictionary<string, int>());
                     m_compsNextGeneratedId.Add(m_compID, -1);
                 }
-
 
                 // Comp info
                 cmd.CommandText = "select organizer, compDate, compName from login where tavid = " + m_compID;
@@ -312,12 +312,23 @@ namespace LiveResults.Model
                     m_courseControls.Add(kvp.Key, kvp.Value.ToArray());
                 }
 
+                // Course names
+                cmd.CommandText = "select courseno, name from coursedata where tavid = " + m_compID;
+                reader = cmd.ExecuteReader();
+                List<CourseName> courseNames = new List<CourseName>();
+                while (reader.Read())
+                {
+                    int courseNo = Convert.ToInt32(reader["courseno"]);
+                    string name = reader["name"] as string;
+                    m_courseNames.Add(courseNo, name);
+                }
+                
 
                 // Runner aliases
                 cmd.CommandText = "select sourceid,id from runneraliases where compid = " + m_compID;
                 reader = cmd.ExecuteReader();
 
-                Dictionary<int,string> idToAliasDictionary = new Dictionary<int, string>();
+                Dictionary<int, string> idToAliasDictionary = new Dictionary<int, string>();
 
                 while (reader.Read())
                 {
@@ -338,7 +349,7 @@ namespace LiveResults.Model
                 {
                     if (!idToAliasDictionary.ContainsKey(kvp.Value))
                         idToAliasDictionary.Add(kvp.Value, kvp.Key);
-                }                                
+                }
 
                 // Runners
                 cmd.CommandText = "select runners.dbid,control,time,name,course,length,club,class,ecard1,ecard2,bib,status,ecardtimes from runners, results" +
@@ -402,7 +413,7 @@ namespace LiveResults.Model
                 m_connection.Close();
                 m_itemsToUpdate.Clear();
                 m_currentlyBuffering = false;
-                FireLogMsg("Done - Buffered " + m_runners.Count + " existing runners and " + numResults +" existing results from server");
+                FireLogMsg("Done - Buffered " + m_runners.Count + " existing runners and " + numResults + " existing results from server");
             }
 
             m_continue = true;
@@ -591,7 +602,7 @@ namespace LiveResults.Model
                 if (!m_currentlyBuffering)
                 {
                     FireResultChanged(r, 1000);
-                    FireLogMsg("Local update result: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + formatTime(r.Time,r.Status));
+                    FireLogMsg("Local update result: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + formatTime(r.Time, r.Status));
                 }
             }
         }
@@ -609,25 +620,25 @@ namespace LiveResults.Model
                 if (!m_currentlyBuffering)
                 {
                     FireResultChanged(r, controlcode);
-                    FireLogMsg("Local update split: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", c" + controlcode + ", " + formatTime(time,0));
+                    FireLogMsg("Local update split: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", c" + controlcode + ", " + formatTime(time, 0));
                 }
             }
         }
-        
+
 
         public void SetRunnerStartTime(int runnerID, int starttime)
         {
             if (!IsRunnerAdded(runnerID))
                 throw new ApplicationException("Runner is not added! {" + runnerID + "} [SetRunnerStartTime]");
             var r = m_runners[runnerID];
-            
+
             if (r.HasStartTimeChanged(starttime))
             {
                 r.SetStartTime(starttime);
                 m_itemsToUpdate.Add(r);
                 if (!m_currentlyBuffering)
                 {
-                    FireLogMsg("Local update start: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + formatTime(starttime,0,true));
+                    FireLogMsg("Local update start: " + (Math.Abs(r.Bib) > 0 ? "(" + Math.Abs(r.Bib) + ") " : "") + r.Name + ", " + formatTime(starttime, 0, true));
                 }
             }
         }
@@ -714,9 +725,48 @@ namespace LiveResults.Model
                     }
                 }
             }
-        }              
-               
-  
+        }
+
+        public void MergeCourseNames(CourseName[] courseNames)
+        {
+            if (courseNames == null)
+                return;
+
+            foreach (var courseName in courseNames)
+            {
+                if (m_courseNames.ContainsKey(kvp.Key))
+                {
+                    if (m_courseNames[kvp.Key] != courseName.Name)
+                    {
+                        m_itemsToUpdate.Add(new DelCourseName() { ToDelete = kvp.Key });
+                        m_itemsToUpdate.Add(courseName);
+                    }
+                }
+                else
+                {
+                    m_itemsToUpdate.Add(courseName);
+                    m_courseNames[kvp.Key] = courseName;
+                }
+            }
+
+            // Delete all controls for course that are not in the array
+            
+            var courseNo = courses.GroupBy(x => x.CourseNo).ToDictionary(x => x.Key);
+            foreach (var controls in m_courseControls)
+            {
+                if (!courseNo.ContainsKey(controls.Key))
+                {
+                    CourseControl[] existingControls = m_courseControls[controls.Key];
+                    for (int i = 0; i < existingControls.Length; i++)
+                    {
+                        m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
+                    }
+                }
+            }
+            
+        }
+
+
         public void MergeRadioControls(RadioControl[] radios, bool update = true)
         {
             if (radios == null)
@@ -928,6 +978,50 @@ namespace LiveResults.Model
                             using (MySqlCommand cmd = m_connection.CreateCommand())
                             {
                                 var item = m_itemsToUpdate[0];
+                                if (item is CourseName)
+                                {
+                                    var r = item as CourseName;                                     ;
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.AddWithValue("?compid", m_compID);
+                                    cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
+                                    cmd.Parameters.AddWithValue("?name", r.Name);
+                                    cmd.CommandText = "REPLACE INTO coursedate(tavid,courseno,name) VALUES (?compid,?courseno,?name)";
+
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ee)
+                                    {
+                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.RemoveAt(0);
+                                        throw new ApplicationException("Could not add data for course " + r.Name +" to server due to: " + ee.Message, ee);
+                                    }
+                                    cmd.Parameters.Clear();
+                                    FireLogMsg("Server update add: Course " + r.CourseNo + "-" + r.Name);
+                                }
+                                else if (item is DelCourseName)
+                                {
+                                    var dr = item as DelCourseName;
+                                    var r = dr.ToDelete;
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.AddWithValue("?compid", m_compID);
+                                    cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
+                                    cmd.CommandText = "delete from coursedata where tavid= ?compid and courseno = ?courseno";
+
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ee)
+                                    {
+                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.RemoveAt(0);
+                                        throw new ApplicationException("Could not delete course: " + r.CourseNo + "-" + r.Name + " to server due to: " + ee.Message, ee);
+                                    }
+                                    cmd.Parameters.Clear();
+                                    FireLogMsg("Server update delete: Course " + r.CourseNo + "-" + r.Name);
+                                }
                                 if (item is CourseControl)
                                 {
                                     var r = item as CourseControl;
