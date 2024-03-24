@@ -1194,7 +1194,8 @@ class Emma
 		} 
 		else 
 		{
-			$q = "Select TavId,multidaystage from login where MultiDayParent = ".$this->m_MultiDayParent." and MultiDayStage <=".$this->m_MultiDayStage." order by multidaystage";
+			$q  = "SELECT TavId, multidaystage FROM login WHERE MultiDayParent = ".$this->m_MultiDayParent." ";
+			$q .= "AND MultiDayStage <=".$this->m_MultiDayStage." ORDER BY multidaystage";
 			$comps = "(";
 			if ($result = mysqli_query($this->m_Conn, $q))
 			{
@@ -1212,54 +1213,84 @@ class Emma
 			$comps .= ")";
 		}
 
-		$q = "SELECT results.Time, results.Status, results.TavId, results.DbID From runners,results where results.Control = 1000 and results.DbID = runners.DbId AND results.TavId in $comps AND runners.TavId = results.TavId AND runners.Class = '".mysqli_real_escape_string($this->m_Conn, $className)."'  ORDER BY results.Dbid";
-		if ($result = mysqli_query($this->m_Conn, $q))
+		$q  = "SELECT results.Time, results.Status, results.TavId, results.DbID FROM runners, results ";
+		$q .= "WHERE results.Control = 1000 and results.DbID = runners.DbId AND results.TavId in $comps ";
+		$q .= "AND runners.TavId = results.TavId AND runners.Class = '".mysqli_real_escape_string($this->m_Conn, $className)."'  ORDER BY results.Dbid";
+		if ($result = mysqli_query($this->m_Conn, $q)) 
 		{
-			while ($row = mysqli_fetch_array($result))
+			if (in_array($this->m_CompId, [10016, 10688])) // Best of two races
 			{
-				$dbId = $row['DbID'];
-				if (!isset($ret[$dbId]))
+				while ($row = mysqli_fetch_array($result))
 				{
-					$ret[$dbId] = Array();
-					$ret[$dbId]["DbId"]  = $dbId;
-					$ret[$dbId]["Time"] = 0;
-					$ret[$dbId]["Status"] = 0;
+					$dbId = $row['DbID'];
+					if (!isset($ret[$dbId]))
+					{
+						$ret[$dbId] = Array();
+						$ret[$dbId]["DbId"] = $dbId;
+						$ret[$dbId]["Time"] = -1;
+						$ret[$dbId]["Status"] = 9;
+					}
+					$time = (int)$row['Time'];
+					$status = (int)$row['Status'];
+					if ($time > 0 && ($status == 0 || $status == 13))
+					{
+						$ret[$dbId]["Status"] = $status;
+						if ($ret[$dbId]["Time"] < 0)
+							$ret[$dbId]["Time"] = $time;
+						else 
+							$ret[$dbId]["Time"] = min($ret[$dbId]["Time"], $time);
+					}					
+					if ($ret[$dbId]["Status"] > 0 && $ret[$dbId]["Status"] < 13)
+						$ret[$dbId]["Status"] = min($status, $ret[$dbId]["Status"]);
+				}
+				mysqli_free_result($result);
+			}
+			else // Ordninary total results
+			{
+				while ($row = mysqli_fetch_array($result))
+				{
+					$dbId = $row['DbID'];
+					if (!isset($ret[$dbId]))
+					{
+						$ret[$dbId] = Array();
+						$ret[$dbId]["DbId"]  = $dbId;
+						$ret[$dbId]["Time"] = 0;
+						$ret[$dbId]["Status"] = 0;
+						foreach ($ar as $c)
+							$ret[$dbId]["c_".$c] = false;
+					}
+					$ret[$dbId]["Time"] += (int)$row['Time'];
+					$status = (int)$row['Status'];
+					if ($status > 0)
+					{
+						if ($ret[$dbId]["Status"] == 0)
+							$ret[$dbId]["Status"] = $status;
+						elseif (!($ret[$dbId]["Status"]==13 && $status == 13))
+							$ret[$dbId]["Status"] = min($status, $ret[$dbId]["Status"] );
+					}
+					if ($status != 9 && $status != 10)
+						$ret[$dbId]["c_".$row['TavId']] = true;
+				}
+				mysqli_free_result($result);
+				
+				/* Set DNS on those missing any comp previos to the current one*/
+				foreach($ret as $key => $val)
+				{
+					$haveAll = true;
+					$numComp = count($ar);
 					foreach ($ar as $c)
 					{
-						$ret[$dbId]["c_".$c] = false;
+						if (--$numComp <= 0)
+							break;
+						if (!$val["c_".$c])
+						{
+							$haveAll = false;
+							break;
+						}
 					}
+					if (!$haveAll)
+						$ret[$key]['Status'] = 1;
 				}
-				$ret[$dbId]["Time"] += (int)$row['Time'];
-				$status = (int)$row['Status'];
-				if ($status > 0)
-				{
-					if ($ret[$dbId]["Status"] == 0)
-						$ret[$dbId]["Status"] = $status;
-					elseif (!($ret[$dbId]["Status"]==13 && $status == 13))
-						$ret[$dbId]["Status"] = min($status, $ret[$dbId]["Status"] );
-				}
-				if ($status != 9 && $status != 10)
-					$ret[$dbId]["c_".$row['TavId']] = true;
-			}
-			mysqli_free_result($result);
-			
-			/* Set DNS on those missing any comp previos to the current one*/
-			foreach($ret as $key => $val)
-			{
-				$haveAll = true;
-        $numComp = count($ar);
-				foreach ($ar as $c)
-				{
-					if (--$numComp <= 0)
-            break;
-          if (!$val["c_".$c])
-					{
-						$haveAll = false;
-						break;
-					}
-				}
-				if (!$haveAll)
-					$ret[$key]['Status'] = 1;
 			}
 		}
 		else
