@@ -4607,7 +4607,7 @@ var LiveResults;
 
       if (data != null && data.status == "OK") {
         if (data.className != null) {
-          var courseName = (course > 0 ? 'Løype ' + course : 'Felles poster');
+          var courseName = (course > 0 ? _this.courseNames.find(item => item.No === course).Name : 'Felles poster');
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>&nbsp;&nbsp;<small>' + courseName + '</small>');
           $('#' + this.resultsControlsDiv).show();
         }
