@@ -15,6 +15,7 @@ using System.Security.Cryptography.X509Certificates;
 using LiveResults.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static LiveResults.Client.BrikkesysParser;
 
 namespace LiveResults.Client
 {
@@ -31,6 +32,7 @@ namespace LiveResults.Client
         public event ResultDelegate OnResult;
         public event LogMessageDelegate OnLogMessage;
         public event DeleteIDDelegate OnDeleteID;
+        public event MergeCourseNamesDelegate OnMergeCourseNames;
         private bool m_isRelay = false;
         private bool m_continue;
         private int m_compID;
@@ -585,9 +587,11 @@ namespace LiveResults.Client
             try
             {
                 var dlgMergeCourseControls = OnMergeCourseControls;
+                var dlgMergeCourseNames = OnMergeCourseNames;
 
-                if (dlgMergeCourseControls != null) // Read courses
+                if (dlgMergeCourseControls != null && dlgMergeCourseNames != null) // Read courses
                 {
+                    List<CourseName> courseNames = new List<CourseName>();
                     List<CourseControl> courseControls = new List<CourseControl>();
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
@@ -606,6 +610,11 @@ namespace LiveResults.Client
                             string name = reader["name"] as string;
                             if (reader["meter"] != null && reader["meter"] != DBNull.Value)
                                 length = Convert.ToInt32(reader["meter"]);
+                            courseNames.Add(new CourseName()
+                            {
+                                CourseNo = id,
+                                Name = name
+                            });
 
                             int[] codes = Array.ConvertAll(codesStr.Split(' '), int.Parse);
                             for (int i = 0; i < codes.Length - 1; i++) // Last control is finish
@@ -632,6 +641,9 @@ namespace LiveResults.Client
                     CourseControl[] courseControlArray = courseControls.ToArray();
                     bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
                     dlgMergeCourseControls(courseControlArray, deleteUnused);
+
+                    CourseName[] courseNameArray = courseNames.ToArray();
+                    dlgMergeCourseNames(courseNameArray);
                 }
             }
             catch (Exception ee)

@@ -231,6 +231,7 @@ namespace LiveResults.Client
                             if (CCTimer >= maxCCTimer)
                             {
                                 setCourses(out courses);
+                                setCourseNames();
                                 setRadioControls(isRelay, isSprint, day, courses, out intermediates);
                                 CCTimer = 0;
                             }
@@ -418,12 +419,11 @@ namespace LiveResults.Client
         {
             try
             {
-                Dictionary<int, CourseName> courseNames = new Dictionary<int, CourseName>();
                 var dlgMergeCourseNames = OnMergeCourseNames;
-                if (dlgMergeCourseNames != null) // Read courses
+                if (dlgMergeCourseNames != null) // Read course names
                 {
-                    List<CourseControl> courseControls = new List<CourseControl>();
-                    if (m_updateEcardTimes || m_ecardAsBackup)
+                    List<CourseName> courseNames = new List<CourseName>();
+                    if (m_updateEcardTimes)
                     {
                         IDbCommand cmd = m_connection.CreateCommand();
                         cmd.CommandText = string.Format(@"SELECT code, name FROM cource ORDER BY code");
@@ -435,24 +435,24 @@ namespace LiveResults.Client
                                 string courseName = "";
                                 if (reader["code"] != null && reader["code"] != DBNull.Value)
                                     courseNo = Convert.ToInt32(reader["code"].ToString());
-                                courseName = reader["name"] as string;                                
-                                courseNames.Add(courseNo, courseName);
+                                courseName = reader["name"] as string;
+                                courseNames.Add(new CourseName()
+                                {
+                                    CourseNo = courseNo,
+                                    Name = courseName
+                                });
                             }
                             reader.Close();
                         }
                     }
-                    if (m_updateEcardTimes)
-                    {
-                        CourseControl[] courseControlArray = courseControls.ToArray();
-                        dlgMergeCourseControls(courseControlArray, deleteUnused);
-                    }
+                    CourseName[] courseNameArray = courseNames.ToArray();
+                    dlgMergeCourseNames(courseNameArray);
                 }
             }
             catch (Exception ee)
             {
-                FireLogMsg("eTiming parser setCourses: " + ee.Message);
+                FireLogMsg("eTiming parser setCourseNames: " + ee.Message);
             }
-
         }
 
 

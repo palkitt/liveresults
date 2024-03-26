@@ -134,7 +134,7 @@ namespace LiveResults.Model
         public readonly Dictionary<int, Runner> m_runners;
         private readonly Dictionary<string, RadioControl[]> m_classRadioControls;
         private readonly Dictionary<int, CourseControl[]> m_courseControls;
-        private readonly List<CourseName> m_classNames;
+        private readonly Dictionary<int, CourseName> m_courseNames;
         private readonly List<DbItem> m_itemsToUpdate;
         private readonly bool m_assignIDsInternally;
         private int m_nextInternalId = 1;
@@ -144,6 +144,7 @@ namespace LiveResults.Model
             m_runners = new Dictionary<int, Runner>();
             m_classRadioControls = new Dictionary<string, RadioControl[]>();
             m_courseControls = new Dictionary<int, CourseControl[]>();
+            m_courseNames = new Dictionary<int, CourseName>();
             m_itemsToUpdate = new List<DbItem>();
             m_assignIDsInternally = assignIDsInternally;
 
@@ -313,16 +314,18 @@ namespace LiveResults.Model
                 }
 
                 // Course names
-                cmd.CommandText = "select courseno, name from coursedata where tavid = " + m_compID;
+                cmd.CommandText = "select courseno,name from coursedata where tavid = " + m_compID;
                 reader = cmd.ExecuteReader();
-                List<CourseName> courseNames = new List<CourseName>();
                 while (reader.Read())
                 {
                     int courseNo = Convert.ToInt32(reader["courseno"]);
                     string name = reader["name"] as string;
-                    m_courseNames.Add(courseNo, name);
+                    CourseName tmpCourseName = new CourseName() { 
+                        CourseNo = courseNo, 
+                        Name = name };
+                    m_courseNames.Add(courseNo, tmpCourseName);
                 }
-                
+                reader.Close();
 
                 // Runner aliases
                 cmd.CommandText = "select sourceid,id from runneraliases where compid = " + m_compID;
@@ -734,38 +737,32 @@ namespace LiveResults.Model
 
             foreach (var courseName in courseNames)
             {
-                if (m_courseNames.ContainsKey(kvp.Key))
+                int key = courseName.CourseNo;
+                if (m_courseNames.ContainsKey(key))
                 {
-                    if (m_courseNames[kvp.Key] != courseName.Name)
+                    if (m_courseNames[key].Name != courseName.Name)
                     {
-                        m_itemsToUpdate.Add(new DelCourseName() { ToDelete = kvp.Key });
+                        m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
                         m_itemsToUpdate.Add(courseName);
                     }
                 }
                 else
                 {
                     m_itemsToUpdate.Add(courseName);
-                    m_courseNames[kvp.Key] = courseName;
+                    m_courseNames[key] = courseName;
                 }
             }
 
-            // Delete all controls for course that are not in the array
-            
-            var courseNo = courses.GroupBy(x => x.CourseNo).ToDictionary(x => x.Key);
-            foreach (var controls in m_courseControls)
+            // Delete all courses that are not in the array            
+            foreach (var courseName in m_courseNames)
             {
-                if (!courseNo.ContainsKey(controls.Key))
+                int key = courseName.Key;
+                if (!courseNames.Any(cn => cn.CourseNo == key))
                 {
-                    CourseControl[] existingControls = m_courseControls[controls.Key];
-                    for (int i = 0; i < existingControls.Length; i++)
-                    {
-                        m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
-                    }
+                    m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
                 }
             }
-            
         }
-
 
         public void MergeRadioControls(RadioControl[] radios, bool update = true)
         {
@@ -985,7 +982,7 @@ namespace LiveResults.Model
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
                                     cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
                                     cmd.Parameters.AddWithValue("?name", r.Name);
-                                    cmd.CommandText = "REPLACE INTO coursedate(tavid,courseno,name) VALUES (?compid,?courseno,?name)";
+                                    cmd.CommandText = "REPLACE INTO coursedata(tavid,courseno,name) VALUES (?compid,?courseno,?name)";
 
                                     try
                                     {
@@ -995,7 +992,7 @@ namespace LiveResults.Model
                                     {
                                         m_itemsToUpdate.Add(r);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not add data for course " + r.Name +" to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not add course name: " + r.CourseNo + "-" + r.Name +" to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
                                     FireLogMsg("Server update add: Course " + r.CourseNo + "-" + r.Name);
@@ -1017,7 +1014,7 @@ namespace LiveResults.Model
                                     {
                                         m_itemsToUpdate.Add(r);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not delete course: " + r.CourseNo + "-" + r.Name + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not delete course name: " + r.CourseNo + "-" + r.Name + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
                                     FireLogMsg("Server update delete: Course " + r.CourseNo + "-" + r.Name);
