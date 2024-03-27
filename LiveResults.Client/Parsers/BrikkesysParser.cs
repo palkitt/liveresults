@@ -15,7 +15,6 @@ using System.Security.Cryptography.X509Certificates;
 using LiveResults.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static LiveResults.Client.BrikkesysParser;
 
 namespace LiveResults.Client
 {

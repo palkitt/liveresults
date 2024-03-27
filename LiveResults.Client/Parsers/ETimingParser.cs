@@ -20,7 +20,6 @@ using Org.BouncyCastle.Asn1.Crmf;
 using System.Collections;
 using System.Net.Sockets;
 using System.Linq.Expressions;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace LiveResults.Client
 {
@@ -412,7 +411,6 @@ namespace LiveResults.Client
             {
                 FireLogMsg("eTiming parser setCourses: " + ee.Message);
             }
-
         }
 
         private void setCourseNames()
