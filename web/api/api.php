@@ -60,8 +60,8 @@ if ($_GET['method'] == 'getcompetitions')
 }
 else if ($_GET['method'] == 'setcompetitioninfo')
 {
-    $tenths = 0;
-	$compid = $_POST['comp'];
+    	$tenths = 0;
+		$compid = $_POST['comp'];
 		Emma::UpdateCompetition($compid,$_POST["compName"],$_POST["organizer"],$_POST["date"],$tenths,$_POST["public"],$_POST["timediff"]);
 		insertHeader($refreshTime,false);
 		echo("{\"status\": \"OK\"}");
