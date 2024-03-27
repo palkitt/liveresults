@@ -446,7 +446,8 @@ namespace LiveResults.Client
                         }
                     }
                     CourseName[] courseNameArray = courseNames.ToArray();
-                    dlgMergeCourseNames(courseNameArray);
+                    bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
+                    dlgMergeCourseNames(courseNameArray, deleteUnused);
                 }
             }
             catch (Exception ee)

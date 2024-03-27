@@ -643,7 +643,7 @@ namespace LiveResults.Client
                     dlgMergeCourseControls(courseControlArray, deleteUnused);
 
                     CourseName[] courseNameArray = courseNames.ToArray();
-                    dlgMergeCourseNames(courseNameArray);
+                    dlgMergeCourseNames(courseNameArray, deleteUnused);
                 }
             }
             catch (Exception ee)

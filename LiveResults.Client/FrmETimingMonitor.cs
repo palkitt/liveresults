@@ -56,12 +56,12 @@ namespace LiveResults.Client
             }; 
         }
 
-        void m_Parser_OnMergeCourseNames(CourseName[] courseNames)
+        void m_Parser_OnMergeCourseNames(CourseName[] courseNames, bool deleteUnused)
         {
             foreach (EmmaMysqlClient client in m_Clients)
             {
                 if (courseNames != null)
-                    client.MergeCourseNames(courseNames);
+                    client.MergeCourseNames(courseNames, deleteUnused);
             }
         }
 

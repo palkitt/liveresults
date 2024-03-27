@@ -194,3 +194,4 @@ web/.vscode/launch.json
 
 #osticket
 web/osticket/
+web/bootstrap/

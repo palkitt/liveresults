@@ -320,10 +320,12 @@ namespace LiveResults.Model
                 {
                     int courseNo = Convert.ToInt32(reader["courseno"]);
                     string name = reader["name"] as string;
-                    CourseName tmpCourseName = new CourseName() { 
-                        CourseNo = courseNo, 
-                        Name = name };
-                    m_courseNames.Add(courseNo, tmpCourseName);
+                    m_courseNames.Add(courseNo, 
+                        new CourseName()
+                        {
+                            CourseNo = courseNo,
+                            Name = name
+                        });
                 }
                 reader.Close();
 
@@ -730,7 +732,7 @@ namespace LiveResults.Model
             }
         }
 
-        public void MergeCourseNames(CourseName[] courseNames)
+        public void MergeCourseNames(CourseName[] courseNames, bool deleteUnused)
         {
             if (courseNames == null)
                 return;
@@ -752,14 +754,16 @@ namespace LiveResults.Model
                     m_courseNames[key] = courseName;
                 }
             }
-
-            // Delete all courses that are not in the array            
-            foreach (var courseName in m_courseNames)
+            if (deleteUnused)
             {
-                int key = courseName.Key;
-                if (!courseNames.Any(cn => cn.CourseNo == key))
+                // Delete all courses that are not in the array            
+                foreach (var courseName in m_courseNames)
                 {
-                    m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
+                    int key = courseName.Key;
+                    if (!courseNames.Any(cn => cn.CourseNo == key))
+                    {
+                        m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
+                    }
                 }
             }
         }
