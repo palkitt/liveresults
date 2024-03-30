@@ -81,35 +81,11 @@ namespace LiveResults.Model
 
     public class RadioControl : DbItem
     {
-        public string ClassName
-        {
-            get;
-            set;
-        }
-
-        public int Code
-        {
-            get;
-            set;
-        }
-
-        public string ControlName
-        {
-            get;
-            set;
-        }
-
-        public int Order
-        {
-            get;
-            set;
-        }
-
-        public int Distance
-        {
-            get;
-            set;
-        } = 0;
+        public string ClassName { get; set; }
+        public int Code { get; set; }
+        public string ControlName { get; set; }
+        public int Order { get; set; }
+        public int Distance { get; set; } = 0;
     }
 
     class DelCourseControl : DbItem
@@ -119,37 +95,23 @@ namespace LiveResults.Model
 
     public class CourseControl : DbItem
     {
-        public int CourseNo
-        {
-            get;
-            set;
-        }
-
-        public int Code
-        {
-            get;
-            set;
-        }
-
-        public int RadioCode
-        {
-            get;
-            set;
-        }
-
-        public int Order
-        {
-            get;
-            set;
-        }
-        
-        public int AccDist
-        {
-            get;
-            set;
-        }
+        public int CourseNo { get; set; }
+        public int Code { get; set; }
+        public int RadioCode { get; set; }
+        public int Order { get; set; }
+        public int AccDist { get; set; }
     }
 
+    class DelCourseName : DbItem
+    {
+        public CourseName ToDelete;
+    }
+
+    public class CourseName : DbItem
+    {
+        public int CourseNo { get; set; }
+        public string Name { get; set; }
+    }
 
     public class DbItem
     {

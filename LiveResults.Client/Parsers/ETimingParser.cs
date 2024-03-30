@@ -34,6 +34,7 @@ namespace LiveResults.Client
         public event RadioControlDelegate OnRadioControl;
         public event MergeRadioControlsDelegate OnMergeRadioControls;
         public event MergeCourseControlsDelegate OnMergeCourseControls;
+        public event MergeCourseNamesDelegate OnMergeCourseNames;
         private bool m_updateEcardTimes;
         private bool m_updateRadioControls;
         private bool m_continue;
@@ -70,9 +71,7 @@ namespace LiveResults.Client
         private void FireOnResult(Result newResult)
         {
             if (OnResult != null)
-            {
                 OnResult(newResult);
-            }
         }
         private void FireLogMsg(string msg)
         {
@@ -231,6 +230,7 @@ namespace LiveResults.Client
                             if (CCTimer >= maxCCTimer)
                             {
                                 setCourses(out courses);
+                                setCourseNames();
                                 setRadioControls(isRelay, isSprint, day, courses, out intermediates);
                                 CCTimer = 0;
                             }
@@ -335,6 +335,7 @@ namespace LiveResults.Client
                 reader.Close();
             }
         }
+
         private void setCourses(out Dictionary<int, List<CourseControl>> courses)
         {
             courses = new Dictionary<int, List<CourseControl>>();
@@ -410,8 +411,49 @@ namespace LiveResults.Client
             {
                 FireLogMsg("eTiming parser setCourses: " + ee.Message);
             }
-
         }
+
+        private void setCourseNames()
+        {
+            try
+            {
+                var dlgMergeCourseNames = OnMergeCourseNames;
+                if (dlgMergeCourseNames != null) // Read course names
+                {
+                    List<CourseName> courseNames = new List<CourseName>();
+                    if (m_updateEcardTimes)
+                    {
+                        IDbCommand cmd = m_connection.CreateCommand();
+                        cmd.CommandText = string.Format(@"SELECT code, name FROM cource ORDER BY code");
+                        using (IDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int courseNo = 0;
+                                string courseName = "";
+                                if (reader["code"] != null && reader["code"] != DBNull.Value)
+                                    courseNo = Convert.ToInt32(reader["code"].ToString());
+                                courseName = reader["name"] as string;
+                                courseNames.Add(new CourseName()
+                                {
+                                    CourseNo = courseNo,
+                                    Name = courseName
+                                });
+                            }
+                            reader.Close();
+                        }
+                    }
+                    CourseName[] courseNameArray = courseNames.ToArray();
+                    bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
+                    dlgMergeCourseNames(courseNameArray, deleteUnused);
+                }
+            }
+            catch (Exception ee)
+            {
+                FireLogMsg("eTiming parser setCourseNames: " + ee.Message);
+            }
+        }
+
 
         private void setRadioControls(bool isRelay, bool isSprint, int day, Dictionary<int, List<CourseControl>> courses, out List<RadioControl> intermediates)
         {

@@ -25,12 +25,13 @@ var LiveResults;
       this.runnerStatus = runnerStatus;
       this.EmmaServer = EmmaServer;
       this.fixedTable = fixedTable;
-      this.showTenthOfSecond = false;
       this.updateAutomatically = true;
       this.autoUpdateLastPassings = true;
-      this.showEcardTimes = false;
       this.compactView = true;
+      this.showEcardTimes = false;
       this.showTimesInSprint = false;
+      this.showCourseResults = false;
+      this.showTenthOfSecond = false;
       this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
       this.clubUpdateInterval = 60000;
@@ -67,6 +68,7 @@ var LiveResults;
       this.curClassIsMassStart = false;
       this.curClassIsRelay = false;
       this.curClassIsLapTimes = false;
+      this.curClassIsCourse = false;
       this.curClassNumSplits = false;
       this.curClassIsUnranked = false;
       this.curClassHasBibs = false;
@@ -88,6 +90,7 @@ var LiveResults;
       this.rankedStartlist = true;
       this.relayClasses = [];
       this.courses = {};
+      this.courseNames = {};
       this.runnerList = null;
       this.speakerView = false;
       this.shortSprint = false;
@@ -233,6 +236,7 @@ var LiveResults;
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
+        this.courseNames = data.courses; 
         $('#divInfoText').html(data.infotext);
         if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0)
           $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
@@ -247,6 +251,7 @@ var LiveResults;
           var sprintNext = false;
           var shiftHeat = false;
           var elitLast = false;
+
           for (var i = 0; i < nClass; i++) {
             var className = classes[i].className;
             this.courses[className] = (classes[i].courses != undefined ? classes[i].courses : []);
@@ -262,8 +267,7 @@ var LiveResults;
               var classNameCleanNext = "";
               var LegNoNext = 0;
 
-              if (i < (nClass - 1)) {
-                // Relay
+              if (i < (nClass - 1)) { // Relay
                 classNameCleanNext = this.shortClassName(classes[i + 1].className);
                 classNameCleanNext = classNameCleanNext.replace(/-[0-9]{1,2}$/, '');
                 LegNoStr = classes[i + 1].className.match(/-[0-9]{1,2}$/);
@@ -304,7 +308,7 @@ var LiveResults;
 
                   if (!sprint) // First class in sprint or new class
                     str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
-                           "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br/>&nbsp;";
+                            "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br/>&nbsp;";
                   sprint = true;
                   sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
 
@@ -366,6 +370,13 @@ var LiveResults;
             if (this.isMultiDayEvent)
               str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('plainresultstotal')\" style=\"text-decoration: none\">" + this.resources["_TOTAL"] + "</a>";
           }
+          if (this.showCourseResults && data.courses != undefined) {
+            str += "<hr></nowrap>";           
+            for (var i = 0; i < this.courseNames.length; i++) {
+              str += "<a href=\"javascript:LiveResults.Instance.chooseClass('course::" + this.courseNames[i].No + "')\">" + this.courseNames[i].Name + "</a><br/>";
+            }
+          }
+
           str += "<hr></nowrap>";
           $("#" + this.classesDiv).html(str);
           $("#numberOfRunnersTotal").html(data.numberOfRunners);
@@ -1005,8 +1016,8 @@ var LiveResults;
 
           var data = this.currentTable.fnGetData();
           var table = this.currentTable.api();
-          var offset = 3 + (this.curClassHasBibs ? 1 : 0) + ((this.curClassIsUnranked || (this.compactView && !this.curClassLapTimes)) ? 1 : 0);
-          var MDoffset = (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
+          var offset = 3 + (this.curClassHasBibs ? 1 : 0) + ((this.curClassIsUnranked || this.compactView && !this.curClassLapTimes) ? 1 : 0);
+          var MDoffset = (this.curClassIsCourse ? 1 : 0) +  (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
           var rank;
           const predOffset = 1500;
           const predRank = true;
@@ -2789,14 +2800,15 @@ var LiveResults;
             $('#' + this.txtResetSorting).html("");
           }
           else {
+            var headerName = (data.courseName != undefined ? data.courseName : data.className);
             var distance = (data.distance != undefined && data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
-            var classHead = "<b>" + data.className + "</b>" + distance;
+            var classHead = "<b>" + headerName + "</b>" + distance;
             $('#' + this.resultsHeaderDiv).html(classHead);
-            var courses = _this.courses[data.className];
+            var courses = this.courses[data.className];
             var link = "";
-            if (_this.showEcardTimes && courses != undefined && courses.length > 0)
+            if (this.showEcardTimes && courses != undefined && courses.length > 0)
               link = this.splitTimesLink(data.className, courses);
-            $("#" + _this.txtResetSorting).html(link);
+            $("#" + this.txtResetSorting).html(link);
 
           }
           $('#' + this.resultsControlsDiv).show();
@@ -2952,12 +2964,14 @@ var LiveResults;
           else
             $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
 
-          var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
-          this.curClassSplits = data.splitcontrols;
-          this.curClassIsRelay = (haveSplitControls && this.curClassSplits[0].code == "0");
-          this.curClassLapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
+          var haveSplitControls   = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
+          this.curClassSplits     = data.splitcontrols;
+          this.curClassIsRelay    = (haveSplitControls && this.curClassSplits[0].code == "0");
+          this.curClassLapTimes   = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
           this.curClassIsUnranked = !(this.curClassSplits.every(function check(el) { return el.code != "-999"; })) || !(data.results.every(function check(el) { return el.status != 13; }));
-          this.curClassHasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
+          this.curClassHasBibs    = (data.results[0].bib != undefined && data.results[0].bib != 0);
+          this.curClassIsCourse   = (data.results[0].class != undefined);
+
           if (this.curClassSplits == null)
             this.curClassNumSplits = 0;
           else if (this.curClassIsRelay)
@@ -3089,6 +3103,19 @@ var LiveResults;
                   return clubShort + vertLine;
                 else
                   return link + vertLine;
+              }
+            });
+          }
+
+          if (this.curClassIsCourse) {
+            columns.push({
+              "sTitle": this.resources["_CLASS"], "sClass": "left", "aTargets": [col++], "mDataProp": "class",
+              "render": function (data, type, row) {
+                var classRaw = row["class"];
+                var classDisplay = _this.shortClassName(classRaw);
+                if (classRaw && classRaw.length > 0)
+                  classRaw = classRaw.replace('\'', '\\\'');
+                return "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classRaw + "')\">" + classDisplay + "</a>";
               }
             });
           }
@@ -4308,8 +4335,12 @@ var LiveResults;
       else {
         link = "<button onclick=\"res.showCourses()\" class=\"dropbtn\">Strekktider &#5125;</button><div id=\"myDropdown\" class=\"dropdown-content\">";
         link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "',-1);\">Felles poster</a>";
-        for (i = 0; i < courses.length; i++)
-          link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "'," + courses[i] + ");\">Løype " + courses[i] + "</a>";
+        for (i = 0; i < courses.length; i++){
+          let courseName = this.courseNames.find(course => course.No === courses[i]);
+          if (courseName) {
+            link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "'," + courses[i] + ");\">" + courseName.Name + "</a>";
+          }
+        }
         link += "</div>";
       }
       return link;
@@ -4576,7 +4607,7 @@ var LiveResults;
 
       if (data != null && data.status == "OK") {
         if (data.className != null) {
-          var courseName = (course > 0 ? 'Løype ' + course : 'Felles poster');
+          var courseName = (course > 0 ? _this.courseNames.find(item => item.No === course).Name : 'Felles poster');
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>&nbsp;&nbsp;<small>' + courseName + '</small>');
           $('#' + this.resultsControlsDiv).show();
         }

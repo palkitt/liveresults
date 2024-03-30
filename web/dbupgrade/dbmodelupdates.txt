@@ -97,3 +97,13 @@ alter table login add column showtimesinsprint tinyint(1) DEFAULT NULL;
 
 -- addition 2023-02-07
 alter table login add column sport varchar(255) CHARACTER SET utf8 NOT NULL DEFAULT '';
+
+-- addition 2024-03-02
+CREATE TABLE `coursedata` (
+  `tavid` int(11) NOT NULL DEFAULT 0,
+  `courseno` int(11) NOT NULL DEFAULT 0,
+  `name` varchar(50) character set 'utf8' NOT NULL DEFAULT '',
+  PRIMARY KEY (`tavid`,`courseno`)
+) DEFAULT CHARSET=utf8;
+
+alter table login add column showcourseresults tinyint(1) DEFAULT NULL;
