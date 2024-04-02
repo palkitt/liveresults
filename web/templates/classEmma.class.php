@@ -1048,17 +1048,19 @@ class Emma
 	function getAllSplitsForCourse($course)
 	{
 		$ret = Array();
-		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.Class, runners.Length, results.Time, results.Status, results.Changed, results.DbID, results.Control";
+		$q  = "SELECT runners.Name, runners.Bib, runners.Club, runners.Class, runners.Length, results.Time, results.Status, results.Changed, results.DbID, results.Control";
 		$q .= " FROM runners, results where results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId;
-		$q .= " AND runners.TavId = ".$this->m_CompId ." AND runners.Course = ".$course." ORDER BY results.Dbid, results.Control DESC";
+		$q .= " AND runners.TavId = ".$this->m_CompId ." AND runners.Course = ".$course." ORDER BY results.Dbid, results.Control";
 
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
+			$useLegTime = false;
 			while ($row = mysqli_fetch_array($result))
 			{
 				$dbId = $row['DbID'];
 				if (!isset($ret[$dbId]))
 				{
+					$useLegTime = false;
 					$ret[$dbId] = Array();
 					$ret[$dbId]["DbId"] = $dbId;
 					$ret[$dbId]["Name"] = $row['Name'];
@@ -1071,13 +1073,17 @@ class Emma
 					$ret[$dbId]["Changed"] = "";
 				}
 				$split = $row['Control'];
-				if ($split == 1000)
+				
+				if ($split == 0)
+					$useLegTime = true;
+				elseif ($split == 1000)
 				{
-					$ret[$dbId]["Time"] = $row['Time'];
 					$ret[$dbId]["Status"] = $row['Status'];
 					$ret[$dbId]["Changed"] = $row['Changed'];
+					if (!$useLegTime)
+						$ret[$dbId]["Time"] = $row['Time'];				
 				}
-				elseif ($split == 999)
+				elseif ($split == 999 && $useLegTime)
 					$ret[$dbId]["Time"] = $row['Time'];
 				elseif ($split == 100)
 					$ret[$dbId]["Start"] = $row['Time'];

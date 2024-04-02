@@ -987,13 +987,16 @@ function courseResults($course)
 			$winnerTime = $time;
 
 		$status = $res['Status'];
+		$progress = 0;
 
 		if ($time == "")
 			$status = 9;
 
-		$progress = 0;
 		if ($status == 9 || $status == 10)
+		{
+			$cp = "";
 			$progress = 0;
+		}
 		elseif ($status == 13)
 		{
 			$cp = "F";
