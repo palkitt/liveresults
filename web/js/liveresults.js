@@ -356,8 +356,8 @@ var LiveResults;
               }
               else
               {
-                var elit = (className.toLowerCase().match(/(-e| e|\d+e|elite)(\d*)$/) != null);
-                if (!elit && elitLast)
+                var elit = (className.toLowerCase().match(/(-e| e|\d+e|elite|wre)(\s*\d*)$/) != null);
+                if (!elit && elitLast && !this.EmmaServer)
                   str += "<hr>";
                 str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\">" + className + "</a><br/>";
                 elitLast = elit;
