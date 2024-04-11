@@ -174,7 +174,8 @@ namespace LiveResults.Client
                     IDbCommand cmdInd = m_connection.CreateCommand();
                     cmdInd.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
                             N.cource, N.place, N.status, N.cource, N.starttime, N.races, N.heat, N.ecard, N.ecard2, N.ecard3, N.ecard4,
-                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, C.cheaseing, C.purmin, C.direct, Co.length 
+                            T.name AS tname, C.class AS cclass, C.timingtype, C.freestart, 
+                            C.firststart AS cfirststart, C.cheaseing, C.purmin, C.direct, Co.length 
                             FROM Name N, Class C, Team T, Cource Co 
                             WHERE N.class=C.code AND Co.code=N.cource AND T.code=N.team {0}", purmin);
 
@@ -894,6 +895,9 @@ namespace LiveResults.Client
                         else if (reader["starttime"] != null && reader["starttime"] != DBNull.Value)
                             iStartTime = ConvertFromDay2cs(Convert.ToDouble(reader["starttime"]));
 
+                        if (reader["cfirststart"] != null && reader["cfirststart"] != DBNull.Value)
+                            iStartClass = ConvertFromDay2cs(Convert.ToDouble(reader["cfirststart"]));
+
                         if (isRelay)
                             teambib = bib / 100; // Team bib no
 
@@ -925,9 +929,6 @@ namespace LiveResults.Client
 
                             if (reader["teamno"] != null && reader["teamno"] != DBNull.Value)
                                 club += "-" + Convert.ToString(reader["teamno"]);
-
-                            if (reader["cfirststart"] != null && reader["cfirststart"] != DBNull.Value)
-                                iStartClass = ConvertFromDay2cs(Convert.ToDouble(reader["cfirststart"]));
 
                             if (isRelay && reader["cpurmin"] != null && reader["cpurmin"] != DBNull.Value)
                                 numlegs = Convert.ToInt16(reader["cpurmin"]);
@@ -1024,6 +1025,8 @@ namespace LiveResults.Client
                         {
                             if (reader["totaltime"] != null && reader["totaltime"] != DBNull.Value)
                                 totalTime = ConvertFromDay2cs(Convert.ToDouble(reader["totaltime"]));
+                            else
+                                totalTime = Math.Max(0, iStartTime - iStartClass);
 
                             // Set starttime split to get starting order based on total time
                             var totalTimeStart = new ResultStruct
