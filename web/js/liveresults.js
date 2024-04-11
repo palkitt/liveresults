@@ -3612,7 +3612,7 @@ var LiveResults;
       }
     };
    
-    AjaxViewer.prototype.formatTime = function (time, status, showTenthOs, showHours, padZeros, clocTime) {
+    AjaxViewer.prototype.formatTime = function (time, status, showTenthOs, showHours, padZeros, clockTime) {
       if (arguments.length == 2 || arguments.length == 3) {
         if (this.language == 'fi' || this.language == 'no') {
           showHours = true;
@@ -3642,21 +3642,28 @@ var LiveResults;
         var minutes;
         var seconds;
         var tenth;
+        var restart = "";
+
+        if (time > 100*3600*100) // 100 hours. Used for indicating restart in relay
+        {
+          restart = "<small>*</small>"; // Small * to indicate that team has restarted  
+          time = time%(100*3600*100);
+        }
 
         if (showHours) {
           var hours = Math.floor(time / 360000);
           minutes = Math.floor((time - hours * 360000) / 6000);
           seconds = Math.floor((time - minutes * 6000 - hours * 360000) / 100);
           tenth = Math.floor((time - minutes * 6000 - hours * 360000 - seconds * 100) / 10);
-          if (hours > 0 || clocTime) {
+          if (hours > 0 || clockTime) {
             if (padZeros)
               hours = this.strPad(hours, 2);
-            return hours + ":" + this.strPad(minutes, 2) + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "");
+            return hours + ":" + this.strPad(minutes, 2) + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "") + restart;
           }
           else {
             if (padZeros)
               minutes = this.strPad(minutes, 2);
-            return minutes + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "");
+            return minutes + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "") + restart;
           }
         }
         else {
@@ -3664,10 +3671,10 @@ var LiveResults;
           seconds = Math.floor((time - minutes * 6000) / 100);
           tenth = Math.floor((time - minutes * 6000 - seconds * 100) / 10);
           if (padZeros) {
-            return this.strPad(minutes, 2) + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "");
+            return this.strPad(minutes, 2) + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "") + restart;
           }
           else {
-            return minutes + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "");
+            return minutes + ":" + this.strPad(seconds, 2) + (showTenthOs ? "." + tenth : "") + restart;
           }
         }
       }

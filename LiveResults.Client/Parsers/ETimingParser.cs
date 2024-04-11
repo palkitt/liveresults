@@ -181,7 +181,7 @@ namespace LiveResults.Client
                     string modulus = (m_MSSQL ? "%" : "MOD");
                     IDbCommand cmdRelay = m_connection.CreateCommand();
                     cmdRelay.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime,
-                            N.cource, N.place, N.status, N.cource, N.starttime, N.ecard, N.ecard2, N.ecard3, N.ecard4,
+                            N.cource, N.place, N.status, N.cource, N.starttime, N.races, N.ecard, N.ecard2, N.ecard3, N.ecard4,
                             T.name AS tname, C.class AS cclass, C.timingtype, C.freestart,  
                             C.firststart AS cfirststart, C.purmin AS cpurmin, C.direct, Co.length,
                             R.lgstartno, R.teamno, R.lgclass, R.lgtotaltime, R.lglegno, R.lgstatus, R.lgteam  
@@ -774,7 +774,7 @@ namespace LiveResults.Client
                 {
                     int time = 0, runnerID = 0, eTimeID = 0, EventorID = 0, iStartTime = 0, iStartClass = 0, totalTime = 0, course = -1;
                     int bib = 0, teambib = 0, leg = 0, numlegs = 0, intime = -1, timingType = 0, sign = 1, heat = 0, stage = 0, sprintOffset = 0;
-                    int length = 0;
+                    int length = 0, races = 0;
                     int ecard1 = 0, ecard2 = 0, ecard3 = 0, ecard4 = 0;
                     string famName = "", givName = "", club = "", classN = "", status = "", bibread = "", name = "";
                     bool chaseStart = false, freeStart = false, parseOK = false, useEcardTime = false;
@@ -808,6 +808,9 @@ namespace LiveResults.Client
                             runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
                         else
                             runnerID = eTimeID;
+
+                        if (reader["races"] != null && reader["races"] != DBNull.Value)
+                            races = Convert.ToInt16(reader["races"]);
 
                         // Sprint class definition
                         if (isSprint)
@@ -932,6 +935,10 @@ namespace LiveResults.Client
                             if (reader["intime"] != null && reader["intime"] != DBNull.Value)
                                 intime = ConvertFromDay2cs(Convert.ToDouble(reader["intime"]));
 
+                            int restartAdd = 0; 
+                            if (races > 0)
+                                restartAdd = 100 * 3600 * 1000; // Add 100 hours to indicate restart
+
                             if (time > 0)
                             {
                                 RelayTeams[teambib].TeamMembers[leg].LegTime = time;
@@ -956,7 +963,7 @@ namespace LiveResults.Client
                             {
                                 if (RelayTeams[teambib].TeamMembers[legs].LegTime > 0)
                                 {
-                                    TeamTime += RelayTeams[teambib].TeamMembers[legs].LegTime;
+                                    TeamTime += RelayTeams[teambib].TeamMembers[legs].LegTime + restartAdd;
                                     RelayTeams[teambib].TeamMembers[legs].TotalTime = TeamTime;                                    
                                 }
 
@@ -1015,13 +1022,8 @@ namespace LiveResults.Client
 
                         if (chaseStart)
                         {
-                            int races = 0;
-
                             if (reader["totaltime"] != null && reader["totaltime"] != DBNull.Value)
                                 totalTime = ConvertFromDay2cs(Convert.ToDouble(reader["totaltime"]));
-
-                            if (reader["races"] != null && reader["races"] != DBNull.Value)
-                                races = Convert.ToInt16(reader["races"]);
 
                             // Set starttime split to get starting order based on total time
                             var totalTimeStart = new ResultStruct
@@ -1325,34 +1327,34 @@ namespace LiveResults.Client
                                     SplitTimes.Add(backupTime);
                             }
                         }
+
+                        int rstatus = GetStatusFromCode(ref time, status);
+                        if (rstatus != 999)
+                        {
+                            var res = new Result
+                            {
+                                ID = runnerID,
+                                RunnerName = name,
+                                RunnerClub = club,
+                                Class = classN,
+                                Course = course,
+                                Length = length,
+                                StartTime = iStartTime,
+                                Time = time,
+                                Status = rstatus,
+                                Ecard1 = ecard1,
+                                Ecard2 = ecard2,
+                                Bib = (isRelay ? -bib : bib),
+                                SplitTimes = SplitTimes,
+                                EcardTimes = ecardTimeString
+                            };
+                            FireOnResult(res);
+                        }
                     }
                     catch (Exception ee)
                     {
                         FireLogMsg("eTiming Parser. Runner ID:" + runnerID + " Error: " + ee.Message);
-                    }
-
-                    int rstatus = GetStatusFromCode(ref time, status);
-                    if (rstatus != 999)
-                    {
-                        var res = new Result
-                        {
-                            ID = runnerID,
-                            RunnerName = name,
-                            RunnerClub = club,
-                            Class = classN,
-                            Course = course,
-                            Length = length,
-                            StartTime = iStartTime,
-                            Time = time,
-                            Status = rstatus,
-                            Ecard1 = ecard1,
-                            Ecard2 = ecard2,
-                            Bib = (isRelay ? -bib : bib),
-                            SplitTimes = SplitTimes,
-                            EcardTimes = ecardTimeString
-                        };
-                        FireOnResult(res);
-                    }
+                    }                    
                 }
                 reader.Close();
             }
