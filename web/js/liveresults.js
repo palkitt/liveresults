@@ -781,6 +781,7 @@ var LiveResults;
           if (splitFrac - splitFracRunner[sp][j] > devLimit) {
               data.results[j].splits[classSplits[spRef].code] = "";
               data.results[j].splits[classSplits[spRef].code + "_changed"] = "";
+              classSplitsUpdated[spRef] = true;
               runnerOK[j] = false;
               raceOK = false;
           }
