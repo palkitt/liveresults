@@ -128,6 +128,7 @@ namespace LiveResults.Client
             public string LegStatus;
             public int LegTime;
             public int TotalTime;
+            public bool Restart;
         }
 
         private class RelayTeam
@@ -936,9 +937,7 @@ namespace LiveResults.Client
                             if (reader["intime"] != null && reader["intime"] != DBNull.Value)
                                 intime = ConvertFromDay2cs(Convert.ToDouble(reader["intime"]));
 
-                            int restartAdd = 0; 
-                            if (races > 0)
-                                restartAdd = 100 * 3600 * 1000; // Add 100 hours to indicate restart
+                            RelayTeams[teambib].TeamMembers[leg].Restart = (races > 0);
 
                             if (time > 0)
                             {
@@ -964,7 +963,9 @@ namespace LiveResults.Client
                             {
                                 if (RelayTeams[teambib].TeamMembers[legs].LegTime > 0)
                                 {
-                                    TeamTime += RelayTeams[teambib].TeamMembers[legs].LegTime + restartAdd;
+                                    // Add 100 hours to indicate restart
+                                    TeamTime += RelayTeams[teambib].TeamMembers[legs].LegTime 
+                                             + (RelayTeams[teambib].TeamMembers[legs].Restart ? 100 * 3600 * 100 : 0); 
                                     RelayTeams[teambib].TeamMembers[legs].TotalTime = TeamTime;                                    
                                 }
 
@@ -1011,7 +1012,8 @@ namespace LiveResults.Client
 
                             if (leg > 1 && RelayTeams[teambib].TeamMembers[leg - 1].TotalTime > 0)
                             {
-                                TeamTimePre = RelayTeams[teambib].TeamMembers[leg - 1].TotalTime;
+                                TeamTimePre = RelayTeams[teambib].TeamMembers[leg - 1].TotalTime +
+                                 (RelayTeams[teambib].TeamMembers[leg].Restart ? 100 * 3600 * 100 : 0);
                                 var ExchangeTime = new ResultStruct
                                 {
                                     ControlCode = 0,  // Note code 0 for change-over!
