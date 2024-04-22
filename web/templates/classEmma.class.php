@@ -1188,13 +1188,20 @@ class Emma
 			$courses = [$course];
 			$controls = $this->getCourseControls($course);
 		}
+		
+		if ($className=="AllClasses")
+			$classQuery = "";
+		else
+			$classQuery = "AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."' ";
 	
 		$ret = Array();
-		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.ecardtimes, runners.course, runners.Length, results.Time ,results.Status, results.Changed, results.DbID, results.Control 
-		      FROM runners,results WHERE results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." 
-			  AND runners.TavId = ".$this->m_CompId ." AND runners.Class = '". mysqli_real_escape_string($this->m_Conn, $className)."'  
-			  AND runners.course IN (".implode(',',$courses).")  
-			  AND (results.Control = -999 OR results.Control = 999 OR results.Control = 1000) AND results.Status IN (0,2,3,4,6,13) ORDER BY results.Dbid, results.Control";
+		$q = "SELECT runners.Name, runners.Bib, runners.Club, runners.ecardtimes, runners.course, runners.Length, results.Time, ";
+		$q.= "results.Status, results.Changed, results.DbID, results.Control ";
+		$q.= "FROM runners, results WHERE results.DbID = runners.DbId AND results.TavId = ". $this->m_CompId ." "; 
+		$q.= "AND runners.TavId = ".$this->m_CompId ." AND runners.course IN (".implode(',',$courses).") ";
+		$q.= "AND results.Control IN (-999, 999, 1000) AND results.Status IN (0, 2, 3, 4, 6, 13) ";
+		$q.= $classQuery;
+		$q.= "ORDER BY results.Dbid, results.Control";
 		
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{

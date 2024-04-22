@@ -2744,8 +2744,11 @@ var LiveResults;
       else if (className == "startlist")
         callStr = "&method=getstartlist";
       else
-        callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (this.isMultiDayEvent ? "&includetotal=true" : "");
-      $.ajax({
+      {
+        var includeTotal = (this.isMultiDayEvent && className.indexOf("course::") != 0);
+        callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (includeTotal ? "&includetotal=true" : "");
+      }
+        $.ajax({
         url: this.apiURL,
         data: "comp=" + this.competitionId + callStr,
         success: function (data, status, resp) {
@@ -2784,6 +2787,7 @@ var LiveResults;
       if (data != null && data.status == "OK") {
         $('#divInfoText').html(data.infotext);
         if (data.className != null) {
+          var courseResults = data.className.indexOf("course::") == 0;
           if (data.className == "plainresults") {
             $('#' + this.resultsHeaderDiv).html("<b>Alle klasser</b>");
             $('#' + this.txtResetSorting).html("");
@@ -2800,17 +2804,25 @@ var LiveResults;
             $('#' + this.resultsHeaderDiv).html("<b>Startliste</b>");
             $('#' + this.txtResetSorting).html("");
           }
-          else {
-            var headerName = (data.courseName != undefined ? data.courseName : data.className);
-            var distance = (data.distance != undefined && data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
-            var classHead = "<b>" + headerName + "</b>" + distance;
-            $('#' + this.resultsHeaderDiv).html(classHead);
-            var courses = this.courses[data.className];
+          else { // Course or class results
+            var headerName;
             var link = "";
-            if (this.showEcardTimes && courses != undefined && courses.length > 0)
-              link = this.splitTimesLink(data.className, courses);
+            if (courseResults) {// Course results
+              headerName = data.courseName;
+              var courseNo = data.className.replace("course::", "");
+              if (this.showEcardTimes)
+                link = this.splitTimesLink("AllClasses", [courseNo]);
+            }
+            else {// Class results
+              headerName = data.className;
+              var courses = this.courses[data.className];
+              if (this.showEcardTimes && courses != undefined && courses.length > 0)
+                link = this.splitTimesLink(data.className, courses);
+            }
+            var distance = (data.distance != undefined && data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
+            var nameDistance = "<b>" + headerName + "</b>" + distance;
+            $('#' + this.resultsHeaderDiv).html(nameDistance);           
             $("#" + this.txtResetSorting).html(link);
-
           }
           $('#' + this.resultsControlsDiv).show();
         }
@@ -3435,7 +3447,7 @@ var LiveResults;
               });
             }
 
-          if (this.isMultiDayEvent) {
+          if (this.isMultiDayEvent && !courseResults) {
             columns.push({
               "sTitle": this.resources["_TOTAL"],
               "sClass": "right",
@@ -4574,7 +4586,11 @@ var LiveResults;
         catch (e) { }
       }
       $('#divResults').html('');
-      var link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" + className.replace('\'', '\\\'') + "')\">&#5130; Resultater</a>";
+
+      var classLink = className.replace('\'', '\\\'');
+      if (classLink == "AllClasses")
+        classLink = "course::" + course;
+      var link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classLink + "')\">&#5130; Resultater</a>";
       var courses = this.courses[className];
       if (courses != undefined && courses.length > 1)
         link += " " + this.splitTimesLink(className, courses);
@@ -4615,7 +4631,7 @@ var LiveResults;
 
       if (data != null && data.status == "OK") {
         if (data.className != null) {
-          var courseName = (course > 0 ? _this.courseNames.find(item => item.No === course).Name : 'Felles poster');
+          var courseName = (course > 0 && _this.courseNames.length > 0 ? _this.courseNames.find(item => item.No === Number(course)).Name : 'Felles poster');
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>&nbsp;&nbsp;<small>' + courseName + '</small>');
           $('#' + this.resultsControlsDiv).show();
         }
