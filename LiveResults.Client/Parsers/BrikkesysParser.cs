@@ -52,6 +52,23 @@ namespace LiveResults.Client
             public int length;
             public string name;
         }
+        
+        public class RelayLegInfo
+        {
+            public string LegStatus;
+            public int LegTime;
+            public int TotalTime;
+            public bool Restart;
+        }
+
+        public class RelayTeam
+        {
+            public string TeamStatus;
+            public int StartTime;
+            public int TotalTime;
+            public int TeamBib;
+            public Dictionary<int, RelayLegInfo> TeamMembers;
+        }
 
         public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID, int IdOffset)
         {
@@ -65,14 +82,15 @@ namespace LiveResults.Client
 
         private void Run()
         {
-            string SQLInd = "SELECT N.id, N.startnr, N.name, N.ecardno, N.club, N.time, N.starttime, N.nulltime, N.classid, " +
-                            "N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
-                            "C.name AS cname, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
-                            "FROM names N " +
-                            "LEFT JOIN classes C ON C.id = N.classid " +
-                            "LEFT JOIN(SELECT MIN(raceid) AS raceid, MIN(courceid) AS courceid, MIN(classid) AS cclassid " +
-                            "FROM classcource WHERE raceid = " + m_raceID + " GROUP BY classid) AS CC ON CC.cclassid = N.classid " +
-                            "WHERE N.raceid = " + m_raceID;
+            string SQL = "SELECT N.id, N.startnr, N.legno, N.teamno, N.name, N.ecardno, N.club, N.time, N.starttime, N.intime, " +
+                         "N.nulltime, N.classid, N.timecalculation, N.codesandtimes, N.status, N.courceid, " +
+                         "C.name AS cname, cast(C.nosort AS signed) AS nosort, C.starttime AS cstarttime, CC.courceid AS ccourceid " +
+                         "FROM names N " +
+                         "LEFT JOIN classes C ON C.id = N.classid " +
+                         "LEFT JOIN(SELECT MIN(raceid) AS raceid, MIN(courceid) AS courceid, MIN(classid) AS cclassid " +
+                         "FROM classcource WHERE raceid = " + m_raceID + " GROUP BY classid) AS CC ON CC.cclassid = N.classid " +
+                         "WHERE N.raceid = " + m_raceID +
+                         " ORDER BY N.startnr, N.legno";
             string SQLSplits = string.Format(@"SELECT controlno, ecardno, time, ecardtime FROM onlinecontrols WHERE raceid={0} ORDER BY time", m_raceID);
 
             while (m_continue)
@@ -85,7 +103,7 @@ namespace LiveResults.Client
                         m_connection.Open();
 
                     IDbCommand cmdInd = m_connection.CreateCommand();
-                    cmdInd.CommandText = SQLInd;
+                    cmdInd.CommandText = SQL;
 
                     IDbCommand cmdSplits = m_connection.CreateCommand();
                     cmdSplits.CommandText = SQLSplits;
@@ -109,7 +127,6 @@ namespace LiveResults.Client
                     int maxCCTimer      = 60;                // Time between reading courses and controls
                     int CCTimer         = maxCCTimer;
                     bool failedLast     = false;
-                    bool failedThis;                    
 
                     // Main loop
                     while (m_continue)
@@ -139,7 +156,7 @@ namespace LiveResults.Client
                             messageTimer += m_sleepTime;
                             if (messageTimer >= maxMessageTimer)
                             {
-                                UpdateFromMessages(messageServer, client, failedLast, out failedThis);
+                                UpdateFromMessages(messageServer, client, failedLast, out bool failedThis);
                                 failedLast = failedThis;
                                 messageTimer = 0;
                             }
@@ -182,8 +199,8 @@ namespace LiveResults.Client
             {
                 while (reader.Read())
                 {
-                    int time = -2, runnerID = 0, iStartTime = 0, iNullTime = 0, iCStartTime = 0, bib = 0, ecard = 0,
-                        length = 0, noSort = 0, courseID = -1, timeOffset = 0;
+                    int time = -2, runnerID = 0, iStartTime = 0, iIntime = 0, iNullTime = 0, iCStartTime = 0, bib = 0, leg = 0, 
+                        team = 0, ecard = 0, length = 0, noSort = 0, courseID = -1, timeOffset = 0;
                     int startBehind = 0;
                     int sign = 1;
                     bool chaseStart = false;
@@ -200,12 +217,27 @@ namespace LiveResults.Client
                         runnerName = reader["name"] as string;
                         lastRunner = runnerName;
                         club = reader["club"] as string;
-                        classN = reader["cname"] as string;
-                        
-                        timeCalc = reader["timecalculation"] as string;
+                        classN = reader["cname"] as string;                                                
+
+                        if (reader["legno"] != null && reader["legno"] != DBNull.Value)
+                            leg = Convert.ToInt32(reader["legno"]);
+                        if (reader["teamno"] != null && reader["teamno"] != DBNull.Value)
+                            team = Convert.ToInt32(reader["teamno"]);
 
                         if (reader["startnr"] != null && reader["startnr"] != DBNull.Value)
                             bib = Convert.ToInt32(reader["startnr"]);
+
+                        if (leg > 0) // Relay
+                        { 
+                            bib     = - (bib * 100 + leg);
+                            if (!classN.EndsWith("-"))
+                                classN += "-";
+                            classN += leg.ToString();
+                            if (team > 0)
+                                club += "-" + team.ToString();
+                        }                        
+
+                        timeCalc = reader["timecalculation"] as string;
 
                         if (reader["ecardno"] != null && reader["ecardno"] != DBNull.Value)
                             ecard = Convert.ToInt32(reader["ecardno"]);
@@ -224,6 +256,12 @@ namespace LiveResults.Client
                         {
                             DateTime.TryParse(reader["nulltime"].ToString(), out DateTime parseTime);
                             iNullTime = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);
+                        }
+
+                        if (reader["intime"] != null && reader["intime"] != DBNull.Value)
+                        {
+                            DateTime.TryParse(reader["intime"].ToString(), out DateTime parseTime);
+                            iIntime = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);
                         }
 
                         if (reader["cstarttime"] != null && reader["cstarttime"] != DBNull.Value)
@@ -469,6 +507,7 @@ namespace LiveResults.Client
                 case "H": rstatus = 9; time = -3; break; // Started
                 case "W": rstatus = 10; time = -3; break; // Entered 
                 case "I": rstatus = 10; time = -3; break; // Entered 
+                case "C": rstatus = 0;  break; // Restart
                 case "F": rstatus = 13; time = runnerID; break; // Not ranked
                 default: rstatus = 999; break;  // Unsupported status
             }
