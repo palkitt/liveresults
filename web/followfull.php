@@ -100,7 +100,7 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <?php if (isset($_GET['beta'])){?>
 	<script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script> 
 <?php } else {?>
-	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script> 
+	<script language="javascript" type="text/javascript" src="js/liveresults.js?20240427"></script> 
 <?php }?>
 
 <script language="javascript" type="text/javascript">
@@ -424,6 +424,7 @@ function closeTop() {
             case "indre Østfold ok": $image = "images/indereook.jpg"; break;
             case "bækkelagets sk":
             case "bækkelagets sportsklub": $image = "images/bakkelaget.png"; break;
+            case "trøsken il":       $image = "images/trosken.png"; break;
             default:                 $image = "images/LiveRes60.png";
             }
             if ($image != ""){ ?> <td width="60"><img src="<?php echo($image) ?>" height="60" ></td>  <?php }?>
