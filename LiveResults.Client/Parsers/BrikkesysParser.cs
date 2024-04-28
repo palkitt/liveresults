@@ -15,6 +15,8 @@ using System.Security.Cryptography.X509Certificates;
 using LiveResults.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using static LiveResults.Client.BrikkesysParser;
+using System.Security.Cryptography;
 
 namespace LiveResults.Client
 {
@@ -52,24 +54,7 @@ namespace LiveResults.Client
             public int length;
             public string name;
         }
-        
-        public class RelayLegInfo
-        {
-            public string LegStatus;
-            public int LegTime;
-            public int TotalTime;
-            public bool Restart;
-        }
-
-        public class RelayTeam
-        {
-            public string TeamStatus;
-            public int StartTime;
-            public int TotalTime;
-            public int TeamBib;
-            public Dictionary<int, RelayLegInfo> TeamMembers;
-        }
-
+                
         public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID, int IdOffset)
         {
             m_connection = conn;
@@ -195,6 +180,16 @@ namespace LiveResults.Client
         {
             lastRunner = "";
             usedID = new List<int>();
+
+            //Dictionary<int, RelayTeam> RelayTeams;
+            //RelayTeams = new Dictionary<int, RelayTeam>();
+
+            string teamStatus = "I";
+            int teamTime = 0;
+            int teamTimePre = 0;
+            int prevIntime = 0;
+            bool teamOK = false;
+
             using (IDataReader reader = cmd.ExecuteReader())
             {
                 while (reader.Read())
@@ -221,23 +216,12 @@ namespace LiveResults.Client
 
                         if (reader["legno"] != null && reader["legno"] != DBNull.Value)
                             leg = Convert.ToInt32(reader["legno"]);
+
                         if (reader["teamno"] != null && reader["teamno"] != DBNull.Value)
                             team = Convert.ToInt32(reader["teamno"]);
 
                         if (reader["startnr"] != null && reader["startnr"] != DBNull.Value)
                             bib = Convert.ToInt32(reader["startnr"]);
-
-                        if (leg > 0) // Relay
-                        { 
-                            bib     = - (bib * 100 + leg);
-                            if (!classN.EndsWith("-"))
-                                classN += "-";
-                            classN += leg.ToString();
-                            if (team > 0)
-                                club += "-" + team.ToString();
-                        }                        
-
-                        timeCalc = reader["timecalculation"] as string;
 
                         if (reader["ecardno"] != null && reader["ecardno"] != DBNull.Value)
                             ecard = Convert.ToInt32(reader["ecardno"]);
@@ -281,7 +265,9 @@ namespace LiveResults.Client
                             iStartTime = -999;
                         }
 
-                        if ((timeCalc == "J" || timeCalc == "S") && (iStartTime - iNullTime > 0))
+                        List<string> useOffsetTypes = new List<string> { "J", "S", "R" };
+                        timeCalc = reader["timecalculation"] as string;
+                        if (useOffsetTypes.Contains(timeCalc) && (iStartTime - iNullTime > 0))
                             timeOffset = (iStartTime - iNullTime) / 100;
 
                         if (reader["time"] != null && reader["time"] != DBNull.Value)
@@ -297,12 +283,12 @@ namespace LiveResults.Client
                         if (codesAndTimes != "" && courseID > -1)
                             EcardTimes = MakeSplitTimes(codesAndTimes, timeOffset, courseID, courses, out allEcardTimesOK);
 
-                        if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
-                            noSort = Convert.ToInt32(reader["nosort"]);
-
                         if (reader["status"] != null && reader["status"] != DBNull.Value)
                             status = reader["status"] as string;
-                        
+
+                        if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
+                            noSort = Convert.ToInt32(reader["nosort"]);
+                                           
                         if (noSort >= 1)
                         {
                             sign = -1;
@@ -316,7 +302,8 @@ namespace LiveResults.Client
                         if (timeCalc == "B") // Use ecard time
                             useEcardTime = true;
 
-                        if (timeCalc == "J") // Chase start
+                        // *** Chase start handling ***
+                        if (timeCalc == "J") 
                         {
                             chaseStart = true;
                             startBehind = iStartTime - iCStartTime;
@@ -327,7 +314,85 @@ namespace LiveResults.Client
                             if (legTime > 0)
                                 SplitTimes.Add(new ResultStruct{ ControlCode = 999,  Time = legTime });                            
                         }
-                        
+
+                        // *** Relay handling ***
+                        if (leg > 0) 
+                        {
+                            int teambib = bib;
+                            bib = -(bib * 100 + leg);
+
+                            if (!classN.EndsWith("-"))
+                                classN += "-";
+                            classN += leg.ToString();
+                            
+                            if (team > 0)
+                                club += "-" + team.ToString();
+
+                            bool restart = (status == "C");
+
+                            if (leg == 1)
+                            {
+                                teamOK = true;
+                                teamTime = 0;
+                                teamStatus = "I";
+                                teamTimePre = 0;
+                                prevIntime = 0;
+                            }
+
+
+                            if (leg > 1 && prevIntime > 0 && timeCalc == "R")
+                                iStartTime = prevIntime;
+                            prevIntime = iIntime;
+
+                            if (leg > 1 && teamTimePre > 0 && iStartTime > 0)
+                            {
+                                var ExchangeTime = new ResultStruct
+                                {
+                                    ControlCode = 0,  
+                                    Time = teamTimePre + (restart ? 100 * 3600 * 100 : 0)
+                                };
+                                SplitTimes.Add(ExchangeTime);
+                            }
+
+                            if (leg > 1 && time > 0 && !(status == "H" || status == "I" || status == "W"))
+                            {
+                                var LegTime = new ResultStruct
+                                {
+                                    ControlCode = 999,
+                                    Time = time
+                                };
+                                SplitTimes.Add(LegTime);
+                            }
+
+                            if (time > 0)
+                                teamTime += time + (restart ? 100 * 3600 * 100 : 0); 
+                                  
+                            if (teamOK && (status == "A" || status == "C"))
+                                teamStatus = status;
+                            else
+                            {
+                                teamOK = false;
+                                if (status == "D" || status == "E")
+                                    teamStatus = status;
+                                else if (status == "H" || status == "I" || status == "W")
+                                    teamStatus = "I";
+                                else if (status == "N")
+                                {
+                                    if (leg == 1)
+                                        teamStatus = "N";
+                                    else if (!(teamStatus == "N"))
+                                        teamStatus = "E";
+                                }
+                            }
+                            
+                            status = teamStatus;
+
+                            if (time > 0)
+                                time = teamTime;
+                            
+                            teamTimePre = teamTime;
+                        }
+
                         // Add radio times
                         int calcStartTime = -2;
                         if (splitList.ContainsKey(ecard))                                                   
@@ -500,15 +565,23 @@ namespace LiveResults.Client
             int rstatus = 10;
             switch (status)
             {
-                case "A": rstatus = 0; break; // OK
-                case "N": rstatus = 1; time = -3; break; // DNS
-                case "E": rstatus = 2; time = -3; break; // DNF
-                case "D": rstatus = 3; time = -3; break; // DSQ 
-                case "H": rstatus = 9; time = -3; break; // Started
+                case "A": rstatus = 0; break;             // OK
+                case "N": rstatus = 1; time = -3; break;  // DNS
+                case "E": rstatus = 2; time = -3; break;  // DNF
+                case "D": rstatus = 3; time = -3; break;  // DSQ 
+                case "H": rstatus = 9; time = -3; break;  // Started
                 case "W": rstatus = 10; time = -3; break; // Entered 
                 case "I": rstatus = 10; time = -3; break; // Entered 
-                case "C": rstatus = 0;  break; // Restart
                 case "F": rstatus = 13; time = runnerID; break; // Not ranked
+                case "C": // Relay restart
+                    if (time > 0)
+                        rstatus = 0;
+                    else
+                    {
+                        rstatus = 10;
+                        time = -3;
+                    }
+                    break;          
                 default: rstatus = 999; break;  // Unsupported status
             }
             return rstatus;
@@ -525,25 +598,32 @@ namespace LiveResults.Client
                 if (m_connection.State != ConnectionState.Open)
                     m_connection.Open();
                 IDbCommand cmd = m_connection.CreateCommand();
-                string classTimingType = "SELECT name, cast(nosort AS signed) AS nosort, timecalculation FROM classes WHERE raceid=" + m_raceID;
+                string classTimingType = 
+                    "SELECT classes.name, CAST(classes.nosort AS SIGNED) AS nosort, classes.timecalculation, " +
+                    "(SELECT MAX(names.legno) FROM names WHERE names.classid=classes.id) AS legs " +
+                    "FROM classes WHERE classes.raceid=" + m_raceID;                    
                 cmd.CommandText = classTimingType;
 
                 using (IDataReader reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
                     {
-                        int noSort = 0;
+                        int noSort = 0, legs = 0;
                         string timecalculation = "";
-                        string classN = reader["name"] as string;
+                        string className = reader["name"] as string;
                         if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
                             noSort = Convert.ToInt32(reader["nosort"]);
+
+                        if (reader["legs"] != null && reader["legs"] != DBNull.Value)
+                            legs = Convert.ToInt32(reader["legs"]);
+
                         if (reader["timecalculation"] != null && reader["timecalculation"] != DBNull.Value)
                             timecalculation = reader["timecalculation"] as string;
 
                         if (noSort == 1) // Add neg finish passing for not-ranked, show times class
                             extraTimes.Add(new RadioControl
                             {
-                                ClassName = classN,
+                                ClassName = className,
                                 ControlName = "Tid",
                                 Code = -999,
                                 Order = 999
@@ -553,7 +633,7 @@ namespace LiveResults.Client
                         {
                             extraTimes.Add(new RadioControl
                             {
-                                ClassName = classN,
+                                ClassName = className,
                                 ControlName = "Start",
                                 Code = 0,
                                 Order = 0
@@ -561,11 +641,38 @@ namespace LiveResults.Client
 
                             extraTimes.Add(new RadioControl
                             {
-                                ClassName = classN,
+                                ClassName = className,
                                 ControlName = "Leg",
                                 Code = 999,
                                 Order = 999
                             });
+                        }
+
+                        if (timecalculation == "R")
+                        {
+                            for (int leg = 2; leg <= legs; leg++)
+                            {
+                                string classN = className;
+                                if (!classN.EndsWith("-"))
+                                    classN += "-";
+                                classN += Convert.ToString(leg);
+
+                                extraTimes.Add(new RadioControl
+                                {
+                                    ClassName = classN,
+                                    ControlName = "Exchange",
+                                    Code = 0,
+                                    Order = 0
+                                });
+
+                                extraTimes.Add(new RadioControl
+                                {
+                                    ClassName = classN,
+                                    ControlName = "Leg",
+                                    Code = 999,
+                                    Order = 999
+                                });
+                            }
                         }
                     }
                     reader.Close();
