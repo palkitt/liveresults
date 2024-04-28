@@ -181,9 +181,6 @@ namespace LiveResults.Client
             lastRunner = "";
             usedID = new List<int>();
 
-            //Dictionary<int, RelayTeam> RelayTeams;
-            //RelayTeams = new Dictionary<int, RelayTeam>();
-
             string teamStatus = "I";
             int teamTime = 0;
             int teamTimePre = 0;
@@ -288,7 +285,7 @@ namespace LiveResults.Client
 
                         if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
                             noSort = Convert.ToInt32(reader["nosort"]);
-                                           
+                       
                         if (noSort >= 1)
                         {
                             sign = -1;
