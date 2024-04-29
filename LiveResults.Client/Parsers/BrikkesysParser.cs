@@ -191,8 +191,9 @@ namespace LiveResults.Client
             {
                 while (reader.Read())
                 {
-                    int time = -2, runnerID = 0, iStartTime = 0, iIntime = 0, iNullTime = 0, iCStartTime = 0, bib = 0, leg = 0, 
+                    int time = -2, runnerID = 0, iIntime = 0, iNullTime = 0, bib = 0, leg = 0, 
                         team = 0, ecard = 0, length = 0, noSort = 0, courseID = -1, timeOffset = 0;
+                    int iStartTime = -1, iCStartTime = -1;
                     int startBehind = 0;
                     int sign = 1;
                     bool chaseStart = false;
@@ -256,7 +257,9 @@ namespace LiveResults.Client
                             DateTime.TryParse(reader["starttime"].ToString(), out DateTime parseTime);
                             iStartTime = (int)Math.Round(parseTime.TimeOfDay.TotalSeconds * 100);
                         }
-                        else // Open start
+                        else if (leg == 1 && iCStartTime > 0)
+                            iStartTime = iCStartTime;
+                        else if (leg == 0) // No relay -> Open start
                         {
                             freeStart = true;
                             iStartTime = -999;
@@ -303,7 +306,7 @@ namespace LiveResults.Client
                         if (timeCalc == "J") 
                         {
                             chaseStart = true;
-                            startBehind = iStartTime - iCStartTime;
+                            startBehind = iStartTime - Math.Max(0, iCStartTime);
                             if (startBehind >= 0)                                
                                 SplitTimes.Add(new ResultStruct{ ControlCode = 0, Time = startBehind });
                             
