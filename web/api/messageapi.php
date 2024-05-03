@@ -311,6 +311,55 @@ else if ($_GET['method'] == 'getchanges')
 	else
 		echo("{ \"status\": \"OK\",$br \"ecardchange\": [$br$retEcard$br],$br \"dns\": [$br$retDNS$br],$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 }
+else if ($_GET['method'] == 'getentrydata')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime);
+
+	$clubs = $currentComp->getClubs();
+	$first = true;
+	$retClubs = "";
+	foreach ((array)$clubs as $club)
+	{
+		$clubname  = str_replace("\\","",$club['club']);
+		$clubname  = str_replace("\"","",$clubname);
+		if (!$first)
+			$retClubs .=",";
+		$retClubs .= "{\"name\": \"".$clubname."\"}";
+		$first = false;
+	}
+
+	$classes = $currentComp->Classes();
+	$first = true;
+	$retClasses = "";
+	foreach ((array)$classes as $class)
+	{
+		$classname = $class['Class'];
+		if (!$first)
+			$retClasses .=",";
+		$retClasses .= "{\"name\": \"".$classname."\"}";
+		$first = false;
+	}
+
+	$ecards = $currentComp->getEcards();
+	$first = true;
+	$retEcards = "";
+	foreach ((array)$ecards as $ecard)
+	{
+		$number = $ecard['ecard'];
+		if (!$first)
+			$retEcards .=",";
+		$retEcards .= "{$number}";
+		$first = false;
+	}
+	
+	// Return results
+	$hash = MD5($retClubs.$retClasses.$retEcards);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+	else
+		echo("{ \"status\": \"OK\", \"clubs\": [$retClubs], \"classes\": [$retClasses], \"ecards\": [$retEcards], \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
 else
 {
     insertHeader(1,false);

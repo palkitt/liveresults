@@ -1505,6 +1505,45 @@ class Emma
 			die(mysqli_error($this->m_Conn));
 		return $ret;
 	}
+
+	function getClubs()
+  	{
+    	$ret = Array();
+		$q = "SELECT runners.club
+		      FROM runners  
+		      WHERE runners.tavid=". $this->m_CompId."
+			  GROUP BY club ORDER BY club
+			  COLLATE utf8_danish_ci ASC";
+
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+
+	function getEcards()
+  	{
+    	$ret = Array();
+		$q = "(SELECT runners.ecard1 AS ecard FROM runners WHERE runners.tavid=". $this->m_CompId ." AND runners.ecard1 > 0)
+		UNION
+		(SELECT runners.ecard2 AS ecard FROM runners WHERE runners.tavid=". $this->m_CompId ." AND runners.ecard2 > 0)
+		ORDER BY ecard ASC";
+
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
 }
 
 ?>
