@@ -173,8 +173,7 @@ else if ($_GET['method'] == 'getmessages')
 		$name    = ($dbid == 0 ? "Generell melding" : ($message['name'] != null ? $message['name'] : ""));
 		$club    = $message['club'];
 		$class   = $message['class'];
-		$msgtext = str_replace("\\","",$message['message']);
-		$msgtext = str_replace("\"","",$msgtext);
+		$msgtext = str_replace("\"","\\\"",$message['message']);
 
 		if ($dbid<0 && $name == "")
 			$name = strval(-$dbid)." UKJENT";
