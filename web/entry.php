@@ -29,58 +29,112 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="../js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript">
 
+this.local = true;
+this.URL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
 var comp= <?= $_GET['comp']?>;
 var ecards = [];
 
 $(document).ready(function()
 {	
-	var ecards = null;
+	$('#firstname, #lastname').on('input', function() {
+		var firstName = $('#firstname').val();
+		var lastName = $('#lastname').val();
+		if (firstName.trim() !== '' && lastName.trim() !== '') {
+			$('#submit').show();
+		} else {
+			$('#submit').hide();
+		}
+	});
+	
+	
 	fetch('api/messageapi.php?method=getentrydata&comp=' + comp)
         .then(response => response.json())
         .then(data => {
-            let clubSelect = document.getElementById('clubSelect');
+            let clubSelect = $('#clubSelect');
             data.clubs.forEach(club => {
-                let option = document.createElement('option');
-                option.text = club.name;
-                clubSelect.add(option);
+                let option = $('<option>').text(club.name);
+				clubSelect.append(option);
             });
 			
-			let classSelect = document.getElementById('classSelect');
+			let classSelect = $('#classSelect');
 			data.classes.forEach(classname => {
-                let option = document.createElement('option');
-                option.text = classname.name;
-                classSelect.add(option);
+                let option = $('<option>').text(classname.name);
+				classSelect.append(option);
             });
-			classSelect.disabled = true;
-
+			classSelect.prop('disabled', true);
 			ecards = data.ecards;
         });
 
-	$('#submit').click(function() {});
 	$('#cancel').click(function() {window.location.href = ('entry.php?comp=' + comp);});
-
-
-
+	$('#ecardnumber').prop('disabled', true);
+	$('#firstname').prop('disabled', true);
+	$('#lastname').prop('disabled', true);
+	$('#2_3').hide();
+	$('#3_4').hide();
+	$('#submit').hide();
 });
 	
 function step_1_2() {
-	document.getElementById('clubSelect').disabled = true;
-    document.getElementById('classSelect').disabled = false;
+	$('#clubSelect').prop('disabled', true);
+    $('#classSelect').prop('disabled', false);
+	$('#1_2').hide();
+	$('#2_3').show();
 }
 function step_2_3() {
-    document.getElementById('classSelect').disabled = true;
+    $('#classSelect').prop('disabled', true);
+	$('#ecardnumber').prop('disabled', false);
+	$('#2_3').hide();
+	$('#3_4').show();
 }
 function step_3_4() {
     // Verify ecard
-	var ecardNumber = document.getElementById('ecardnumber').value;
-	if (ecards.includes(ecardNumber)) {
-		document.getElementById('ecardverification').innerHTML = 'Brikkenummeret er allerede i bruk.';
-	} else {
-		document.getElementById('classSelect').disabled = true;
+	var ecardNumber = parseInt($('#ecardnumber').val());
+	if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
+		$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
 	}
-	
-	document.getElementById('classSelect').disabled = true;
+	else if (ecards.includes(ecardNumber)) {
+		$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
+	} else {
+		$('#ecardverification').html('Brikkenummer OK');
+		$('#ecardnumber').prop('disabled', true);
+		$('#firstname').prop('disabled', false);
+		$('#lastname').prop('disabled', false);
+		$('#3_4').hide();
+	}
 }
+function submit() {
+	var firstName = $('#firstname').val();
+	var lastName = $('#lastname').val();
+	var ecardNumber = $('#ecardnumber').val();
+	var club = $('#clubSelect').val();
+	var className = $('#classSelect').val();
+
+	var data = {
+		firstName: firstName,
+		lastName: lastName,
+		ecardNumber: ecardNumber,
+		club: club,
+		className: className
+	};
+
+	var jsonData = JSON.stringify(data);
+
+	if (jsonData != null && jsonData != ""){
+		jsonData = jsonData.substring(0,250);
+		$.ajax({
+			url: this.URL + "?method=sendmessage", 
+			data: "&comp=" + comp + "&dbid=0&message=" + jsonData,
+			success: function(data) {
+				alert('Din påmelding er registrert!');
+				window.location.href = ('entry.php?comp=' + comp);
+			},
+			error: function(data) {
+				alert('Det oppstod en feil under registreringen. Prøv igjen senere.');
+			}
+		});
+	}
+}
+
 
 </script>
 </head>
@@ -94,29 +148,27 @@ else
 { ?>
 	<h2>Velg klubb (kontakt løpskontor om ikke din klubb står her)</h2>
 	<select id="clubSelect" style="width:300px"></select>
-	<button onclick="step_1_2()">Neste</button>
+	<button id="1_2" onclick="step_1_2()">Neste</button>
 
 	<h2>Velg klasse</h2>
 	<select id="classSelect" style="width:300px"></select>
-	<button onclick="step_2_3()">Neste</button>
+	<button id="2_3" onclick="step_2_3()">Neste</button>
 
 	<h2>Brikkenummer</h2>
 	<input id="ecardnumber" type="number" style="width:300px"></select>
-	<button onclick="step_3_4()">Neste</button>
+	<button id="3_4" onclick="step_3_4()">Neste</button>
 
-	<br>Brikkenummer unikt: <div id="ecardverification"></div>
+	<br><div id="ecardverification"></div>
 
 	<h2>Fornavn</h2>
 	<input id="firstname" type="text" style="width:300px"></select>
-	<button onclick="step_4_5()">Neste</button>
 
 	<h2>Etternavn</h2>
 	<input id="lastname" type="text" style="width:300px"></select>
-	<button onclick="step_5_6()">Neste</button>
 
-	<h2>Send inn</h2>
-	<button id="submit" type="submit">Send in</button>
-	<button id="cancel" type="button" onclick="cancelForm()">Avbryt</button>
+	<br><br>
+	<button id="submit" type="submit" onclick="submit()">Send in</button>
+	<button id="cancel" type="button">Avbryt</button>
 
 <?php } 
 ?>
