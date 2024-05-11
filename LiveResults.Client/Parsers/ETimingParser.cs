@@ -35,6 +35,7 @@ namespace LiveResults.Client
         public event MergeRadioControlsDelegate OnMergeRadioControls;
         public event MergeCourseControlsDelegate OnMergeCourseControls;
         public event MergeCourseNamesDelegate OnMergeCourseNames;
+        public event MergeVacantsDelegate OnMergeVacants;
         private bool m_updateEcardTimes;
         private bool m_updateRadioControls;
         private bool m_continue;
@@ -251,6 +252,7 @@ namespace LiveResults.Client
                             messageTimer += m_sleepTime;
                             if (m_updateMessage && messageTimer >= maxMessageTimer)
                             {
+                                setVacants();
                                 UpdateFromMessages(messageServer, client, failedLast, out bool failedThis);
                                 failedLast = failedThis;
                                 messageTimer = 0;
@@ -457,6 +459,47 @@ namespace LiveResults.Client
             }
         }
 
+        private void setVacants()
+        {
+            try
+            {
+                var dlgMergeVacants = OnMergeVacants;
+                if (dlgMergeVacants != null) // Read vacant runners
+                {
+                    List<VacantRunner> vacantRunner = new List<VacantRunner>();
+                    IDbCommand cmd = m_connection.CreateCommand();
+                    cmd.CommandText = string.Format(@"SELECT N.id, N.startno, N.class, C.class as cclass FROM name N, Class C WHERE N.class=C.code AND N.status = 'V'");
+                    
+                    using (IDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int eTimeID = Convert.ToInt32(reader["id"].ToString());
+                            string bibread = (reader["startno"].ToString()).Trim();
+                            int bib = string.IsNullOrEmpty(bibread) ? 0 : Convert.ToInt32(bibread);
+                            string classname = reader["cclass"] as string;
+                            string classid = reader["class"] as string;
+
+                            vacantRunner.Add(new VacantRunner()
+                            {
+                                dbid = eTimeID,
+                                bib = bib,
+                                classid = classid,
+                                classname = classname
+                            });
+                        }
+                        reader.Close();
+                    }
+                    VacantRunner[] vacantRunnerArray = vacantRunner.ToArray();
+                    bool deleteUnused = (m_IdOffset == 0); // Delete unused vacants only if ID offset = 0
+                    dlgMergeVacants(vacantRunnerArray, deleteUnused);
+                }
+            }
+            catch (Exception ee)
+            {
+                FireLogMsg("eTiming parser setVacants: " + ee.Message);
+            }
+        }
 
         private void setRadioControls(bool isRelay, bool isSprint, int day, Dictionary<int, List<CourseControl>> courses, out List<RadioControl> intermediates)
         {
@@ -1836,7 +1879,7 @@ namespace LiveResults.Client
                 foreach (JObject element in itemsEntries)
                 {
                     int messid = (element["messid"]).ToObject<int>();
-                    int dbid = (element["dbid"]).ToObject<int>();
+                    int dbidIn = (element["dbid"]).ToObject<int>();
 
                     JObject entry = (JObject)element["entry"];
                     string firstName = (entry["firstName"]).ToObject<string>();
@@ -1849,52 +1892,52 @@ namespace LiveResults.Client
                     {
                         IDbCommand cmd = m_connection.CreateCommand();
                         cmd.CommandText = string.Format(@"SELECT name.id FROM name 
-                            LEFT JOIN class ON name.class = class.code WHERE name.status='V' AND class.class = '{0}'  
-                            ORDER BY name.id ASC", className);
+                            LEFT JOIN class ON name.class = class.code 
+                            WHERE name.id = {0} AND class.class = '{1}' AND name.status='V' 
+                            ORDER BY name.id ASC", dbidIn, className);
                         
-                        var dbID = cmd.ExecuteScalar();
-                        if (dbID == null || dbID == DBNull.Value)
+                        var dbidOut = cmd.ExecuteScalar();
+                        if (dbidOut == null || dbidOut == DBNull.Value)
                         {
                             failedThis = true;
                             if (failedLast)
                             {
-                                // No matching class found
-                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant in class " + className + ".");
+                                // No matching entry found
+                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant match for ID " + dbidIn + ".");
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
-                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=0");
+                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=" + dbidIn);
                             }
                         }
                         else 
                         {
-                            // Vacant runner found
+                            // Vacant runner ID found
                             cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'",club);
                             var clubCode = cmd.ExecuteScalar();
                             if (clubCode != null || clubCode != DBNull.Value)
                                 clubCode = clubCode.ToString();
                             
-                            int ID = (int)dbID;
                             cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',status='I' WHERE id={4}",
-                                 firstName, lastName, ecard, clubCode, ID);
+                                 firstName, lastName, ecard, clubCode, dbidIn);
                             var update = cmd.ExecuteNonQuery();
                             if (update != 1)
                             {
                                 failedThis = true;
                                 if (failedLast)
                                 {
-                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant in class " + className + ".");
+                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant match for ID " + dbidIn + ".");
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
-                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=0");
+                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=" + dbidIn);
                                 }
                             }
                             else
                             { 
                                 FireLogMsg("eTiming Message: " + firstName + " " + lastName + " entered class " + className);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedbid&dbid=" + ID + "&messid=" + messid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedbid&dbid=" + dbidIn + "&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID +
-                                               "&message=Påmelding av " + firstName + " " + lastName + " i klasse " + className + " utført.&dbid=" + ID);
+                                               "&message=Påmelding av " + firstName + " " + lastName + " i klasse " + className + " utført.&dbid=" + dbidIn);
                             }
                         }
                     }

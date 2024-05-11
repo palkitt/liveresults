@@ -47,6 +47,7 @@ namespace LiveResults.Client
             m_Parser.OnMergeRadioControls += new MergeRadioControlsDelegate(m_Parser_OnMergeRadioControls);
             m_Parser.OnMergeCourseControls += new MergeCourseControlsDelegate(m_Parser_OnMergeCourseControls);
             m_Parser.OnMergeCourseNames += new MergeCourseNamesDelegate(m_Parser_OnMergeCourseNames);
+            m_Parser.OnMergeVacants += new MergeVacantsDelegate(m_Parser_OnMergeVacants);
             m_Parser.OnRadioControl += (name, code, className, order) =>
             {
                 foreach (EmmaMysqlClient client in m_Clients)
@@ -54,6 +55,15 @@ namespace LiveResults.Client
                     client.SetRadioControl(className, code, name, order);
                 }
             }; 
+        }
+
+        void m_Parser_OnMergeVacants(VacantRunner[] vacantRunners, bool deleteUnused)
+        {
+            foreach (EmmaMysqlClient client in m_Clients)
+            {
+                if (vacantRunners != null)
+                    client.MergeVacantRunners(vacantRunners, deleteUnused);
+            }
         }
 
         void m_Parser_OnMergeCourseNames(CourseName[] courseNames, bool deleteUnused)

@@ -113,6 +113,20 @@ namespace LiveResults.Model
         public string Name { get; set; }
     }
 
+    class DelVacantRunner : DbItem
+    {
+        public VacantRunner ToDelete;
+    }
+
+    public class VacantRunner : DbItem
+    {
+        public int dbid { get; set; }
+        public int bib { get; set; }
+        public string classid { get; set; }
+        public string classname { get; set; }
+    }
+
+
     public class DbItem
     {
     }

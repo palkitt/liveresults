@@ -23,5 +23,6 @@ namespace LiveResults.Model
         event MergeRadioControlsDelegate OnMergeRadioControls;
         event MergeCourseControlsDelegate OnMergeCourseControls;
         event MergeCourseNamesDelegate OnMergeCourseNames;
+        event MergeVacantsDelegate OnMergeVacants;
     }
 }
