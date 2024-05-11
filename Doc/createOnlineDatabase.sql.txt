@@ -93,6 +93,7 @@ CREATE TABLE `messages` (
   `message` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `dns` tinyint(1) DEFAULT NULL,
   `ecardchange` tinyint(1) DEFAULT NULL,
+  `newentry` tinyint(1) DEFAULT NULL,
   `completed` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`messid`)
 ) DEFAULT CHARSET=utf8;
@@ -130,4 +131,15 @@ CREATE TABLE `lastactive` (
 `tavid` int(11) NOT NULL DEFAULT '0',
 `changed` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 PRIMARY KEY (`tavid`)
+) DEFAULT CHARSET=utf8;
+
+CREATE TABLE `vacants` (
+  `tavid` int(11) NOT NULL DEFAULT '0',
+  `dbid` int(11) NOT NULL DEFAULT '0',
+  `bib` int(11) DEFAULT NULL,
+  `classid` varchar(50) character set 'utf8' DEFAULT NULL,
+  `class` varchar(50) character set 'utf8' DEFAULT NULL,
+  `reserved` tinyint(1) DEFAULT NULL,
+  `reservedtime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`dbid`,`tavid`)
 ) DEFAULT CHARSET=utf8;
