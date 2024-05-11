@@ -211,6 +211,7 @@ namespace LiveResults.Client
                     string messageServer = ConfigurationManager.AppSettings["messageServer"];
                     string apiServer = ConfigurationManager.AppSettings["apiServer"];
                     WebClient client = new WebClient();
+                    client.Encoding = System.Text.Encoding.UTF8;
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
                     int maxCCTimer        = 60;                // Time between reading courses and controls
@@ -1858,7 +1859,7 @@ namespace LiveResults.Client
                             if (failedLast)
                             {
                                 // No matching class found
-                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant in class" + className + ".");
+                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant in class " + className + ".");
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
                                                "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=0");
@@ -1881,7 +1882,7 @@ namespace LiveResults.Client
                                 failedThis = true;
                                 if (failedLast)
                                 {
-                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant in class" + className + ".");
+                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant in class " + className + ".");
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
                                                "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=0");
@@ -1890,9 +1891,9 @@ namespace LiveResults.Client
                             else
                             { 
                                 FireLogMsg("eTiming Message: " + firstName + " " + lastName + " entered class " + className);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedbid&dbid=" + ID + "&messid=" + messid);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID +
                                                "&message=Påmelding av " + firstName + " " + lastName + " i klasse " + className + " utført.&dbid=" + ID);
                             }
                         }
