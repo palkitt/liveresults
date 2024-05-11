@@ -20,7 +20,6 @@ using Org.BouncyCastle.Asn1.Crmf;
 using System.Collections;
 using System.Net.Sockets;
 using System.Linq.Expressions;
-using Org.BouncyCastle.Asn1.X509;
 
 namespace LiveResults.Client
 {
