@@ -1561,6 +1561,53 @@ class Emma
 		return $ret;
 	}
 
+	function getVacants()
+  	{
+		// Clear old reservations
+		$timeout = new DateTime();
+        $timeout->modify('-5 minutes');
+        $q = "UPDATE vacants SET reserved = 0 WHERE reservedtime < '" . $timeout->format('Y-m-d H:i:s') . "'";
+		$r = mysqli_query($this->m_Conn, $q) or die(mysqli_error($this->m_Conn, $q));
+		
+		$ret = Array();
+		$q = "SELECT dbid, bib, classid, class FROM vacants WHERE reserved IS NULL OR reserved = 0 AND tavid=". $this->m_CompId;
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+
+	function reserveVacant($class)
+	{
+		$q  = "SELECT dbid FROM vacants WHERE reserved IS NULL OR reserved = 0 ";
+		$q .= "AND tavid=". $this->m_CompId." AND class=".$class." ORDER BY dbid LIMIT 1";
+		
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			$row = mysqli_fetch_row($result);
+			$dbid = ($row ? $row[0] : 0); 
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+
+		$ret = false;
+		if ($dbid > 0)
+		{
+			$q = "UPDATE vacants SET reserved=1, reservedtime = NOW() WHERE dbid=".$dbid;
+			$ret = mysqli_query($this->m_Conn, $q) or die(mysqli_error($this->m_Conn, $q));
+		}
+		if ($dbid > 0 && $ret)
+			return $dbid;
+		else
+			return 0;
+	}
+
 	function getEcards()
   	{
     	$ret = Array();

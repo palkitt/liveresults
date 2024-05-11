@@ -29,10 +29,16 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript" src="../js/jquery-3.7.0.min.js"></script>
 <script language="javascript" type="text/javascript">
 
-this.local = true;
-this.URL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
+<?php if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost'){ ?> 
+	var url = "http://localhost/api/messageapi.php";
+<?php } else { ?> 
+	var url = "https://api.liveres.live/messageapi.php";
+<?php } ?>
+
 var comp= <?= $_GET['comp']?>;
 var ecards = [];
+var vacants = [];
+var reservedID = 0;
 
 $(document).ready(function()
 {	
@@ -47,7 +53,7 @@ $(document).ready(function()
 	});
 	
 	
-	fetch('api/messageapi.php?method=getentrydata&comp=' + comp)
+	fetch(url + "?method=getentrydata&comp=" + comp)
         .then(response => response.json())
         .then(data => {
             let clubSelect = $('#clubSelect');
@@ -56,9 +62,14 @@ $(document).ready(function()
 				clubSelect.append(option);
             });
 			
+			vacants = data.vacants;
+			var classes = vacants.map(vacant => vacant.class);
+			var classNames = [...new Set(classes)];
+			classNames.sort();
+
 			let classSelect = $('#classSelect');
-			data.classes.forEach(classname => {
-                let option = $('<option>').text(classname.name);
+			classNames.forEach(classname => {
+                let option = $('<option>').text(classname);
 				classSelect.append(option);
             });
 			classSelect.prop('disabled', true);
@@ -81,7 +92,22 @@ function step_1_2() {
 	$('#2_3').show();
 }
 function step_2_3() {
-    $('#classSelect').prop('disabled', true);
+	// Reserve a dbid
+	var reservedOK = false
+	var className = $('#classSelect').val();
+	fetch(url + "?method=reservevacant&comp=" + comp + "&class='" + className + "'")
+		.then(response => response.json())
+		.then(data => {
+			reservedOK = data.status == "OK";
+			if (!reservedOK) {
+				alert('Det oppstod en feil under reservering av ledig plass. Prøv igjen eller kontakt løpskontoret.');
+				window.location.href = ('entry.php?comp=' + comp);
+			}
+			else
+				reservedID = data.reservedID;
+		});
+	$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
+	$('#classSelect').prop('disabled', true);
 	$('#ecardnumber').prop('disabled', false);
 	$('#2_3').hide();
 	$('#3_4').show();
@@ -122,19 +148,19 @@ function submit() {
 	if (jsonData != null && jsonData != ""){
 		jsonData = jsonData.substring(0,250);
 		$.ajax({
-			url: this.URL + "?method=sendmessage", 
-			data: "&comp=" + comp + "&dbid=0&newentry=1&message=" + jsonData,
+			url: url + "?method=sendmessage", 
+			data: "&comp=" + comp + "&dbid=" + reservedID + "&newentry=1&message=" + jsonData,
 			success: function(data) {
-				alert('Din påmelding er registrert!');
-				window.location.href = ('entry.php?comp=' + comp);
+				alert('Din påmelding er registrert! Om arrangør er online vil du dukke opp i startlistene innen ett minutt. Du sendes videre til klassen din.');
+				window.location.href = ('followfull.php?comp=' + comp + '&#' + className);
 			},
 			error: function(data) {
-				alert('Det oppstod en feil under registreringen. Prøv igjen senere.');
+				alert('Det oppstod en feil under registreringen. Prøv igjen eller kontakt løpskontoret.');
+				window.location.href = ('entry.php?comp=' + comp);
 			}
 		});
 	}
 }
-
 
 </script>
 </head>
@@ -146,6 +172,12 @@ function submit() {
 <?php }	
 else
 { ?>
+	<div style="font-size: 20px; font-weight: bold; height: 50px; background-color: #555555; padding-left: 5px; 
+	vertical-align: middle; line-height:45px; color: white; width: 100%">
+	<img src="images/LiveRes.png" height="40px" style="vertical-align: middle"/>&nbsp; 
+	Direktepåmelding til <?=$currentComp->CompName()?>, <small><?=$currentComp->CompDate()?></small>
+	</div>
+	
 	<h2>Velg klubb (kontakt løpskontor om ikke din klubb står her)</h2>
 	<select id="clubSelect" style="width:300px"></select>
 	<button id="1_2" onclick="step_1_2()">Neste</button>
@@ -153,12 +185,12 @@ else
 	<h2>Velg klasse</h2>
 	<select id="classSelect" style="width:300px"></select>
 	<button id="2_3" onclick="step_2_3()">Neste</button>
+	<br><div id="classverification">Tilbakemelding klasse</div>
 
 	<h2>Brikkenummer</h2>
 	<input id="ecardnumber" type="number" style="width:300px"></select>
 	<button id="3_4" onclick="step_3_4()">Neste</button>
-
-	<br><div id="ecardverification"></div>
+	<br><div id="ecardverification">Tilbakemelding brikke</div>
 
 	<h2>Fornavn</h2>
 	<input id="firstname" type="text" style="width:300px"></select>

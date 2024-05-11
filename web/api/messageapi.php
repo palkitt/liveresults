@@ -379,15 +379,18 @@ else if ($_GET['method'] == 'getentrydata')
 		$first = false;
 	}
 
-	$classes = $currentComp->Classes();
+	$vacants = $currentComp->getVacants();
 	$first = true;
-	$retClasses = "";
-	foreach ((array)$classes as $class)
+	$retVacants = "";
+	foreach ((array)$vacants as $vacant)
 	{
-		$classname = $class['Class'];
+		$dbid	   = $vacant['dbid'];
+		$bib	   = $vacant['bib'];
+		$classname = $vacant['class'];
+		$classid   = $vacant['classid'];
 		if (!$first)
-			$retClasses .=",";
-		$retClasses .= "{\"name\": \"".$classname."\"}";
+			$retVacants .=",";
+		$retVacants  .= "{\"dbid\": ".$dbid.", \"bib\": ".$bib.", \"class\": \"".$classname."\", \"classid\": \"".$classid."\"}";
 		$first = false;
 	}
 
@@ -404,11 +407,23 @@ else if ($_GET['method'] == 'getentrydata')
 	}
 	
 	// Return results
-	$hash = MD5($retClubs.$retClasses.$retEcards);
+	$hash = MD5($retClubs.$retVacants.$retEcards);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
 		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 	else
-		echo("{ \"status\": \"OK\", \"clubs\": [$retClubs], \"classes\": [$retClasses], \"ecards\": [$retEcards], \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo("{ \"status\": \"OK\", \"clubs\": [$retClubs], \"vacants\": [$retVacants], \"ecards\": [$retEcards], \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
+else if ($_GET['method'] == 'reservevacant')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$class = urlRawDecode($_GET['class']);
+	$RT = insertHeader(1);
+
+	$reservedID = $currentComp->reserveVacant($class);
+	if ($reservedID > 0)
+		echo("{\"status\": \"OK\", \"reservedID\": $reservedID}");
+	else
+		echo("{\"status\": \"Error\", \"message\": \"Could not reserve vacant\"}");
 }
 else
 {
