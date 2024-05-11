@@ -305,15 +305,16 @@ class Emma
 		return $ret1+$ret2;		
 	}
 	
-	public static function SendMessage($compid,$dbid,$changed,$message,$dns,$ecardchange,$completed)
+	public static function SendMessage($compid,$dbid,$changed,$message,$dns,$ecardchange,$completed,$newentry)
 	{
 		$conn = self::openConnection();
 		$res = mysqli_query($conn, "select max(messid)+1 from messages");
 		list($messid) = mysqli_fetch_row($res);
 		if ($messid < 1)
 			$messid = 1;
-		$ret = mysqli_query($conn, "insert into messages(messid,tavid,dbid,changed,message,dns,ecardchange,completed)
-		  values(".$messid.",".$compid.",".$dbid.",FROM_UNIXTIME(".$changed."),'".$message."',".$dns.",".$ecardchange.",".$completed.")") or die(mysqli_error($conn));
+		$ret = mysqli_query($conn, "insert into messages(messid,tavid,dbid,changed,message,dns,ecardchange,completed,newentry)
+		  values(".$messid.",".$compid.",".$dbid.",FROM_UNIXTIME(".$changed."),'".$message."',".$dns.",".$ecardchange.",".$completed.",".$newentry.")") 
+		  or die(mysqli_error($conn));
 		return $ret;
 	}
 
@@ -342,7 +343,15 @@ class Emma
 	public static function SetMessageCompleted($messid,$completed)
 	{
 		$conn = self::openConnection();
-	 	$sql = "update messages set completed = ".$completed." where messid = ".$messid;
+		$sql = "update messages set completed = ".$completed." where messid = ".$messid;
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
+	}
+	
+	public static function SetMessageDBID($messid,$dbid)
+	{
+		$conn = self::openConnection();
+		$sql = "update messages set dbid = ".$dbid." where messid = ".$messid;
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -359,6 +368,14 @@ class Emma
 	{
 		$conn = self::openConnection();
 		$sql = "update messages set ecardchange = ".$ecardchange." where messid = ".$messid;
+		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
+		return $ret;
+	}
+
+	public static function SetMessageNewEntry($messid,$newentry)
+	{
+		$conn = self::openConnection();
+		$sql = "update messages set newentry = ".$newentry." where messid = ".$messid;
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -1494,6 +1511,24 @@ class Emma
 		      FROM messages
 			  LEFT JOIN runners ON (runners.dbid=messages.dbid AND runners.tavid=".$this->m_CompId.")  
 		      WHERE messages.tavid=". $this->m_CompId ." AND messages.ecardchange=1 AND messages.completed=0";
+
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+
+	function getNewEntries()
+  	{
+    	$ret = Array();
+		$q = "SELECT messages.messid, messages.dbid, messages.changed, messages.message 
+		      FROM messages			  
+		      WHERE messages.tavid=". $this->m_CompId ." AND messages.newentry=1 AND messages.completed=0";
 
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
