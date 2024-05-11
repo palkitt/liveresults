@@ -20,6 +20,7 @@ using Org.BouncyCastle.Asn1.Crmf;
 using System.Collections;
 using System.Net.Sockets;
 using System.Linq.Expressions;
+using Org.BouncyCastle.Asn1.X509;
 
 namespace LiveResults.Client
 {
@@ -1566,7 +1567,7 @@ namespace LiveResults.Client
         {
             failedThis = false;
             string apiResponse = "";
-            // Get DNS and ecard changes
+            // Get DNS, ecard changes and new entries
             try
             {
                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=getchanges&comp=" + m_compID);
@@ -1826,6 +1827,80 @@ namespace LiveResults.Client
                     catch (Exception ee)
                     {
                         FireLogMsg("Bad network or config file? eTiming Message ecard: " + ee.Message);
+                    }
+                }
+
+                // New entries
+                // *****************************
+                JArray itemsEntries = (JArray)objects["entry"];
+                foreach (JObject element in itemsEntries)
+                {
+                    int messid = (element["messid"]).ToObject<int>();
+                    int dbid = (element["dbid"]).ToObject<int>();
+
+                    JObject entry = (JObject)element["entry"];
+                    string firstName = (entry["firstName"]).ToObject<string>();
+                    string lastName = (entry["lastName"]).ToObject<string>();
+                    string club = (entry["club"]).ToObject<string>();
+                    string className = (entry["className"]).ToObject<string>();
+                    int ecard = (entry["ecardNumber"]).ToObject<int>();
+
+                    try
+                    {
+                        IDbCommand cmd = m_connection.CreateCommand();
+                        cmd.CommandText = string.Format(@"SELECT name.id FROM name 
+                            LEFT JOIN class ON name.class = class.code WHERE name.status='V' AND class.class = '{0}'  
+                            ORDER BY name.id ASC", className);
+                        
+                        var dbID = cmd.ExecuteScalar();
+                        if (dbID == null || dbID == DBNull.Value)
+                        {
+                            failedThis = true;
+                            if (failedLast)
+                            {
+                                // No matching class found
+                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant in class" + className + ".");
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
+                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=0");
+                            }
+                        }
+                        else 
+                        {
+                            // Vacant runner found
+                            cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'",club);
+                            var clubCode = cmd.ExecuteScalar();
+                            if (clubCode != null || clubCode != DBNull.Value)
+                                clubCode = clubCode.ToString();
+                            
+                            int ID = (int)dbID;
+                            cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',status='I' WHERE id={4}",
+                                 firstName, lastName, ecard, clubCode, ID);
+                            var update = cmd.ExecuteNonQuery();
+                            if (update != 1)
+                            {
+                                failedThis = true;
+                                if (failedLast)
+                                {
+                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant in class" + className + ".");
+                                    apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
+                                    apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
+                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=0");
+                                }
+                            }
+                            else
+                            { 
+                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " entered class " + className);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedbid&dbid=" + ID + "&messid=" + messid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
+                                               "&message=Påmelding av " + firstName + " " + lastName + " i klasse " + className + " utført.&dbid=" + ID);
+                            }
+                        }
+                    }
+                    catch (Exception ee)
+                    {
+                        FireLogMsg("Bad network or config file? eTiming Message New Entry: " + ee.Message);
                     }
                 }
             }
