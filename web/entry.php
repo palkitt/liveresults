@@ -123,7 +123,7 @@ function submit() {
 		jsonData = jsonData.substring(0,250);
 		$.ajax({
 			url: this.URL + "?method=sendmessage", 
-			data: "&comp=" + comp + "&dbid=0&message=" + jsonData,
+			data: "&comp=" + comp + "&dbid=0&newentry=1&message=" + jsonData,
 			success: function(data) {
 				alert('Din påmelding er registrert!');
 				window.location.href = ('entry.php?comp=' + comp);
