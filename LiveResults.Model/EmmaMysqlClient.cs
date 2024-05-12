@@ -724,7 +724,7 @@ namespace LiveResults.Model
             if (deleteUnused)
             {
                 var courseNo = courses.GroupBy(x => x.CourseNo).ToDictionary(x => x.Key);
-                foreach (var controls in m_courseControls)
+                foreach (var controls in m_courseControls.ToList())
                 {
                     if (!courseNo.ContainsKey(controls.Key))
                     {
@@ -733,6 +733,7 @@ namespace LiveResults.Model
                         {
                             m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
                         }
+                        m_courseControls.Remove(controls.Key);
                     }
                 }
             }
@@ -763,12 +764,13 @@ namespace LiveResults.Model
             if (deleteUnused)
             {
                 // Delete all courses that are not in the array            
-                foreach (var courseName in m_courseNames)
+                foreach (var courseName in m_courseNames.ToList())
                 {
                     int key = courseName.Key;
                     if (!courseNames.Any(cn => cn.CourseNo == key))
                     {
                         m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
+                        m_courseNames.Remove(key);
                     }
                 }
             }
@@ -800,14 +802,17 @@ namespace LiveResults.Model
 
                     if (update)
                     {
-                        foreach (RadioControl existingControl in existingRadios)
+                        foreach (RadioControl existingControl in existingRadios.ToList())
                         {
                             bool radioControlExist = newControls.Any(item =>
                                 item.Order == existingControl.Order &&
                                 item.Code == existingControl.Code &&
                                 item.ControlName == existingControl.ControlName);
                             if (!radioControlExist)
+                            {
                                 m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingControl });
+                                m_classRadioControls.Remove(kvp.Key);
+                            }
                         }
                         m_classRadioControls[kvp.Key] = newControls;
                     }
@@ -824,13 +829,14 @@ namespace LiveResults.Model
             if (update)
             {
                 var radiosClassName = radios.GroupBy(x => x.ClassName).ToDictionary(x => x.Key);
-                foreach (var classRadios in m_classRadioControls)
+                foreach (var classRadios in m_classRadioControls.ToList())
                 {
                     if (!radiosClassName.ContainsKey(classRadios.Key))
                     {
                         RadioControl[] existingRadios = m_classRadioControls[classRadios.Key];
                         for (int i = 0; i < existingRadios.Length; i++)
                             m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingRadios[i] });
+                        m_classRadioControls.Remove(classRadios.Key);
                     }
                 }
             }
@@ -846,11 +852,9 @@ namespace LiveResults.Model
                 int key = vacant.dbid;
                 if (m_vacantRunners.ContainsKey(key))
                 {
-
                     bool isUpdated = (m_vacantRunners[key].bib != vacant.bib ||
                                       m_vacantRunners[key].classid != vacant.classid ||
                                       m_vacantRunners[key].classname != vacant.classname);
-
                     if (isUpdated)
                     {
                         m_itemsToUpdate.Add(new DelVacantRunner() { ToDelete = m_vacantRunners[key] });
@@ -865,12 +869,14 @@ namespace LiveResults.Model
             }
             if (deleteUnused)
             {
-                // Delete all vacants that are not in the array            
-                foreach (var vacant in m_vacantRunners)
+                foreach (var vacant in m_vacantRunners.ToList())
                 {
                     int key = vacant.Key;
                     if (!vacantRunners.Any(r => r.dbid == key))
+                    {
                         m_itemsToUpdate.Add(new DelVacantRunner() { ToDelete = m_vacantRunners[key] });
+                        m_vacantRunners.Remove(key);
+                    }
                 }
             }
         }
@@ -1354,7 +1360,7 @@ namespace LiveResults.Model
                                         cmd.Parameters.Clear();
                                     }
                                 }
-                                else if(item is VacantRunner)
+                                else if (item is VacantRunner)
                                 {
                                     var r = item as VacantRunner;
                                     cmd.Parameters.Clear();
