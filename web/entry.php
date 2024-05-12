@@ -56,78 +56,93 @@ $(document).ready(function()
         .then(response => response.json())
         .then(data => {
             let clubSelect = $('#clubSelect');
-            data.clubs.forEach(club => {
-                let option = $('<option>').text(club.name);
-				clubSelect.append(option);
-            });
+			clubSelect.append($('<option>').text('--- Velg klubb ---').val(''));
+            data.clubs.forEach(club => {clubSelect.append($('<option>').text(club.name)); });
 			
 			vacants = data.vacants;
 			var classes = vacants.map(vacant => vacant.class);
-			var classNames = [...new Set(classes)];
-			classNames.sort();
-
+			var classCounts = classes.reduce((counts, className) => {
+					counts[className] = (counts[className] || 0) + 1;
+					return counts;
+				}, {});
+			var classNames = Object.keys(classCounts).sort();
 			let classSelect = $('#classSelect');
+			if (classNames.length == 0)
+				classSelect.append($('<option>').text('--- Ingen ledige plasser ---').val(''));
+			else
+				classSelect.append($('<option>').text('--- Velg klasse ---').val(''));
 			classNames.forEach(classname => {
-                let option = $('<option>').text(classname);
-				classSelect.append(option);
-            });
+				classSelect.append($('<option>').text(`${classname} (${classCounts[classname]} ledig)`).val(classname));
+				});
 			classSelect.prop('disabled', true);
+			
 			ecards = data.ecards;
         });
 
 	$('#clubSelect').change(function() {
-		$('#clubSelect').prop('disabled', true).css('background-color', 'lightgrey');
-		$('#classSelect').prop('disabled', false).css('background-color', 'yellow');
+		if ($(this).val() === '')
+			alert('Velg en klubb før du går videre.'); 
+		else {
+			var club = $('#clubSelect').val();
+			$('#clubverification').html(club + ' er valgt klubb');
+			$('#clubSelect').prop('disabled', true).css('background-color', '');
+			$('#classSelect').prop('disabled', false).css('background-color', 'yellow');
+		}
 	});
 
 	$('#classSelect').change(function() {
-		// Reserve a dbid
-		var reservedOK = false
-		var className = $('#classSelect').val();
-		fetch(url + "?method=reservevacant&comp=" + comp + "&class='" + className + "'")
-			.then(response => response.json())
-			.then(data => {
-				reservedOK = data.status == "OK";
-				if (!reservedOK) {
-					alert('Det oppstod en feil under reservering av ledig plass. Prøv igjen eller kontakt løpskontoret.');
-					window.location.href = ('entry.php?comp=' + comp);
-				}
-				else
-					reservedID = data.reservedID;
-			});
-		$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
-		$('#classSelect').prop('disabled', true).css('background-color', 'lightgrey');
-		$('#ecardnumber').prop('disabled', false).css('background-color', 'yellow');
-		$('#3_4').show();
+		if ($(this).val() === '')
+			alert('Velg en klasse før du går videre.'); 
+		else {
+			var reservedOK = false
+			var className = $('#classSelect').val();
+			fetch(url + "?method=reservevacant&comp=" + comp + "&class='" + className + "'")
+				.then(response => response.json())
+				.then(data => {
+					reservedOK = data.status == "OK";
+					if (!reservedOK) {
+						alert('Det oppsto en feil under reservering av ledig plass. Prøv igjen eller kontakt løpskontoret.');
+						window.location.href = ('entry.php?comp=' + comp);
+					}
+					else
+						reservedID = data.reservedID;
+				});
+			$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
+			$('#classSelect').prop('disabled', true).css('background-color', '');
+			$('#ecardnumber').prop('disabled', false).css('background-color', 'yellow');
+		}
 	});
 	
+	$('#ecardnumber').on('blur keypress', function(e) {
+		if (e.type === 'keypress' && e.which !== 13) {
+			return; // If the key pressed was not enter, do nothing
+		}
+		// Verify ecard
+		var ecardNumber = parseInt($('#ecardnumber').val());
+		if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
+			$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
+		}
+		else if (ecards.includes(ecardNumber)) {
+			$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
+		} else {
+			var ecard = $('#ecardnumber').val();
+			$('#ecardverification').html('Brikkenummer ' + ecard + ' er OK.');
+			$('#ecardnumber').prop('disabled', true).css('background-color', '');
+			$('#firstname').prop('disabled', false).css('background-color', 'yellow');
+			$('#lastname').prop('disabled', false).css('background-color', 'yellow');
+		}
+	});
+
 	$('#cancel').click(function() {window.location.href = ('entry.php?comp=' + comp);});
-	$('#classSelect').prop('disabled', true).css('background-color', 'lightgrey');
-	$('#ecardnumber').prop('disabled', true).css('background-color', 'lightgrey');
-	$('#firstname').prop('disabled', true).css('background-color', 'lightgrey');
-	$('#lastname').prop('disabled', true).css('background-color', 'lightgrey');
-	$('#2_3').hide();
-	$('#3_4').hide();
+	
+	$('#classSelect').prop('disabled', true)
+	$('#ecardnumber').prop('disabled', true)
+	$('#firstname').prop('disabled', true)
+	$('#lastname').prop('disabled', true)
 	$('#submit').hide();
 });
-	
 
-function step_3_4() {
-    // Verify ecard
-	var ecardNumber = parseInt($('#ecardnumber').val());
-	if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
-		$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
-	}
-	else if (ecards.includes(ecardNumber)) {
-		$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
-	} else {
-		$('#ecardverification').html('Brikkenummer OK');
-		$('#ecardnumber').prop('disabled', true).css('background-color', 'lightgrey');
-		$('#firstname').prop('disabled', false).css('background-color', 'yellow');
-		$('#lastname').prop('disabled', false).css('background-color', 'yellow');
-		$('#3_4').hide();
-	}
-}
+
 function submit() {
 	var firstName = $('#firstname').val();
 	var lastName = $('#lastname').val();
@@ -177,30 +192,32 @@ else
 	<img src="images/LiveRes.png" height="40px" style="vertical-align: middle"/>&nbsp; 
 	Direktepåmelding til <?=$currentComp->CompName()?>, <small><?=$currentComp->CompDate()?></small>
 	</div>
+
+	<div class="maindiv" style="padding-left: 10px; width: 95%; font-size:larger">
 	
 	<h2>Velg klubb</h2>
-	<select id="clubSelect" style="width:300px; background-color: yellow;"></select>
-	<br>Kontakt løpskontor om din klubb ikke er i lista.
+	<select id="clubSelect" style="width:100%; background-color: yellow;"></select>
+	<br><div id="clubverification">Kontakt løpskontor om din klubb ikke er i lista.</div>
 
 	<h2>Velg klasse</h2>
-	<select id="classSelect" style="width:300px"></select>
-	<br><div id="classverification">Tilbakemelding klasse</div>
+	<select id="classSelect" style="width:100%"></select>
+	<br><div id="classverification">...</div>
 
 	<h2>Brikkenummer</h2>
-	<input id="ecardnumber" type="number" style="width:300px"></select>
-	<button id="3_4" onclick="step_3_4();" style="background-color: yellow;">Sjekk</button>
-	<br><div id="ecardverification">Tilbakemelding brikke</div>
+	<input id="ecardnumber" type="number" style="width:100%"></select>
+	<br><div id="ecardverification">...</div>
 
 	<h2>Fornavn</h2>
-	<input id="firstname" type="text" style="width:300px"></select>
+	<input id="firstname" type="text" style="width:100%"></select>
 
 	<h2>Etternavn</h2>
-	<input id="lastname" type="text" style="width:300px"></select>
+	<input id="lastname" type="text" style="width:100%"></select>
 
 	<br><br>
 	<button id="submit" type="submit" onclick="submit();" style="background-color: yellow;">Send in</button>
 	<button id="cancel" type="button">Avbryt</button>
 
+	</div>
 <?php } 
 ?>
 </html>
