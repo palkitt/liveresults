@@ -194,6 +194,22 @@ function confirmDelete(msg,url)
 </form>
 <br/>
 <hr/>
+<h1 class="categoriesheader">Quick links</h1>
+<table>
+  <tr>
+    <td>
+      <a href="../followfull.php?comp=<?=$_GET['compid']?>">Live results</a><br>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://liveres.live/followfull.php?comp=<?=$_GET['compid']?>&amp;size=150x150" alt="" title=""/>
+    </td>
+    <td>
+      &nbsp;
+    <td>
+      <a href="../entry.php?comp=<?=$_GET['compid']?>">Entry form</a><br>
+      <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://liveres.live/entry.php?comp=<?=$_GET['compid']?>&amp;size=150x150" alt="" title=""/>
+    </td>   
+  </tr>
+</table>
+<hr/>
 <h1 class="categoriesheader">Radio Controls</h1>
 <p><a href="./radiocontrols.php?comp=<?=$_GET['compid']?>">Radio control editor</a>
 <form name="formrdo1" action="editComp.php?what=radio&compid=<?=$comp['tavid']?>" method="post">
