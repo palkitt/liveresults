@@ -135,6 +135,7 @@ namespace LiveResults.Model
         private readonly Dictionary<string, RadioControl[]> m_classRadioControls;
         private readonly Dictionary<int, CourseControl[]> m_courseControls;
         private readonly Dictionary<int, CourseName> m_courseNames;
+        private readonly Dictionary<int, VacantRunner> m_vacantRunners;
         private readonly List<DbItem> m_itemsToUpdate;
         private readonly bool m_assignIDsInternally;
         private int m_nextInternalId = 1;
@@ -145,6 +146,7 @@ namespace LiveResults.Model
             m_classRadioControls = new Dictionary<string, RadioControl[]>();
             m_courseControls = new Dictionary<int, CourseControl[]>();
             m_courseNames = new Dictionary<int, CourseName>();
+            m_vacantRunners = new Dictionary<int, VacantRunner>();
             m_itemsToUpdate = new List<DbItem>();
             m_assignIDsInternally = assignIDsInternally;
 
@@ -329,6 +331,27 @@ namespace LiveResults.Model
                 }
                 reader.Close();
 
+                // Vacant runners
+                cmd.CommandText = "select dbid,bib,classid,class from vacants where tavid = " + m_compID;
+                reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    int dbid = Convert.ToInt32(reader["dbid"]);
+                    int bib = Convert.ToInt32(reader["bib"]);
+                    string classid = reader["classid"] as string;
+                    string classname = reader["class"] as string;
+
+                    m_vacantRunners.Add(dbid,
+                        new VacantRunner() 
+                        { 
+                            dbid = dbid,
+                            bib = bib,
+                            classid = classid,
+                            classname = classname
+                        });
+                }
+                reader.Close();
+
                 // Runner aliases
                 cmd.CommandText = "select sourceid,id from runneraliases where compid = " + m_compID;
                 reader = cmd.ExecuteReader();
@@ -509,10 +532,6 @@ namespace LiveResults.Model
             }
         }
 
-        /// <summary>
-        /// Adds a Runner to this competition
-        /// </summary>
-        /// <param name="r"></param>
         public void AddRunner(Runner r)
         {
             if (!m_runners.ContainsKey(r.ID))
@@ -526,10 +545,6 @@ namespace LiveResults.Model
             }
         }
 
-        /// <summary>
-        /// Adds a Runner to this competition
-        /// </summary>
-        /// <param name="r"></param>
 
         public void DeleteID(int runnerID)
         {
@@ -577,22 +592,13 @@ namespace LiveResults.Model
             }
         }
 
-        /// <summary>
-        /// Returns true if a runner with the specified runnerid exist in the competition
-        /// </summary>
-        /// <param name="runnerID"></param>
-        /// <returns></returns>
+  
         public bool IsRunnerAdded(int runnerID)
         {
             return m_runners.ContainsKey(runnerID);
         }
 
-        /// <summary>
-        /// Sets the result for the runner with runnerID
-        /// </summary>
-        /// <param name="runnerID"></param>
-        /// <param name="time"></param>
-        /// <param name="status"></param>
+   
         public void SetRunnerResult(int runnerID, int time, int status)
         {
             if (!IsRunnerAdded(runnerID))
@@ -718,7 +724,7 @@ namespace LiveResults.Model
             if (deleteUnused)
             {
                 var courseNo = courses.GroupBy(x => x.CourseNo).ToDictionary(x => x.Key);
-                foreach (var controls in m_courseControls)
+                foreach (var controls in m_courseControls.ToList())
                 {
                     if (!courseNo.ContainsKey(controls.Key))
                     {
@@ -727,6 +733,7 @@ namespace LiveResults.Model
                         {
                             m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
                         }
+                        m_courseControls.Remove(controls.Key);
                     }
                 }
             }
@@ -757,12 +764,13 @@ namespace LiveResults.Model
             if (deleteUnused)
             {
                 // Delete all courses that are not in the array            
-                foreach (var courseName in m_courseNames)
+                foreach (var courseName in m_courseNames.ToList())
                 {
                     int key = courseName.Key;
                     if (!courseNames.Any(cn => cn.CourseNo == key))
                     {
                         m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
+                        m_courseNames.Remove(key);
                     }
                 }
             }
@@ -794,14 +802,17 @@ namespace LiveResults.Model
 
                     if (update)
                     {
-                        foreach (RadioControl existingControl in existingRadios)
+                        foreach (RadioControl existingControl in existingRadios.ToList())
                         {
                             bool radioControlExist = newControls.Any(item =>
                                 item.Order == existingControl.Order &&
                                 item.Code == existingControl.Code &&
                                 item.ControlName == existingControl.ControlName);
                             if (!radioControlExist)
+                            {
                                 m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingControl });
+                                m_classRadioControls.Remove(kvp.Key);
+                            }
                         }
                         m_classRadioControls[kvp.Key] = newControls;
                     }
@@ -818,13 +829,53 @@ namespace LiveResults.Model
             if (update)
             {
                 var radiosClassName = radios.GroupBy(x => x.ClassName).ToDictionary(x => x.Key);
-                foreach (var classRadios in m_classRadioControls)
+                foreach (var classRadios in m_classRadioControls.ToList())
                 {
                     if (!radiosClassName.ContainsKey(classRadios.Key))
                     {
                         RadioControl[] existingRadios = m_classRadioControls[classRadios.Key];
                         for (int i = 0; i < existingRadios.Length; i++)
                             m_itemsToUpdate.Add(new DelRadioControl() { ToDelete = existingRadios[i] });
+                        m_classRadioControls.Remove(classRadios.Key);
+                    }
+                }
+            }
+        }
+
+        public void MergeVacantRunners(VacantRunner[] vacantRunners, bool deleteUnused = true)
+        {
+            if (vacantRunners == null)
+                return;
+
+            foreach (var vacant in vacantRunners)
+            {
+                int key = vacant.dbid;
+                if (m_vacantRunners.ContainsKey(key))
+                {
+                    bool isUpdated = (m_vacantRunners[key].bib != vacant.bib ||
+                                      m_vacantRunners[key].classid != vacant.classid ||
+                                      m_vacantRunners[key].classname != vacant.classname);
+                    if (isUpdated)
+                    {
+                        m_itemsToUpdate.Add(new DelVacantRunner() { ToDelete = m_vacantRunners[key] });
+                        m_itemsToUpdate.Add(vacant);
+                    }
+                }
+                else
+                {
+                    m_itemsToUpdate.Add(vacant);
+                    m_vacantRunners[key] = vacant;
+                }
+            }
+            if (deleteUnused)
+            {
+                foreach (var vacant in m_vacantRunners.ToList())
+                {
+                    int key = vacant.Key;
+                    if (!vacantRunners.Any(r => r.dbid == key))
+                    {
+                        m_itemsToUpdate.Add(new DelVacantRunner() { ToDelete = m_vacantRunners[key] });
+                        m_vacantRunners.Remove(key);
                     }
                 }
             }
@@ -979,9 +1030,10 @@ namespace LiveResults.Model
                             using (MySqlCommand cmd = m_connection.CreateCommand())
                             {
                                 var item = m_itemsToUpdate[0];
+
                                 if (item is CourseName)
                                 {
-                                    var r = item as CourseName;                                     ;
+                                    var r = item as CourseName;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
                                     cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
@@ -1307,6 +1359,52 @@ namespace LiveResults.Model
                                         }
                                         cmd.Parameters.Clear();
                                     }
+                                }
+                                else if (item is VacantRunner)
+                                {
+                                    var r = item as VacantRunner;
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.AddWithValue("?compid", m_compID);
+                                    cmd.Parameters.AddWithValue("?dbid", r.dbid);
+                                    cmd.Parameters.AddWithValue("?bib", r.bib);
+                                    cmd.Parameters.AddWithValue("?classid", r.classid);
+                                    cmd.Parameters.AddWithValue("?classname", r.classname);
+                                    cmd.CommandText = "REPLACE INTO vacants(tavid,dbid,bib,classid,class) VALUES (?compid,?dbid,?bib,?classid,?classname)";
+
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ee)
+                                    {
+                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.RemoveAt(0);
+                                        throw new ApplicationException("Could not add vacant dbid: " + r.dbid + " in class: " + r.classname + " to server due to: " + ee.Message, ee);
+                                    }
+                                    cmd.Parameters.Clear();
+                                    FireLogMsg("Server update add: Vacant dbid " + r.dbid + " in class " + r.classname);
+                                }
+                                else if (item is DelVacantRunner)
+                                {
+                                    var dr = item as DelVacantRunner;
+                                    var r = dr.ToDelete;
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.AddWithValue("?compid", m_compID);
+                                    cmd.Parameters.AddWithValue("?dbid", r.dbid);
+                                    cmd.CommandText = "delete from vacants where tavid=?compid and dbid=?dbid";
+
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ee)
+                                    {
+                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.RemoveAt(0);
+                                        throw new ApplicationException("Could not delete vacant dbid: " + r.dbid + " in class: " + r.classname + " to server due to: " + ee.Message, ee);
+                                    }
+                                    cmd.Parameters.Clear();
+                                    FireLogMsg("Server update delete: Vacant dbid " + r.dbid + " in class " + r.classname);
                                 }
                                 m_itemsToUpdate.RemoveAt(0);
                             }

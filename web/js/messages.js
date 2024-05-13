@@ -217,9 +217,15 @@ var Messages;
     
                     var messageTitle = "Melding <a href=\"javascript:;\" onclick=\"mess.popupDialog('Generell melding',0)\">(generell)</a>";
                     columns.push({ "sTitle": messageTitle, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "message",
-                        "render": function (data,type,row) {
-                                return ("<div class=\"wrapok\">" + data + "</div>");
-                            }});
+                            "render": function (data,type,row) {
+                            try {
+                                var jsonData = JSON.parse(data);
+                                return `Påmelding: ${jsonData.firstName} ${jsonData.lastName}, ${jsonData.club}, ${jsonData.ecardNumber}, ${jsonData.className}, ID:${row.dbid}`;
+                            } catch (error) {
+                                return "<div class=\"wrapok\">" + data + "</div>";
+                            }
+                        }
+                    });
  
                     columns.push({ "sTitle": "Utført", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "completed",
                         "render": function(data, type, row) {

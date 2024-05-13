@@ -44,13 +44,16 @@ if ($_GET['method'] == 'sendmessage')
 		$DNS = 0;
 		$ecardChange = 0;
 		$completed = 0;
+		$newentry = 0;
 		if (isset($_GET['dns']))
 			$DNS = $_GET['dns'];
 		if (isset($_GET['ecardchange']))
 			$ecardChange = $_GET['ecardchange'];
 		if (isset($_GET['completed']))
 			$completed = $_GET['completed'];
-		$ret = Emma::SendMessage($_GET['comp'],$_GET['dbid'],$changed,$_GET['message'],$DNS,$ecardChange,$completed);
+		if (isset($_GET['newentry']))
+			$newentry = $_GET['newentry'];
+		$ret = Emma::SendMessage($_GET['comp'],$_GET['dbid'],$changed,$_GET['message'],$DNS,$ecardChange,$completed,$newentry);
 
 		if ($ret > 0 && $ecardChange && isset($_GET['bib']))
 			$ret = Emma::SetMessageEcardChecked($_GET['comp'],0,$_GET['bib']);
@@ -144,6 +147,38 @@ else if ($_GET['method'] == 'setecardnotchecked')
 			echo("{\"status\": \"Error\", \"message\": \"Error setting ecard change\" }");
 	}
 }
+else if ($_GET['method'] == 'setnewentry')
+{
+	insertHeader(1,false);
+	if (!isset($_GET['messid']))
+		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
+	elseif (!isset($_GET['newentry']))
+		echo("{\"status\": \"Error\", \"message\": \"newentry not set\"}");
+	else
+	{
+		$ret = Emma::SetMessageNewEntry($_GET['messid'],$_GET['newentry']);
+		if ($ret > 0)
+			echo("{\"status\": \"OK\"}");
+		else
+			echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
+	}
+}
+else if ($_GET['method'] == 'setmessagedbid')
+{
+	insertHeader(1,false);
+	if (!isset($_GET['messid']))
+		echo("{\"status\": \"Error\", \"message\": \"messid not set\"}");
+	elseif (!isset($_GET['dbid']))
+		echo("{\"status\": \"Error\", \"message\": \"dbid not set\"}");
+	else
+	{
+		$ret = Emma::SetMessageDBID($_GET['messid'],$_GET['dbid']);
+		if ($ret > 0)
+			echo("{\"status\": \"OK\"}");
+		else
+			echo("{\"status\": \"Error\", \"message\": \"Error adding message\" }");
+	}
+}
 else if ($_GET['method'] == 'getmessages')
 {
 	$currentComp = new Emma($_GET['comp']);
@@ -173,8 +208,7 @@ else if ($_GET['method'] == 'getmessages')
 		$name    = ($dbid == 0 ? "Generell melding" : ($message['name'] != null ? $message['name'] : ""));
 		$club    = $message['club'];
 		$class   = $message['class'];
-		$msgtext = str_replace("\\","",$message['message']);
-		$msgtext = str_replace("\"","",$msgtext);
+		$msgtext = str_replace("\"","\\\"",$message['message']);
 
 		if ($dbid<0 && $name == "")
 			$name = strval(-$dbid)." UKJENT";
@@ -284,7 +318,7 @@ else if ($_GET['method'] == 'getchanges')
 			continue;
 
 		if (!$first)
-			$retEcard .=",$br";
+			$retEcard .=", ";
 		$retEcard .= "{\"messid\": ".$messid.", \"dbid\": ".$dbid.", \"changed\": \"".$changed."\", \"ecard\": \"".$ecard."\", \"bib\": \"".$bib."\"}";
 		$first = false;
 	}
@@ -299,17 +333,97 @@ else if ($_GET['method'] == 'getchanges')
 		$dbid      = $runner['dbid'];
 		$changed   = $runner['changed'];
 		if (!$first)
-			$retDNS .=",$br";
+			$retDNS .=", ";
 		$retDNS .= "{\"messid\": ".$messid.", \"dbid\": ".$dbid.", \"changed\": \"".$changed."\"}";
 		$first = false;
 	}
 	
+	// New entries
+	$entries = $currentComp->getNewEntries();
+	$retEntries = "";
+	$first = true;
+	foreach ((array)$entries as $entry)
+	{
+		$messid    = $entry['messid'];
+		$dbid      = $entry['dbid'];
+		$changed   = $entry['changed'];
+		$message   = $entry['message']; 
+		if (!$first)
+			$retEntries .=", ";
+		$retEntries .= "{\"messid\": ".$messid.", \"dbid\": ".$dbid.", \"entry\": ".$message.", \"changed\": \"".$changed."\"}";
+		$first = false;
+	}
+
 	// Return results
-	$hash = MD5($retEcard.$retDNS);
+	$hash = MD5($retEcard.$retDNS.$retEntries);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+		echo("{\"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+	else
+		echo("{\"status\": \"OK\", \"ecardchange\": [$retEcard], \"dns\": [$retDNS], \"entry\": [$retEntries], \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
+else if ($_GET['method'] == 'getentrydata')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime);
+
+	$clubs = $currentComp->getClubs();
+	$first = true;
+	$retClubs = "";
+	foreach ((array)$clubs as $club)
+	{
+		$clubname  = str_replace("\\","",$club['club']);
+		$clubname  = str_replace("\"","",$clubname);
+		if (!$first)
+			$retClubs .=",";
+		$retClubs .= "{\"name\": \"".$clubname."\"}";
+		$first = false;
+	}
+
+	$vacants = $currentComp->getVacants();
+	$first = true;
+	$retVacants = "";
+	foreach ((array)$vacants as $vacant)
+	{
+		$dbid	   = $vacant['dbid'];
+		$bib	   = $vacant['bib'];
+		$classname = $vacant['class'];
+		$classid   = $vacant['classid'];
+		if (!$first)
+			$retVacants .=",";
+		$retVacants  .= "{\"dbid\": ".$dbid.", \"bib\": ".$bib.", \"class\": \"".$classname."\", \"classid\": \"".$classid."\"}";
+		$first = false;
+	}
+
+	$ecards = $currentComp->getEcards();
+	$first = true;
+	$retEcards = "";
+	foreach ((array)$ecards as $ecard)
+	{
+		$number = $ecard['ecard'];
+		if (!$first)
+			$retEcards .=",";
+		$retEcards .= "{$number}";
+		$first = false;
+	}
+	
+	// Return results
+	$hash = MD5($retClubs.$retVacants.$retEcards);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
 		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 	else
-		echo("{ \"status\": \"OK\",$br \"ecardchange\": [$br$retEcard$br],$br \"dns\": [$br$retDNS$br],$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo("{ \"status\": \"OK\", \"clubs\": [$retClubs], \"vacants\": [$retVacants], \"ecards\": [$retEcards], \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
+else if ($_GET['method'] == 'reservevacant')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$class = urlRawDecode($_GET['class']);
+	$RT = insertHeader(1);
+
+	$reservedID = $currentComp->reserveVacant($class);
+	if ($reservedID > 0)
+		echo("{\"status\": \"OK\", \"reservedID\": $reservedID}");
+	else
+		echo("{\"status\": \"Error\", \"message\": \"Could not reserve vacant\"}");
 }
 else
 {

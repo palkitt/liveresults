@@ -34,6 +34,7 @@ namespace LiveResults.Client
         public event LogMessageDelegate OnLogMessage;
         public event DeleteIDDelegate OnDeleteID;
         public event MergeCourseNamesDelegate OnMergeCourseNames;
+        public event MergeVacantsDelegate OnMergeVacants;
         private bool m_isRelay = false;
         private bool m_continue;
         private int m_compID;
