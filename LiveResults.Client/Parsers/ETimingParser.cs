@@ -1869,7 +1869,7 @@ namespace LiveResults.Client
                     }
                     catch (Exception ee)
                     {
-                        FireLogMsg("Bad network or config file? eTiming Message ecard: " + ee.Message);
+                        FireLogMsg("Bad network or config file? eTiming Message ecard change: " + ee.Message);
                     }
                 }
 
@@ -1893,8 +1893,7 @@ namespace LiveResults.Client
                         IDbCommand cmd = m_connection.CreateCommand();
                         cmd.CommandText = string.Format(@"SELECT name.id FROM name 
                             LEFT JOIN class ON name.class = class.code 
-                            WHERE name.id = {0} AND class.class = '{1}' AND name.status='V' 
-                            ORDER BY name.id ASC", dbidIn, className);
+                            WHERE name.id = {0} AND class.class = '{1}' AND name.status='V'", dbidIn, className);
                         
                         var dbidOut = cmd.ExecuteScalar();
                         if (dbidOut == null || dbidOut == DBNull.Value)
@@ -1906,7 +1905,7 @@ namespace LiveResults.Client
                                 FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant match for ID " + dbidIn + ".");
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
-                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=" + dbidIn);
+                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke utført. Oppgitt ID ikke ledig!&dbid=" + dbidIn);
                             }
                         }
                         else 
@@ -1925,10 +1924,10 @@ namespace LiveResults.Client
                                 failedThis = true;
                                 if (failedLast)
                                 {
-                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant match for ID " + dbidIn + ".");
+                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. Error on writing entry with ID " + dbidIn + ".");
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
-                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke mulig. Ikke ledig i oppgitt klasse!&dbid=" + dbidIn);
+                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke utført. Feil ved skriving til oppgitt ID!&dbid=" + dbidIn);
                                 }
                             }
                             else
@@ -1943,7 +1942,7 @@ namespace LiveResults.Client
                     }
                     catch (Exception ee)
                     {
-                        FireLogMsg("Bad network or config file? eTiming Message New Entry: " + ee.Message);
+                        FireLogMsg("Bad network or config file? eTiming Message new entry: " + ee.Message);
                     }
                 }
             }
