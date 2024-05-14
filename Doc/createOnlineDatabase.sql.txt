@@ -93,8 +93,8 @@ CREATE TABLE `messages` (
   `message` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `dns` tinyint(1) DEFAULT NULL,
   `ecardchange` tinyint(1) DEFAULT NULL,
-  `newentry` tinyint(1) DEFAULT NULL,
   `completed` tinyint(1) DEFAULT NULL,
+  `newentry` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`messid`)
 ) DEFAULT CHARSET=utf8;
 
