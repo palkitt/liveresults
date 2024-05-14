@@ -42,19 +42,17 @@ var reservedID = 0;
 
 $(document).ready(function()
 {	
-	$('#firstname, #lastname').on('input', function() {
-		var firstName = $('#firstname').val();
-		var lastName = $('#lastname').val();
-		if (firstName.trim() !== '' && lastName.trim() !== '') {
-			$('#submit').show();
-		} else {
-			$('#submit').hide();
-		}
-	});	
-	
 	fetch(url + "?method=getentrydata&comp=" + comp)
         .then(response => response.json())
         .then(data => {
+
+            if (!data.active)
+            {
+                $('#inactiveinfo').html('Løpet er ikke online! Kontakt løpskontor eller prøv igjen senere.');
+                $('#clubSelect').prop('disabled', true);
+				$('#clubSelect').prop('disabled', true).css('background-color', '');
+            }
+
             let clubSelect = $('#clubSelect');
 			clubSelect.append($('<option>').text('--- Velg klubb ---').val(''));
             data.clubs.forEach(club => {clubSelect.append($('<option>').text(club.name)); });
@@ -133,12 +131,21 @@ $(document).ready(function()
 		}
 	});
 
-	$('#cancel').click(function() {window.location.href = ('entry.php?comp=' + comp);});
+    $('#firstname, #lastname').on('input', function() {
+		var firstName = $('#firstname').val();
+		var lastName = $('#lastname').val();
+		if (firstName.trim() !== '' && lastName.trim() !== '') {
+			$('#submit').show();
+		} else {
+			$('#submit').hide();
+		}
+	});	
 	
-	$('#classSelect').prop('disabled', true)
-	$('#ecardnumber').prop('disabled', true)
-	$('#firstname').prop('disabled', true)
-	$('#lastname').prop('disabled', true)
+    $('#cancel').click(function() {window.location.href = ('entry.php?comp=' + comp);});
+	$('#classSelect').prop('disabled', true);
+	$('#ecardnumber').prop('disabled', true);
+	$('#firstname').prop('disabled', true);
+	$('#lastname').prop('disabled', true);
 	$('#submit').hide();
 });
 
@@ -194,6 +201,8 @@ else
 	</div>
 
 	<div class="maindiv" style="padding-left: 10px; width: 95%; font-size:larger">
+
+    <div id="inactiveinfo" style="color:red; font-size: 1.5em; font-weight:bold;"></div>
 	
 	<h2>Velg klubb</h2>
 	<select id="clubSelect" style="width:100%; background-color: yellow;"></select>
@@ -221,4 +230,3 @@ else
 <?php } 
 ?>
 </html>
-

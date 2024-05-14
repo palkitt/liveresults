@@ -365,6 +365,7 @@ else if ($_GET['method'] == 'getentrydata')
 {
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
+	$isActive = $currentComp->IsCompActive();
 
 	$clubs = $currentComp->getClubs();
 	$first = true;
@@ -409,9 +410,9 @@ else if ($_GET['method'] == 'getentrydata')
 	// Return results
 	$hash = MD5($retClubs.$retVacants.$retEcards);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
-		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT, \"active\": $isActive}");
 	else
-		echo("{ \"status\": \"OK\", \"clubs\": [$retClubs], \"vacants\": [$retVacants], \"ecards\": [$retEcards], \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo("{ \"status\": \"OK\", \"clubs\": [$retClubs], \"vacants\": [$retVacants], \"ecards\": [$retEcards], \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
 }
 else if ($_GET['method'] == 'reservevacant')
 {
