@@ -30,9 +30,9 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <script language="javascript" type="text/javascript">
 
 <?php if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost'){ ?> 
-	var url = "http://localhost/api/messageapi.php";
+	var url = "http://localhost/api/";
 <?php } else { ?> 
-	var url = "https://api.liveres.live/messageapi.php";
+	var url = "https://api.liveres.live/";
 <?php } ?>
 
 var comp= <?= $_GET['comp']?>;
@@ -42,7 +42,7 @@ var reservedID = 0;
 
 $(document).ready(function()
 {	
-	fetch(url + "?method=getentrydata&comp=" + comp)
+	fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
         .then(response => response.json())
         .then(data => {
 
@@ -94,7 +94,7 @@ $(document).ready(function()
 		else {
 			var reservedOK = false
 			var className = $('#classSelect').val();
-			fetch(url + "?method=reservevacant&comp=" + comp + "&class='" + className + "'")
+			fetch(url + "messageapi.php?method=reservevacant&comp=" + comp + "&class='" + className + "'")
 				.then(response => response.json())
 				.then(data => {
 					reservedOK = data.status == "OK";
@@ -156,6 +156,9 @@ function submit() {
 	var ecardNumber = $('#ecardnumber').val();
 	var club = $('#clubSelect').val();
 	var className = $('#classSelect').val();
+	$('#firstname').prop('disabled', true);
+	$('#lastname').prop('disabled', true);
+	$('#submit').hide();
 
 	var data = {
 		firstName: firstName,
@@ -170,11 +173,10 @@ function submit() {
 	if (jsonData != null && jsonData != ""){
 		jsonData = jsonData.substring(0,250);
 		$.ajax({
-			url: url + "?method=sendmessage", 
+			url: url + "messageapi.php?method=sendmessage", 
 			data: "&comp=" + comp + "&dbid=" + reservedID + "&newentry=1&message=" + jsonData,
 			success: function(data) {
-				alert('Din påmelding er registrert! Om arrangør er online vil du dukke opp i startlistene innen ett minutt. Du sendes videre til klassen din.');
-				window.location.href = ('followfull.php?comp=' + comp + '&#' + className);
+				lookForEntry(reservedID);
 			},
 			error: function(data) {
 				alert('Det oppstod en feil under registreringen. Prøv igjen eller kontakt løpskontoret.');
@@ -182,6 +184,52 @@ function submit() {
 			}
 		});
 	}
+}
+
+function lookForEntry(dbid, last_hash="", no=1) {
+	var ecardNumber = $('#ecardnumber').val();
+	var className = encodeURIComponent($('#classSelect').val());
+	$.ajax({
+		url: url + "api.php?method=getrunners",
+		data: "&comp=" + comp + "&last_hash=" + last_hash,
+		success: function(data) {
+			if (data != null && data != ""){
+				found = false;
+				if (data.status = "OK" && data.runners != undefined) {
+					for (var i = 0; i < data.runners.length; i++) {
+						// Check if the dbid of the current entry matches the input dbid
+						if (data.runners[i].dbid == dbid) {
+							found = true;
+							$('#entrydata').html('<b>Din påmelding er registrert som følger</b><br>' 
+							+ '<table>'
+							+ '<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>'
+							+ '<tr><td>Klubb:</td><td>' + data.runners[i].club + '</td></tr>'
+							+ '<tr><td>Klasse:</td><td>' + data.runners[i].class + '</td></tr>'
+							+ '<tr><td>Brikkenummer:</td><td>' + data.runners[i].ecard1 + '</td></tr>'
+							+ '<tr><td>Startnummer:</td><td>' + (data.runners[i].bib > 0 ? data.runners[i].bib : " - ") + '</td></tr>'
+							+ '<tr><td>Starttid:</td><td>' + data.runners[i].start + '</td></tr>'
+							+ '</table>');
+							break;
+						}
+					}
+				}
+				if (!found)
+				{
+					if (no > 6)
+						$('#entrydata').html('Din påmelding ble ikke registrert! Kontakt løpskontor.');
+					else
+					{
+						$('#entrydata').html('Venter på tilbakemelding om din registering... <br>Tar ca 30 sekunder (Nå: ' + no*data.rt + 's)');
+						setTimeout(function(){ lookForEntry(dbid, data.hash, (no+1));}, Math.max(5000,data.rt*1000));
+					}
+				}				
+			}
+		},
+		error: function(data) {
+			alert('Det oppstod en feil under søk etter påmelding. Prøv igjen eller kontakt løpskontoret.');
+			window.location.href = ('entry.php?comp=' + comp);
+		}
+	});
 }
 
 </script>
@@ -226,6 +274,9 @@ else
 	<button id="submit" type="submit" onclick="submit();" style="background-color: yellow;">Send in</button>
 	<button id="cancel" type="button">Avbryt</button>
 
+	<br><br>
+	<div id="entrydata">..</div>
+	
 	</div>
 <?php } 
 ?>
