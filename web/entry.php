@@ -94,7 +94,8 @@ $(document).ready(function()
 		else {
 			var reservedOK = false
 			var className = $('#classSelect').val();
-			fetch(url + "messageapi.php?method=reservevacant&comp=" + comp + "&class='" + className + "'")
+			var classNameURI = encodeURIComponent(className);
+			fetch(url + "messageapi.php?method=reservevacant&comp=" + comp + "&class=" + classNameURI)
 				.then(response => response.json())
 				.then(data => {
 					reservedOK = data.status == "OK";

@@ -417,10 +417,11 @@ else if ($_GET['method'] == 'getentrydata')
 else if ($_GET['method'] == 'reservevacant')
 {
 	$currentComp = new Emma($_GET['comp']);
-	$class = urlRawDecode($_GET['class']);
+	$classNameURI = $_GET['class'];
+	$className = urldecode($classNameURI);
 	$RT = insertHeader(1);
 
-	$reservedID = $currentComp->reserveVacant($class);
+	$reservedID = $currentComp->reserveVacant($className);
 	if ($reservedID > 0)
 		echo("{\"status\": \"OK\", \"reservedID\": $reservedID}");
 	else
@@ -537,7 +538,7 @@ function urlRawDecode($raw_url_encoded)
 	}
 
 	# Return decoded  raw url encoded data
-	return rawurldecode($raw_url_encoded);
+	return urlRawDecode($raw_url_encoded);
 }
 
 ?>

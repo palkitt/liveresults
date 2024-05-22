@@ -1582,11 +1582,11 @@ class Emma
 		return $ret;
 	}
 
-	function reserveVacant($class)
+	function reserveVacant($className)
 	{
-		$q  = "SELECT dbid FROM vacants WHERE reserved IS NULL OR reserved = 0 ";
-		$q .= "AND tavid=". $this->m_CompId." AND class=".$class." ORDER BY dbid LIMIT 1";
-		
+		$q  = "SELECT dbid FROM vacants WHERE (reserved IS NULL OR reserved = 0) ";
+		$q .= "AND tavid=". $this->m_CompId." AND class='".mysqli_real_escape_string($this->m_Conn, $className)."' ORDER BY dbid LIMIT 1";
+
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			$row = mysqli_fetch_row($result);
