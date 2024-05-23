@@ -1547,6 +1547,7 @@ class Emma
 		$q = "SELECT runners.club
 		      FROM runners  
 		      WHERE runners.tavid=". $this->m_CompId."
+			  AND runners.club NOT REGEXP '-[0-9]+$'
 			  GROUP BY club ORDER BY club
 			  COLLATE utf8_danish_ci ASC";
 
