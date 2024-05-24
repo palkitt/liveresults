@@ -160,6 +160,7 @@ function submit() {
 	$('#firstname').prop('disabled', true);
 	$('#lastname').prop('disabled', true);
 	$('#submit').hide();
+	$('#cancel').hide();
 
 	var data = {
 		firstName: firstName,
@@ -201,7 +202,7 @@ function lookForEntry(dbid, last_hash="", no=1) {
 						// Check if the dbid of the current entry matches the input dbid
 						if (data.runners[i].dbid == dbid) {
 							found = true;
-							$('#entrydata').html('<b>Din påmelding er registrert som følger</b><br>' 
+							$('#entrydata').html('<b>Din påmelding er registrert som følger:</b><br>' 
 							+ '<table>'
 							+ '<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>'
 							+ '<tr><td>Klubb:</td><td>' + data.runners[i].club + '</td></tr>'
@@ -220,7 +221,7 @@ function lookForEntry(dbid, last_hash="", no=1) {
 						$('#entrydata').html('Din påmelding ble ikke registrert! Kontakt løpskontor.');
 					else
 					{
-						$('#entrydata').html('Venter på tilbakemelding om din registering... <br>Tar ca 30 sekunder (Nå: ' + no*data.rt + 's)');
+						$('#entrydata').html('Venter på tilbakemelding for din registering... <br>Dette kan ta inntil 30 sekunder (nå: ' + no*data.rt + 's)');
 						setTimeout(function(){ lookForEntry(dbid, data.hash, (no+1));}, Math.max(5000,data.rt*1000));
 					}
 				}				
