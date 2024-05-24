@@ -1542,15 +1542,20 @@ class Emma
 	}
 
 	function getClubs()
-  	{
-    	$ret = Array();
-		$q = "SELECT runners.club
-		      FROM runners  
-		      WHERE runners.tavid=". $this->m_CompId."
-			  AND runners.club NOT REGEXP '-[0-9]+$'
-			  GROUP BY club ORDER BY club
-			  COLLATE utf8_danish_ci ASC";
-
+	{
+		$ret = Array();
+		$q = "SELECT DISTINCT 
+				CASE 
+					WHEN runners.club REGEXP '-[0-9]+$' THEN 
+						SUBSTRING(runners.club, 1, CHAR_LENGTH(runners.club) 
+						- CHAR_LENGTH(SUBSTRING_INDEX(runners.club, '-', -1)) - 1)
+					ELSE 
+						runners.club 
+					END as club
+				FROM runners  
+				WHERE runners.tavid=". $this->m_CompId."
+				ORDER BY club
+				COLLATE utf8_danish_ci ASC";
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
 			while ($row = mysqli_fetch_array($result))
