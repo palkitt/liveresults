@@ -55,7 +55,7 @@
             this.flowLayoutPanel1.Controls.Add(this.button7);
             this.flowLayoutPanel1.Controls.Add(this.button6);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(32, 56);
-            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(6);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
             this.flowLayoutPanel1.Size = new System.Drawing.Size(664, 400);
             this.flowLayoutPanel1.TabIndex = 0;
@@ -66,7 +66,7 @@
             this.btnOLA.Image = global::LiveResults.Client.Properties.Resources.OLAImg;
             this.btnOLA.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.btnOLA.Location = new System.Drawing.Point(6, 6);
-            this.btnOLA.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnOLA.Margin = new System.Windows.Forms.Padding(6);
             this.btnOLA.Name = "btnOLA";
             this.btnOLA.Size = new System.Drawing.Size(150, 173);
             this.btnOLA.TabIndex = 0;
@@ -82,7 +82,7 @@
             this.button2.Image = global::LiveResults.Client.Properties.Resources.iof_logohead1;
             this.button2.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.button2.Location = new System.Drawing.Point(168, 6);
-            this.button2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button2.Margin = new System.Windows.Forms.Padding(6);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(150, 173);
             this.button2.TabIndex = 2;
@@ -98,7 +98,7 @@
             this.button3.Image = global::LiveResults.Client.Properties.Resources.ssftiming;
             this.button3.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.button3.Location = new System.Drawing.Point(330, 6);
-            this.button3.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button3.Margin = new System.Windows.Forms.Padding(6);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(150, 173);
             this.button3.TabIndex = 4;
@@ -114,7 +114,7 @@
             this.button4.Image = global::LiveResults.Client.Properties.Resources.OEImg;
             this.button4.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.button4.Location = new System.Drawing.Point(492, 6);
-            this.button4.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button4.Margin = new System.Windows.Forms.Padding(6);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(150, 173);
             this.button4.TabIndex = 5;
@@ -128,7 +128,7 @@
             // button1
             // 
             this.button1.Location = new System.Drawing.Point(6, 191);
-            this.button1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button1.Margin = new System.Windows.Forms.Padding(6);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(150, 173);
             this.button1.TabIndex = 3;
@@ -141,7 +141,7 @@
             // button5
             // 
             this.button5.Location = new System.Drawing.Point(168, 191);
-            this.button5.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button5.Margin = new System.Windows.Forms.Padding(6);
             this.button5.Name = "button5";
             this.button5.Size = new System.Drawing.Size(150, 173);
             this.button5.TabIndex = 6;
@@ -155,7 +155,7 @@
             this.button7.Image = global::LiveResults.Client.Properties.Resources.brikkesys;
             this.button7.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.button7.Location = new System.Drawing.Point(330, 191);
-            this.button7.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button7.Margin = new System.Windows.Forms.Padding(6);
             this.button7.Name = "button7";
             this.button7.Size = new System.Drawing.Size(150, 173);
             this.button7.TabIndex = 8;
@@ -171,7 +171,7 @@
             this.button6.Image = global::LiveResults.Client.Properties.Resources.emitE;
             this.button6.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
             this.button6.Location = new System.Drawing.Point(492, 191);
-            this.button6.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button6.Margin = new System.Windows.Forms.Padding(6);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(150, 173);
             this.button6.TabIndex = 7;
@@ -214,9 +214,9 @@
             this.Controls.Add(this.lblInfo);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.KeyPreview = true;
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.Margin = new System.Windows.Forms.Padding(6);
             this.Name = "FrmNewCompetition";
-            this.Text = "Version 2024-05-13 | Create New Competition";
+            this.Text = "Version 2024-05-26 | Create New Competition";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmNewCompetition_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.FrmNewCompetition_KeyPress);
             this.flowLayoutPanel1.ResumeLayout(false);
