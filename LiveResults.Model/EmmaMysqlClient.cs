@@ -753,6 +753,7 @@ namespace LiveResults.Model
                     {
                         m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
                         m_itemsToUpdate.Add(courseName);
+                        m_courseNames[key] = courseName;
                     }
                 }
                 else
@@ -859,6 +860,7 @@ namespace LiveResults.Model
                     {
                         m_itemsToUpdate.Add(new DelVacantRunner() { ToDelete = m_vacantRunners[key] });
                         m_itemsToUpdate.Add(vacant);
+                        m_vacantRunners[key] = vacant;
                     }
                 }
                 else
@@ -1051,7 +1053,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not add course name: " + r.CourseNo + "-" + r.Name +" to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update add: Course " + r.CourseNo + "-" + r.Name);
+                                    FireLogMsg("Server update add course name: " + r.CourseNo + "-" + r.Name);
                                 }
                                 else if (item is DelCourseName)
                                 {
@@ -1073,7 +1075,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete course name: " + r.CourseNo + "-" + r.Name + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete: Course " + r.CourseNo + "-" + r.Name);
+                                    FireLogMsg("Server update delete course name: " + r.CourseNo + "-" + r.Name);
                                 }
                                 if (item is CourseControl)
                                 {
