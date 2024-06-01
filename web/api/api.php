@@ -18,7 +18,9 @@ if (isset($_GET['lang']))
 $hightime = 60;
 if (!isset($_GET['method']))
     $_GET['method'] = null;
-if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
+if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
+	$refreshTime = 2;
+else if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
 	$refreshTime = 120;
 else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults' || $_GET['method'] == 'getrelayresults')
 	$refreshTime = 60;
