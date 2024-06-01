@@ -112,7 +112,7 @@ $(document).ready(function()
 		}
 	});
 	
-	$('#ecardnumber').on('blur keypress', function(e) {
+	$('#ecardnumber').on('focusout  keypress', function(e) {
 		if (e.type === 'keypress' && e.which !== 13) {
 			return; // If the key pressed was not enter, do nothing
 		}
@@ -255,25 +255,25 @@ else
     <div id="inactiveinfo" style="color:red; font-size: 1.5em; font-weight:bold;"></div>
 	
 	<h2>Velg klubb</h2>
-	<select id="clubSelect" style="width:100%; background-color: yellow;"></select>
+	<select id="clubSelect" style="width:95%; background-color: yellow;"></select>
 	<br><div id="clubverification">Kontakt løpskontor om din klubb ikke er i lista.</div>
 
 	<h2>Velg klasse</h2>
-	<select id="classSelect" style="width:100%"></select>
+	<select id="classSelect" style="width:95%"></select>
 	<br><div id="classverification">...</div>
 
 	<h2>Brikkenummer</h2>
-	<input id="ecardnumber" type="number" style="width:100%"></select>
+	<input id="ecardnumber" type="number" style="width:95%"></select>
 	<br><div id="ecardverification">...</div>
 
 	<h2>Fornavn</h2>
-	<input id="firstname" type="text" style="width:100%"></select>
+	<input id="firstname" type="text" style="width:95%"></select>
 
 	<h2>Etternavn</h2>
-	<input id="lastname" type="text" style="width:100%"></select>
+	<input id="lastname" type="text" style="width:95%"></select>
 
 	<br><br>
-	<button id="submit" type="submit" onclick="submit();" style="background-color: yellow;">Send in</button>
+	<button id="submit" type="submit" onclick="submit();">Send in</button>
 	<button id="cancel" type="button">Avbryt</button>
 
 	<br><br>
