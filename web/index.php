@@ -143,10 +143,13 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
     <?php  
     // All competitions
+    $today = strtotime(date("Y-m-d"));
+    $firstAfterToday = false;
     foreach ($comps as $comp)	{
       $compName = $comp["name"];
       $compName = substr($compName, 0,  ($isMobile ? 30 : 60) );
-      $year = date("Y",strtotime($comp['date']));
+      $date = strtotime($comp["date"]);
+      $year = date("Y",$date);
       if ($year != $yearPre){
         $yearPre = $year;
         ?>
@@ -159,8 +162,15 @@ echo("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       $isActive = false;
       if ($comp["lastactive"] != "")
         $isActive = (time() - strtotime($comp["lastactive"])) < 120;
-      ?>
-        <tr id="row<?=$comp["id"]?>">
+      if ($date < $today && !$firstAfterToday)
+      {
+        $firstAfterToday = true;
+        ?><tr id="row<?=$comp["id"]?>" style="border-top: 2px solid gray;"><?php
+      }
+      else
+      {
+        ?><tr id="row<?=$comp["id"]?>"><?php
+      }?>
           <td>
             <?php if ($isActive){ ?>
               <span class="pulsing">◉</span>
