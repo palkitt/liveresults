@@ -1,13 +1,9 @@
 <?php
 $CHARSET = 'utf-8';
 
+require_once('config.php');
 class Emma
 {
-	public static $db_server = "127.0.0.1";
-	public static $db_database = "liveres";
-	public static $db_user = "root";
-	public static $db_pw= "";
-	
 	public static $MYSQL_CHARSET = "utf8";
 	var $m_CompId;
 	var $m_CompName;
@@ -39,7 +35,7 @@ class Emma
 
 	private static function openConnection() 
 	{
-		$conn = mysqli_connect(self::$db_server, self::$db_user, self::$db_pw, self::$db_database);
+		$conn = mysqli_connect(DBConfig::$db_server, DBConfig::$db_user, DBConfig::$db_pw, DBConfig::$db_database);
 		if (mysqli_connect_errno()) 
 		{
 			printf("Connect failed: %s\n", mysqli_connect_error());
