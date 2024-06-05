@@ -1584,8 +1584,14 @@ class Emma
 		return $ret;
 	}
 
-	function reserveVacant($className)
+	function reserveVacant($className,$cancelID)
 	{
+		if ($cancelID > 0)
+		{
+			$q = "UPDATE vacants SET reserved = 0, reservedtime = NULL WHERE dbid=".$cancelID;
+			$ret = mysqli_query($this->m_Conn, $q) or die(mysqli_error($this->m_Conn, $q));
+		}
+		
 		$q  = "SELECT dbid FROM vacants WHERE (reserved IS NULL OR reserved = 0) ";
 		$q .= "AND tavid=". $this->m_CompId." AND class='".mysqli_real_escape_string($this->m_Conn, $className)."' ORDER BY dbid LIMIT 1";
 
@@ -1601,13 +1607,31 @@ class Emma
 		$ret = false;
 		if ($dbid > 0)
 		{
-			$q = "UPDATE vacants SET reserved=1, reservedtime = NOW() WHERE dbid=".$dbid;
+			$q = "UPDATE vacants SET reserved = 1, reservedtime = NOW() WHERE dbid=".$dbid;
 			$ret = mysqli_query($this->m_Conn, $q) or die(mysqli_error($this->m_Conn, $q));
 		}
 		if ($dbid > 0 && $ret)
 			return $dbid;
 		else
 			return 0;
+	}
+
+	function getnamefromecard($ecard)
+	{
+		$ret = Array();
+		$q  = "SELECT runners.name AS name, login.compName AS compname, login.compDate AS compdate";
+		$q .= " FROM runners LEFT JOIN login ON runners.tavid = login.tavid";
+		$q .= " WHERE runners.ecard1 = ".$ecard." OR runners.ecard2 = ".$ecard;
+		$q .= " ORDER BY compDate DESC LIMIT 1";
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
 	}
 
 	function getEcards()

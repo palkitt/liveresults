@@ -418,14 +418,29 @@ else if ($_GET['method'] == 'reservevacant')
 {
 	$currentComp = new Emma($_GET['comp']);
 	$classNameURI = $_GET['class'];
+	$cancelID = $_GET['cancelid'];
 	$className = urldecode($classNameURI);
 	$RT = insertHeader(1);
 
-	$reservedID = $currentComp->reserveVacant($className);
+	$reservedID = $currentComp->reserveVacant($className,$cancelID);
 	if ($reservedID > 0)
 		echo("{\"status\": \"OK\", \"reservedID\": $reservedID}");
 	else
 		echo("{\"status\": \"Error\", \"message\": \"Could not reserve vacant\"}");
+}
+else if ($_GET['method'] == 'getnamefromecard')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$ecard = $_GET['ecard'];
+	$RT = insertHeader(1);
+	$res = $currentComp->getnamefromecard($ecard);
+	
+	if ($res){
+		$res = $res[0];
+		echo("{\"status\": \"OK\", \"name\": \"".$res['name']."\", \"comp\": \"".$res['compname']."\", \"date\": \"".$res['compdate']."\"}");
+	}
+	else
+		echo("{\"status\": \"Error\", \"message\": \"Could not get name\"}");
 }
 else
 {

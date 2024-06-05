@@ -34,6 +34,12 @@ a:hover{color:#FFA02B; text-decoration:underline;}
 textarea{font-size: 1.1em; font-family: arial, helvetica, verdana, geneva, sans-serif;}
 select{font-size: 1em;}
 input{font-size: 1em;}
+input, select, textarea{  
+  -ms-box-sizing:border-box;
+  -moz-box-sizing:border-box;
+  -webkit-box-sizing:border-box; 
+  box-sizing:border-box;
+}
 
 h1{font-size:1em; font-weight:normal; margin-bottom: 0px;}
 h2{font-size:1.3em; font-weight:bold; margin-bottom: 0px;}
