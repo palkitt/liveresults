@@ -1592,8 +1592,15 @@ class Emma
 			$ret = mysqli_query($this->m_Conn, $q) or die(mysqli_error($this->m_Conn, $q));
 		}
 		
-		$q  = "SELECT dbid FROM vacants WHERE (reserved IS NULL OR reserved = 0) ";
-		$q .= "AND tavid=". $this->m_CompId." AND class='".mysqli_real_escape_string($this->m_Conn, $className)."' ORDER BY dbid LIMIT 1";
+		// Use smallest bib or ID for direct / open classes, largest for other classes
+		$direction = "DESC"; 
+		if (stripos($className,'Åpen') !== false || stripos($className,'åpen') !== false || stripos($className,'open') !== false || 
+			stripos($className,'dir') !== false)
+			$direction = "ASC";
+
+		$q  = "SELECT dbid, bib FROM vacants WHERE (reserved IS NULL OR reserved = 0) ";
+		$q .= "AND tavid=". $this->m_CompId." AND class='".mysqli_real_escape_string($this->m_Conn, $className)."'";
+		$q .= " ORDER BY bib $direction, dbid $direction LIMIT 1";
 
 		if ($result = mysqli_query($this->m_Conn, $q))
 		{
