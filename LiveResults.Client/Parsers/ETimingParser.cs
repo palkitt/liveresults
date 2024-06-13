@@ -20,6 +20,8 @@ using Org.BouncyCastle.Asn1.Crmf;
 using System.Collections;
 using System.Net.Sockets;
 using System.Linq.Expressions;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using Ubiety.Dns.Core.Records;
 
 namespace LiveResults.Client
 {
@@ -468,21 +470,32 @@ namespace LiveResults.Client
                 {
                     List<VacantRunner> vacantRunner = new List<VacantRunner>();
                     IDbCommand cmd = m_connection.CreateCommand();
-                    cmd.CommandText = string.Format(@"SELECT N.id, N.startno, N.class, C.class as cclass FROM name N, Class C WHERE N.class=C.code AND N.status = 'V'");
+                    cmd.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.class, C.class as cclass FROM name N, Class C WHERE N.class=C.code AND N.status = 'V'");
                     
                     using (IDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             int eTimeID = Convert.ToInt32(reader["id"].ToString());
+                            int EventorID = 0;
+                            bool parseOK = false;
+                            if (reader["kid"] != null && reader["kid"] != DBNull.Value)
+                                 parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
                             string bibread = (reader["startno"].ToString()).Trim();
                             int bib = string.IsNullOrEmpty(bibread) ? 0 : Convert.ToInt32(bibread);
                             string classname = reader["cclass"] as string;
                             string classid = reader["class"] as string;
 
+                            int runnerID = 0;
+                            if (m_EventorID)
+                                runnerID = (EventorID > 0 ? EventorID : eTimeID + 1000000);
+                            else
+                                runnerID = eTimeID;
+                            runnerID += m_IdOffset;
+
                             vacantRunner.Add(new VacantRunner()
                             {
-                                dbid = eTimeID,
+                                dbid = runnerID,
                                 bib = bib,
                                 classid = classid,
                                 classname = classname
@@ -1770,36 +1783,9 @@ namespace LiveResults.Client
 
                         if (bibOK)
                         {
-                            bool replaceUnknown = false;
-                            int dbidUnknown = 0;
-                            int eTimingBib = 0;
-                            cmd.CommandText = string.Format(@"SELECT id, ename, name, startno, status FROM name WHERE ecard={0} OR ecard2={0} OR ecard3={0} OR ecard4={0}", ecard);
-                            using (IDataReader reader = cmd.ExecuteReader())
-                            {
-                                while (reader.Read())
-                                {
-                                    if (reader[0] != null && reader[0] != DBNull.Value)
-                                    {
-                                        status = reader["status"] as string;
-                                        famName = (reader["ename"] as string);
-                                        if (!string.IsNullOrEmpty(famName))
-                                            famName = famName.Trim();
-                                        if (reader["id"] != null && reader["id"] != DBNull.Value)
-                                            dbidUnknown = Convert.ToInt32(reader["id"].ToString());
-                                        if (reader["startno"] != null && reader["startno"] != DBNull.Value)
-                                            eTimingBib = Convert.ToInt32(reader["startno"].ToString());
-                                        if ((status == "U" || status == "S") && famName == "U1 Ukjent løper")
-                                            replaceUnknown = true;
-                                        else // ecard belongs to existing runner
-                                        {
-                                            ecardOK = false;
-                                            sameBibEcard = (eTimingBib == bib);
-                                        }
-                                    }
-                                }
-                                reader.Close();
-                            }
-                            if (replaceUnknown)
+                            CheckEcard(ecard, bib, out ecardOK, out sameBibEcard, out int dbidUnknown);
+                                                        
+                            if (dbidUnknown > 0)
                             {
                                 cmd.CommandText = string.Format(@"UPDATE name SET ecard=NULL WHERE id={0}", dbidUnknown);
                                 var update = cmd.ExecuteNonQuery();
@@ -1881,6 +1867,16 @@ namespace LiveResults.Client
                     int messid = (element["messid"]).ToObject<int>();
                     int dbidIn = (element["dbid"]).ToObject<int>();
 
+                    int dbid = dbidIn - m_IdOffset;
+                    int kid = 0;
+                    if (m_EventorID)
+                    {
+                        if (dbid > 1000000)
+                            dbid -= 1000000;
+                        else
+                            kid = dbid;
+                    }
+
                     JObject entry = (JObject)element["entry"];
                     string firstName = (entry["firstName"]).ToObject<string>();
                     string lastName = (entry["lastName"]).ToObject<string>();
@@ -1890,53 +1886,71 @@ namespace LiveResults.Client
 
                     try
                     {
-                        IDbCommand cmd = m_connection.CreateCommand();
-                        cmd.CommandText = string.Format(@"SELECT name.id FROM name 
-                            LEFT JOIN class ON name.class = class.code 
-                            WHERE name.id = {0} AND class.class = '{1}' AND name.status='V'", dbidIn, className);
-                        
-                        var dbidOut = cmd.ExecuteScalar();
-                        if (dbidOut == null || dbidOut == DBNull.Value)
+                        CheckEcard(ecard, 0, out bool ecardOK, out bool sameBibEcard, out int dbidUnknown);
+
+                        if (!ecardOK)
                         {
                             failedThis = true;
                             if (failedLast)
                             {
-                                // No matching entry found
-                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant match for ID " + dbidIn + ".");
+                                // ecard already used
+                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. Ecard " + ecard + " already in use.");
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
-                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke utført. Oppgitt ID ikke ledig!&dbid=" + dbidIn);
+                                    "&message=Påmelding av " + firstName + " " + lastName + " ikke utført. Brikkenr " + ecard + " allerede i bruk&dbid=" + dbidIn);
                             }
                         }
-                        else 
+                        else
                         {
-                            // Vacant runner ID found
-                            cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'",club);
-                            var clubCode = cmd.ExecuteScalar();
-                            if (clubCode != null || clubCode != DBNull.Value)
-                                clubCode = clubCode.ToString();
-                            
-                            cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',status='I' WHERE id={4}",
-                                 firstName, lastName, ecard, clubCode, dbidIn);
-                            var update = cmd.ExecuteNonQuery();
-                            if (update != 1)
+                            IDbCommand cmd = m_connection.CreateCommand();
+
+                            cmd.CommandText = string.Format(@"SELECT name.id FROM name LEFT JOIN class ON name.class = class.code 
+                                                                WHERE name.{0} = {1} AND class.class = '{2}' AND name.status='V'",
+                                                                kid > 0 ? "kid" : "id", kid > 0 ? kid : dbid, className);
+
+                            var dbidOut = cmd.ExecuteScalar();
+                            if (dbidOut == null || dbidOut == DBNull.Value)
                             {
                                 failedThis = true;
                                 if (failedLast)
                                 {
-                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. Error on writing entry with ID " + dbidIn + ".");
+                                    // No matching entry found
+                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. No vacant match for ID " + dbidIn + ".");
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
-                                               "&message=Påmelding av " + firstName + " " + lastName + " ikke utført. Feil ved skriving til oppgitt ID!&dbid=" + dbidIn);
+                                                   "&message=Påmelding av " + firstName + " " + lastName + " ikke utført. Oppgitt ID ikke ledig!&dbid=" + dbidIn);
                                 }
                             }
                             else
-                            { 
-                                FireLogMsg("eTiming Message: " + firstName + " " + lastName + " entered class " + className);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedbid&dbid=" + dbidIn + "&messid=" + messid);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID +
-                                               "&message=Påmelding av " + firstName + " " + lastName + " i klasse " + className + " utført.&dbid=" + dbidIn);
+                            {
+                                // Vacant runner ID found
+                                cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'", club);
+                                var clubCode = cmd.ExecuteScalar();
+                                if (clubCode != null || clubCode != DBNull.Value)
+                                    clubCode = clubCode.ToString();
+                                cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',status='I' WHERE id={4}",
+                                                      firstName, lastName, ecard, clubCode, dbidOut);
+                                var update = cmd.ExecuteNonQuery();
+                                if (update != 1)
+                                {
+                                    failedThis = true;
+                                    if (failedLast)
+                                    {
+                                        FireLogMsg("eTiming Message: " + firstName + " " + lastName + " not possible to enter. Error on writing entry with "
+                                            + (kid > 0 ? "KID: " + kid : "ID: " + dbid) + ".");
+                                        apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setnewentry&newentry=0&messid=" + messid);
+                                        apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID +
+                                                   "&message=Påmelding av " + firstName + " " + lastName + " ikke utført. Feil ved skriving til oppgitt ID!&dbid=" + dbidIn);
+                                    }
+                                }
+                                else
+                                {
+                                    FireLogMsg("eTiming Message: " + firstName + " " + lastName + " entered class " + className);
+                                    apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedbid&dbid=" + dbidIn + "&messid=" + messid);
+                                    apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
+                                    apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID +
+                                                   "&message=Påmelding av " + firstName + " " + lastName + " i klasse " + className + " utført.&dbid=" + dbidIn);
+                                }
                             }
                         }
                     }
@@ -1945,6 +1959,45 @@ namespace LiveResults.Client
                         FireLogMsg("Bad network or config file? eTiming Message new entry: " + ee.Message);
                     }
                 }
+            }
+        }
+
+        private void CheckEcard(int ecard, int bib, out bool ecardOK, out bool sameBibEcard, out int dbidUnknown)
+        {
+            ecardOK = true;
+            sameBibEcard = false;
+            dbidUnknown = 0;
+            
+            int eTimingBib = 0;
+            int dbid = 0;
+
+            IDbCommand cmd = m_connection.CreateCommand();
+            cmd.CommandText = string.Format(@"SELECT id, ename, name, startno, status FROM name WHERE ecard={0} OR ecard2={0} OR ecard3={0} OR ecard4={0}", ecard);
+            using (IDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    if (reader[0] != null && reader[0] != DBNull.Value)
+                    {
+                        string status = reader["status"] as string;
+                        string famName = (reader["ename"] as string);
+                        
+                        if (!string.IsNullOrEmpty(famName))
+                            famName = famName.Trim();
+                        if (reader["id"] != null && reader["id"] != DBNull.Value)
+                            dbid = Convert.ToInt32(reader["id"].ToString());
+                        if (reader["startno"] != null && reader["startno"] != DBNull.Value)
+                            eTimingBib = Convert.ToInt32(reader["startno"].ToString());
+                        if ((status == "U" || status == "S") && famName == "U1 Ukjent løper")
+                            dbidUnknown = dbid;
+                        else // ecard belongs to existing runner
+                        {
+                            ecardOK = false;
+                            sameBibEcard = (eTimingBib == bib);
+                        }
+                    }
+                }
+                reader.Close();
             }
         }
 
