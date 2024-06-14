@@ -375,6 +375,7 @@ elseif ($_GET['method'] == 'getclassresults')
 	$isActive = $currentComp->IsCompActive();
 	$RT = insertHeader($refreshTime);
 	$courseName = "";
+	$lastchanged = 0;
 	if (strpos($class, 'course::') === 0)
 	{
 		$course = substr($class, 8);
@@ -385,7 +386,11 @@ elseif ($_GET['method'] == 'getclassresults')
 			$courseName = "Løype ".$course;
 	}
 	else
+	{
 		$res = classresults($class,false);
+		$lastchanged = strtotime($currentComp->getClassLastChanged($class));
+		$lastchanged = ($lastchanged == null ? 0 : $lastchanged);
+	}
 	
 	$ret = $res[0];
 	$splitJSON = $res[1];
@@ -404,7 +409,8 @@ elseif ($_GET['method'] == 'getclassresults')
 		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"distance\": \"".$lengthStr."\",$br \"splitcontrols\": $splitJSON,$br ");
 		if ($courseName != "")
 			echo("\"courseName\": \"".$courseName."\",$br ");
-		echo("\"results\": [$br$ret$br],$br \"infotext\": \"$infoText\",$br \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
+		echo("\"results\": [$br$ret$br],$br ");
+		echo("\"lastchanged\": ".$lastchanged.",$br \"infotext\": \"$infoText\",$br \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
 	}
 }
 elseif ($_GET['method'] == 'getrelayresults')
@@ -613,6 +619,7 @@ elseif ($_GET['method'] == 'getclasseslastchanged')
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime); //
 	$classupdates = $currentComp->getClassesLastChanged();
+	$isActive = $currentComp->IsCompActive();
 	$first = true;
 	$ret = "";
 	foreach ((array)$classupdates as $update)
@@ -622,10 +629,14 @@ elseif ($_GET['method'] == 'getclasseslastchanged')
 		$ret .= "{\"class\": \"".$update['class']."\", \"lastchanged\": ".strtotime($update['lastchanged'])."}";
 		$first = false;
 	}
-	
-	$hash = MD5($ret);
-	echo("{\"status\": \"OK\", \"lastchanged\": [$ret]");
-	echo(", \"hash\": \"". $hash."\", \"rt\": $RT}");
+	$hash = MD5($ret.$isActive);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT, \"active\": $isActive}");
+	else
+	{
+		echo("{\"status\": \"OK\", \"lastchanged\": [$ret]");
+		echo(", \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
+	}
 }
 else
 {
