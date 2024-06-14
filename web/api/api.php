@@ -608,6 +608,25 @@ elseif ($_GET['method'] == 'gettestresults')
 	echo("{ \"status\": \"OK\", \"results\": [$ret]");
 	echo(", \"hash\": \"". $hash."\", \"rt\": $RT}");
 }
+elseif ($_GET['method'] == 'getclasseslastchanged')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime); //
+	$classupdates = $currentComp->getClassesLastChanged();
+	$first = true;
+	$ret = "";
+	foreach ((array)$classupdates as $update)
+	{
+		if (!$first)
+			$ret .= ",";
+		$ret .= "{\"class\": \"".$update['class']."\", \"lastchanged\": ".strtotime($update['lastchanged'])."}";
+		$first = false;
+	}
+	
+	$hash = MD5($ret);
+	echo("{\"status\": \"OK\", \"lastchanged\": [$ret]");
+	echo(", \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
 else
 {
 	insertHeader($refreshTime,false);

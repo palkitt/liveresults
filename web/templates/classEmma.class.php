@@ -1659,6 +1659,40 @@ class Emma
 			die(mysqli_error($this->m_Conn));
 		return $ret;
 	}
+	function getClassesLastChanged()
+	{
+		$ret = Array();
+		$q = "SELECT runners.class as class, MAX(results.changed) as lastchanged
+		FROM runners JOIN results ON runners.tavid = results.tavid AND runners.dbid = results.dbid
+		WHERE runners.tavid=". $this->m_CompId ." GROUP BY runners.class ORDER BY class";
+		
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
+	function getClassLastChanged($className)
+	{
+		$ret = "";
+		$q = "SELECT MAX(results.changed) as lastchanged
+		FROM runners JOIN results ON runners.tavid = results.tavid AND runners.dbid = results.dbid
+		WHERE runners.tavid=". $this->m_CompId ." AND runners.class='".mysqli_real_escape_string($this->m_Conn, $className)."'";
+		
+		if ($result = mysqli_query($this->m_Conn, $q))
+		{
+			$row = mysqli_fetch_row($result);
+			$ret = ($row ? $row[0] : ""); 
+			mysqli_free_result($result);
+		}
+		else
+			die(mysqli_error($this->m_Conn));		
+		return $ret;
+	}
 }
 
 ?>
