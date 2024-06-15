@@ -2393,7 +2393,7 @@ var LiveResults;
 
 
     // Check for updates in class
-    AjaxViewer.prototype.checkForClassChange = function () {
+    AjaxViewer.prototype.checkForChanges = function () {
       var _this = this;
       if (this.inactiveTimer > this.inactiveTimeout) {
         alert('For lenge inaktiv. Trykk OK for å oppdatere.')
@@ -2419,10 +2419,10 @@ var LiveResults;
                 expTime = new Date(resp.getResponseHeader("expires")).getTime();
               }
               catch (e) { }
-              _this.handleUpdateClassChange(data, expTime);
+              _this.handleUpdateChanges(data, expTime);
             },
             error: function () {
-              _this.resUpdateTimeout = setTimeout(function () { _this.checkForClassChange(); }, _this.updateInterval);
+              _this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
             },
             dataType: "json"
           });
@@ -2431,7 +2431,7 @@ var LiveResults;
     };
 
     //handle response from class-change-update
-    AjaxViewer.prototype.handleUpdateClassChange = function (data, expTime) {
+    AjaxViewer.prototype.handleUpdateChanges = function (data, expTime) {
       if (this.curClassName == null)
         return;
       var _this = this;
@@ -2452,15 +2452,16 @@ var LiveResults;
           var index = data.lastchanged.findIndex(function(item) {
             return item.class === _this.curClassName;
           });
-
-          if (data.lastchanged[index].lastchanged > this.lastChanged) 
+          this.lastClassHash = data.hash;
+          if (data.lastchanged[index].lastchanged > this.lastChanged){ 
             this.checkForClassUpdate();
+            return;
+          }
         }
       }
       catch (e) { }
-      this.lastClassHash = data.hash;
       if (this.isCompToday())
-        this.resUpdateTimeout = setTimeout(function () { _this.checkForClassChange(); }, _this.updateInterval);
+        this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
     };
 
 
@@ -2571,7 +2572,7 @@ var LiveResults;
             var newResults = this.currentTable.fnGetData();
             this.animateTable(oldResults, newResults, this.animTime);
 
-            this.lastClassHash = newData.hash;
+            //this.lastClassHash = newData.hash;
 
             setTimeout(function () { _this.startPredictedTimeTimer(); }, _this.animTime + 200);
           }
@@ -2579,8 +2580,10 @@ var LiveResults;
       }
       catch (e) { }
       if (this.isCompToday())
-        this.lastChanged = newResults.lastChanged;
-        this.resUpdateTimeout = setTimeout(function () { _this.checkForClassChange(); }, _this.updateInterval);
+        {
+          this.lastChanged = newData.lastchanged;
+          this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
+        }
     };
 
     AjaxViewer.prototype.animateTable = function (oldData, newData, animTime, predRank = false) {
@@ -3652,7 +3655,7 @@ var LiveResults;
             this.updatePredictedTimes(true); // Insert times only
             this.currentTable.api().columns.adjust().draw();
             if (this.lastChanged > 0)
-              this.resUpdateTimeout = setTimeout(function () { _this.checkForClassChange(); }, this.updateInterval);
+              this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
             else
               this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
             this.startPredictedTimeTimer();

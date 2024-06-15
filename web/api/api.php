@@ -18,14 +18,14 @@ if (isset($_GET['lang']))
 $hightime = 60;
 if (!isset($_GET['method']))
     $_GET['method'] = null;
-if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
-	$refreshTime = 2;
-else if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
+if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
 	$refreshTime = 120;
 else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults' || $_GET['method'] == 'getrelayresults')
 	$refreshTime = 60;
 else if ($_GET['method'] == 'getsplitcontrols')
 	$refreshTime = 0;
+else if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
+	$refreshTime = 5;
 else
 	$refreshTime = 5;
 
@@ -440,7 +440,7 @@ elseif ($_GET['method'] == 'getrelayresults')
 	else
 	{
 		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"legs\": ".($leg-1).", \"relayresults\": [$br$ret$br]");
-		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo(",$br \"lastchanged\": $lastchanged, \"hash\": \"". $hash."\", \"rt\": $RT}");
 	}
 }
 elseif ($_GET['method'] == 'getclasscoursesplits')
