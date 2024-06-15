@@ -2572,7 +2572,8 @@ var LiveResults;
             var newResults = this.currentTable.fnGetData();
             this.animateTable(oldResults, newResults, this.animTime);
 
-            //this.lastClassHash = newData.hash;
+            if (!newData.lastChanged)
+              this.lastClassHash = newData.hash;
 
             setTimeout(function () { _this.startPredictedTimeTimer(); }, _this.animTime + 200);
           }
@@ -2581,8 +2582,13 @@ var LiveResults;
       catch (e) { }
       if (this.isCompToday())
         {
-          this.lastChanged = newData.lastchanged;
-          this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
+          if (newData.lastchanged)
+          {
+            this.lastChanged = newData.lastchanged;
+            this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
+          }
+          else
+            this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
         }
     };
 
@@ -3654,7 +3660,7 @@ var LiveResults;
           {
             this.updatePredictedTimes(true); // Insert times only
             this.currentTable.api().columns.adjust().draw();
-            if (this.lastChanged > 0)
+            if (this.lastChanged)
               this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
             else
               this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
