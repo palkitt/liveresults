@@ -25,6 +25,8 @@ else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults' 
 else if ($_GET['method'] == 'getsplitcontrols')
 	$refreshTime = 0;
 else if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
+	$refreshTime = 2;
+else if ($_GET['method'] == 'getclasseslastchanged')
 	$refreshTime = 5;
 else
 	$refreshTime = 5;

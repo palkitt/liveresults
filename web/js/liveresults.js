@@ -32,7 +32,7 @@ var LiveResults;
       this.showTimesInSprint = false;
       this.showCourseResults = false;
       this.showTenthOfSecond = false;
-      this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
+      this.updateInterval = (EmmaServer ? 15000 :(this.local ? 2000 : 5000));
       this.lastChanged = 0;
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
       this.clubUpdateInterval = 60000;

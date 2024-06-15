@@ -12,7 +12,10 @@ else if(isset($_GET['comp']))
 	$compid = $_GET['comp'];
 
 $hightime = 60;
-$refreshTime = 5;
+if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
+	$refreshTime = 2;
+else
+	$refreshTime = 5;
 $lang = "no";
 if (isset($_GET['lang']))
 	$lang = $_GET['lang'];

@@ -35,6 +35,7 @@ if ($isEmmaComp)
 	$qualClasses = "";
   $infoText = "";
   $indexRef = "indexEmma.php?lang=".$lang;
+  $CHARSET = 'utf-8';
 }
 else
 {
