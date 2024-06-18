@@ -32,7 +32,8 @@ var LiveResults;
       this.showTimesInSprint = false;
       this.showCourseResults = false;
       this.showTenthOfSecond = false;
-      this.updateInterval = (this.local ? 2000 : (EmmaServer ? 15000 : 10000));
+      this.updateInterval = (EmmaServer ? 15000 :(this.local ? 2000 : 5000));
+      this.lastChanged = 0;
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
       this.clubUpdateInterval = 60000;
       this.classUpdateInterval = 60000;
@@ -187,7 +188,6 @@ var LiveResults;
     // Update list of runners
     AjaxViewer.prototype.updateRunnerList = function () {
       var _this = this;
-      this.inactiveTimer += this.classUpdateInterval / 1000;
       if (this.updateAutomatically) {
         $.ajax({
           url: this.apiURL,
@@ -2391,6 +2391,79 @@ var LiveResults;
     };
 
 
+    // Check for updates in class
+    AjaxViewer.prototype.checkForChanges = function () {
+      var _this = this;
+      if (this.inactiveTimer > this.inactiveTimeout) {
+        alert('For lenge inaktiv. Trykk OK for å oppdatere.')
+        this.inactiveTimer = 0;
+      }
+      if (this.updateAutomatically) {
+        if (this.currentTable != null) {
+          var preTime = new Date().getTime();
+          $.ajax({
+            url: this.apiURL,
+            data: "comp=" + this.competitionId + "&method=getclasseslastchanged&last_hash=" + this.lastClassHash,
+            success: function (data, status, resp) {
+              var expTime = false;
+              try {
+                var postTime = new Date().getTime();
+                var varTime = Math.max(1000, postTime - preTime); // Uncertainty in server time. Add 1000 to account for seconds resultion
+                var reqTime = resp.getResponseHeader("date");
+                if (reqTime) {
+                  var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
+                  if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
+                    _this.serverTimeDiff = 0.9*_this.serverTimeDiff + 0.1*newTimeDiff;
+                }
+                expTime = new Date(resp.getResponseHeader("expires")).getTime();
+              }
+              catch (e) { }
+              _this.handleUpdateChanges(data, expTime);
+            },
+            error: function () {
+              _this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
+            },
+            dataType: "json"
+          });
+        }
+      }
+    };
+
+    //handle response from class-change-update
+    AjaxViewer.prototype.handleUpdateChanges = function (data, expTime) {
+      if (this.curClassName == null)
+        return;
+      var _this = this;
+      try {
+        if (data.rt != undefined && data.rt > 0)
+          this.updateInterval = data.rt * 1000;
+        $('#updateinterval').html(this.updateInterval / 1000);
+        if (expTime) {
+          var lastUpdate = new Date();
+          lastUpdate.setTime(expTime - this.updateInterval + 1000);
+          $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
+        }
+        if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
+          $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
+        if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
+          $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+        if (data.status == "OK") {
+          var index = data.lastchanged.findIndex(function(item) {
+            return item.class === _this.curClassName;
+          });
+          this.lastClassHash = data.hash;
+          if (data.lastchanged[index].lastchanged > this.lastChanged){ 
+            this.checkForClassUpdate();
+            return;
+          }
+        }
+      }
+      catch (e) { }
+      if (this.isCompToday())
+        this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
+    };
+
+
     //Check for updating of class results 
     AjaxViewer.prototype.checkForClassUpdate = function () {
       var _this = this;
@@ -2498,7 +2571,8 @@ var LiveResults;
             var newResults = this.currentTable.fnGetData();
             this.animateTable(oldResults, newResults, this.animTime);
 
-            this.lastClassHash = newData.hash;
+            if (!newData.lastChanged)
+              this.lastClassHash = newData.hash;
 
             setTimeout(function () { _this.startPredictedTimeTimer(); }, _this.animTime + 200);
           }
@@ -2506,7 +2580,15 @@ var LiveResults;
       }
       catch (e) { }
       if (this.isCompToday())
-        this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, _this.updateInterval);
+        {
+          if (newData.lastchanged)
+          {
+            this.lastChanged = newData.lastchanged;
+            this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
+          }
+          else
+            this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
+        }
     };
 
     AjaxViewer.prototype.animateTable = function (oldData, newData, animTime, predRank = false) {
@@ -2778,6 +2860,9 @@ var LiveResults;
         return;
       if (data != null && data.rt != undefined && data.rt > 0)
         this.updateInterval = data.rt * 1000;
+      if (data != null && data.lastchanged != undefined )
+        this.lastChanged = data.lastchanged;
+
       if (expTime) {
         var lastUpdate = new Date();
         lastUpdate.setTime(expTime - this.updateInterval + 1000);
@@ -3574,7 +3659,10 @@ var LiveResults;
           {
             this.updatePredictedTimes(true); // Insert times only
             this.currentTable.api().columns.adjust().draw();
-            this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
+            if (this.lastChanged)
+              this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
+            else
+              this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
             this.startPredictedTimeTimer();
           }
         }

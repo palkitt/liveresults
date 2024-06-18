@@ -18,14 +18,16 @@ if (isset($_GET['lang']))
 $hightime = 60;
 if (!isset($_GET['method']))
     $_GET['method'] = null;
-if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
-	$refreshTime = 2;
-else if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
+if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
 	$refreshTime = 120;
 else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults' || $_GET['method'] == 'getrelayresults')
 	$refreshTime = 60;
 else if ($_GET['method'] == 'getsplitcontrols')
 	$refreshTime = 0;
+else if($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
+	$refreshTime = 2;
+else if ($_GET['method'] == 'getclasseslastchanged')
+	$refreshTime = 5;
 else
 	$refreshTime = 5;
 
@@ -375,6 +377,7 @@ elseif ($_GET['method'] == 'getclassresults')
 	$isActive = $currentComp->IsCompActive();
 	$RT = insertHeader($refreshTime);
 	$courseName = "";
+	$lastchanged = 0;
 	if (strpos($class, 'course::') === 0)
 	{
 		$course = substr($class, 8);
@@ -385,7 +388,11 @@ elseif ($_GET['method'] == 'getclassresults')
 			$courseName = "Løype ".$course;
 	}
 	else
+	{
 		$res = classresults($class,false);
+		$lastchanged = strtotime($currentComp->getClassLastChanged($class));
+		$lastchanged = ($lastchanged == null ? 0 : $lastchanged);
+	}
 	
 	$ret = $res[0];
 	$splitJSON = $res[1];
@@ -404,7 +411,8 @@ elseif ($_GET['method'] == 'getclassresults')
 		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"distance\": \"".$lengthStr."\",$br \"splitcontrols\": $splitJSON,$br ");
 		if ($courseName != "")
 			echo("\"courseName\": \"".$courseName."\",$br ");
-		echo("\"results\": [$br$ret$br],$br \"infotext\": \"$infoText\",$br \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
+		echo("\"results\": [$br$ret$br],$br ");
+		echo("\"lastchanged\": ".$lastchanged.",$br \"infotext\": \"$infoText\",$br \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
 	}
 }
 elseif ($_GET['method'] == 'getrelayresults')
@@ -607,6 +615,30 @@ elseif ($_GET['method'] == 'gettestresults')
 	$hash = MD5($ret);
 	echo("{ \"status\": \"OK\", \"results\": [$ret]");
 	echo(", \"hash\": \"". $hash."\", \"rt\": $RT}");
+}
+elseif ($_GET['method'] == 'getclasseslastchanged')
+{
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime); //
+	$classupdates = $currentComp->getClassesLastChanged();
+	$isActive = $currentComp->IsCompActive();
+	$first = true;
+	$ret = "";
+	foreach ((array)$classupdates as $update)
+	{
+		if (!$first)
+			$ret .= ",";
+		$ret .= "{\"class\": \"".$update['class']."\", \"lastchanged\": ".strtotime($update['lastchanged'])."}";
+		$first = false;
+	}
+	$hash = MD5($ret.$isActive);
+	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
+		echo("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT, \"active\": $isActive}");
+	else
+	{
+		echo("{\"status\": \"OK\", \"lastchanged\": [$ret]");
+		echo(", \"hash\": \"". $hash."\", \"rt\": $RT, \"active\": $isActive}");
+	}
 }
 else
 {
