@@ -442,7 +442,7 @@ elseif ($_GET['method'] == 'getrelayresults')
 	else
 	{
 		echo("{ \"status\": \"OK\",$br \"className\": \"".$class."\",$br \"legs\": ".($leg-1).", \"relayresults\": [$br$ret$br]");
-		echo(",$br \"lastchanged\": $lastchanged, \"hash\": \"". $hash."\", \"rt\": $RT}");
+		echo(",$br \"hash\": \"". $hash."\", \"rt\": $RT}");
 	}
 }
 elseif ($_GET['method'] == 'getclasscoursesplits')
