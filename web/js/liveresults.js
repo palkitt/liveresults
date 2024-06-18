@@ -188,7 +188,6 @@ var LiveResults;
     // Update list of runners
     AjaxViewer.prototype.updateRunnerList = function () {
       var _this = this;
-      this.inactiveTimer += this.classUpdateInterval / 1000;
       if (this.updateAutomatically) {
         $.ajax({
           url: this.apiURL,
