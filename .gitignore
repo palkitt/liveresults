@@ -195,3 +195,4 @@ web/.vscode/launch.json
 #osticket
 web/osticket/
 web/bootstrap/
+web/templates/config_server.php

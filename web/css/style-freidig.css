@@ -2,125 +2,370 @@
 /* --- GENERAL TAGS CLASSES --- */
 /*------------------------------*/
 
-:root{
+:root {
   --livered: #F1592A;
   --bkgray: #E6E6E6;
 }
 
 
 body {
-  background-color: #ffffff; 
-  margin: 0; 
-  font-size: 75%; 
+  background-color: #ffffff;
+  margin: 0;
+  font-size: 75%;
   font-family: arial, helvetica, verdana, geneva, sans-serif;
-  -webkit-text-size-adjust: none; 
+  -webkit-text-size-adjust: none;
 }
 
 /* html documents within iframes */
-body.iframed {margin-left:0px; margin-right:0px; font-size:80%; font-family: arial, helvetica, verdana, geneva, sans-serif;}
-
-button {font-size:0.8em; padding-top: 0px; padding-bottom: 0px}
-table {font-size:1em;}
-td{font-family: arial, helvetica, verdana, geneva, sans-serif; font-size:1em; line-height: 1.4em; white-space: nowrap;}
-.wrapok{white-space: normal;}
-th{white-space: normal;}
-
-#tblLiveComps td { padding: 0 5px 0 0;}
-
-a:link {font-size:1em; color: var(--livered); text-decoration:none}
-a:visited {font-size:1em; color: var(--livered);}
-a:hover{color:#FFA02B; text-decoration:underline;}
-
-textarea{font-size: 1.1em; font-family: arial, helvetica, verdana, geneva, sans-serif;}
-select{font-size: 1em;}
-input{font-size: 1em;}
-input, select, textarea{  
-  -ms-box-sizing:border-box;
-  -moz-box-sizing:border-box;
-  -webkit-box-sizing:border-box; 
-  box-sizing:border-box;
+body.iframed {
+  margin-left: 0px;
+  margin-right: 0px;
+  font-size: 80%;
+  font-family: arial, helvetica, verdana, geneva, sans-serif;
 }
 
-h1{font-size:1em; font-weight:normal; margin-bottom: 0px;}
-h2{font-size:1.3em; font-weight:bold; margin-bottom: 0px;}
-h3{font-size:1em; font-weight:normal; margin-bottom: 0px;}
+button {
+  font-size: 0.8em;
+  padding-top: 0px;
+  padding-bottom: 0px
+}
 
-#divClasses {font-size: 1.1em; line-height: 1.4em;}
+table {
+  font-size: 1em;
+}
 
-.firstnonqualifier > td {border-top: 3px solid gray !important;} 
-.firststarter > td {border-top: 5px solid black !important;}
-.pre_post_start > td {background-color: #DFDFDF !important;}
-.dns {text-decoration: line-through; }
+td {
+  font-family: arial, helvetica, verdana, geneva, sans-serif;
+  font-size: 1em;
+  line-height: 1.4em;
+  white-space: nowrap;
+}
+
+.wrapok {
+  white-space: normal;
+}
+
+th {
+  white-space: normal;
+}
+
+#tblLiveComps td {
+  padding: 0 5px 0 0;
+}
+
+a:link {
+  font-size: 1em;
+  color: var(--livered);
+  text-decoration: none
+}
+
+a:visited {
+  font-size: 1em;
+  color: var(--livered);
+}
+
+a:hover {
+  color: #FFA02B;
+  text-decoration: underline;
+}
+
+textarea {
+  font-size: 1.1em;
+  font-family: arial, helvetica, verdana, geneva, sans-serif;
+}
+
+select {
+  font-size: 1em;
+}
+
+input {
+  font-size: 1em;
+}
+
+input,
+select,
+textarea {
+  -ms-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+h1 {
+  font-size: 1em;
+  font-weight: normal;
+  margin-bottom: 0px;
+}
+
+h2 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 0px;
+}
+
+h3 {
+  font-size: 1em;
+  font-weight: normal;
+  margin-bottom: 0px;
+}
+
+#divClasses {
+  font-size: 1.1em;
+  line-height: 1.4em;
+}
+
+.firstnonqualifier>td {
+  border-top: 3px solid gray !important;
+}
+
+.firststarter>td {
+  border-top: 5px solid black !important;
+}
+
+.pre_post_start>td {
+  background-color: #DFDFDF !important;
+}
+
+.dns {
+  text-decoration: line-through;
+}
 
 /* Submenu classes */
 /*td.submenu{background: #3A5C9C; border-left:1px solid #ABC9EF; border-right:1px solid #ABC9EF;}*/
-td.submenu{background: #555556;}
-td.submenu table tr td {color:#DDDDDD; padding:3px 9px 3px 9px; font-weight:bold;}
-td.submenu table tr td a:link, td.submenu table tr td a:visited {color: #FFF; text-decoration: none;}
-td.submenu table tr td a:hover {text-decoration: underline; color: var(--livered);}
+td.submenu {
+  background: #555556;
+}
 
-td.searchmenu { padding-left: 5px;}
+td.submenu table tr td {
+  color: #DDDDDD;
+  padding: 3px 9px 3px 9px;
+  font-weight: bold;
+}
+
+td.submenu table tr td a:link,
+td.submenu table tr td a:visited {
+  color: #FFF;
+  text-decoration: none;
+}
+
+td.submenu table tr td a:hover {
+  text-decoration: underline;
+  color: var(--livered);
+}
+
+td.searchmenu {
+  padding-left: 5px;
+}
 
 /* Red row marking */
-tr.red_row > td {  color: white; background-color: var(--livered) !important; } 
-tr.red_row a {color: white;}
-tr.red_row td.sorting_2 { background-color: #F9B7A4 !important; }
-tr.red_row td.sorting_1 { background-color: #F9B7A4 !important; }
-tr.red_row .plustime { color: white; }
-tr.red_row .besttime { color: white;}
-tr.red_row .legtime {color: white;}
-tr.red_row .estimate {color: white;}
-tr.red_row .place {color: white;}
-tr.red_row .bestplace {color: white;}
-tr.red_row td i { color: white;}
-tr.red_row .bib {color: white;}
-tr.red_row .club {color: white;}
-tr.red_row .relayclub {color: white;}
+tr.red_row>td {
+  color: white;
+  background-color: var(--livered) !important;
+}
+
+tr.red_row a {
+  color: white;
+}
+
+tr.red_row td.sorting_2 {
+  background-color: #F9B7A4 !important;
+}
+
+tr.red_row td.sorting_1 {
+  background-color: #F9B7A4 !important;
+}
+
+tr.red_row .plustime {
+  color: white;
+}
+
+tr.red_row .besttime {
+  color: white;
+}
+
+tr.red_row .legtime {
+  color: white;
+}
+
+tr.red_row .estimate {
+  color: white;
+}
+
+tr.red_row .place {
+  color: white;
+}
+
+tr.red_row .bestplace {
+  color: white;
+}
+
+tr.red_row td i {
+  color: white;
+}
+
+tr.red_row .bib {
+  color: white;
+}
+
+tr.red_row .club {
+  color: white;
+}
+
+tr.red_row .relayclub {
+  color: white;
+}
 
 /* Red cell for singel cell marking of new result */
-.red_cell {color: white; background-color: var(--livered) !important; }
-.red_cell .plustime { color: white;}
-.red_cell .legtime  { color: white;}
-.red_cell .besttime { color: white; text-decoration-color: white;}
-.red_cell .place { color: white;}
-.red_cell .bestplace { color: white;}
-.red_cell i { color: white;}
+.red_cell {
+  color: white;
+  background-color: var(--livered) !important;
+}
 
-.red_cell_sqr {color: white; background-color: var(--livered) !important; }
-.red_cell_sqr .plustime { color: white;}
-.red_cell_sqr .legtime  { color: white;}
-.red_cell_sqr .besttime { color: white; text-decoration-color: white;}
-.red_cell_sqr .place { color: white;}
-.red_cell_sqr .bestplace { color: white;}
-.red_cell_sqr i { color: white;}
+.red_cell .plustime {
+  color: white;
+}
+
+.red_cell .legtime {
+  color: white;
+}
+
+.red_cell .besttime {
+  color: white;
+  text-decoration-color: white;
+}
+
+.red_cell .place {
+  color: white;
+}
+
+.red_cell .bestplace {
+  color: white;
+}
+
+.red_cell i {
+  color: white;
+}
+
+.red_cell_sqr {
+  color: white;
+  background-color: var(--livered) !important;
+}
+
+.red_cell_sqr .plustime {
+  color: white;
+}
+
+.red_cell_sqr .legtime {
+  color: white;
+}
+
+.red_cell_sqr .besttime {
+  color: white;
+  text-decoration-color: white;
+}
+
+.red_cell_sqr .place {
+  color: white;
+}
+
+.red_cell_sqr .bestplace {
+  color: white;
+}
+
+.red_cell_sqr i {
+  color: white;
+}
 
 /* New first nonqualifier */
-tr.new_fnq > td {  color: white; background-color: var(--livered) !important; border-top: 3px solid grey !important;} 
-tr.new_fnq a {color: white;}
-tr.new_fnq td.sorting_2 { background-color: #F9B7A4 !important; }
-tr.new_fnq td.sorting_1 { background-color: #F9B7A4 !important;}
-tr.new_fnq td:last-child { border-top-right-radius: 0px; }
-tr.new_fnq .plustime {color: white;}
-tr.new_fnq .bib {color: white;}
-tr.new_fnq .place {color: white;}
-tr.new_fnq .bestplace {color: white;}
-tr.new_fnq .club {color: white;}
+tr.new_fnq>td {
+  color: white;
+  background-color: var(--livered) !important;
+  border-top: 3px solid grey !important;
+}
+
+tr.new_fnq a {
+  color: white;
+}
+
+tr.new_fnq td.sorting_2 {
+  background-color: #F9B7A4 !important;
+}
+
+tr.new_fnq td.sorting_1 {
+  background-color: #F9B7A4 !important;
+}
+
+tr.new_fnq td:last-child {
+  border-top-right-radius: 0px;
+}
+
+tr.new_fnq .plustime {
+  color: white;
+}
+
+tr.new_fnq .bib {
+  color: white;
+}
+
+tr.new_fnq .place {
+  color: white;
+}
+
+tr.new_fnq .bestplace {
+  color: white;
+}
+
+tr.new_fnq .club {
+  color: white;
+}
 
 /* Green row for OK at start */
-tr.green_row > td { color: black; background-color: #00FF00 !important;}
-tr.green_row_new > td { color: black; background-color: #00FF00 !important; border-top: 2px solid grey !important;}
-tr.green_row_firststarter > td { color: black; background-color: #00FF00 !important; border-top: 5px solid black ;}
+tr.green_row>td {
+  color: black;
+  background-color: #00FF00 !important;
+}
+
+tr.green_row_new>td {
+  color: black;
+  background-color: #00FF00 !important;
+  border-top: 2px solid grey !important;
+}
+
+tr.green_row_firststarter>td {
+  color: black;
+  background-color: #00FF00 !important;
+  border-top: 5px solid black;
+}
 
 /* Yellow row for inside calltime at start, not OK at finish, highlight for speaker */
-tr.yellow_row > td { color: black; background-color: #FFFF00 !important; }
-tr.yellow_row_new > td { color: black; background-color: #FFFF00 !important; border-top: 2px solid grey !important;}
+tr.yellow_row>td {
+  color: black;
+  background-color: #FFFF00 !important;
+}
+
+tr.yellow_row_new>td {
+  color: black;
+  background-color: #FFFF00 !important;
+  border-top: 2px solid grey !important;
+}
 
 /* Yellow row highlight for speaker, first non qualifyer */
-tr.yellow_row_fnq > td { color: black; background-color: #FFFF00 !important; border-top: 3px solid grey !important;}
+tr.yellow_row_fnq>td {
+  color: black;
+  background-color: #FFFF00 !important;
+  border-top: 3px solid grey !important;
+}
 
 /* Yellow and green cells for messages */
-.yellow_cell {color: black; background-color: #FFFF00 !important;}
-.green_cell  {color: black; background-color: #00FF00 !important;} 
+.yellow_cell {
+  color: black;
+  background-color: #FFFF00 !important;
+}
+
+.green_cell {
+  color: black;
+  background-color: #00FF00 !important;
+}
 
 
 /* Pulsing dot for live runner */
@@ -144,51 +389,142 @@ tr.yellow_row_fnq > td { color: black; background-color: #FFFF00 !important; bor
   color: gray;
 }
 
-@keyframes blinker { 
-  0% { opacity: 0; } 
-  50% { opacity: 1; } 
-  100% { opacity: 0; }
+@keyframes blinker {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
 }
 
-@keyframes blinkerCom { 
-  0% { color: #51ff00; opacity: 0; } 
-  50% { color: #51ff00; opacity: 1; } 
-  100% { color: #51ff00; opacity: 0; }
+@keyframes blinkerCom {
+  0% {
+    color: #51ff00;
+    opacity: 0;
+  }
+
+  50% {
+    color: #51ff00;
+    opacity: 1;
+  }
+
+  100% {
+    color: #51ff00;
+    opacity: 0;
+  }
 }
 
-.besttime {color: black; text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: red;}
-.bestplace {color: dimgrey;}
-.time1 {color: red;}
-.place1 {color: red;}
-.time23 {color: blue;}
-.place23 {color: blue;}
-.place {color: dimgrey;}
-.hideplace {opacity: 0;}
-.plustime {color: dimgrey;}
-.legtime {color: dimgrey;}
-.bib {color: grey; font-style: normal;}
-.estimate {color:grey; font-style: italic;}
-.estimatebest {color: gray; font-style: italic; text-decoration: underline; text-decoration-thickness: 2px; text-decoration-color: red;}
-.gained {color: black;}
-.lost {color: black;}
-a.club {color: var(--livered); }
-a.relayclub {color: var(--livered); }
+.besttime {
+  color: black;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: red;
+}
+
+.bestplace {
+  color: dimgrey;
+}
+
+.time1 {
+  color: red;
+}
+
+.place1 {
+  color: red;
+}
+
+.time23 {
+  color: blue;
+}
+
+.place23 {
+  color: blue;
+}
+
+.place {
+  color: dimgrey;
+}
+
+.hideplace {
+  opacity: 0;
+}
+
+.plustime {
+  color: dimgrey;
+}
+
+.legtime {
+  color: dimgrey;
+}
+
+.bib {
+  color: grey;
+  font-style: normal;
+}
+
+.estimate {
+  color: grey;
+  font-style: italic;
+}
+
+.estimatebest {
+  color: gray;
+  font-style: italic;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: red;
+}
+
+.gained {
+  color: black;
+}
+
+.lost {
+  color: black;
+}
+
+a.club {
+  color: var(--livered);
+}
+
+a.relayclub {
+  color: var(--livered);
+}
 
 /*predicted times  td i { color: rgb(170, 0, 170); font-style: normal;} */
-td i { color: var(--livered); font-style: normal;}
+td i {
+  color: var(--livered);
+  font-style: normal;
+}
 
 
-#langchooser { vertical-align: middle; line-height:21px;}
-#langchooser img {  border: 1px solid #AAAAAA; vertical-align: middle; height: 10px}
+#langchooser {
+  vertical-align: middle;
+  line-height: 21px;
+}
 
-#divClasses { white-space: nowrap;}
+#langchooser img {
+  border: 1px solid #AAAAAA;
+  vertical-align: middle;
+  height: 10px
+}
+
+#divClasses {
+  white-space: nowrap;
+}
 
 #divInfoText {
   /* animation properties */
   -moz-transform: translateX(100%);
   -webkit-transform: translateX(100%);
   transform: translateX(100%);
-  
+
   -moz-animation: scroll-animation 20s linear infinite;
   -webkit-animation: scroll-animation 20s linear infinite;
   animation: scroll-animation 20s linear infinite;
@@ -196,14 +532,24 @@ td i { color: var(--livered); font-style: normal;}
 
 /* for Firefox */
 @-moz-keyframes scroll-animation {
-  from { -moz-transform: translateX(100%); }
-  to { -moz-transform: translateX(-100%); }
+  from {
+    -moz-transform: translateX(100%);
+  }
+
+  to {
+    -moz-transform: translateX(-100%);
+  }
 }
 
 /* for Chrome */
 @-webkit-keyframes scroll-animation {
-  from { -webkit-transform: translateX(100%); }
-  to { -webkit-transform: translateX(-100%); }
+  from {
+    -webkit-transform: translateX(100%);
+  }
+
+  to {
+    -webkit-transform: translateX(-100%);
+  }
 }
 
 @keyframes scroll-animation {
@@ -212,6 +558,7 @@ td i { color: var(--livered); font-style: normal;}
     -webkit-transform: translateX(100%);
     transform: translateX(100%);
   }
+
   to {
     -moz-transform: translateX(-100%);
     -webkit-transform: translateX(-100%);
@@ -224,32 +571,95 @@ td i { color: var(--livered); font-style: normal;}
 /*-------------------------*/
 
 /* Container for entire conent area */
-.maindiv{width:100%; display:block;}
+.maindiv {
+  width: 100%;
+  display: block;
+}
 
-.small {font-size: 0.8em;}
-.large {font-size: 1.167em;}
-.bold{font-weight: bold;}
-.red {color: #be0101;}
-.green {color: #2e8d03;}
-.darkblue {color: #3A5C9C;}
-.grey {	color: #666666;	}
+.small {
+  font-size: 0.8em;
+}
+
+.large {
+  font-size: 1.167em;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.red {
+  color: #be0101;
+}
+
+.green {
+  color: #2e8d03;
+}
+
+.darkblue {
+  color: #3A5C9C;
+}
+
+.grey {
+  color: #666666;
+}
 
 /*-------------------------------*/
 /*--- HEADER & FOOTER CLASSES ---*/
 /*-------------------------------*/
 
 /* Main menu tabs */
-.mttop{display:block; background: #FFF; height: 1px; background: #ABC9EF; margin: 0px 1px 0px 1px;}
-td.menuchosen, td.menu{padding:2px 9px 4px 9px; color:#FFFFFF; font-weight:bold; font-size:1em; border-left:1px solid #ABC9EF; border-right:1px solid #0B5280;}
-td.menuchosen{background: #3A5C9C;}
-td.menu{background: #6C95CD;}
-td.menu a:link, td.menu a:visited, td.menuchosen a:link, td.menuchosen a:visited {color: #FFFFFF; text-decoration: none;}
-td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
+.mttop {
+  display: block;
+  background: #FFF;
+  height: 1px;
+  background: #ABC9EF;
+  margin: 0px 1px 0px 1px;
+}
+
+td.menuchosen,
+td.menu {
+  padding: 2px 9px 4px 9px;
+  color: #FFFFFF;
+  font-weight: bold;
+  font-size: 1em;
+  border-left: 1px solid #ABC9EF;
+  border-right: 1px solid #0B5280;
+}
+
+td.menuchosen {
+  background: #3A5C9C;
+}
+
+td.menu {
+  background: #6C95CD;
+}
+
+td.menu a:link,
+td.menu a:visited,
+td.menuchosen a:link,
+td.menuchosen a:visited {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+td.menuchosen a:hover {
+  text-decoration: none;
+  color: #C0D6FF;
+}
 
 
 /* Category tree (used on spash and tree pages as well) */
-.categories{background: #F4F8FD; border:1px solid #ABC9EF;}
-.categoriesheader{color:#FFA02B; font-size:1.27em; font-weight:bold;}
+.categories {
+  background: #F4F8FD;
+  border: 1px solid #ABC9EF;
+}
+
+.categoriesheader {
+  color: #FFA02B;
+  font-size: 1.27em;
+  font-weight: bold;
+}
 
 
 /*-------------------------------*/
@@ -270,14 +680,14 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
   padding: 0.1em 0.5em;
   position: absolute;
   bottom: 0px;
-  right: 5em; 
+  right: 5em;
 }
 
 .tooltip .tooltiptext::after {
   content: " ";
   position: absolute;
   bottom: +0.4em;
-  right: -0.7em; 
+  right: -0.7em;
   border-width: 0.4em;
   border-style: solid;
   border-color: transparent transparent transparent #555555;
@@ -293,20 +703,20 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 /*-------------------------------*/
 
 
-.firstCol{
+.firstCol {
   overflow: hidden;
   width: 6em;
 }
 
 
 /* Scroll and full view toggle */
-.noUnderline a{ 
-   text-decoration: none;
-   color: white;
-   font-size: 1.3em;
+.noUnderline a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.3em;
 }
 
-.splitChooser a{ 
+.splitChooser a {
   text-decoration: none;
   color: white;
 }
@@ -321,14 +731,14 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 /*---  DropDown for splits    ---*/
 /*-------------------------------*/
 .dropbtn {
-  background-color: #555555; 
+  background-color: #555555;
   opacity: 1;
   color: white;
   text-align: right;
   padding: 0px 0px;
   border: none;
   cursor: pointer;
-  font-size:1em
+  font-size: 1em
 }
 
 .dropdown {
@@ -337,7 +747,7 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 }
 
 .dropdown-content {
-  right:4px;
+  right: 4px;
   display: none;
   position: absolute;
   background-color: #555555;
@@ -353,13 +763,17 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
   display: block;
 }
 
-.show {display: block;}
+.show {
+  display: block;
+}
 
 /*----------------------------------*/
 /*---  Background for bad splits ---*/
 /*----------------------------------*/
 
-.splitMiss { background-color: #ffcccc !important; }
+.splitMiss {
+  background-color: #ffcccc !important;
+}
 
 /*-------------------------------*/
 /*---  Buttons for navigation ---*/
@@ -377,7 +791,10 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
   padding: 0;
   text-align: center;
 }
-.navbtn:hover {background: gray;}
+
+.navbtn:hover {
+  background: gray;
+}
 
 /* Radicontrol editior */
 .selectControl {
@@ -385,5 +802,6 @@ td.menuchosen a:hover {text-decoration: none; color:#C0D6FF;}
 }
 
 /* Fixed header formatting*/
-.dtfh-floatingparent { z-index: 1000 !important; }
-
+.dtfh-floatingparent {
+  z-index: 1000 !important;
+}

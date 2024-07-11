@@ -65,7 +65,5 @@ $_TOTAL = "Totale";
 $_CLASS = "Categoria";
 
 $_ORGANIZER = "Organizzatore";
-$_DATE="Data";
+$_DATE = "Data";
 $_EVENTNAME = "Nome";
-
-?>

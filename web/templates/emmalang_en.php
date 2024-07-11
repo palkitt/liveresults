@@ -18,32 +18,32 @@ $_UPNEVER = "Never";
 
 
 
-$_LASTPASSINGS="Latest updates";
+$_LASTPASSINGS = "Latest updates";
 
-$_LASTPASSFINISHED="finished";
+$_LASTPASSFINISHED = "finished";
 
-$_LASTPASSPASSED="passed";
+$_LASTPASSPASSED = "passed";
 
-$_LASTPASSWITHTIME="with time";
+$_LASTPASSWITHTIME = "with time";
 
-$_CHOOSECLASS="Choose class";
+$_CHOOSECLASS = "Choose class";
 
-$_NOCLASSESYET="No classes defined yet";
+$_NOCLASSESYET = "No classes defined yet";
 
-$_CONTROLFINISH="Finish";
+$_CONTROLFINISH = "Finish";
 
-$_NAME="Name";
+$_NAME = "Name";
 
-$_CLUB="Club";
+$_CLUB = "Club";
 $_NATION = "Nation";
 
-$_TIME="Time";
+$_TIME = "Time";
 
-$_NOCLASSCHOSEN="No class chosen!";
+$_NOCLASSCHOSEN = "No class chosen!";
 
-$_HELPREDRESULTS="Results updated in the last two minutes are marked in red";
+$_HELPREDRESULTS = "Results updated in the last two minutes are marked in red";
 
-$_NOTICE="Please note that results on this page are not official. For official results please visit the organizers website.";
+$_NOTICE = "Please note that results on this page are not official. For official results please visit the organizers website.";
 
 $_STATUSDNS = "dns";
 
@@ -53,19 +53,19 @@ $_STATUSWO = "dns";
 
 $_STATUSMOVEDUP = "moved up";
 
-$_STATUSNOTSTARTED="not started";
+$_STATUSNOTSTARTED = "not started";
 
 $_STATUSOK = "Passed";
 
 $_STATUSMP = "mp";
 
-$_STATUSDSQ= "disq";
+$_STATUSDSQ = "disq";
 
-$_STATUSOT="ot";
+$_STATUSOT = "ot";
 
-$_STATUSFINISHED ="finished";
+$_STATUSFINISHED = "finished";
 
-$_STATUSNC=  "NC";
+$_STATUSNC =  "NC";
 
 
 $_FIRSTPAGECHOOSE = "Choose competition to follow";
@@ -120,6 +120,3 @@ $_SPORT = "Sport";
 //new Freidig
 $_FREESTART = "open start";
 $_NEWSTATUS = "got new status:";
-
-
-?>

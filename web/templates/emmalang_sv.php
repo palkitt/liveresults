@@ -8,31 +8,31 @@ $_UP60SEK = "Varje minut";
 $_UP120SEK = "Varannan minut";
 $_UPNEVER = "Aldrig";
 
-$_LASTPASSINGS="Senaste passeringarna";
-$_LASTPASSFINISHED="gick imål";
-$_LASTPASSPASSED="passerade";
-$_LASTPASSWITHTIME="med tiden";
-$_CHOOSECLASS="Välj klass";
-$_NOCLASSESYET="Inga klasser än";
-$_CONTROLFINISH="Mål";
-$_NAME="Namn";
-$_CLUB="Klubb";
+$_LASTPASSINGS = "Senaste passeringarna";
+$_LASTPASSFINISHED = "gick imål";
+$_LASTPASSPASSED = "passerade";
+$_LASTPASSWITHTIME = "med tiden";
+$_CHOOSECLASS = "Välj klass";
+$_NOCLASSESYET = "Inga klasser än";
+$_CONTROLFINISH = "Mål";
+$_NAME = "Namn";
+$_CLUB = "Klubb";
 $_NATION = "Land";
-$_TIME="Tid";
-$_NOCLASSCHOSEN="Ingen klass vald!";
-$_HELPREDRESULTS="Resultat uppdaterade senaste två minuterna är markerade i rött";
-$_NOTICE="Obeservera att resultat på denna sida ej är officiella. För officiella resultat hänvisas till arrangörens egna hemsida";
+$_TIME = "Tid";
+$_NOCLASSCHOSEN = "Ingen klass vald!";
+$_HELPREDRESULTS = "Resultat uppdaterade senaste två minuterna är markerade i rött";
+$_NOTICE = "Obeservera att resultat på denna sida ej är officiella. För officiella resultat hänvisas till arrangörens egna hemsida";
 
 $_STATUSDNS = "ej start";
 $_STATUSDNF = "utgått";
 $_STATUSWO = "återbud";
 $_STATUSMOVEDUP = "uppflyttad";
-$_STATUSNOTSTARTED="ej startat";
+$_STATUSNOTSTARTED = "ej startat";
 $_STATUSOK = "godkänd";
 $_STATUSMP = "felst.";
-$_STATUSDSQ= "diskv.";
-$_STATUSOT="ö. maxtid";
-$_STATUSNC="NC";
+$_STATUSDSQ = "diskv.";
+$_STATUSOT = "ö. maxtid";
+$_STATUSNC = "NC";
 
 $_FIRSTPAGECHOOSE = "Välj tävling att följa";
 $_FIRSTPAGEARCHIVE = "Arkiv";
@@ -61,4 +61,3 @@ $_DATE = "Datum";
 
 //new Freidig
 $_FREESTART = "fri start";
-?>

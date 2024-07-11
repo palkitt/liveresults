@@ -21,32 +21,32 @@ $_UPNEVER = "Jamais";
 
 
 
-$_LASTPASSINGS="Dernières mises à jour";
+$_LASTPASSINGS = "Dernières mises à jour";
 
-$_LASTPASSFINISHED="a terminé";
+$_LASTPASSFINISHED = "a terminé";
 
-$_LASTPASSPASSED="a validé";
+$_LASTPASSPASSED = "a validé";
 
-$_LASTPASSWITHTIME=", chrono:";
+$_LASTPASSWITHTIME = ", chrono:";
 
-$_CHOOSECLASS="Choisir la catégorie";
+$_CHOOSECLASS = "Choisir la catégorie";
 
-$_NOCLASSESYET="Aucune catégorie définie!";
+$_NOCLASSESYET = "Aucune catégorie définie!";
 
-$_CONTROLFINISH="Arrivée";
+$_CONTROLFINISH = "Arrivée";
 
-$_NAME="Nom";
+$_NAME = "Nom";
 
-$_CLUB="Club";
+$_CLUB = "Club";
 $_NATION = "Pays";
 
-$_TIME="Chrono";
+$_TIME = "Chrono";
 
-$_NOCLASSCHOSEN="Aucune catégorie sélectionnée!";
+$_NOCLASSCHOSEN = "Aucune catégorie sélectionnée!";
 
-$_HELPREDRESULTS="Les résultats des deux dernières minutes apparaissent en rouge";
+$_HELPREDRESULTS = "Les résultats des deux dernières minutes apparaissent en rouge";
 
-$_NOTICE="Merci de noter que les résultats de cette page ne sont pas officiels. Pour les résultats officiels, consultez le site web de l'organisation.";
+$_NOTICE = "Merci de noter que les résultats de cette page ne sont pas officiels. Pour les résultats officiels, consultez le site web de l'organisation.";
 
 
 
@@ -58,15 +58,15 @@ $_STATUSWO = "absent";
 
 $_STATUSMOVEDUP = "montant";
 
-$_STATUSNOTSTARTED="non parti";
+$_STATUSNOTSTARTED = "non parti";
 
 $_STATUSOK = "OK";
 
 $_STATUSMP = "pm";
 
-$_STATUSDSQ= "disq";
+$_STATUSDSQ = "disq";
 
-$_STATUSOT="&gt; temps maxi";
+$_STATUSOT = "&gt; temps maxi";
 
 
 
@@ -117,5 +117,3 @@ $_CLASS = "Catégorie";
 $_ORGANIZER = "Organisateur";
 $_DATE = "Date";
 $_EVENTNAME = "Nom";
-
-?>

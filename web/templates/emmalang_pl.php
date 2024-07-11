@@ -24,41 +24,41 @@ $_UPNEVER = "Nigdy";
 
 
 
-$_LASTPASSINGS="Ostatnie aktualizacje";
+$_LASTPASSINGS = "Ostatnie aktualizacje";
 
-$_LASTPASSFINISHED="ukończył/a";
+$_LASTPASSFINISHED = "ukończył/a";
 
-$_LASTPASSPASSED="minął/ęła";
+$_LASTPASSPASSED = "minął/ęła";
 
-$_LASTPASSWITHTIME="z czasem";
+$_LASTPASSWITHTIME = "z czasem";
 
-$_CHOOSECLASS="Wybierz kategorię";
+$_CHOOSECLASS = "Wybierz kategorię";
 
-$_NOCLASSESYET="Nie zdefiniowano jeszcze kat.";
+$_NOCLASSESYET = "Nie zdefiniowano jeszcze kat.";
 
-$_CONTROLFINISH="Meta";
+$_CONTROLFINISH = "Meta";
 
-$_NAME="Nazwisko";
+$_NAME = "Nazwisko";
 
-$_CLUB="Klub";
+$_CLUB = "Klub";
 $_NATION = "Kraj";
 
-$_TIME="Czas";
+$_TIME = "Czas";
 
-$_NOCLASSCHOSEN="Nie wybrano kategorii!";
+$_NOCLASSCHOSEN = "Nie wybrano kategorii!";
 
-$_HELPREDRESULTS="Wyniki zaktualizowane w ostatnich 2 minutach są oznaczone na czerwono.";
+$_HELPREDRESULTS = "Wyniki zaktualizowane w ostatnich 2 minutach są oznaczone na czerwono.";
 
-$_NOTICE="Wyniki na tej stronie są nieoficjalne. Przejdź na stronę organizatora, aby zobaczyć wyniki oficjalne.";
+$_NOTICE = "Wyniki na tej stronie są nieoficjalne. Przejdź na stronę organizatora, aby zobaczyć wyniki oficjalne.";
 
 $_STATUSDNS = "abs";
 $_STATUSDNF = "dnf";
 $_STATUSWO = "abs";
 $_STATUSMOVEDUP = "moved up";
-$_STATUSNOTSTARTED="nie startował/a";
+$_STATUSNOTSTARTED = "nie startował/a";
 $_STATUSOK = "Passed";
 $_STATUSMP = "nkl";
-$_STATUSDSQ= "dysk.";
+$_STATUSDSQ = "dysk.";
 $_FIRSTPAGECHOOSE = "Wybierz zawody do śledzenia";
 $_FIRSTPAGEARCHIVE = "Archiwum";
 $_FIRSTPAGELIVE = "Live";
@@ -84,4 +84,3 @@ $_CLASS = "Kategoria";
 $_ORGANIZER = "Organizator";
 $_DATE = "Data";
 $_EVENTNAME = "Nazwa";
-?>

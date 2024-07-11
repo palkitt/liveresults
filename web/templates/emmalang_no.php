@@ -8,32 +8,32 @@ $_UP60SEK = "Hvert minutt";
 $_UP120SEK = "Annenhvert minutt";
 $_UPNEVER = "Aldri";
 
-$_LASTPASSINGS="Siste oppdateringer";
-$_LASTPASSFINISHED="kom i mål";
-$_LASTPASSPASSED="passerte";
-$_LASTPASSWITHTIME="med tiden";
-$_CHOOSECLASS="Velg klasse";
-$_NOCLASSESYET="Ingen klasser foreløpig";
-$_CONTROLFINISH="Mål";
-$_NAME="Navn";
-$_CLUB="Klubb";
+$_LASTPASSINGS = "Siste oppdateringer";
+$_LASTPASSFINISHED = "kom i mål";
+$_LASTPASSPASSED = "passerte";
+$_LASTPASSWITHTIME = "med tiden";
+$_CHOOSECLASS = "Velg klasse";
+$_NOCLASSESYET = "Ingen klasser foreløpig";
+$_CONTROLFINISH = "Mål";
+$_NAME = "Navn";
+$_CLUB = "Klubb";
 $_NATION = "Land";
-$_TIME="Tid";
-$_NOCLASSCHOSEN="Ingen klasse valgt!";
-$_HELPREDRESULTS="Nylig oppdaterte resultater er markert med rødt.";
-$_NOTICE="Merk at resultatene på denne siden ikke er offisielle. For offisielle resultat henvises det til arrangørens hjemmeside.";
+$_TIME = "Tid";
+$_NOCLASSCHOSEN = "Ingen klasse valgt!";
+$_HELPREDRESULTS = "Nylig oppdaterte resultater er markert med rødt.";
+$_NOTICE = "Merk at resultatene på denne siden ikke er offisielle. For offisielle resultat henvises det til arrangørens hjemmeside.";
 
 $_STATUSDNS = "ikke startet";
 $_STATUSDNF = "brutt";
 $_STATUSWO = "avmeldt";
 $_STATUSMOVEDUP = "oppflyttet";
-$_STATUSNOTSTARTED="ikke startet";
+$_STATUSNOTSTARTED = "ikke startet";
 $_STATUSOK = "OK";
 $_STATUSMP = "disket";
-$_STATUSDSQ= "disket";
-$_STATUSOT=  "over makstid";
-$_STATUSNC=  "utenfor konk.";
-$_STATUSFINISHED=  "fullført";
+$_STATUSDSQ = "disket";
+$_STATUSOT =  "over makstid";
+$_STATUSNC =  "utenfor konk.";
+$_STATUSFINISHED =  "fullført";
 
 $_FIRSTPAGECHOOSE = "Velg løp å følge";
 $_FIRSTPAGEARCHIVE = "Arkiv";
@@ -64,5 +64,3 @@ $_SPORT = "Idrett";
 //new Freidig
 $_FREESTART = "fristart";
 $_NEWSTATUS = "fikk ny status:";
-
-?>

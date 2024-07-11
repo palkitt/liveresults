@@ -24,32 +24,32 @@ $_UPNEVER = "Soha";
 
 
 
-$_LASTPASSINGS="Utolsó események";
+$_LASTPASSINGS = "Utolsó események";
 
-$_LASTPASSFINISHED="befutott";
+$_LASTPASSFINISHED = "befutott";
 
-$_LASTPASSPASSED="átfutott:";
+$_LASTPASSPASSED = "átfutott:";
 
-$_LASTPASSWITHTIME=", ideje:";
+$_LASTPASSWITHTIME = ", ideje:";
 
-$_CHOOSECLASS="Kategória választás";
+$_CHOOSECLASS = "Kategória választás";
 
-$_NOCLASSESYET="Nincsenek megadva kategóriák";
+$_NOCLASSESYET = "Nincsenek megadva kategóriák";
 
-$_CONTROLFINISH="Cél";
+$_CONTROLFINISH = "Cél";
 
-$_NAME="Név";
+$_NAME = "Név";
 
-$_CLUB="Klub";
+$_CLUB = "Klub";
 $_NATION = "Ország";
 
-$_TIME="Idõ";
+$_TIME = "Idõ";
 
-$_NOCLASSCHOSEN="Nincs kiválasztva kategória!";
+$_NOCLASSCHOSEN = "Nincs kiválasztva kategória!";
 
-$_HELPREDRESULTS="Az utolsó két percben változott eredmények piros háttérrel látszanak";
+$_HELPREDRESULTS = "Az utolsó két percben változott eredmények piros háttérrel látszanak";
 
-$_NOTICE="Az itt közölt eremények nem hivatalosak. A hivatalos eredményekért látogasd meg a rendezõ honlapját.";
+$_NOTICE = "Az itt közölt eremények nem hivatalosak. A hivatalos eredményekért látogasd meg a rendezõ honlapját.";
 
 $_STATUSDNS = "n.i.";
 
@@ -59,15 +59,15 @@ $_STATUSWO = "n.i.";
 
 $_STATUSMOVEDUP = "feljebb került";
 
-$_STATUSNOTSTARTED="nem indult";
+$_STATUSNOTSTARTED = "nem indult";
 
 $_STATUSOK = "Átfutott";
 
 $_STATUSMP = "hiba";
 
-$_STATUSDSQ= "disq";
+$_STATUSDSQ = "disq";
 
-$_STATUSOT="v.i.";
+$_STATUSOT = "v.i.";
 
 
 
@@ -118,6 +118,3 @@ $_CLASS = "Kateg";
 $_ORGANIZER = "Rendezõ";
 $_DATE = "Dátum";
 $_EVENTNAME = "Név";
-
-
-?>

@@ -24,7 +24,7 @@ var Messages;
             this.URL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
             Messages.Instance = this;
         }
-            
+
         //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
         AjaxViewer.prototype.isMobile = function () {
             if (navigator.userAgent.match(/iPad/i) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
@@ -38,7 +38,7 @@ var Messages;
                 return 1;
             return 0;
         }
-        
+
         // Function to detect if comp date is today
         AjaxViewer.prototype.isCompToday = function () {
             var dt = new Date();
@@ -50,101 +50,102 @@ var Messages;
         AjaxViewer.prototype.updateMessages = function (refresh = false) {
             clearTimeout(this.messagesUpdateTimer);
             var _this = this;
-            var hash = (refresh? (Math.floor(Math.random() * 10000) + 1) : this.lastMessagesUpdateHash);
+            var hash = (refresh ? (Math.floor(Math.random() * 10000) + 1) : this.lastMessagesUpdateHash);
             $.ajax({
                 url: this.URL,
                 data: "comp=" + this.competitionId + "&method=getmessages&last_hash=" + hash,
-                success: function (data,status,resp) {
+                success: function (data, status, resp) {
                     var reqTime = new Date();
                     reqTime.setTime(new Date(resp.getResponseHeader("expires")).getTime() - _this.messagesUpdateInterval + 1000);
-                    _this.handleUpdateMessages(data,reqTime); },
-                error: function () {
-                    _this.messagesUpdateTimer = setTimeout(function () {_this.updateMessages();}, _this.messagesUpdateInterval);
+                    _this.handleUpdateMessages(data, reqTime);
                 },
-                dataType: "json"                   
+                error: function () {
+                    _this.messagesUpdateTimer = setTimeout(function () { _this.updateMessages(); }, _this.messagesUpdateInterval);
+                },
+                dataType: "json"
             });
         };
-        
+
         //Handle response for updating the last radio passings..
-        AjaxViewer.prototype.handleUpdateMessages = function (data,reqTime) {
+        AjaxViewer.prototype.handleUpdateMessages = function (data, reqTime) {
             $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
             var _this = this;
             if (data.rt != undefined && data.rt > 0)
-                this.messagesUpdateInterval = data.rt*1000;
-            $('#updateinterval').html(this.messagesUpdateInterval/1000);
+                this.messagesUpdateInterval = data.rt * 1000;
+            $('#updateinterval').html(this.messagesUpdateInterval / 1000);
 
             // Make live blinker pulsing
-            if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient') )
-               $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>'); 
-            if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient') )
-               $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
-                 
+            if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
+                $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
+            if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
+                $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+
             // Insert data from query
-            if (data != null && data.status == "OK" && data.messages != null) 
-            {
+            if (data != null && data.status == "OK" && data.messages != null) {
                 // Make list of group times for each bib
                 var groupTimes = new Object();
-                for (var i=0; i<data.messages.length;i++)
-                {
+                for (var i = 0; i < data.messages.length; i++) {
                     var bib = Math.abs(data.messages[i].bib);
-                    if (groupTimes[bib] != undefined ) continue
+                    if (groupTimes[bib] != undefined) continue
                     groupTimes[bib] = data.messages[i].groupchanged;
                 }
                 // Insert group time for messages with bib number
-                for (var i=0; i<data.messages.length;i++)
-                {
+                for (var i = 0; i < data.messages.length; i++) {
                     var message = (data.messages[i].message).replace('startnummer:', '');
                     var bibMessage = parseInt(message);
                     if (groupTimes[bibMessage] != undefined)
                         data.messages[i].groupchanged = groupTimes[bibMessage];
                 }
-                
+
                 this.messagesData = data.messages;
                 this.lastMessagesUpdateHash = data.hash;
-                
+
                 if (this.lastNumberOfMessages == null)
                     this.lastNumberOfMessages = this.messagesData.length;
-                else if (this.messagesData.length > this.lastNumberOfMessages)
-                {
+                else if (this.messagesData.length > this.lastNumberOfMessages) {
                     this.lastNumberOfMessages = this.messagesData.length;
                     if (!this.audioMute)
                         window.playNotification();
                 }
-						
+
                 // Existing datatable
-                if (this.currentTable != null) 
-                {
+                if (this.currentTable != null) {
                     this.currentTable.fnClearTable();
                     this.currentTable.fnAddData(this.messagesData, true);
                     this.filterTable();
                 }
-                
+
                 // New datatable
-                else if (this.messagesData.length>0)
-                {
+                else if (this.messagesData.length > 0) {
                     var columns = Array();
                     var col = 0;
-                    
-                    columns.push({ "sTitle": "GroupTime", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "groupchanged",
-                        "render": function (data,type,row) {
-                          return data;
-                    }});
-                    columns.push({ "sTitle": "Time", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "changed",
-                        "render": function (data,type,row) {
-                          return data;
-                    }});
-                    columns.push({ "sTitle": "MessId", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "messid",
-                        "render": function (data,type,row) {
-                          return data;
-                    }});
 
-                    columns.push({ "sTitle": "&#8470;", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
-                        "render": function (data,type,row) {
-                            if (type === 'display')
-                            {
-                                if (data<0) // Relay
-                                    return  (-data/100|0) + "-" + (-data%100);
-                                else if (data>0)    // Ordinary
+                    columns.push({
+                        "sTitle": "GroupTime", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "groupchanged",
+                        "render": function (data, type, row) {
+                            return data;
+                        }
+                    });
+                    columns.push({
+                        "sTitle": "Time", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "changed",
+                        "render": function (data, type, row) {
+                            return data;
+                        }
+                    });
+                    columns.push({
+                        "sTitle": "MessId", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "messid",
+                        "render": function (data, type, row) {
+                            return data;
+                        }
+                    });
+
+                    columns.push({
+                        "sTitle": "&#8470;", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+                        "render": function (data, type, row) {
+                            if (type === 'display') {
+                                if (data < 0) // Relay
+                                    return (-data / 100 | 0) + "-" + (-data % 100);
+                                else if (data > 0)    // Ordinary
                                     return data;
                                 else
                                     return "";
@@ -154,70 +155,80 @@ var Messages;
                         }
                     });
 
-                    columns.push({ "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
-                        "render": function (data,type,row) {
-                        if (type === 'display')
-                        {
-                            var ret = "";
-                            if (data.length>_this.maxNameLength)
-                                ret += _this.nameShort(data);
-                            else
-                                ret += data;
-                            return "<div class=\"wrapok\"><a href=\"javascript:;\" onclick=\"mess.popupDialog('" + row.name + "'," + row.dbid + ")\">" + ret + "</a></div>";
-                        }
-                        else
-                            return data;
-                        }});
-                    columns.push({ "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
-                        "render": function (data,type,row) {
-                        if (type === 'display')
-                        {
-                            if (data.length>_this.maxClubLength)
-                                return _this.clubShort(data);
-                            else
-                                return data;
-                        }
-                        else
-                            return data;        
-                        }});
-                    columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class"});
-                    
-                    columns.push({ "sTitle": "Brikke" , "sClass": "left" , "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1", 
-                        "render": function (data,type,row) {
-                            var ecardstr = "";
-                            if (row.ecard1>0) {
-                                ecardstr = row.ecard1;
-                                if (row.ecard2>0) ecardstr += " / " + row.ecard2;}
-                            else
-                                if (row.ecard2>0) ecardstr = row.ecard2;
-                            return "<div class=\"wrapok\">" + ecardstr + "</div>";
-                        }});
-                    
-                    columns.push({ "sTitle": "Start", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "start"});
-                    
-                    columns.push({ "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
-                            "render": function (data,type,row) {
-                                if (row.dbid <= 0)
-                                    return ""
-                                else if (data == 9)
-                                    return "startet";
-                                else if (data == 10)
-                                    return "påmeldt";
+                    columns.push({
+                        "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
+                        "render": function (data, type, row) {
+                            if (type === 'display') {
+                                var ret = "";
+                                if (data.length > _this.maxNameLength)
+                                    ret += _this.nameShort(data);
                                 else
-                                    return _this.runnerStatus[data];
-                            }});
-                    
-                    columns.push({ "sTitle": "Tidsp.", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "changed",
-                            "render": function (data,type,row) {
-                            if (type === 'display')
-                                return "<div class=\"tooltip\">" + data.substring(11,19) + "<span class=\"tooltiptext\">" + data.substring(2,10) + "</span></div>";
+                                    ret += data;
+                                return "<div class=\"wrapok\"><a href=\"javascript:;\" onclick=\"mess.popupDialog('" + row.name + "'," + row.dbid + ")\">" + ret + "</a></div>";
+                            }
                             else
                                 return data;
-                        }});
-    
+                        }
+                    });
+                    columns.push({
+                        "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
+                        "render": function (data, type, row) {
+                            if (type === 'display') {
+                                if (data.length > _this.maxClubLength)
+                                    return _this.clubShort(data);
+                                else
+                                    return data;
+                            }
+                            else
+                                return data;
+                        }
+                    });
+                    columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class" });
+
+                    columns.push({
+                        "sTitle": "Brikke", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
+                        "render": function (data, type, row) {
+                            var ecardstr = "";
+                            if (row.ecard1 > 0) {
+                                ecardstr = row.ecard1;
+                                if (row.ecard2 > 0) ecardstr += " / " + row.ecard2;
+                            }
+                            else
+                                if (row.ecard2 > 0) ecardstr = row.ecard2;
+                            return "<div class=\"wrapok\">" + ecardstr + "</div>";
+                        }
+                    });
+
+                    columns.push({ "sTitle": "Start", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "start" });
+
+                    columns.push({
+                        "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
+                        "render": function (data, type, row) {
+                            if (row.dbid <= 0)
+                                return ""
+                            else if (data == 9)
+                                return "startet";
+                            else if (data == 10)
+                                return "påmeldt";
+                            else
+                                return _this.runnerStatus[data];
+                        }
+                    });
+
+                    columns.push({
+                        "sTitle": "Tidsp.", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "changed",
+                        "render": function (data, type, row) {
+                            if (type === 'display')
+                                return "<div class=\"tooltip\">" + data.substring(11, 19) + "<span class=\"tooltiptext\">" + data.substring(2, 10) + "</span></div>";
+                            else
+                                return data;
+                        }
+                    });
+
                     var messageTitle = "Melding <a href=\"javascript:;\" onclick=\"mess.popupDialog('Generell melding',0)\">(generell)</a>";
-                    columns.push({ "sTitle": messageTitle, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "message",
-                            "render": function (data,type,row) {
+                    columns.push({
+                        "sTitle": messageTitle, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "message",
+                        "render": function (data, type, row) {
                             try {
                                 var jsonData = JSON.parse(data);
                                 return `Påmelding: ${jsonData.firstName} ${jsonData.lastName}, ${jsonData.club}, ${jsonData.ecardNumber}, ${jsonData.className}, ID:${row.dbid}`;
@@ -226,14 +237,16 @@ var Messages;
                             }
                         }
                     });
- 
-                    columns.push({ "sTitle": "Utført", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "completed",
-                        "render": function(data, type, row) {
-                            if (data == 1 )
+
+                    columns.push({
+                        "sTitle": "Utført", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "completed",
+                        "render": function (data, type, row) {
+                            if (data == 1)
                                 return '<input type="checkbox" onclick="mess.setMessageCompleted(' + row.messid + ',0);" checked>';
                             else
                                 return '<input type="checkbox" onclick="mess.setMessageCompleted(' + row.messid + ',1);">';
-                        }});
+                        }
+                    });
 
                     this.currentTable = $('#divMessages').dataTable({
                         "bPaginate": false,
@@ -244,171 +257,163 @@ var Messages;
                         "bInfo": false,
                         "bAutoWidth": false,
                         "aaData": this.messagesData,
-                        "aaSorting": [[0, "desc"],[1, "desc"],[2, "desc"]],
+                        "aaSorting": [[0, "desc"], [1, "desc"], [2, "desc"]],
                         "aoColumnDefs": columns,
                         "bDestroy": true,
                         "orderCellsTop": true
-                        }); 
+                    });
                 };
-                this.updateMessageMarking();            
+                this.updateMessageMarking();
             };
             if (this.isCompToday())
-                this.messagesUpdateTimer = setTimeout(function () { _this.updateMessages();}, this.messagesUpdateInterval);
+                this.messagesUpdateTimer = setTimeout(function () { _this.updateMessages(); }, this.messagesUpdateInterval);
         };
 
-    // Update markings and visibility
-    AjaxViewer.prototype.updateMessageMarking = function () 
-    {
-        if (this.currentTable != null )
-        {
-            _this = this;
-            var table = this.currentTable.api();
-            var lastID = null;
-            var lastChanged = null;
+        // Update markings and visibility
+        AjaxViewer.prototype.updateMessageMarking = function () {
+            if (this.currentTable != null) {
+                _this = this;
+                var table = this.currentTable.api();
+                var lastID = null;
+                var lastChanged = null;
 
-            table.rows().every( function ( rowIdx, tableLoop, rowLoop ) {
-                var data = this.data();
-                if (data.completed)
-                {
-                    $( table.cell(rowIdx,10).node() ).addClass('green_cell');
-                    $( table.cell(rowIdx,11).node() ).addClass('green_cell');
-                }
-                else
-                {
-                    $( table.cell(rowIdx,10).node() ).addClass('yellow_cell');
-                    $( table.cell(rowIdx,11).node() ).addClass('yellow_cell');
-                }
+                table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                    var data = this.data();
+                    if (data.completed) {
+                        $(table.cell(rowIdx, 10).node()).addClass('green_cell');
+                        $(table.cell(rowIdx, 11).node()).addClass('green_cell');
+                    }
+                    else {
+                        $(table.cell(rowIdx, 10).node()).addClass('yellow_cell');
+                        $(table.cell(rowIdx, 11).node()).addClass('yellow_cell');
+                    }
 
-                if (!_this.showAllMessages && data.groupcompleted)
-                    $(table.row(rowIdx).node()).hide();
-                else
-                    $(table.row(rowIdx).node()).show();
-                
-                //if (data.dbid != lastID && Math.abs(data.dbid) != lastEcard1 && Math.abs(data.dbid) != lastEcard2 && data.groupchanged != lastChanged)
-                if (data.groupchanged != lastChanged && data.dbid != lastID)
-                    $(table.row(rowIdx).node()).addClass('firstnonqualifier');
-                lastID = data.dbid;
-                lastChanged = data.groupchanged;
+                    if (!_this.showAllMessages && data.groupcompleted)
+                        $(table.row(rowIdx).node()).hide();
+                    else
+                        $(table.row(rowIdx).node()).show();
 
-            } );
-        };
-    } 
+                    //if (data.dbid != lastID && Math.abs(data.dbid) != lastEcard1 && Math.abs(data.dbid) != lastEcard2 && data.groupchanged != lastChanged)
+                    if (data.groupchanged != lastChanged && data.dbid != lastID)
+                        $(table.row(rowIdx).node()).addClass('firstnonqualifier');
+                    lastID = data.dbid;
+                    lastChanged = data.groupchanged;
 
-    // Set message completed status
-    AjaxViewer.prototype.setMessageCompleted = function (messid,completed) 
-    {
-        _this = this;
-        $.ajax({
-                url: this.URL + "?method=setcompleted", 
-                data: "&messid=" + messid + "&completed=" + completed,
-                success: function() {_this.updateMessages(true);}
                 });
-    }
+            };
+        }
 
-    // Set message DNS status
-    AjaxViewer.prototype.setMessageDNS = function (messid,dns) 
-    {
-        var _this = this;
-        var ret = $.ajax({
+        // Set message completed status
+        AjaxViewer.prototype.setMessageCompleted = function (messid, completed) {
+            _this = this;
+            $.ajax({
+                url: this.URL + "?method=setcompleted",
+                data: "&messid=" + messid + "&completed=" + completed,
+                success: function () { _this.updateMessages(true); }
+            });
+        }
+
+        // Set message DNS status
+        AjaxViewer.prototype.setMessageDNS = function (messid, dns) {
+            var _this = this;
+            var ret = $.ajax({
                 url: _this.URL + "?method=setdns",
                 data: "&messid=" + messid + "&dns=" + dns,
-                success: function() {_this.updateMessages();}
-                });
-    }
+                success: function () { _this.updateMessages(); }
+            });
+        }
 
-    // Runner name shortener
-    AjaxViewer.prototype.nameShort = function (name) {
-        if(!name)
-           return false;
-        var array = name.split(' ');
-        if (array.length==1)
-            return name;
-        var shortName = array[0] + ' ';
-        for (var i=1; i<array.length-1; i++)
-            shortName += array[i].charAt(0) + '.';
-        if (shortName.length + array[array.length-1].length < this.maxNameLength)
-            shortName += ' ' + array[array.length-1];
-        else
-        {
-            var arrayLast = array[array.length-1].split('-');
-            var lastName = '';
-            if (arrayLast.length>1)
-                lastName = arrayLast[arrayLast.length-2].charAt(0) + '-' + arrayLast[arrayLast.length-1];
+        // Runner name shortener
+        AjaxViewer.prototype.nameShort = function (name) {
+            if (!name)
+                return false;
+            var array = name.split(' ');
+            if (array.length == 1)
+                return name;
+            var shortName = array[0] + ' ';
+            for (var i = 1; i < array.length - 1; i++)
+                shortName += array[i].charAt(0) + '.';
+            if (shortName.length + array[array.length - 1].length < this.maxNameLength)
+                shortName += ' ' + array[array.length - 1];
+            else {
+                var arrayLast = array[array.length - 1].split('-');
+                var lastName = '';
+                if (arrayLast.length > 1)
+                    lastName = arrayLast[arrayLast.length - 2].charAt(0) + '-' + arrayLast[arrayLast.length - 1];
+                else
+                    lastName = arrayLast[0];
+                shortName += ' ' + lastName;
+            }
+            return shortName;
+        };
+
+        // Club name shortener
+        AjaxViewer.prototype.clubShort = function (club) {
+            if (!club)
+                return false;
+            var shortClub = club.replace('Orienterings', 'O.');
+            shortClub = shortClub.replace('Orientering', 'O.');
+            shortClub = shortClub.replace('Orienteering', 'O.');
+            shortClub = shortClub.replace('Orienteer', 'O.');
+            shortClub = shortClub.replace('Skiklubb', 'Sk.');
+            shortClub = shortClub.replace('og Omegn IF', 'OIF');
+            shortClub = shortClub.replace('og omegn', '');
+            shortClub = shortClub.replace(/national team/i, 'NT');
+            shortClub = shortClub.replace('Sportklubb', 'Spk.');
+            shortClub = shortClub.replace('Sportsklubb', 'Spk.');
+            shortClub = shortClub.replace('Idrettslaget', '');
+            shortClub = shortClub.replace('Idrettslag', '');
+            shortClub = shortClub.replace(' - Ski', '');
+            shortClub = shortClub.replace('OL', '');
+            shortClub = shortClub.replace('OK', '');
+            shortClub = shortClub.replace('SK', '');
+            shortClub = shortClub.replace('IL', '');
+            shortClub = shortClub.trim();
+
+            var del = (shortClub.substring(0, 5) == "<del>");
+            shortClub = shortClub.replace("<del>", "");
+            shortClub = shortClub.replace("</del>", "");
+
+            var lastDiv = shortClub.lastIndexOf("-");
+            var legNoStr = shortClub.substr(lastDiv);
+            if (!isNaN(legNoStr) && lastDiv > 0)
+                shortClub = shortClub.substring(0, Math.min(lastDiv, this.maxClubLength)) + legNoStr;
             else
-                lastName = arrayLast[0];
-            shortName += ' ' + lastName;
-        }
-        return shortName;
-    };
-    
-    // Club name shortener
-    AjaxViewer.prototype.clubShort = function (club) {
-        if(!club)
-            return false;
-        var shortClub = club.replace('Orienterings', 'O.');
-        shortClub = shortClub.replace('Orientering', 'O.');
-        shortClub = shortClub.replace('Orienteering', 'O.');
-        shortClub = shortClub.replace('Orienteer', 'O.');
-        shortClub = shortClub.replace('Skiklubb', 'Sk.');
-        shortClub = shortClub.replace('og Omegn IF', 'OIF');
-        shortClub = shortClub.replace('og omegn', '');
-        shortClub = shortClub.replace(/national team/i,'NT');
-        shortClub = shortClub.replace('Sportklubb', 'Spk.');
-        shortClub = shortClub.replace('Sportsklubb', 'Spk.');
-        shortClub = shortClub.replace('Idrettslaget', '');
-        shortClub = shortClub.replace('Idrettslag', '');
-        shortClub = shortClub.replace(' - Ski', '');
-        shortClub = shortClub.replace('OL', '');
-        shortClub = shortClub.replace('OK', '');
-        shortClub = shortClub.replace('SK', '');
-        shortClub = shortClub.replace('IL', '');
-        shortClub = shortClub.trim();
+                shortClub = shortClub.substring(0, this.maxClubLength)
+            if (del)
+                shortClub = "<del>" + shortClub + "</del>";
 
-        var del = (shortClub.substring(0,5)=="<del>");
-        shortClub = shortClub.replace("<del>","");
-        shortClub = shortClub.replace("</del>","");
-  
-        var lastDiv = shortClub.lastIndexOf("-");
-        var legNoStr = shortClub.substr(lastDiv);
-        if(!isNaN(legNoStr) && lastDiv>0)
-            shortClub = shortClub.substring(0, Math.min(lastDiv,this.maxClubLength)) + legNoStr;
-        else
-            shortClub = shortClub.substring(0, this.maxClubLength)
-        if (del)
-            shortClub = "<del>" + shortClub + "</del>";
-        
-        return shortClub;
-    };
+            return shortClub;
+        };
 
-    
-    // Filter rows in table
-    AjaxViewer.prototype.filterTable = function () {
-        var table = this.currentTable.api();
-        table.search($('#filterText')[0].value).draw()
-    };
-		
-    //Popup window for messages to message center
-    AjaxViewer.prototype.popupDialog = function (promptText,dbid) {
-        var defaultText ="";
-        var message = prompt(promptText, defaultText);
-        if (message != null && message != "")
-        {
-            message = message.substring(0,250);
-            $.ajax({
-                url: this.URL + "?method=sendmessage", 
-                data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message
+
+        // Filter rows in table
+        AjaxViewer.prototype.filterTable = function () {
+            var table = this.currentTable.api();
+            table.search($('#filterText')[0].value).draw()
+        };
+
+        //Popup window for messages to message center
+        AjaxViewer.prototype.popupDialog = function (promptText, dbid) {
+            var defaultText = "";
+            var message = prompt(promptText, defaultText);
+            if (message != null && message != "") {
+                message = message.substring(0, 250);
+                $.ajax({
+                    url: this.URL + "?method=sendmessage",
+                    data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message
                 }
-            );
-            this.updateMessages();
-        }
-    };
-        
-    // ReSharper disable once InconsistentNaming
-    AjaxViewer.VERSION = "2016-08-06-01";
-    return AjaxViewer;
-}());
-    
-Messages.AjaxViewer = AjaxViewer;
+                );
+                this.updateMessages();
+            }
+        };
+
+        // ReSharper disable once InconsistentNaming
+        AjaxViewer.VERSION = "2016-08-06-01";
+        return AjaxViewer;
+    }());
+
+    Messages.AjaxViewer = AjaxViewer;
 })(Messages || (Messages = {}));
 
 

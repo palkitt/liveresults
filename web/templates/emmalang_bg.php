@@ -18,32 +18,32 @@ $_UPNEVER = "Никога";
 
 
 
-$_LASTPASSINGS="Последно обновени";
+$_LASTPASSINGS = "Последно обновени";
 
-$_LASTPASSFINISHED="финиширал";
+$_LASTPASSFINISHED = "финиширал";
 
-$_LASTPASSPASSED="преминал";
+$_LASTPASSPASSED = "преминал";
 
-$_LASTPASSWITHTIME="с време";
+$_LASTPASSWITHTIME = "с време";
 
-$_CHOOSECLASS="Избор на група";
+$_CHOOSECLASS = "Избор на група";
 
-$_NOCLASSESYET="Не са дефинирани групи";
+$_NOCLASSESYET = "Не са дефинирани групи";
 
-$_CONTROLFINISH="Финал";
+$_CONTROLFINISH = "Финал";
 
-$_NAME="Име";
+$_NAME = "Име";
 
-$_CLUB="Клуб";
+$_CLUB = "Клуб";
 $_NATION = "Националност";
 
-$_TIME="Време";
+$_TIME = "Време";
 
-$_NOCLASSCHOSEN="Няма избрана група!";
+$_NOCLASSCHOSEN = "Няма избрана група!";
 
-$_HELPREDRESULTS="Резултатите от последните две минути са в червено";
+$_HELPREDRESULTS = "Резултатите от последните две минути са в червено";
 
-$_NOTICE="Резултатите на тази страница не са официални. За официалните резултати посетете страницата на организатора.";
+$_NOTICE = "Резултатите на тази страница не са официални. За официалните резултати посетете страницата на организатора.";
 
 $_STATUSDNS = "dns";
 
@@ -53,15 +53,15 @@ $_STATUSWO = "dns";
 
 $_STATUSMOVEDUP = "moved up";
 
-$_STATUSNOTSTARTED="not started";
+$_STATUSNOTSTARTED = "not started";
 
 $_STATUSOK = "Passed";
 
 $_STATUSMP = "mp";
 
-$_STATUSDSQ= "disq";
+$_STATUSDSQ = "disq";
 
-$_STATUSOT="ot";
+$_STATUSOT = "ot";
 
 
 
@@ -112,5 +112,3 @@ $_CLASS = "Група";
 $_ORGANIZER = "Организатор";
 $_DATE = "Дата";
 $_EVENTNAME = "Име";
-
-?>

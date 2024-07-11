@@ -12,30 +12,30 @@ $_UP60SEK = "Každou minutu";
 $_UP120SEK = "Každé dvě minuty";
 $_UPNEVER = "Nikdy";
 
-$_LASTPASSINGS="Nejnovější změny";
-$_LASTPASSFINISHED="doběhl";
-$_LASTPASSPASSED="proběhl";
-$_LASTPASSWITHTIME="v čase";
-$_CHOOSECLASS="Vyberte kategorii";
-$_NOCLASSESYET="Žádná kategorie";
-$_CONTROLFINISH="Cíl";
-$_NAME="Jméno";
-$_CLUB="Oddíl";
-$_NATION="Země";
-$_TIME="Čas";
-$_NOCLASSCHOSEN="Není vybraná kategorie!";
-$_HELPREDRESULTS="Změny za poslední dvě minuty jsou zvýrazněny červeně.";
-$_NOTICE="Výsledky na této stránce nejsou oficiální. Pro oficiální výsledky prosím navštivte stránku závodu.";
+$_LASTPASSINGS = "Nejnovější změny";
+$_LASTPASSFINISHED = "doběhl";
+$_LASTPASSPASSED = "proběhl";
+$_LASTPASSWITHTIME = "v čase";
+$_CHOOSECLASS = "Vyberte kategorii";
+$_NOCLASSESYET = "Žádná kategorie";
+$_CONTROLFINISH = "Cíl";
+$_NAME = "Jméno";
+$_CLUB = "Oddíl";
+$_NATION = "Země";
+$_TIME = "Čas";
+$_NOCLASSCHOSEN = "Není vybraná kategorie!";
+$_HELPREDRESULTS = "Změny za poslední dvě minuty jsou zvýrazněny červeně.";
+$_NOTICE = "Výsledky na této stránce nejsou oficiální. Pro oficiální výsledky prosím navštivte stránku závodu.";
 
 $_STATUSDNS = "dns";
 $_STATUSDNF = "dnf";
 $_STATUSWO = "wo";
 $_STATUSMOVEDUP = "moved up";
-$_STATUSNOTSTARTED="not started";
+$_STATUSNOTSTARTED = "not started";
 $_STATUSOK = "Passed";
 $_STATUSMP = "mp";
-$_STATUSDSQ= "disq";
-$_STATUSOT="ot";
+$_STATUSDSQ = "disq";
+$_STATUSOT = "ot";
 
 
 
@@ -86,4 +86,3 @@ $_CLASS = "Kategorie";
 $_ORGANIZER = "Pořadatel";
 $_DATE = "Datum";
 $_EVENTNAME = "Jméno";
-?>

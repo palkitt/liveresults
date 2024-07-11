@@ -32,7 +32,7 @@ var LiveResults;
       this.showTimesInSprint = false;
       this.showCourseResults = false;
       this.showTenthOfSecond = false;
-      this.updateInterval = (EmmaServer ? 15000 :(this.local ? 2000 : 5000));
+      this.updateInterval = (EmmaServer ? 15000 : (this.local ? 2000 : 5000));
       this.lastChanged = 0;
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
       this.clubUpdateInterval = 60000;
@@ -114,8 +114,7 @@ var LiveResults;
       $(window).on('resize', function () {
         if (_this.currentTable == null || _this.curClassName == "startlist" || (_this.curClassName != null && _this.curClassName.includes("plainresults")))
           return;
-        else
-        {
+        else {
           _this.currentTable.api().fixedHeader.disable();
           _this.currentTable.api().columns.adjust().draw();
           _this.currentTable.api().fixedHeader.enable();
@@ -126,7 +125,7 @@ var LiveResults;
 
     AjaxViewer.prototype.onload = function () {
       var _this = this;
-      if (window.location.hash) {  
+      if (window.location.hash) {
         var hash = window.location.hash.substring(1);
         var cl;
         if (hash.indexOf('club::') >= 0) {
@@ -158,8 +157,8 @@ var LiveResults;
       var _this = this;
       let dt = new Date();
       let ms = dt.getMilliseconds();
-      let timer = (ms>950 ? 2000-ms : 1000-ms);
-      this.updatePredictedTimeTimer = setTimeout(function () { _this.updatePredictedTimes(); }, timer);      
+      let timer = (ms > 950 ? 2000 - ms : 1000 - ms);
+      this.updatePredictedTimeTimer = setTimeout(function () { _this.updatePredictedTimes(); }, timer);
       return;
     };
 
@@ -236,7 +235,7 @@ var LiveResults;
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
-        this.courseNames = data.courses; 
+        this.courseNames = data.courses;
         $('#divInfoText').html(data.infotext);
         if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0)
           $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
@@ -308,7 +307,7 @@ var LiveResults;
 
                   if (!sprint) // First class in sprint or new class
                     str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
-                            "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br/>&nbsp;";
+                      "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br/>&nbsp;";
                   sprint = true;
                   sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
 
@@ -354,8 +353,7 @@ var LiveResults;
                 else if (shiftHeat)
                   str += "<br/>&nbsp;";
               }
-              else
-              {
+              else {
                 var elit = (className.toLowerCase().match(/(-e| e|\d+e|elite|wre)(\s*\d*)$/) != null);
                 if (!elit && elitLast && !this.EmmaServer)
                   str += "<hr>";
@@ -371,7 +369,7 @@ var LiveResults;
               str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('plainresultstotal')\" style=\"text-decoration: none\">" + this.resources["_TOTAL"] + "</a>";
           }
           if (this.showCourseResults && data.courses != undefined) {
-            str += "<hr></nowrap>";           
+            str += "<hr></nowrap>";
             for (var i = 0; i < this.courseNames.length; i++) {
               str += "<a href=\"javascript:LiveResults.Instance.chooseClass('course::" + this.courseNames[i].No + "')\">" + this.courseNames[i].Name + "</a><br/>";
             }
@@ -452,29 +450,27 @@ var LiveResults;
         this.curClassSplitsBests = classSplitsBest;
       }
     };
-    
+
     AjaxViewer.prototype.checkForMassStart = function (data) {
       var isMassStart = false;
-      if (data != null && data.status == "OK" && data.results != null) {        
+      if (data != null && data.status == "OK" && data.results != null) {
         var firstStart = 0;
         var lastStart = 999;
         var first = true;
         for (var i = 0; i < data.results.length; i++) {
-          if (data.results[i].start != undefined && data.results[i].start > 0 ) {
-            if (first)
-            {
+          if (data.results[i].start != undefined && data.results[i].start > 0) {
+            if (first) {
               first = false;
               firstStart = data.results[i].start;
               lastStart = data.results[i].start;
-            } 
-            else
-            { 
-              firstStart = Math.min(data.results[i].start,firstStart);
-              lastStart = Math.max(data.results[i].start,lastStart);
+            }
+            else {
+              firstStart = Math.min(data.results[i].start, firstStart);
+              lastStart = Math.max(data.results[i].start, lastStart);
             }
           }
         }
-        isMassStart = (lastStart-firstStart<100);
+        isMassStart = (lastStart - firstStart < 100);
       }
       return isMassStart;
     };
@@ -488,8 +484,8 @@ var LiveResults;
       if (classSplits.length == 0)
         return;
 
-      const validateLim   = 0.333;  // Fraction of runners with split to set split to OK
-      const minNum        = 3;      // Minimum numbers of runners to set split to BAD
+      const validateLim = 0.333;  // Fraction of runners with split to set split to OK
+      const minNum = 3;      // Minimum numbers of runners to set split to BAD
       const sprintTimeLim = 90;     // Max time (seconds) from last to finish to trigger shortSprint setting
 
       this.updateResultVirtualPosition(data.results);
@@ -516,20 +512,20 @@ var LiveResults;
 
           var spRef = this.splitRef(sp);
           var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-          var finishTime = ( finishOK ? parseInt(data.results[j].result) : 8640000); // 24 h
-          if (isNaN(split) && laterSplitOKj[j]){ // Split does not exist and missing split detected
+          var finishTime = (finishOK ? parseInt(data.results[j].result) : 8640000); // 24 h
+          if (isNaN(split) && laterSplitOKj[j]) { // Split does not exist and missing split detected
             statusN++;
             runnerOK[j] = false;
             raceOK = false;
           }
-          else if (split < 0 || split > finishTime){ // Remove split if negative or longer than finish time
+          else if (split < 0 || split > finishTime) { // Remove split if negative or longer than finish time
             statusN++;
             data.results[j].splits[classSplits[spRef].code] = "";
             data.results[j].splits[classSplits[spRef].code + "_changed"] = "";
             runnerOK[j] = false;
             raceOK = false;
           }
-          else if (!isNaN(split)){ // Split exists and time is OK
+          else if (!isNaN(split)) { // Split exists and time is OK
             statusN++;
             OKSum++;
             laterSplitOKj[j] = true;
@@ -556,13 +552,13 @@ var LiveResults;
         startTime = (this.curClassIsRelay ? parseInt(data.results[j].splits[0]) : 0);
         if (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=") // Finish time
           nextSplit = parseInt(data.results[j].result);
-        for (var sp = this.curClassNumSplits - 1; sp >= 0; sp--){
+        for (var sp = this.curClassNumSplits - 1; sp >= 0; sp--) {
           if (!classSplitsOK[sp]) // Bad split
             continue;
           var spRef = this.splitRef(sp);
           split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-          if (!isNaN(split)){ // Split exist
-            if (sp == this.curClassNumSplits - 1 && nextSplit != null && nextSplit > split){ // last split time
+          if (!isNaN(split)) { // Split exist
+            if (sp == this.curClassNumSplits - 1 && nextSplit != null && nextSplit > split) { // last split time
               sprintTimeSum += nextSplit - split;
               sprintTimeNum++;
             }
@@ -577,7 +573,7 @@ var LiveResults;
               splitFracRunner[sp][j] = (nextSplit != null && prevSplit != null ? (split - prevSplit) / (nextSplit - prevSplit) : null);
             nextSplit = split;
           }
-          else{ // Split does not exist
+          else { // Split does not exist
             nextSplit = null;
             splitFracRunner[sp][j] = null;
           }
@@ -597,21 +593,21 @@ var LiveResults;
       var classSplitsUpdated = new Array(classSplits.length).fill(false);
 
       for (var sp = 0; sp < this.curClassNumSplits; sp++) {
-        if (!classSplitsOK[sp]){ // Bad split
+        if (!classSplitsOK[sp]) { // Bad split
           splitsPar.push(null);
           continue;
         }
-        
+
         // Median split fractions
         var numFractions = 0;
         var fractions = [];
-        for (var j = 0; j < numRunners; j++){
-          if (splitFracRunner[sp][j] > 0 && splitFracRunner[sp][j] < 1){
+        for (var j = 0; j < numRunners; j++) {
+          if (splitFracRunner[sp][j] > 0 && splitFracRunner[sp][j] < 1) {
             fractions.push(splitFracRunner[sp][j]);
             numFractions++;
           }
         }
-        if (numFractions == 0){
+        if (numFractions == 0) {
           splitsPar.push(null);
           continue;
         }
@@ -619,12 +615,12 @@ var LiveResults;
 
         // Median absolute deviation
         var absdev = [];
-        for (var j = 0; j < numRunners; j++){
+        for (var j = 0; j < numRunners; j++) {
           if (splitFracRunner[sp][j] > 0 && splitFracRunner[sp][j] < 1) {
             absdev.push(Math.abs(splitFracRunner[sp][j] - median));
           }
         }
-        var medianDev = this.medianFrac(absdev, 0.1);         
+        var medianDev = this.medianFrac(absdev, 0.1);
 
         // Linear estimation (weighted least squares)
         var count = 0;
@@ -635,8 +631,8 @@ var LiveResults;
         var xxSum = 0;
         var maxFrac = 0;
         var minFrac = 1;
-        var stdDev = 1.48*medianDev;     
-        
+        var stdDev = 1.48 * medianDev;
+
         for (var j = 0; j < numRunners; j++) {
           if (splitFracRunner[sp][j] != null && splitFracRunner[sp][j] > 0 && splitFracRunner[sp][j] < 1) {
             var frac = splitFracRunner[sp][j];
@@ -661,7 +657,7 @@ var LiveResults;
           a = (count >= 2 ? (wSum * xySum - xSum * ySum) / (wSum * xxSum - xSum * xSum) : 0);
           b = (ySum - a * xSum) / wSum;
         }
-        
+
         splitsPar.push({
           median: median,
           medianDev: medianDev,
@@ -671,25 +667,25 @@ var LiveResults;
           max: maxFrac,
           min: minFrac
         });
-      }  
+      }
 
       // Check if class has multipass type splits
       var multiPass = false;
-      if (!this.curClassIsRelay && !this.curClassIsLapTimes){
-        for (var sp1 = 0; sp1 < this.curClassNumSplits-1; sp1++){
+      if (!this.curClassIsRelay && !this.curClassIsLapTimes) {
+        for (var sp1 = 0; sp1 < this.curClassNumSplits - 1; sp1++) {
           var code1 = classSplits[sp1].code;
-          for (var sp2 = sp1+1; sp2 < this.curClassNumSplits; sp2++){
+          for (var sp2 = sp1 + 1; sp2 < this.curClassNumSplits; sp2++) {
             var code2 = classSplits[sp2].code;
-            if ((code2 - code1) % 1000 == 0){
+            if ((code2 - code1) % 1000 == 0) {
               multiPass = true;
               break;
             }
           }
         }
       }
-      
+
       // Shift split times if splits are missing when multi-pass type
-      if (multiPass && !raceOK){
+      if (multiPass && !raceOK) {
         // Calculate nominal split fractions as fraction of total time
         var splitFracNom = new Array(this.curClassNumSplits).fill(1);
         var lastFrac = 1;
@@ -707,17 +703,17 @@ var LiveResults;
         }
 
         // Shift split times if splits are missing when multi-pass type
-        for (var j = 0; j < numRunners; j++){
+        for (var j = 0; j < numRunners; j++) {
           if (runnerOK[j])
             continue;
           var finishOK = (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=");
-          var finishTime = parseInt(data.results[j].result); 
+          var finishTime = parseInt(data.results[j].result);
           if (!finishOK || finishTime <= 0)
             continue;
           for (var sp = this.curClassNumSplits - 1; sp >= 0; sp--) {
             var spRef = this.splitRef(sp);
             split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-            if (isNaN(split)){      
+            if (isNaN(split)) {
               var splitCode = classSplits[spRef].code;
               var spliti = NaN;
               var spi = sp - 1;
@@ -733,7 +729,7 @@ var LiveResults;
                 }
                 spi--;
               }
-              if (spi >= 0){ // A matching split exists
+              if (spi >= 0) { // A matching split exists
                 var bestFitDev = Math.abs(spliti / finishTime - splitFracNom[spi]);
                 var bestFitSpi = spi;
                 for (var spj = spi + 1; spj <= sp; spj++) {
@@ -746,7 +742,7 @@ var LiveResults;
                   }
                 }
               }
-              if (bestFitSpi == sp){ // Best fit is to move split time to current split
+              if (bestFitSpi == sp) { // Best fit is to move split time to current split
                 data.results[j].splits[splitCode] = data.results[j].splits[splitCodei];
                 data.results[j].splits[splitCode + "_changed"] = 0;
                 data.results[j].splits[splitCode + "_status"] = 0;
@@ -763,11 +759,11 @@ var LiveResults;
       // Loop through all runners and remove unlikely short split times
       const placeLimit = 3;     // Only top splits considered
       const minNumFrac = 5;     // Minumum number of fractions to set unlikely split
-      const minDev     = 0.15;  // Minimum deviation from median fraction to set unlikely split
-      const stdFactor  = 1.48;  // Conversion from abs median deviation to standard deviation
+      const minDev = 0.15;  // Minimum deviation from median fraction to set unlikely split
+      const stdFactor = 1.48;  // Conversion from abs median deviation to standard deviation
       for (var j = 0; j < numRunners; j++) {
         if (shiftedSplits[j] || data.results[j].status != 0 && data.results[j].status != 9 && data.results[j].status != 10)
-          continue;        
+          continue;
         for (var sp = this.curClassNumSplits - 1; sp >= 0; sp--) {
           if (splitsPar[sp] == null || splitsPar[sp].numFractions < minNumFrac || !classSplitsOK[sp] || splitFracRunner[sp][j] == null) // Too few, bad or none existing split
             continue;
@@ -776,16 +772,16 @@ var LiveResults;
           if (data.results[j].splits[splitCode + "_place"] > placeLimit)
             continue;
           // Calculate limit for unlikely split based on estimaed std dev and apporiximate Stundent t value at 99.9% confidence
-          var devLimit = Math.max(minDev, stdFactor*splitsPar[sp].medianDev*Math.exp(1.19 + 1.5*Math.exp(-0.14*(splitsPar[sp].numFractions-1))));
-          var splitFrac = Math.max(splitsPar[sp].min, Math.min(splitsPar[sp].max, splitsPar[sp].a*j + splitsPar[sp].b));
+          var devLimit = Math.max(minDev, stdFactor * splitsPar[sp].medianDev * Math.exp(1.19 + 1.5 * Math.exp(-0.14 * (splitsPar[sp].numFractions - 1))));
+          var splitFrac = Math.max(splitsPar[sp].min, Math.min(splitsPar[sp].max, splitsPar[sp].a * j + splitsPar[sp].b));
           if (splitFrac - splitFracRunner[sp][j] > devLimit) {
-              data.results[j].splits[classSplits[spRef].code] = "";
-              data.results[j].splits[classSplits[spRef].code + "_changed"] = "";
-              classSplitsUpdated[spRef] = true;
-              runnerOK[j] = false;
-              raceOK = false;
+            data.results[j].splits[classSplits[spRef].code] = "";
+            data.results[j].splits[classSplits[spRef].code + "_changed"] = "";
+            classSplitsUpdated[spRef] = true;
+            runnerOK[j] = false;
+            raceOK = false;
           }
-        }      
+        }
       }
 
       if (raceOK)
@@ -802,7 +798,7 @@ var LiveResults;
         var finishTime = null;
         if (data.results[j].place != undefined && data.results[j].place > 0 || data.results[j].place == "=") {
           finishTime = parseInt(data.results[j].result);
-          nextSplit = finishTime;  
+          nextSplit = finishTime;
         }
 
         for (var sp = this.curClassNumSplits - 1; sp >= 0; sp--) {
@@ -815,13 +811,13 @@ var LiveResults;
             nextSplit = split;
           else if (splitsPar[sp] == null) // No split and no parameters
             nextSplit = 0;
-          else{  // No split but estimate parameters exist, calculate and insert estimated split        
+          else {  // No split but estimate parameters exist, calculate and insert estimated split        
             var x = [];
             var spPrev = sp;
             while (isNaN(prevSplit) && spPrev >= 0) // Find first of previous splits that exist
             {
               if (classSplitsOK[spPrev])
-                x.push(Math.max(splitsPar[spPrev].min, Math.min(splitsPar[spPrev].max, splitsPar[spPrev].a*j + splitsPar[spPrev].b)));
+                x.push(Math.max(splitsPar[spPrev].min, Math.min(splitsPar[spPrev].max, splitsPar[spPrev].a * j + splitsPar[spPrev].b)));
               spPrev--;
               var spPrevRef = this.splitRef(spPrev);
               prevSplit = (spPrevRef >= 0 ? parseInt(data.results[j].splits[classSplits[spPrevRef].code]) : startTime);
@@ -1018,7 +1014,7 @@ var LiveResults;
           var data = this.currentTable.fnGetData();
           var table = this.currentTable.api();
           var offset = 3 + (this.curClassHasBibs ? 1 : 0) + ((this.curClassIsUnranked || this.compactView && !this.curClassLapTimes) ? 1 : 0);
-          var MDoffset = (this.curClassIsCourse ? 1 : 0) +  (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
+          var MDoffset = (this.curClassIsCourse ? 1 : 0) + (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
           var rank;
           const predOffset = 1500;
           const predRank = true;
@@ -1162,7 +1158,7 @@ var LiveResults;
                   elapsedTime += 24 * 3600 * 100;
                 if (elapsedTime >= 0) {
                   table.cell(i, 0).data("<span class=\"pulsing\">◉</span>");
-                  
+
                   if (this.isMultiDayEvent && (data[i].totalstatus == 10 || data[i].totalstatus == 9) && !this.curClassIsUnranked) {
                     var elapsedTotalTime = elapsedTime + data[i].totalresultSave;
                     var elapsedTotalTimeStr = "<i>&#10092;" + this.formatTime(elapsedTotalTime, 0, false) + "&#10093;</i>";
@@ -1172,7 +1168,7 @@ var LiveResults;
                       elapsedTotalTimeStr += "<span class=\"hideplace\"><i>..&#10072;</i></span>";
                     table.cell(i, totalTimeCol).data(elapsedTotalTimeStr);
                   }
-                  
+
                   var timeDiffStr = "";
                   var elapsedTimeStr = (this.curClassIsRelay ? "<i>⟳" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
                   if (this.curClassSplits == null || this.curClassSplits.length == 0) {
@@ -1350,24 +1346,23 @@ var LiveResults;
           }
 
           // Update table if required
-          if (updatedVP){
+          if (updatedVP) {
             if (this.qualLimits != null && this.qualLimits.length > 0)
               this.updateQualLimMarks(data, this.curClassName);
             table.rows().invalidate();
           }
-          
+
           if (updatedVP || timesOnly)
             table.columns.adjust().draw();
 
-          if (!timesOnly){
+          if (!timesOnly) {
             if (updatedVP)
               this.animateTable(oldData, data, this.animTime, true);
-            else 
+            else
               this.startPredictedTimeTimer();
           }
         }
-        catch (e) 
-        { 
+        catch (e) {
           this.startPredictedTimeTimer();
         }
       }
@@ -1673,7 +1668,7 @@ var LiveResults;
             searching: true,
             info: false,
             data: this.radioData,
-            ordering : false,
+            ordering: false,
             order: [[1, "desc"]],
             columnDefs: columns,
             destroy: true,
@@ -1746,12 +1741,12 @@ var LiveResults;
           this.currentTable.fnAddData(this.radioData, true);
           this.filterTable();
           window.scrollTo(scrollX, scrollY);
-        }  
+        }
         else if (this.currentTable == null) // New datatable
         {
           if (this.radioData != null && this.radioData.length > 0) {
             var columns = Array();
-            var col = 0;    
+            var col = 0;
             columns.push({
               "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
               "render": function (data, type, row) {
@@ -1770,9 +1765,8 @@ var LiveResults;
             columns.push({
               "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
               "render": function (data, type, row) {
-                if (type === 'display') 
-                {
-                  var name = (data.length > _this.maxNameLength? _this.nameShort(data) : data);                  
+                if (type === 'display') {
+                  var name = (data.length > _this.maxNameLength ? _this.nameShort(data) : data);
                   return name;
                 }
                 else
@@ -1782,13 +1776,12 @@ var LiveResults;
             columns.push({
               "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
               "render": function (data, type, row) {
-                if (type === 'display') 
-                {
-                  var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);                  
+                if (type === 'display') {
+                  var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);
                   return club;
                 }
                 else
-                  return data;               
+                  return data;
               }
             });
             columns.push({
@@ -1826,7 +1819,7 @@ var LiveResults;
                 return data;
               }
             });
-            
+
             var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
             columns.push({
               "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
@@ -1845,7 +1838,7 @@ var LiveResults;
               searching: true,
               info: false,
               data: this.radioData,
-              ordering : false,
+              ordering: false,
               columnDefs: columns,
               destroy: true,
               dom: 'lrtip',
@@ -1853,12 +1846,12 @@ var LiveResults;
             });
           }
         }
-        this.filterStartRegistration(openStart);     
+        this.filterStartRegistration(openStart);
       };
       this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(openStart); }, this.radioUpdateInterval);
     };
 
-    AjaxViewer.prototype.startSorter = function (a, b) {      
+    AjaxViewer.prototype.startSorter = function (a, b) {
       var diffStart = b.starttime - a.starttime;
       if (a.dbid < 0 && b.dbid > 0)
         return -1;
@@ -1870,8 +1863,8 @@ var LiveResults;
         return a.bib - b.bib;
       else
         return b.bib - a.bib;
-      }
-    
+    }
+
     // Update start list
     AjaxViewer.prototype.filterStartRegistration = function (openStart) {
       if (this.radioData != null) {
@@ -1879,39 +1872,39 @@ var LiveResults;
           var _this = this;
           var dt = new Date();
           this.updateStartClock(dt);
-          var time = dt.getSeconds() + 60*dt.getMinutes() + 3600*dt.getHours();
+          var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
           var data = this.currentTable.fnGetData();
           var table = this.currentTable.api();
 
-          var callTime = parseInt($('#callTime')[0].value)*60;
-          var postTime = parseInt($('#postTime')[0].value)*60;
+          var callTime = parseInt($('#callTime')[0].value) * 60;
+          var postTime = parseInt($('#postTime')[0].value) * 60;
           var minBib = parseInt($('#minBib')[0].value);
           var maxBib = parseInt($('#maxBib')[0].value);
 
-          var preTime  = 60;
+          var preTime = 60;
           var firstUnknown = true;
           var firstOpen = true;
           var firstInCallTime = true;
           var firstInPostTime = true;
-          var lastStartTime   = -1000; 
+          var lastStartTime = -1000;
           var shownId = Array(0);
-          var timeBeforeStartMakeSound = 4;  
+          var timeBeforeStartMakeSound = 4;
           var startBeep = 0; // 0: no, 1: short, 2: long
-  
+
           // *** Hide or highlight rows ***
-          for (var i = 0; i < data.length; i++){
+          for (var i = 0; i < data.length; i++) {
             var row = table.row(i).node();
             $(row).hide();
-            
-            const showStatus = [1,9,10]; // DNS, Started, Entered
-            if (data[i].bib < minBib || data[i].bib > maxBib || !showStatus.includes(data[i].status)){
+
+            const showStatus = [1, 9, 10]; // DNS, Started, Entered
+            if (data[i].bib < minBib || data[i].bib > maxBib || !showStatus.includes(data[i].status)) {
               continue;
             }
-            
-            if (data[i].dbid < 0){
+
+            if (data[i].dbid < 0) {
               $(row).show();
-              shownId.push({dbid: data[i].dbid});
-              if (firstUnknown){
+              shownId.push({ dbid: data[i].dbid });
+              if (firstUnknown) {
                 $(row).addClass('firstnonqualifier');
                 firstUnknown = false;
               }
@@ -1919,41 +1912,41 @@ var LiveResults;
               continue;
             }
 
-            if (openStart){
-              if (data[i].starttime == -999){
+            if (openStart) {
+              if (data[i].starttime == -999) {
                 $(row).show();
-                shownId.push({dbid: data[i].dbid});
-                if (firstOpen){
+                shownId.push({ dbid: data[i].dbid });
+                if (firstOpen) {
                   $(row).addClass('firstnonqualifier');
                   firstOpen = false;
                 }
               }
             }
-            else{ // Timed start
+            else { // Timed start
               $(row).removeClass();
-              var startTimeSeconds = data[i].starttime/100;
-              var timeToStart = startTimeSeconds-time;
-              
+              var startTimeSeconds = data[i].starttime / 100;
+              var timeToStart = startTimeSeconds - time;
+
               if (timeToStart == 0)
                 startBeep = 2;
               else if (startBeep == 0 && timeToStart > 0 && timeToStart <= timeBeforeStartMakeSound)
-                startBeep = 1; 
+                startBeep = 1;
 
               if (timeToStart <= -postTime)
                 continue;
-              else if (timeToStart <= 0){
+              else if (timeToStart <= 0) {
                 $(row).show();
-                shownId.push({dbid: data[i].dbid});
+                shownId.push({ dbid: data[i].dbid });
                 $(row).addClass('pre_post_start')
-                if (firstInPostTime){
+                if (firstInPostTime) {
                   $(row).addClass('firststarter');
                   firstInPostTime = false;
                 }
               }
-              else if (timeToStart <= callTime){
+              else if (timeToStart <= callTime) {
                 $(row).show();
-                shownId.push({dbid: data[i].dbid});
-                if (firstInCallTime){
+                shownId.push({ dbid: data[i].dbid });
+                if (firstInCallTime) {
                   $(row).addClass('firststarter yellow_row');
                   firstInCallTime = false;
                 }
@@ -1962,10 +1955,9 @@ var LiveResults;
                 else
                   $(row).addClass('yellow_row');
               }
-              else if (timeToStart <= callTime + preTime)
-              {
+              else if (timeToStart <= callTime + preTime) {
                 $(row).show();
-                shownId.push({dbid: data[i].dbid});
+                shownId.push({ dbid: data[i].dbid });
                 $(row).addClass('pre_post_start');
               }
               lastStartTime = startTimeSeconds;
@@ -1975,41 +1967,39 @@ var LiveResults;
           }
 
           for (var i = 0; i < shownId.length; ++i) {
-            if (shownId[i].dbid !== this.prewShownId[i])
-            {
-              this.animateTable(_this.prewShownId,shownId,_this.animTime);
+            if (shownId[i].dbid !== this.prewShownId[i]) {
+              this.animateTable(_this.prewShownId, shownId, _this.animTime);
               break;
             }
           }
           this.prewShownId = shownId;
-          if (startBeep>0 && !this.audioMute)
-            window.makeStartBeep(startBeep==2); // 2 : long beep
-          
+          if (startBeep > 0 && !this.audioMute)
+            window.makeStartBeep(startBeep == 2); // 2 : long beep
+
           var dt = new Date();
           var ms = dt.getMilliseconds();
-          var timer = (ms>800 ? 2000-ms : 1000-ms);
-          this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, timer);  
+          var timer = (ms > 800 ? 2000 - ms : 1000 - ms);
+          this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, timer);
         }
         catch (e) { };
       }
     }
-    
+
     AjaxViewer.prototype.updateStartClock = function (dt) {
-      var currTime = new Date(Math.round(dt.getTime()/1000)*1000);
+      var currTime = new Date(Math.round(dt.getTime() / 1000) * 1000);
       var timeID = document.getElementById("time");
       var HTMLstringCur = currTime.toLocaleTimeString('en-GB');
       timeID.innerHTML = HTMLstringCur;
 
-      var callTime = document.getElementById("callTime").value;	
+      var callTime = document.getElementById("callTime").value;
       var preTimeID = document.getElementById("pretime");
-      if ( preTimeID!= null )
-      {
-        var preTime = new Date(currTime.valueOf() + callTime*60*1000);
+      if (preTimeID != null) {
+        var preTime = new Date(currTime.valueOf() + callTime * 60 * 1000);
         var HTMLstringPre = preTime.toLocaleTimeString('en-GB');
         preTimeID.innerHTML = HTMLstringPre;
       }
     }
-    
+
     // Runner name shortener
     AjaxViewer.prototype.nameShort = function (name) {
       if (!name)
@@ -2294,23 +2284,22 @@ var LiveResults;
       var message;
       if (checked)
         message = "Ta bort markering for " + name + "?";
-      else  
-        message = "Bekrefte: " + name + (ecards.length>0? ", brikke " + ecards : "") + "?";
-      $('<p>'+message+'</p>').confirm(function(e){
-        if(e.response)
-        {
+      else
+        message = "Bekrefte: " + name + (ecards.length > 0 ? ", brikke " + ecards : "") + "?";
+      $('<p>' + message + '</p>').confirm(function (e) {
+        if (e.response) {
           if (checked)
-          $.ajax({ 
-            url: _this.messageURL + "?method=setecardnotchecked", 
-            data: "&comp=" + _this.competitionId + "&dbid=" + dbid,
-            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); } 
-          });
-        else
-          $.ajax({ 
-            url: _this.messageURL + "?method=setecardchecked", 
-            data: "&comp=" + _this.competitionId + "&dbid=" + dbid,
-            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); } 
-          });
+            $.ajax({
+              url: _this.messageURL + "?method=setecardnotchecked",
+              data: "&comp=" + _this.competitionId + "&dbid=" + dbid,
+              error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
+            });
+          else
+            $.ajax({
+              url: _this.messageURL + "?method=setecardchecked",
+              data: "&comp=" + _this.competitionId + "&dbid=" + dbid,
+              error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
+            });
         }
       });
     }
@@ -2325,7 +2314,7 @@ var LiveResults;
         defaultText = "startet";
       else if (dbid < 0)
         defaultText = "startnummer:";
-      $('<p>'+promptText+'</p>').prompt(function(e){
+      $('<p>' + promptText + '</p>').prompt(function (e) {
         var message = e.response;
         if (message != null && message != "") {
           message = message.substring(0, 250); // limit number of characters
@@ -2343,16 +2332,16 @@ var LiveResults;
               alert("Ønsket endring av brikkenummer er registrert\n" + message);
             }
           }
-          if (sendOK)      
+          if (sendOK)
             $.ajax({
               url: _this.messageURL + "?method=sendmessage",
               data: "&comp=" + _this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
               error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
             });
-          if (DNS) 
+          if (DNS)
             _this.messageBibs.push(dbid);
-        } 
-      }, defaultText);      
+        }
+      }, defaultText);
     };
 
     //Popup window for requesting RaceSplitter file
@@ -2413,7 +2402,7 @@ var LiveResults;
                 if (reqTime) {
                   var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
                   if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
-                    _this.serverTimeDiff = 0.9*_this.serverTimeDiff + 0.1*newTimeDiff;
+                    _this.serverTimeDiff = 0.9 * _this.serverTimeDiff + 0.1 * newTimeDiff;
                 }
                 expTime = new Date(resp.getResponseHeader("expires")).getTime();
               }
@@ -2448,11 +2437,11 @@ var LiveResults;
         if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
           $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
         if (data.status == "OK") {
-          var index = data.lastchanged.findIndex(function(item) {
+          var index = data.lastchanged.findIndex(function (item) {
             return item.class === _this.curClassName;
           });
           this.lastClassHash = data.hash;
-          if (data.lastchanged[index].lastchanged > this.lastChanged){ 
+          if (data.lastchanged[index].lastchanged > this.lastChanged) {
             this.checkForClassUpdate();
             return;
           }
@@ -2487,7 +2476,7 @@ var LiveResults;
                 if (reqTime) {
                   var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
                   if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
-                    _this.serverTimeDiff = 0.9*_this.serverTimeDiff + 0.1*newTimeDiff;
+                    _this.serverTimeDiff = 0.9 * _this.serverTimeDiff + 0.1 * newTimeDiff;
                 }
                 expTime = new Date(resp.getResponseHeader("expires")).getTime();
               }
@@ -2579,16 +2568,14 @@ var LiveResults;
         }
       }
       catch (e) { }
-      if (this.isCompToday())
-        {
-          if (newData.lastchanged)
-          {
-            this.lastChanged = newData.lastchanged;
-            this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
-          }
-          else
-            this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
+      if (this.isCompToday()) {
+        if (newData.lastchanged) {
+          this.lastChanged = newData.lastchanged;
+          this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
         }
+        else
+          this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
+      }
     };
 
     AjaxViewer.prototype.animateTable = function (oldData, newData, animTime, predRank = false) {
@@ -2601,7 +2588,7 @@ var LiveResults;
       try {
         var _this = this;
         var isResTab = (newData[0].virtual_position != undefined);
-        
+
         // Make list of indexes and progress for all runners 
         var prevInd = new Object();  // List of old indexes
         var prevProg = new Object(); // List of old progress
@@ -2611,7 +2598,7 @@ var LiveResults;
             oldID = oldData[i].name + oldData[i].club;
           else if (!isResTab && oldData[i].controlName != undefined)
             oldID = oldData[i].controlName + oldData[i].dbid;
-          else 
+          else
             oldID = oldData[i].dbid;
           if (prevInd[oldID] != undefined) {
             prevInd[oldID] = "noAnimation"; // Skip if two identical ID
@@ -2630,7 +2617,7 @@ var LiveResults;
             newID = newData[i].name + newData[i].club;
           else if (!isResTab && newData[i].controlName != undefined)
             newID = newData[i].controlName + newData[i].dbid;
-          else 
+          else
             newID = newData[i].dbid;
           var newInd = (isResTab ? newData[i].virtual_position : i);
           if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
@@ -2638,13 +2625,13 @@ var LiveResults;
             updProg[newInd] = (isResTab ? prevProg[newID] != newData[i].progress : false);
           }
         }
-        if ( Object.keys(lastInd).length == 0 ) { // No modifications
+        if (Object.keys(lastInd).length == 0) { // No modifications
           if (predRank)
             this.startPredictedTimeTimer();
           return;
         }
 
-        var tableDT = this.currentTable.api();  
+        var tableDT = this.currentTable.api();
         var order = tableDT.order();
         var numCol = tableDT.settings().columns()[0].length;
         if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
@@ -2672,22 +2659,21 @@ var LiveResults;
         var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : -window.scrollY);
         $(table).find('tr').each(function () {
           var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
-            $(this).css('top', rowPos);
-            if ($(this).is(":visible"))
-            {               
-              rowPosArray.push(rowPos);
-              rowIndArray.push(ind);
-            }
-            ind++;  
+          $(this).css('top', rowPos);
+          if ($(this).is(":visible")) {
+            rowPosArray.push(rowPos);
+            rowIndArray.push(ind);
+          }
+          ind++;
         });
         $(table).height(height).width('100%');
         if (isResTab) // Set fixed table layout to avoid slider 
-          $(table).css({'table-layout': 'fixed' });
+          $(table).css({ 'table-layout': 'fixed' });
 
         // Set table cells position to absolute
         $(table).find('tbody tr').each(function () {
           $(this).css('position', 'absolute').css('z-index', '91');
-        });  
+        });
 
         // Animation
         for (var lastIndStr in lastInd) {
@@ -2695,7 +2681,7 @@ var LiveResults;
           var oldInd = lastInd[newInd];
           var oldPos = rowPosArray[oldInd + 1]; // First entry is header
           var newPos = rowPosArray[newInd + 1];
-          var row = $(table).find("tbody tr").eq(rowIndArray[newInd+1]);                            
+          var row = $(table).find("tbody tr").eq(rowIndArray[newInd + 1]);
           var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
           var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
           var zind;
@@ -2703,17 +2689,17 @@ var LiveResults;
             zind = (newInd == 0 ? 96 : (newInd > oldInd ? 95 : 93));
           else // Updates from new data from server
             zind = (updProg[newInd] ? 95 : 93);
-               
+
           $(row).css('top', oldPos).css('z-index', zind);
           $(row).velocity({ translateZ: 0, top: newPos }, { duration: animTime });
           $(row).find('td').each(function () {
             $(this).css('background-color', oldBkCol);
-            $(this).velocity({backgroundColor: newBkCol}, {duration: animTime});
+            $(this).velocity({ backgroundColor: newBkCol }, { duration: animTime });
           });
-          
+
         }
         setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
-      }      
+      }
       catch (e) { }
     };
 
@@ -2722,11 +2708,11 @@ var LiveResults;
       $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
       $(table).find('tr').each(function () { $(this).css('position', ''); });
       $(table).height(0).width('100%');
-      $(table).css({'table-layout': 'auto' });
+      $(table).css({ 'table-layout': 'auto' });
       this.animating = false;
       if (predRank)
         this.startPredictedTimeTimer();
-      
+
     };
 
     //Check for update in clubresults
@@ -2790,7 +2776,8 @@ var LiveResults;
         $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft(posLeft);
         window.scrollTo(scrollX, scrollY)
         this.lastClubHash = data.hash;
-        this.currentTable.api().columns.adjust().draw();      }
+        this.currentTable.api().columns.adjust().draw();
+      }
       if (_this.isCompToday())
         this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
     };
@@ -2822,15 +2809,14 @@ var LiveResults;
       else if (className == "plainresultstotal")
         callStr = "&method=getplainresults&unformattedTimes=true&includetotal=true";
       else if (className.includes("plainresultsclass_"))
-        callStr = "&method=getplainresults&unformattedTimes=true&classmask=" + className.replace("plainresultsclass_","");
+        callStr = "&method=getplainresults&unformattedTimes=true&classmask=" + className.replace("plainresultsclass_", "");
       else if (className == "startlist")
         callStr = "&method=getstartlist";
-      else
-      {
+      else {
         var includeTotal = (this.isMultiDayEvent && className.indexOf("course::") != 0);
         callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (includeTotal ? "&includetotal=true" : "");
       }
-        $.ajax({
+      $.ajax({
         url: this.apiURL,
         data: "comp=" + this.competitionId + callStr,
         success: function (data, status, resp) {
@@ -2860,7 +2846,7 @@ var LiveResults;
         return;
       if (data != null && data.rt != undefined && data.rt > 0)
         this.updateInterval = data.rt * 1000;
-      if (data != null && data.lastchanged != undefined )
+      if (data != null && data.lastchanged != undefined)
         this.lastChanged = data.lastchanged;
 
       if (expTime) {
@@ -2882,7 +2868,7 @@ var LiveResults;
             $('#' + this.txtResetSorting).html("");
           }
           else if (data.className.includes("plainresultsclass_")) {
-            $('#' + this.resultsHeaderDiv).html("<b>"+ data.className.replace("plainresultsclass_","") + "</b>"); 
+            $('#' + this.resultsHeaderDiv).html("<b>" + data.className.replace("plainresultsclass_", "") + "</b>");
             $('#' + this.txtResetSorting).html("");
           }
           else if (data.className == "startlist") {
@@ -2906,7 +2892,7 @@ var LiveResults;
             }
             var distance = (data.distance != undefined && data.distance != "" ? "&emsp;<small>" + data.distance + " km</small>" : "");
             var nameDistance = "<b>" + headerName + "</b>" + distance;
-            $('#' + this.resultsHeaderDiv).html(nameDistance);           
+            $('#' + this.resultsHeaderDiv).html(nameDistance);
             $("#" + this.txtResetSorting).html(link);
           }
           $('#' + this.resultsControlsDiv).show();
@@ -2933,24 +2919,23 @@ var LiveResults;
             var classNameHeader = className;
             var distance = (data.results[i].distance != "" ? "&emsp;" + data.results[i].distance + " km" : "");
 
-            var sprintStage = (className.includes('| Prolog')? 0 : ( 
-                               className.includes('| Kvart') ? 1 : ( 
-                               className.includes('| Semi')  ? 2 : (
-                               className.includes('| Finale')? 3 : -1 )))); 
+            var sprintStage = (className.includes('| Prolog') ? 0 : (
+              className.includes('| Kvart') ? 1 : (
+                className.includes('| Semi') ? 2 : (
+                  className.includes('| Finale') ? 3 : -1))));
             var isSprintHeat = sprintStage > 0;
 
-            if (isSprint)
-            {
+            if (isSprint) {
               if (first)
                 res += "<td style=\"vertical-align:top\"><table style=\"width:100%;\">";
               else if (sprintStage != sprintStageLast)
                 res += "</table></td><td style=\"vertical-align:top\"><table style=\"width:100%;\">";
               sprintStageLast = sprintStage;
               first = false;
-              var classPre = data.className.replace("plainresultsclass_","") + " | ";
-              classNameHeader = className.replace(classPre, "");                       
+              var classPre = data.className.replace("plainresultsclass_", "") + " | ";
+              classNameHeader = className.replace(classPre, "");
             }
-            
+
             res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + classNameHeader + "</span>";
             res += distance + "</td></tr>";
             res += "<tr style=\"font-weight:bold\"><td align=\"right\">#</td><td>" + this.resources["_NAME"] + "</td>"
@@ -2973,10 +2958,9 @@ var LiveResults;
               res += "<td>" + name + "</td>";
               if (!isSprintHeat)
                 res += "<td>" + club + "</td>";
-              if (isSprintHeat && !this.showTimesInSprint)         
+              if (isSprintHeat && !this.showTimesInSprint)
                 res += "<td></td><td></td>";
-              else
-              {
+              else {
                 res += "<td align=\"right\">" + this.formatTime(time, data.results[i].results[j].status, _this.showTenthOfSecond) + "</td>";
                 res += "<td align=\"right\"><span class=plustime>"
                 if (data.results[i].results[j].status == 0)
@@ -2994,7 +2978,7 @@ var LiveResults;
             res += "<tr style=\"height: 10px\"><td colspan=5></td></tr>";
           }
           if (isSprint)
-              res += "</table></td></tr>"
+            res += "</table></td></tr>"
           $('#' + this.resultsDiv).html(res);
           $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
           if (this.browserType == 1)
@@ -3062,13 +3046,13 @@ var LiveResults;
           else
             $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
 
-          var haveSplitControls   = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
-          this.curClassSplits     = data.splitcontrols;
-          this.curClassIsRelay    = (haveSplitControls && this.curClassSplits[0].code == "0");
-          this.curClassLapTimes   = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
+          var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
+          this.curClassSplits = data.splitcontrols;
+          this.curClassIsRelay = (haveSplitControls && this.curClassSplits[0].code == "0");
+          this.curClassLapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
           this.curClassIsUnranked = !(this.curClassSplits.every(function check(el) { return el.code != "-999"; })) || !(data.results.every(function check(el) { return el.status != 13; }));
-          this.curClassHasBibs    = (data.results[0].bib != undefined && data.results[0].bib != 0);
-          this.curClassIsCourse   = (data.results[0].class != undefined);
+          this.curClassHasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
+          this.curClassIsCourse = (data.results[0].class != undefined);
 
           if (this.curClassSplits == null)
             this.curClassNumSplits = 0;
@@ -3268,12 +3252,12 @@ var LiveResults;
                     place += "&numsp;"
                   place += "&#10072;" + row.splits["0_place"] + "&#10072; </span>"
 
-                  if (fullView){
+                  if (fullView) {
                     if (row.splits["0_place"] == 1)
                       txt += "<span class=\"besttime\">";
                     else
                       txt += "<span>";
-                    txt += "+" + _this.formatTime(Math.max(0,row.splits["0_timeplus"]), 0, _this.showTenthOfSecond) + place + "</span><br />";
+                    txt += "+" + _this.formatTime(Math.max(0, row.splits["0_timeplus"]), 0, _this.showTenthOfSecond) + place + "</span><br />";
                   }
                   txt += vertLine + "<span>";
                   if (!fullView && row.splits["0_place"] >= 1)
@@ -3296,7 +3280,7 @@ var LiveResults;
                 var splitName = value.name;
                 if (splitName.length >= 10)
                   splitName = splitName.replace("Mellomtid", "M.tid");
-                
+
                 columns.push(
                   {
                     "sTitle": splitName,
@@ -3321,7 +3305,7 @@ var LiveResults;
                           var place = "";
                           if (!row.splits[value.code + "_estimate"] && row.splits[value.code + "_place"] == 1)
                             place += "<span class=\"bestplace\"> ";
-                          else                          
+                          else
                             place += "<span class=\"place\"> ";
                           if (_this.curClassNumberOfRunners >= 10 && (row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-" || row.splits[value.code + "_place"] == "="))
                             place += "&numsp;"
@@ -3344,7 +3328,7 @@ var LiveResults;
                             if (row.splits[value.code + "_estimate"])
                               if (row.splits[value.code + "_place"] == 1 && value.code > 0)
                                 txt += "<span class=\"estimatebest\">";
-                              else 
+                              else
                                 txt += "<span class=\"estimate\">";
                             else if (row.splits[value.code + "_place"] == 1 && value.code > 0)
                               txt += "<span class=\"besttime\">";
@@ -3362,7 +3346,7 @@ var LiveResults;
                             txt += "<br/><span class=";
                             var legplace = "";
 
-                            if (row.splits[value.code + 100000 + "_estimate"]){
+                            if (row.splits[value.code + 100000 + "_estimate"]) {
                               if (row.splits[(value.code + 100000) + "_place"] == 1) {
                                 txt += "\"estimatebest\">";
                                 legplace += "<span class=\"place\"> ";
@@ -3501,7 +3485,7 @@ var LiveResults;
                 var res = vertLine;
                 if (row.status == 0 && row.timeplus > 0) {
                   res += "<span class=\"plustime\">+";
-                  res += _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";                 
+                  res += _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
                 }
                 return res;
               }
@@ -3564,13 +3548,13 @@ var LiveResults;
                     totalplace += "&numsp;"
                   totalplace += "&#10072;" + row.totalplace + "&#10072;</span>";
                   totalres += _this.formatTime(row.totalresult, row.totalstatus) + totalplace + "</span>";
-                  if (fullView && row.totalplace > 1) {                    
+                  if (fullView && row.totalplace > 1) {
                     totalres += "<br/><span class=\"plustime\">+";
                     totalres += _this.formatTime(row.totalplus, row.totalstatus) + "</span>";
-                      if (_this.curClassNumberOfRunners >= 10)
-                        totalres += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
-                      else
-                        totalres += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
+                    if (_this.curClassNumberOfRunners >= 10)
+                      totalres += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
+                    else
+                      totalres += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
                   }
                   return totalres;
                 }
@@ -3654,9 +3638,8 @@ var LiveResults;
           }
 
           this.lastClassHash = data.hash;
-          
-          if (this.isCompToday())
-          {
+
+          if (this.isCompToday()) {
             this.updatePredictedTimes(true); // Insert times only
             this.currentTable.api().columns.adjust().draw();
             if (this.lastChanged)
@@ -3712,7 +3695,7 @@ var LiveResults;
         }
       }
     };
-   
+
     AjaxViewer.prototype.formatTime = function (time, status, showTenthOs, showHours, padZeros, clockTime) {
       if (arguments.length == 2 || arguments.length == 3) {
         if (this.language == 'fi' || this.language == 'no') {
@@ -3745,10 +3728,10 @@ var LiveResults;
         var tenth;
         var restart = "";
 
-        if (time > 100*3600*100) // 100 hours. Used for indicating restart in relay
+        if (time > 100 * 3600 * 100) // 100 hours. Used for indicating restart in relay
         {
           restart = "<small>*</small>"; // Small * to indicate that team has restarted  
-          time = time%(100*3600*100);
+          time = time % (100 * 3600 * 100);
         }
 
         if (showHours) {
@@ -3892,10 +3875,10 @@ var LiveResults;
         if (this.curClassSplits != null) {
           for (var s = this.curClassSplits.length - 1; s >= 0; s--) {
             var splitCode = this.curClassSplits[s].code;
-            if (a.splits[splitCode + "_place"] != "") {                  
+            if (a.splits[splitCode + "_place"] != "") {
               var diff = a.splits[splitCode + "_place"] - b.splits[splitCode + "_place"];
               if (diff == 0 && a.bib != undefined && b.bib != undefined)
-                  return Math.abs(a.bib) - Math.abs(b.bib);
+                return Math.abs(a.bib) - Math.abs(b.bib);
               else
                 return diff;
             }
@@ -4017,9 +4000,9 @@ var LiveResults;
     AjaxViewer.prototype.viewClubResults = function (clubName) {
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
-      if (this.animating){
-         setTimeout(function () { _this.viewClubResults(clubName); }, 500);
-         return;
+      if (this.animating) {
+        setTimeout(function () { _this.viewClubResults(clubName); }, 500);
+        return;
       }
       this.inactiveTimer = 0;
       if (this.currentTable != null) {
@@ -4323,9 +4306,9 @@ var LiveResults;
               var totStatus = legResults[runner].status;
               var totPlace = legResults[runner].place;
               var placeDiff = (totStatus == 0 && teamresults[teamBib].lastPlace > 0 ? legResults[runner].place - teamresults[teamBib].lastPlace : "");
-              var totGained = Math.max(0,legResults[runner].timeplus) - teamresults[teamBib].lastDiff;
+              var totGained = Math.max(0, legResults[runner].timeplus) - teamresults[teamBib].lastDiff;
               teamresults[teamBib].lastPlace = legResults[runner].place;
-              teamresults[teamBib].lastDiff = Math.max(0,legResults[runner].timeplus);
+              teamresults[teamBib].lastDiff = Math.max(0, legResults[runner].timeplus);
 
               var nameShort = legResults[runner].name;
               if (nameShort.length > _this.maxNameLength)
@@ -4333,26 +4316,26 @@ var LiveResults;
 
               teamresults[teamBib].names += br + nameShort;
               teamresults[teamBib].bib += br + leg;
-              
+
               teamresults[teamBib].totTime += br + (totPlace == 1 ? "<span class=\"time1\">" : "<span>")
                 + _this.formatTime(legResults[runner].result, legResults[runner].status, _this.showTenthOfSecond) + "</span>"
                 + (totPlace == 1 ? "<span class=\"place1\">" : "<span class=\"place\">")
                 + (legResults[runner].status == 0 ? (numberOfTeams >= 10 && totPlace < 10 ? "&numsp;" : "")
-                + "&numsp;&#10072;" + totPlace + "&#10072;" : "") + "</span>";
-              teamresults[teamBib].totDiff += br + (totStatus == 0 ? (totPlace == 1 ? "<span class=\"time1\">" : "<span>") 
-                + "+" + _this.formatTime(Math.max(0,legResults[runner].timeplus), 0, _this.showTenthOfSecond) + "</span>" : "");
-              teamresults[teamBib].placeDiff += br + (leg == 1 ? "" : (placeDiff < 0 ? "<span class=\"gained\">" : (placeDiff > 0 ? "<span class=\"lost\">+" : "<span>")) 
+                  + "&numsp;&#10072;" + totPlace + "&#10072;" : "") + "</span>";
+              teamresults[teamBib].totDiff += br + (totStatus == 0 ? (totPlace == 1 ? "<span class=\"time1\">" : "<span>")
+                + "+" + _this.formatTime(Math.max(0, legResults[runner].timeplus), 0, _this.showTenthOfSecond) + "</span>" : "");
+              teamresults[teamBib].placeDiff += br + (leg == 1 ? "" : (placeDiff < 0 ? "<span class=\"gained\">" : (placeDiff > 0 ? "<span class=\"lost\">+" : "<span>"))
                 + placeDiff + "</span>");
               teamresults[teamBib].totGained += br + (leg > 1 && legStatus == 0 ? (totGained < 0 ? "<span class=\"gained\">-" : "<span class=\"lost\">+")
-                  + _this.formatTime(Math.abs(totGained), 0, _this.showTenthOfSecond) : "");
+                + _this.formatTime(Math.abs(totGained), 0, _this.showTenthOfSecond) : "");
 
               teamresults[teamBib].legTime += br + (legPlace == 1 ? "<span class=\"time1\">" : "<span>")
                 + _this.formatTime(legTime, legStatus, _this.showTenthOfSecond) + "</span>"
                 + (legStatus == 0 ? (numberOfTeams >= 10 && legPlace < 10 ? "&numsp;" : "")
-                + (legPlace == 1 ? "<span class=\"place1\">" : "<span class=\"place\">")
-                + "&numsp;&#10072;" + legPlace + "&#10072;" : "") +"</span>"; 
-              teamresults[teamBib].legDiff += br + (legStatus == 0 ? (legPlace == 1 ? "<span class=\"time1\">" : "<span>") 
-                + "+" + _this.formatTime(Math.max(0,legPlusTime), 0, _this.showTenthOfSecond) + "</span>" : "");
+                  + (legPlace == 1 ? "<span class=\"place1\">" : "<span class=\"place\">")
+                  + "&numsp;&#10072;" + legPlace + "&#10072;" : "") + "</span>";
+              teamresults[teamBib].legDiff += br + (legStatus == 0 ? (legPlace == 1 ? "<span class=\"time1\">" : "<span>")
+                + "+" + _this.formatTime(Math.max(0, legPlusTime), 0, _this.showTenthOfSecond) + "</span>" : "");
 
               if (legResults[runner].place == "-")
                 teamresults[teamBib].sort[leg - 1] = 999999 + (leg == 1 ? teamBib : 0);
@@ -4366,7 +4349,7 @@ var LiveResults;
                 teamresults[teamBib].totTime = "<b>" + _this.formatTime(legResults[runner].result, legResults[runner].status, _this.showTenthOfSecond)
                   + "</b><br/>" + teamresults[teamBib].totTime;
                 teamresults[teamBib].totDiff = "<b>" + (legResults[runner].status == 0 ? "+"
-                  + _this.formatTime(Math.max(0,legResults[runner].timeplus), 0, _this.showTenthOfSecond) : "")
+                  + _this.formatTime(Math.max(0, legResults[runner].timeplus), 0, _this.showTenthOfSecond) : "")
                   + "</b><br/>" + teamresults[teamBib].totDiff;
               }
             };
@@ -4443,7 +4426,7 @@ var LiveResults;
       else {
         link = "<button onclick=\"res.showCourses()\" class=\"dropbtn\">Strekktider &#5125;</button><div id=\"myDropdown\" class=\"dropdown-content\">";
         link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "',-1);\">Felles poster</a>";
-        for (i = 0; i < courses.length; i++){
+        for (i = 0; i < courses.length; i++) {
           let courseName = this.courseNames.find(course => course.No === courses[i]);
           if (courseName) {
             link += "<a href=\"javascript:LiveResults.Instance.viewSplitTimeResults('" + className + "'," + courses[i] + ");\">" + courseName.Name + "</a>";
@@ -4663,7 +4646,7 @@ var LiveResults;
         return
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
-      if (this.animating){
+      if (this.animating) {
         setTimeout(function () { _this.viewSplitTimeResults(className, course); }, 500);
         return;
       }
@@ -5024,18 +5007,18 @@ var LiveResults;
       // The number of values is determined by the fraction parameter (0-1)
       // fraction = 0 returns the median
       var length = arr.length;
-      if (length == 0 || fraction < 0 || fraction > 1) 
+      if (length == 0 || fraction < 0 || fraction > 1)
         return null;
       if (length == 1)
         return arr[0];
       var nums = arr.sort((a, b) => a - b);
       var nValues = Math.max(1, fraction * length);
-      var min = length/2 - nValues/2;
-      var max = length/2 + nValues/2;
+      var min = length / 2 - nValues / 2;
+      var max = length / 2 + nValues / 2;
       var indMin = Math.floor(min);
       var indMax = Math.floor(max);
       var sumVal = 0;
-      for (var i = indMin; i <= indMax; i++){
+      for (var i = indMin; i <= indMax; i++) {
         if (i == indMin)
           sumVal += (indMin + 1 - min) * nums[i];
         else if (i == indMax)
@@ -5046,7 +5029,7 @@ var LiveResults;
       return sumVal / nValues;
     };
 
-    
+
     // ReSharper disable once InconsistentNaming
     AjaxViewer.VERSION = "2016-08-06-01";
     return AjaxViewer;
