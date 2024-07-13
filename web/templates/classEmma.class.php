@@ -147,8 +147,8 @@ class Emma
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
 		hightime,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,showtimesinsprint,livecenterurl,sport)
-	   values(" . $id . ",'" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','" . $name . "','" . $org . "','" . $date . "',1,0,0,0,0," . $hightime . ",'',
-     '',0,0,0,''," . $showecardtimes . ",0,'','" . $sport . "')") or die(mysqli_error($conn));
+		values($id,'" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','$name','$org','$date',1,0,0,0,1,$hightime,'',
+		'',0,0,0,'',$showecardtimes,0,'','$sport')") or die(mysqli_error($conn));
 		return $id;
 	}
 

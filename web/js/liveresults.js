@@ -1017,6 +1017,7 @@ var LiveResults;
           var MDoffset = (this.curClassIsCourse ? 1 : 0) + (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
           var rank;
           const predOffset = 1500;
+          const rankedStartListMinTimeDiff = -120 * 100; // Only make a dynamic ranking the last 2 minutes before best time 
           const predRank = true;
 
           var firstOKSplit = this.curClassNumSplits;
@@ -1189,6 +1190,7 @@ var LiveResults;
                       }
                       else // No best time
                       {
+                        timeDiff = rankedStartListMinTimeDiff - 1; // Force no dynamic ranking
                         timeDiffStr = "<span class=\"place\"><i>&#10072;..&#10072;</i></span>";
                         if (this.isMultiDayEvent && !this.compactView) {
                           timeDiffStr = "";
@@ -1207,7 +1209,7 @@ var LiveResults;
                     table.cell(i, 4 + MDoffset + (this.curClassHasBibs ? 1 : 0)).data(elapsedTimeStr);
 
                     // Insert finish time if predict ranking is on
-                    if (predRank && this.rankedStartlist && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
+                    if (predRank && this.rankedStartlist && timeDiff > rankedStartListMinTimeDiff && !this.curClassIsRelay && !this.curClassLapTimes && !this.curClassIsUnranked &&
                       data[i].progress == 0 && (data[i].status == 0 || data[i].status == 9 || data[i].status == 10)) {
                       tmpPredData[i].result = Math.max(elapsedTime / (predOffset + 1), elapsedTime - predOffset);
                       tmpPredData[i].progress = 100;
@@ -1239,6 +1241,7 @@ var LiveResults;
                     else {
                       var rankStr = "";
                       if (this.curClassSplitsBests[nextSplit][0] == 0) {
+                        timeDiff = rankedStartListMinTimeDiff - 1; // Force no dynamic ranking
                         rank = 0;
                         rankStr += "<i>&#10072;..&#10072;</i></span>";
                         if (nextSplit != this.curClassNumSplits && !this.curClassIsRelay)
@@ -1297,7 +1300,7 @@ var LiveResults;
 
                       // Update predData: Insert current time if longer than a runner with larger index / virtual position
                       if (predRank && !this.curClassIsRelay && !this.curClassLapTimes) {
-                        if (nextSplit == 0 && this.rankedStartlist) // First split
+                        if (nextSplit == 0 && this.rankedStartlist && timeDiff > rankedStartListMinTimeDiff) // First split
                         {
                           tmpPredData[i].splits[this.curClassSplits[0].code] = Math.max(elapsedTime / (predOffset + 1), elapsedTime - predOffset);
                           tmpPredData[i].progress = 100.0 * 1 / (this.curClassNumSplits + 1);
