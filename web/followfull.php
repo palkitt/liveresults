@@ -29,7 +29,7 @@ if ($isEmmaComp) {
   $isMultiDayEvent = "false";
   $showTenths = false;
   $highTime = false;
-  $rankedStartlist = false;
+  $rankedStartlist = true;
   $qualLimits = "";
   $qualClasses = "";
   $infoText = "";
@@ -100,7 +100,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <?php if (isset($_GET['beta'])) { ?>
     <script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script>
   <?php } else { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults.js?20240427"></script>
+    <script language="javascript" type="text/javascript" src="js/liveresults.js?20240716"></script>
   <?php } ?>
 
   <script language="javascript" type="text/javascript">
@@ -283,7 +283,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           }
         }
       }
-
     });
 
     let wakeLock = null;
