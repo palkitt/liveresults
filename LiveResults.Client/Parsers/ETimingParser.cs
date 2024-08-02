@@ -173,7 +173,7 @@ namespace LiveResults.Client
                         m_connection.Open();
 
                     setEventType(out bool isRelay, out bool isSprint, out bool isSprintRelay, out int day);
-                                   
+
                     string purmin = (isRelay ? "AND(C.purmin IS NULL OR C.purmin < 2)" : "");
                     IDbCommand cmdInd = m_connection.CreateCommand();
                     cmdInd.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.ename, N.name, N.times, N.intime, N.totaltime,
@@ -193,13 +193,13 @@ namespace LiveResults.Client
                             FROM Name N, Class C, Team T, Relay R, Cource Co 
                             WHERE N.class=C.code AND T.code=R.lgteam AND N.rank=R.lgstartno AND Co.code=N.cource AND (N.startno {0} 100)<=C.purmin 
                             ORDER BY N.startno", modulus);
-                    
+
                     IDbCommand cmdSplits = m_connection.CreateCommand();
                     cmdSplits.CommandText = string.Format(@"SELECT mellomid, iplace, stasjon, mintime, nettotid, timechanged, mecard 
                             FROM mellom 
                             WHERE stasjon>=0 AND stasjon<250 AND mecard>0 AND day={0}
                             ORDER BY mintime", day);
-                    
+
                     IDbCommand cmdEcardTimes = m_connection.CreateCommand();
                     cmdEcardTimes.CommandText = string.Format(@"SELECT times, control, ecardno, nr FROM ecard ORDER BY ecardno, times");
 
@@ -210,22 +210,22 @@ namespace LiveResults.Client
                     List<int> usedID = new List<int>();
                     List<RadioControl> intermediates = new List<RadioControl>();
                     string lastRunner = "No runners parsed yet";
-                    
+
                     string messageServer = ConfigurationManager.AppSettings["messageServer"];
                     string apiServer = ConfigurationManager.AppSettings["apiServer"];
                     WebClient client = new WebClient();
                     client.Encoding = System.Text.Encoding.UTF8;
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
-                    int maxCCTimer        = 60;                // Time between reading courses and controls
-                    int CCTimer           = maxCCTimer; 
-                    int maxMessageTimer   = 9;                 // Time between reading messages
-                    int messageTimer      = maxMessageTimer;
-                    int maxActiveTimer    = 60;                // Time between setting new live active signal
-                    int activeTimer       = maxActiveTimer;
+                    int maxCCTimer = 60;                // Time between reading courses and controls
+                    int CCTimer = maxCCTimer;
+                    int maxMessageTimer = 9;                 // Time between reading messages
+                    int messageTimer = maxMessageTimer;
+                    int maxActiveTimer = 60;                // Time between setting new live active signal
+                    int activeTimer = maxActiveTimer;
 
-                    bool failedLast       = false;
-                    bool first            = true;
+                    bool failedLast = false;
+                    bool first = true;
 
                     //  Main loop 
                     while (m_continue)
@@ -377,7 +377,8 @@ namespace LiveResults.Client
                                 if (reader["dist"] != null && reader["dist"] != DBNull.Value)
                                     dist = Convert.ToInt32(reader["dist"].ToString());
 
-                                if (courseno != lastCourse){
+                                if (courseno != lastCourse)
+                                {
                                     radioCnt.Clear();
                                     accDist = dist;
                                 }
@@ -471,7 +472,7 @@ namespace LiveResults.Client
                     List<VacantRunner> vacantRunner = new List<VacantRunner>();
                     IDbCommand cmd = m_connection.CreateCommand();
                     cmd.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.class, C.class as cclass FROM name N, Class C WHERE N.class=C.code AND N.status = 'V'");
-                    
+
                     using (IDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -480,7 +481,7 @@ namespace LiveResults.Client
                             int EventorID = 0;
                             bool parseOK = false;
                             if (reader["kid"] != null && reader["kid"] != DBNull.Value)
-                                 parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
+                                parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
                             string bibread = (reader["startno"].ToString()).Trim();
                             int bib = string.IsNullOrEmpty(bibread) ? 0 : Convert.ToInt32(bibread);
                             string classname = reader["cclass"] as string;
@@ -566,14 +567,14 @@ namespace LiveResults.Client
                         if (radioCode > 1000)
                         {
                             code = radioCode / 100;
-                            radioCode = code + 1000*(radioCode % 100);
+                            radioCode = code + 1000 * (radioCode % 100);
                         }
                         else
-                            code = radioCode; 
-                    
+                            code = radioCode;
+
                         if (reader["radiocourceno"] != null && reader["radiocourceno"] != DBNull.Value)
                             course = Convert.ToInt32(reader["radiocourceno"].ToString());
-                        
+
                         // Radiotype: 2 = finish/finish-passing; 4 = normal; 10 = exchange
                         if (reader["radiotype"] != null && reader["radiotype"] != DBNull.Value)
                             radiotype = Convert.ToInt32(reader["radiotype"].ToString());
@@ -593,7 +594,7 @@ namespace LiveResults.Client
 
                         // If description string contains "{dist}" then try to find and insert distance from course controls
                         // If description string contains "{no}" then try to find and insert control number from course controls
-                        if ((description.Contains("{dist}") || description.Contains("{no}") ) && courses.ContainsKey(course))                      
+                        if ((description.Contains("{dist}") || description.Contains("{no}")) && courses.ContainsKey(course))
                         {
                             foreach (var control in courses[course])
                             {
@@ -793,7 +794,7 @@ namespace LiveResults.Client
                     }
                     reader.Close();
                 }
-            
+
 
                 var dlgMergeRadio = OnMergeRadioControls;
                 if (dlgMergeRadio != null)
@@ -811,11 +812,11 @@ namespace LiveResults.Client
             }
             catch (Exception ee)
             {
-                   FireLogMsg("eTiming parser setRadioControls: " + ee.Message);
+                FireLogMsg("eTiming parser setRadioControls: " + ee.Message);
             }
         }
 
-        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, ref Dictionary<int, List<EcardTimesRawStruct>> ecardTimesList, 
+        private void ParseReader(IDbCommand cmd, ref Dictionary<int, List<SplitRawStruct>> splitList, ref Dictionary<int, List<EcardTimesRawStruct>> ecardTimesList,
                                  ref Dictionary<int, List<CourseControl>> courses, ref List<RadioControl> intermediates,
                                  bool isRelay, bool isSprint, bool isSprintRelay, int day,
                                  List<int> usedIDin, out string lastRunner, out List<int> usedIDout)
@@ -905,7 +906,7 @@ namespace LiveResults.Client
                         }
                         runnerID += m_IdOffset + sprintOffset;
                         usedIDout.Add(runnerID);
-             
+
                         // Continue with adding or updating runner
                         if ((m_updateEcardTimes || m_ecardAsBackup) && reader["cource"] != null && reader["cource"] != DBNull.Value)
                             course = Convert.ToInt32(reader["cource"].ToString());
@@ -927,7 +928,7 @@ namespace LiveResults.Client
 
                         name = givName + " " + famName;
                         lastRunner = name;
-                        
+
                         bibread = (reader["startno"].ToString()).Trim();
                         bib = string.IsNullOrEmpty(bibread) ? 0 : Convert.ToInt32(bibread);
 
@@ -966,7 +967,7 @@ namespace LiveResults.Client
 
                             if (isSprintRelay & leg > 2) // Keep and use first two names in sprint reLay
                                 name = namePre2;
-                            namePre2 = namePre1; 
+                            namePre2 = namePre1;
                             namePre1 = name;
 
                             if (!RelayTeams.ContainsKey(teambib))
@@ -1021,9 +1022,9 @@ namespace LiveResults.Client
                                 if (RelayTeams[teambib].TeamMembers[legs].LegTime > 0)
                                 {
                                     // Add 100 hours to indicate restart
-                                    TeamTime += RelayTeams[teambib].TeamMembers[legs].LegTime 
-                                             + (RelayTeams[teambib].TeamMembers[legs].Restart ? 100 * 3600 * 100 : 0); 
-                                    RelayTeams[teambib].TeamMembers[legs].TotalTime = TeamTime;                                    
+                                    TeamTime += RelayTeams[teambib].TeamMembers[legs].LegTime
+                                             + (RelayTeams[teambib].TeamMembers[legs].Restart ? 100 * 3600 * 100 : 0);
+                                    RelayTeams[teambib].TeamMembers[legs].TotalTime = TeamTime;
                                 }
 
                                 // Accumulated status
@@ -1181,7 +1182,7 @@ namespace LiveResults.Client
 
                             passTime = -2;        // Total time at passing
                             int passLegTime = -2; // Time used on leg at passing
-                            if (split.netTime > 0 && (time < 0 || split.netTime < time) && (freeStart || useEcardTime) )
+                            if (split.netTime > 0 && (time < 0 || split.netTime < time) && (freeStart || useEcardTime))
                                 passTime = split.netTime;
                             else if (isRelay)
                             {
@@ -1190,7 +1191,7 @@ namespace LiveResults.Client
                             }
                             else if (chaseStart)
                             {
-                                passLegTime = splitPassTime - iStartTime; 
+                                passLegTime = splitPassTime - iStartTime;
                                 passTime = splitPassTime - iStartTime + totalTime;
                             }
                             else if (!freeStart)
@@ -1198,7 +1199,7 @@ namespace LiveResults.Client
 
                             if (passTime < 1000 || (time > 0 && passTime > time))  // Neglect pass times less than 10 s from start and pass times longer than finish time
                                 continue;
-                            
+
                             if (m_lapTimes && !isRelay) // Set lap time in for pass leg time
                             {
                                 if (lastSplitTime < 0) // First pass
@@ -1226,7 +1227,7 @@ namespace LiveResults.Client
                             if (distance > 0)
                             {
                                 var timeToRadio = ((m_lapTimes && !isRelay) || passLegTime < 0 ? passTime : passLegTime);
-                                double paceToRadio = ((double)timeToRadio/6000) / ((double)distance/1000); // min/km
+                                double paceToRadio = ((double)timeToRadio / 6000) / ((double)distance / 1000); // min/km
                                 if (paceToRadio < m_minPaceTime)
                                     continue;
                             }
@@ -1324,7 +1325,7 @@ namespace LiveResults.Client
                                 if (timeNo < ecardTimes.Count) // control found
                                 {
                                     timeMatch = ecardTimes.ElementAt(timeNo).time;
-                                    lastMatchedTime = timeMatch*100;
+                                    lastMatchedTime = timeMatch * 100;
                                 }
                                 if (m_updateEcardTimes)
                                 {
@@ -1343,7 +1344,7 @@ namespace LiveResults.Client
                                     bool radioTimeExist = SplitTimes.Any(item => item.ControlCode == radioCode);
                                     if (radioControlExist && !radioTimeExist && timeMatch > 0)
                                     {
-                                        var distance = intermediates.Where(item => item.ClassName == classN && 
+                                        var distance = intermediates.Where(item => item.ClassName == classN &&
                                                             item.Code == radioCode).Select(item => item.Distance).FirstOrDefault();
                                         double paceToRadio = 999999;
                                         if (distance > 0)
@@ -1382,8 +1383,8 @@ namespace LiveResults.Client
                             if (chaseStart)
                                 timeToFinish -= totalTime;
                             if (isRelay)
-                                timeToFinish -= Math.Max(TeamTimePre, iStartTime - iStartClass);                             
-                            if (timeToFinish > 0 && timeToFinish < 5*60*100) // Last ecard control within 0-5 min from finish time
+                                timeToFinish -= Math.Max(TeamTimePre, iStartTime - iStartClass);
+                            if (timeToFinish > 0 && timeToFinish < 5 * 60 * 100) // Last ecard control within 0-5 min from finish time
                             {
                                 foreach (ResultStruct backupTime in backupRadioTimes)
                                     SplitTimes.Add(backupTime);
@@ -1416,7 +1417,7 @@ namespace LiveResults.Client
                     catch (Exception ee)
                     {
                         FireLogMsg("eTiming Parser. Runner ID:" + runnerID + " Error: " + ee.Message);
-                    }                    
+                    }
                 }
                 reader.Close();
             }
@@ -1495,7 +1496,7 @@ namespace LiveResults.Client
             return rstatus;
         }
 
-        private void ParseReaderSplits(IDbCommand cmd, out Dictionary<int,List<SplitRawStruct>> splitList, out string lastRunner)
+        private void ParseReaderSplits(IDbCommand cmd, out Dictionary<int, List<SplitRawStruct>> splitList, out string lastRunner)
         {
             splitList = new Dictionary<int, List<SplitRawStruct>>();
             lastRunner = "";
@@ -1702,7 +1703,7 @@ namespace LiveResults.Client
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere. Status:" + status + "&dbid=" + dbid);
                             }
                             else
-                                 failedThis = true;
+                                failedThis = true;
                         }
                         else if (failedLast)
                         {
@@ -1711,7 +1712,7 @@ namespace LiveResults.Client
                             apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere. Status:" + status + "&dbid=" + dbid);
                         }
                         else
-                             failedThis = true;
+                            failedThis = true;
                     }
                     catch (Exception ee)
                     {
@@ -1784,7 +1785,7 @@ namespace LiveResults.Client
                         if (bibOK)
                         {
                             CheckEcard(ecard, bib, out ecardOK, out sameBibEcard, out int dbidUnknown);
-                                                        
+
                             if (dbidUnknown > 0)
                             {
                                 cmd.CommandText = string.Format(@"UPDATE name SET ecard=NULL WHERE id={0}", dbidUnknown);
@@ -1802,17 +1803,26 @@ namespace LiveResults.Client
                             bool emiTag1 = (ecard1 < 10000 || ecard1 > 1000000);
                             bool emiTag2 = (ecard2 < 10000 || ecard2 > 1000000);
                             int ecardOld = 0;
-                            int ecardToChange = 3; // Use tag 3 place if both tag holders are of same type as new tag
+                            int ecardToChange = 0;
 
-                            if (emiTag && emiTag1 && !emiTag2 || !emiTag && !emiTag1 && emiTag2 || ecard1 == 0)
+                            // Use ecard1 place if ecard1 is of same type as new tag or empty and ecard2 is of different type or empty  
+                            if (emiTag && (emiTag1 || ecard1 == 0) && (!emiTag2 || ecard2 == 0) ||
+                               !emiTag && (!emiTag1 || ecard1 == 0) && (emiTag2 || ecard2 == 0))
                             {
                                 ecardToChange = 1;
                                 ecardOld = ecard1;
                             }
-                            else if (emiTag && emiTag2 && !emiTag1 || !emiTag && !emiTag2 && emiTag1 || ecard2 == 0)
+                            // Use ecard2 place if ecard2 is empty or is of same type as new tag
+                            else if (ecard2 == 0 || emiTag && emiTag2 && (!emiTag1 || ecard1 == 0) || !emiTag && !emiTag2 && (emiTag1 || ecard1 == 0))
                             {
                                 ecardToChange = 2;
                                 ecardOld = ecard2;
+                            }
+                            // No empty place and both tag holders are of same type as new tag
+                            else
+                            {
+                                ecardToChange = 3;
+                                ecardOld = ecard3;
                             }
 
                             if (ecardToChange == 1)
@@ -1822,10 +1832,10 @@ namespace LiveResults.Client
                             var update = cmd.ExecuteNonQuery();
                             if (update == 1)
                             {
-                                FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " replaced ecard: " + ecardOld + " with: " + ecard);
+                                FireLogMsg("eTiming Message: (bib: " + bib + ") " + name + " replaced ecard " + ecardToChange + ": " + ecardOld + " with: " + ecard);
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);
-                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID + "&message=Brikke: " + ecardOld +
-                                    " byttet til " + ecard + "&dbid=" + dbid);
+                                apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&completed=1&comp=" + m_compID +
+                                   "&message=Brikke " + ecardToChange + ": " + ecardOld + " byttet til " + ecard + "&dbid=" + dbid);
 
                             }
                             else if (failedLast)
@@ -1835,7 +1845,7 @@ namespace LiveResults.Client
                                 apiResponse = client.DownloadString(messageServer + "messageapi.php?method=sendmessage&comp=" + m_compID + "&message=Kunne ikke oppdatere brikke&dbid=" + dbidMessage);
                             }
                             else
-                                 failedThis = true;
+                                failedThis = true;
                         }
                         else if (failedLast) // !bibOK || !ecardOK
                         {
@@ -1967,7 +1977,7 @@ namespace LiveResults.Client
             ecardOK = true;
             sameBibEcard = false;
             dbidUnknown = 0;
-            
+
             int eTimingBib = 0;
             int dbid = 0;
 
@@ -1981,7 +1991,7 @@ namespace LiveResults.Client
                     {
                         string status = reader["status"] as string;
                         string famName = (reader["ename"] as string);
-                        
+
                         if (!string.IsNullOrEmpty(famName))
                             famName = famName.Trim();
                         if (reader["id"] != null && reader["id"] != DBNull.Value)
@@ -2012,7 +2022,7 @@ namespace LiveResults.Client
             catch (Exception ee)
             {
                 FireLogMsg("Bad network or config file? Error on sending active signal: " + ee.Message);
-            }      
+            }
         }
 
         private static int GetRunTime(string runTime)
@@ -2023,7 +2033,7 @@ namespace LiveResults.Client
                 factor = -1;
                 runTime = runTime.Substring(1);
             }
-            
+
             DateTime dt;
             if (!DateTime.TryParseExact(runTime, "mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
             {
@@ -2041,7 +2051,7 @@ namespace LiveResults.Client
                                     {
                                         if (runTime != "")
                                         {
-                                            throw new ApplicationException ("Could not parse Time" + runTime);
+                                            throw new ApplicationException("Could not parse Time" + runTime);
                                         }
                                     }
                                 }
@@ -2050,10 +2060,10 @@ namespace LiveResults.Client
                     }
                 }
             }
-            
+
             return (int)Math.Round(dt.TimeOfDay.TotalSeconds * 100 * factor);
         }
-                
+
         private static int ConvertFromDay2cs(double timeD)
         {
             int timecs;
