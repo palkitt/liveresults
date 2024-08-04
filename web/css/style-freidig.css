@@ -157,6 +157,15 @@ td.searchmenu {
   padding-left: 5px;
 }
 
+/* Modify datatable classes */
+table.dataTable>thead>tr>th,
+table.dataTable>thead>tr>td,
+table.dataTable tbody th,
+table.dataTable tbody td,
+table.dataTable td {
+  padding: 3px 7px 3px 3px;
+}
+
 /* Red row marking */
 tr.red_row>td {
   color: white;
