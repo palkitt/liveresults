@@ -1004,7 +1004,8 @@ var LiveResults;
           var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
-          var time = 10 * 6000 * Math.random() + 4 * 60 * 60 * 100 + 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
+          var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
+          time += 20 * 6000 * Math.random() - 12 * 60 * 60 * 100;
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -1562,11 +1563,11 @@ var LiveResults;
           var columns = Array();
           var col = 0;
           if (!leftInForest) {
-            columns.push({ title: "Sted", className: "left", orderable: false, targets: [col++], data: "controlName" });
-            columns.push({ title: "Tidsp.", className: "left", orderable: false, targets: [col++], data: "passtime" });
+            columns.push({ title: "Sted", className: "dt-left", orderable: false, targets: [col++], data: "controlName" });
+            columns.push({ title: "Tidsp.", className: "dt-left", orderable: false, targets: [col++], data: "passtime" });
           }
           columns.push({
-            title: "&#8470;", className: "right", orderable: false, targets: [col++], data: "bib",
+            title: "&#8470;", className: "dt-right", orderable: false, targets: [col++], data: "bib",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (data < 0) // Relay
@@ -1581,7 +1582,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "Navn", className: "left", orderable: false, targets: [col++], data: "runnerName",
+            title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "runnerName",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxNameLength)
@@ -1594,7 +1595,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "Klubb", className: "left", orderable: false, targets: [col++], data: "club",
+            title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxClubLength) {
@@ -1608,7 +1609,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "Klasse", className: "left", orderable: false, targets: [col++], data: "class",
+            title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
             render: function (data, type, row) {
               var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
               link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
@@ -1617,7 +1618,7 @@ var LiveResults;
           });
           if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
             columns.push({
-              title: "#", className: "right", orderable: false, targets: [col++], data: "rank",
+              title: "#", className: "dt-right", orderable: false, targets: [col++], data: "rank",
               render: function (data, type, row) {
                 var res = "";
                 if (row.rank >= 0) res += row.rank;
@@ -1628,11 +1629,11 @@ var LiveResults;
           var timeTitle = "Tid";
           if (leftInForest)
             timeTitle = "Starttid";
-          columns.push({ title: timeTitle, className: "right", orderable: false, targets: [col++], data: "time" });
+          columns.push({ title: timeTitle, className: "dt-right", orderable: false, targets: [col++], data: "time" });
 
           if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
             columns.push({
-              title: "Diff", className: "right", orderable: false, targets: [col++], data: "timeDiff",
+              title: "Diff", className: "dt-right", orderable: false, targets: [col++], data: "timeDiff",
               render: function (data, type, row) {
                 var res = "";
                 if (row.timeDiff >= 0)
@@ -1644,7 +1645,7 @@ var LiveResults;
             });
           if (leftInForest) {
             columns.push({
-              title: "", className: "left", orderable: false, targets: [col++], data: "status",
+              title: "", className: "dt-left", orderable: false, targets: [col++], data: "status",
               render: function (data, type, row) {
                 var res = "";
                 if (row.checked == 1 || row.status == 9)
@@ -1655,7 +1656,7 @@ var LiveResults;
               }
             });
             columns.push({
-              title: "DNS", className: "left", orderable: false, targets: [col++], data: "controlName",
+              title: "DNS", className: "dt-left", orderable: false, targets: [col++], data: "controlName",
               render: function (data, type, row) {
                 var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.runnerName;
                 var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + ",1);\">&#128172;</button>";
@@ -1751,7 +1752,7 @@ var LiveResults;
             var columns = Array();
             var col = 0;
             columns.push({
-              title: "&#8470;", className: "right", orderable: false, targets: [col++], data: "bib",
+              title: "&#8470;", className: "dt-right", orderable: false, targets: [col++], data: "bib",
               render: function (data, type, row) {
                 if (type === 'display') {
                   if (data < 0) // Relay
@@ -1766,7 +1767,7 @@ var LiveResults;
               }
             });
             columns.push({
-              title: "Navn", className: "left", orderable: false, targets: [col++], data: "name",
+              title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
               render: function (data, type, row) {
                 if (type === 'display') {
                   var name = (data.length > _this.maxNameLength ? _this.nameShort(data) : data);
@@ -1777,7 +1778,7 @@ var LiveResults;
               }
             });
             columns.push({
-              title: "Klubb", className: "left", orderable: false, targets: [col++], data: "club",
+              title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
               render: function (data, type, row) {
                 if (type === 'display') {
                   var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);
@@ -1788,7 +1789,7 @@ var LiveResults;
               }
             });
             columns.push({
-              title: "Klasse", className: "left", orderable: false, targets: [col++], data: "class",
+              title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
               render: function (data, type, row) {
                 var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
                 link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
@@ -1796,7 +1797,7 @@ var LiveResults;
               }
             });
             columns.push({
-              title: "Brikke", className: "left", orderable: false, targets: [col++], data: "ecard1",
+              title: "Brikke", className: "dt-left", orderable: false, targets: [col++], data: "ecard1",
               render: function (data, type, row) {
                 var ecards = "";
                 if (row.ecard1 > 0) {
@@ -1817,7 +1818,7 @@ var LiveResults;
               }
             });
             columns.push({
-              title: "Starttid", className: "right", orderable: false, targets: [col++], data: "start",
+              title: "Starttid", className: "dt-right", orderable: false, targets: [col++], data: "start",
               render: function (data, type, row) {
                 return data;
               }
@@ -1825,7 +1826,7 @@ var LiveResults;
 
             var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
             columns.push({
-              title: message, className: "left", orderable: false, targets: [col++], data: "start",
+              title: message, className: "dt-left", orderable: false, targets: [col++], data: "start",
               render: function (data, type, row) {
                 var defaultDNS = (row.dbid > 0 ? 1 : 0);
                 var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
@@ -2059,13 +2060,13 @@ var LiveResults;
         var columns = Array();
         var col = 0;
         columns.push({
-          title: "St.no", visible: false, className: "right", orderable: false, targets: [col++], data: "bib",
+          title: "St.no", visible: false, className: "dt-right", orderable: false, targets: [col++], data: "bib",
           render: function (data, type, row) {
             return Math.abs(data);
           }
         });
         columns.push({
-          title: "St.no", className: "right", orderable: false, targets: [col++], data: "bib",
+          title: "St.no", className: "dt-right", orderable: false, targets: [col++], data: "bib",
           render: function (data, type, row) {
             if (type === 'display') {
               var res;
@@ -2085,7 +2086,7 @@ var LiveResults;
           }
         });
         columns.push({
-          title: "Navn", className: "left", orderable: false, targets: [col++], data: "name",
+          title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
           render: function (data, type, row) {
             if (type === 'display') {
               var res;
@@ -2103,7 +2104,7 @@ var LiveResults;
           }
         });
         columns.push({
-          title: "Klubb", className: "left", orderable: false, targets: [col++], data: "club",
+          title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
           render: function (data, type, row) {
             if (type === 'display') {
               var res;
@@ -2121,7 +2122,7 @@ var LiveResults;
           }
         });
         columns.push({
-          title: "Klasse", className: "left", orderable: false, targets: [col++], data: "class",
+          title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
           render: function (data, type, row) {
             className = row.class;
             var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
@@ -2134,7 +2135,7 @@ var LiveResults;
         });
 
         columns.push({
-          title: "Starttid", className: "right", orderable: false, targets: [col++], data: "start",
+          title: "Starttid", className: "dt-right", orderable: false, targets: [col++], data: "start",
           render: function (data, type, row) {
             if (type === 'display') {
               if (row.status == 1) // DNS
@@ -2148,7 +2149,7 @@ var LiveResults;
         });
 
         columns.push({
-          title: "Brikke#1", className: "center", orderable: false, targets: [col++], data: "ecard1",
+          title: "Brikke#1", className: "dt-center", orderable: false, targets: [col++], data: "ecard1",
           render: function (data, type, row) {
             var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib / 100 | 0) + "-" + (-row.bib % 100) : row.bib) + ") ");
             var ecardStr = (row.ecard1 == 0 ? "-" : row.ecard1);
@@ -2159,7 +2160,7 @@ var LiveResults;
           }
         });
         columns.push({
-          title: "Brikke#2", className: "center", orderable: false, targets: [col++], data: "ecard2",
+          title: "Brikke#2", className: "dt-center", orderable: false, targets: [col++], data: "ecard2",
           render: function (data, type, row) {
             var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib / 100 | 0) + "-" + (-row.bib % 100) : row.bib) + ") ");
             var ecardStr = (row.ecard2 == 0 ? "-" : row.ecard2);
@@ -2554,7 +2555,7 @@ var LiveResults;
             }
 
             this.updatePredictedTimes(true); // Insert times only
-            $(table.table().container()).find('.dataTables_scrollBody').scrollLeft(posLeft);
+            $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
             window.scrollTo(scrollX, scrollY);
 
             var newResults = table.data().toArray();
@@ -2585,135 +2586,166 @@ var LiveResults;
 
       if (this.animating)
         return
-      try {
-        var _this = this;
-        var isResTab = (newData[0].virtual_position != undefined);
+      //try {
+      var _this = this;
+      var isResTab = (newData[0].virtual_position != undefined);
 
-        // Make list of indexes and progress for all runners 
-        var prevInd = new Object();  // List of old indexes
-        var prevProg = new Object(); // List of old progress
-        for (var i = 0; i < oldData.length; i++) {
-          var oldID;
-          if (this.EmmaServer)
-            oldID = oldData[i].name + oldData[i].club;
-          else if (!isResTab && oldData[i].controlName != undefined)
-            oldID = oldData[i].controlName + oldData[i].dbid;
-          else
-            oldID = oldData[i].dbid;
-          if (prevInd[oldID] != undefined) {
-            prevInd[oldID] = "noAnimation"; // Skip if two identical ID
-          }
-          else {
-            prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
-            prevProg[oldID] = (isResTab ? oldData[i].progress : 100);
-          }
+      // Make list of indexes and progress for all runners 
+      var prevInd = new Object();  // List of old indexes
+      var prevProg = new Object(); // List of old progress
+      for (var i = 0; i < oldData.length; i++) {
+        var oldID;
+        if (this.EmmaServer)
+          oldID = oldData[i].name + oldData[i].club;
+        else if (!isResTab && oldData[i].controlName != undefined)
+          oldID = oldData[i].controlName + oldData[i].dbid;
+        else
+          oldID = oldData[i].dbid;
+        if (prevInd[oldID] != undefined) {
+          prevInd[oldID] = "noAnimation"; // Skip if two identical ID
         }
-
-        var lastInd = new Object(); // List of last index for updated entries
-        var updProg = new Object(); // List of progress change
-        for (var i = 0; i < newData.length; i++) {
-          var newID;
-          if (this.EmmaServer)
-            newID = newData[i].name + newData[i].club;
-          else if (!isResTab && newData[i].controlName != undefined)
-            newID = newData[i].controlName + newData[i].dbid;
-          else
-            newID = newData[i].dbid;
-          var newInd = (isResTab ? newData[i].virtual_position : i);
-          if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
-            lastInd[newInd] = prevInd[newID];
-            updProg[newInd] = (isResTab ? prevProg[newID] != newData[i].progress : false);
-          }
+        else {
+          prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
+          prevProg[oldID] = (isResTab ? oldData[i].progress : 100);
         }
-        if (Object.keys(lastInd).length == 0) { // No modifications
-          if (predRank)
-            this.startPredictedTimeTimer();
-          return;
-        }
-
-        var order = this.currentTable.order();
-        var numCol = this.currentTable.settings().columns()[0].length;
-        if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
-          if (predRank)
-            this.startPredictedTimeTimer();
-          return;
-        }
-
-        // Prepare for animation
-        this.animating = true;
-        var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
-
-        // Set each td's width
-        var column_widths = new Array();
-        $(table).find('tr:first-child td').each(function () {
-          var paddingRight = $(this).css('padding-right');
-          var paddingLeft = $(this).css('padding-left');
-          var padding = parseInt(paddingRight, 10) + parseInt(paddingLeft, 10);
-          column_widths.push($(this)[0].getBoundingClientRect().width - padding);
-        });
-        $(table).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
-
-        // Set table height and width
-        var height = $(table).outerHeight();
-
-        // Put all the rows back in place
-        var rowPosArray = new Array();
-        var rowIndArray = new Array();
-        var ind = -1; // -1:header; 0:first data
-        var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : -window.scrollY);
-        $(table).find('tr').each(function () {
-          var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
-          $(this).css('top', rowPos);
-          if ($(this).is(":visible")) {
-            rowPosArray.push(rowPos);
-            rowIndArray.push(ind);
-          }
-          ind++;
-        });
-        $(table).height(height).width('100%');
-        if (isResTab) // Set fixed table layout to avoid slider 
-          $(table).css({ 'table-layout': 'fixed' });
-
-        // Set table cells position to absolute
-        $(table).find('tbody tr').each(function () {
-          $(this).css('position', 'absolute').css('z-index', '91');
-        });
-
-        // Animation
-        for (var lastIndStr in lastInd) {
-          var newInd = parseInt(lastIndStr);
-          var oldInd = lastInd[newInd];
-          var oldPos = rowPosArray[oldInd + 1]; // First entry is header
-          var newPos = rowPosArray[newInd + 1];
-          var row = $(table).find("tbody tr").eq(rowIndArray[newInd + 1]);
-          var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
-          var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
-          var zind;
-          if (predRank) // Update from predictions of running times         
-            zind = (newInd == 0 ? 96 : (newInd > oldInd ? 95 : 93));
-          else // Updates from new data from server
-            zind = (updProg[newInd] ? 95 : 93);
-
-          $(row).css('top', oldPos).css('z-index', zind);
-          $(row).velocity({ translateZ: 0, top: newPos }, { duration: animTime });
-          $(row).find('td').each(function () {
-            $(this).css('background-color', oldBkCol);
-            $(this).velocity({ backgroundColor: newBkCol }, { duration: animTime });
-          });
-
-        }
-        setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
       }
-      catch (e) { }
+
+      var lastInd = new Object(); // List of last index for updated entries
+      var updProg = new Object(); // List of progress change
+      for (var i = 0; i < newData.length; i++) {
+        var newID;
+        if (this.EmmaServer)
+          newID = newData[i].name + newData[i].club;
+        else if (!isResTab && newData[i].controlName != undefined)
+          newID = newData[i].controlName + newData[i].dbid;
+        else
+          newID = newData[i].dbid;
+        var newInd = (isResTab ? newData[i].virtual_position : i);
+        if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
+          lastInd[newInd] = prevInd[newID];
+          updProg[newInd] = (isResTab ? prevProg[newID] != newData[i].progress : false);
+        }
+      }
+      if (Object.keys(lastInd).length == 0) { // No modifications
+        if (predRank)
+          this.startPredictedTimeTimer();
+        return;
+      }
+
+      var order = this.currentTable.order();
+      var numCol = this.currentTable.settings().columns()[0].length;
+      if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
+        if (predRank)
+          this.startPredictedTimeTimer();
+        return;
+      }
+
+      // Prepare for animation
+      this.animating = true;
+      // Turn off fixed header if not already applied
+      if ($('div[class^="dtfh-floatingparent dtfh-floatingparent-head"]').length === 0)
+        this.currentTable.fixedHeader.disable();
+
+      var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
+
+      // Set each td's width
+      var column_widths = new Array();
+      $(table).find('tr:first-child td').each(function () {
+        column_widths.push($(this)[0].getBoundingClientRect().width);
+      });
+      $(table).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
+
+      // Set table height and width
+      var height = $(table).outerHeight();
+
+      // Put all the rows back in place
+      var rowPosArray = new Array();
+      var rowIndArray = new Array();
+      var ind = -1; // -1:header; 0:first data
+      var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : -window.scrollY);
+      $(table).find('tr').each(function () {
+        var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
+        $(this).css('top', rowPos);
+        if ($(this).is(":visible")) {
+          rowPosArray.push(rowPos);
+          rowIndArray.push(ind);
+        }
+        ind++;
+      });
+      $(table).height(height).width('100%');
+      if (isResTab) // Set fixed table layout to avoid slider 
+        $(table).css({ 'table-layout': 'fixed' });
+
+      // Set table cells position to absolute
+      $(table).find('tbody tr').each(function () {
+        $(this).css('position', 'absolute').css('z-index', '-9');;
+      });
+
+      // Animation
+      for (var lastIndStr in lastInd) {
+        var newInd = parseInt(lastIndStr);
+        var oldInd = lastInd[newInd];
+        var oldPos = rowPosArray[oldInd + 1]; // First entry is header
+        var newPos = rowPosArray[newInd + 1];
+        var row = $(table).find("tbody tr").eq(rowIndArray[newInd + 1]);
+        var oldOpacity = (oldInd % 2 == 0 ? 0.08 : 0);
+        var newOpacity = (newInd % 2 == 0 ? 0.08 : 0);
+        var zind;
+        if (predRank) // Update from predictions of running times         
+          zind = (newInd == 0 ? -4 : (newInd > oldInd ? -5 : -7));
+        else // Updates from new data from server
+          zind = (updProg[newInd] ? -5 : -7);
+
+        $(row).css('z-index', zind);
+
+        var translateOld = "translate3d(0," + (oldPos - newPos) + "px,0)";
+        var translateNew = "translate3d(0,0,0)";
+
+        // Set the initial position instantly
+        $(row).css({
+          'transition': 'none',
+          'transform': translateOld
+        });
+        // Force a reflow to ensure the browser registers the initial position
+        $(row)[0].offsetHeight;
+        // Set the new position with a transition
+        $(row).css({
+          'transition': 'transform ' + _this.animTime + 'ms',
+          'transform': translateNew,
+        });
+
+        $(row).find('td').each(function () {
+          if (Object.keys(lastInd).length < 10) { // Drop animation of background color for large updates
+            $(this).css('box-shadow', 'inset 0 0 0 9999px rgba(0, 0, 0, ' + oldOpacity + ')');
+            $(this)[0].offsetHeight;
+            $(this).css({
+              'transition': 'box-shadow ' + _this.animTime + 'ms',
+              'box-shadow': 'inset 0 0 0 9999px rgba(0, 0, 0, ' + newOpacity + ')'
+            });
+          }
+          else
+            $(this).css({
+              'transition': 'none',
+              'box-shadow': 'inset 0 0 0 9999px rgba(0, 0, 0, ' + newOpacity + ')'
+            });
+        });
+      }
+      setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
+      //}
+      //catch (e) { }
     };
 
     // Reset settings after animation is completed
     AjaxViewer.prototype.endAnimateTable = function (table, predRank) {
       $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
-      $(table).find('tr').each(function () { $(this).css('position', ''); });
+      $(table).find('tr').each(function () {
+        $(this).css('position', '');
+      });
       $(table).height(0).width('100%');
       $(table).css({ 'table-layout': 'auto' });
       this.animating = false;
+      if (!this.currentTable.fixedHeader.enabled())
+        this.currentTable.fixedHeader.enable();
       if (predRank)
         this.startPredictedTimeTimer();
     };
@@ -2760,7 +2792,7 @@ var LiveResults;
       if (data.status == "OK" && this.currentTable != null) {
         var numberOfRunners = data.results.length;
         $('#numberOfRunners').html(numberOfRunners);
-        var posLeft = $(table.table().container()).find('.dataTables_scrollBody').scrollLeft();
+        var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
         var scrollX = window.scrollX;
         var scrollY = window.scrollY;
         if (data && data.results) {
@@ -2776,7 +2808,7 @@ var LiveResults;
         }
         this.currentTable.clear();
         this.currentTable.rows.add(data.results).draw();
-        $(table.table().container()).find('.dataTables_scrollBody').scrollLeft(posLeft);
+        $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
         window.scrollTo(scrollX, scrollY)
         this.lastClubHash = data.hash;
         this.currentTable.columns.adjust().draw();
@@ -3089,7 +3121,7 @@ var LiveResults;
 
           columns.push({
             title: "#",
-            className: "right",
+            className: "dt-right",
             orderable: false,
             targets: [col++],
             data: "place",
@@ -3103,7 +3135,7 @@ var LiveResults;
             if (!haveSplitControls || !fullView)
               columns.push({
                 title: this.resources["_CLUB"],
-                className: "left",
+                className: "dt-left",
                 orderable: false,
                 targets: [col++],
                 data: "club",
@@ -3120,7 +3152,7 @@ var LiveResults;
               });
             columns.push({
               title: (haveSplitControls && fullView) ? this.resources["_CLUB"] + " / " + this.resources["_NAME"] : this.resources["_NAME"],
-              className: "left",
+              className: "dt-left",
               orderable: false,
               targets: [col++],
               data: "name",
@@ -3145,7 +3177,7 @@ var LiveResults;
             if (!(haveSplitControls || _this.isMultiDayEvent) || _this.curClassIsUnranked || (!fullView && !_this.curClassLapTimes))
               columns.push({
                 title: this.resources["_NAME"],
-                className: "left",
+                className: "dt-left",
                 orderable: false,
                 targets: [col++],
                 data: "name",
@@ -3160,7 +3192,7 @@ var LiveResults;
 
             columns.push({
               title: ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
-              className: "left",
+              className: "dt-left",
               orderable: false,
               targets: [col++],
               data: "club",
@@ -3186,7 +3218,7 @@ var LiveResults;
 
           if (this.curClassIsCourse) {
             columns.push({
-              title: this.resources["_CLASS"], className: "left", targets: [col++], data: "class",
+              title: this.resources["_CLASS"], className: "dt-left", targets: [col++], data: "class",
               render: function (data, type, row) {
                 var classRaw = row["class"];
                 var classDisplay = _this.shortClassName(classRaw);
@@ -3200,7 +3232,7 @@ var LiveResults;
           if (_this.curClassHasBibs) {
             columns.push({
               title: "&#8470",
-              className: "right",
+              className: "dt-right",
               orderable: !_this.fixedTable,
               targets: [col++],
               data: "bib",
@@ -3222,7 +3254,7 @@ var LiveResults;
 
           columns.push({
             title: this.resources["_START"],
-            className: "right",
+            className: "dt-right",
             orderable: !_this.fixedTable,
             type: "numeric",
             orderData: [col],
@@ -3278,7 +3310,7 @@ var LiveResults;
                 columns.push({
                   title: splitName,
                   visible: _this.curClassSplitsOK[refSp],
-                  className: "right",
+                  className: "dt-right",
                   orderable: !_this.curClassIsUnranked,
                   type: "numeric",
                   orderData: [col + 1, col],
@@ -3399,7 +3431,7 @@ var LiveResults;
 
           columns.push({
             title: this.resources["_CONTROLFINISH"],
-            className: "right",
+            className: "dt-right",
             type: "numeric",
             orderData: [col + 1, col, 0],
             targets: [col],
@@ -3477,7 +3509,7 @@ var LiveResults;
             columns.push({
               title: "&nbsp;&nbsp;&nbsp;&nbsp;",
               visible: (!isSprintHeat || _this.showTimesInSprint) && (!_this.curClassIsUnranked || _this.fixedTable),
-              className: "right",
+              className: "dt-right",
               orderable: false,
               targets: [col++],
               data: "timeplus",
@@ -3498,7 +3530,7 @@ var LiveResults;
             if (_this.curClassIsRelay && fullView) {
               columns.push({
                 title: "Total<br/><span class=\"legtime\">⟳Etp</span>",
-                className: "right",
+                className: "dt-right",
                 orderable: false,
                 targets: [col++],
                 data: "timeplus",
@@ -3522,7 +3554,7 @@ var LiveResults;
           if (this.isMultiDayEvent && !courseResults) {
             columns.push({
               title: this.resources["_TOTAL"],
-              className: "right",
+              className: "dt-right",
               type: "numeric",
               orderData: [col + 1, col, 0],
               targets: [col],
@@ -3568,7 +3600,7 @@ var LiveResults;
             if (!fullView) {
               columns.push({
                 title: "",
-                className: "right",
+                className: "dt-right",
                 orderable: false,
                 targets: [col++],
                 data: "totalplus",
@@ -4075,7 +4107,7 @@ var LiveResults;
           $('#numberOfRunners').html(numberOfRunners);
           var columns = Array();
           var col = 0;
-          columns.push({ title: "#", className: "right", orderData: [1], targets: [col++], data: "place" });
+          columns.push({ title: "#", className: "dt-right", orderData: [1], targets: [col++], data: "place" });
           columns.push({
             title: "placeSortable", visible: false, data: "placeSortable", targets: [col++], render: function (data, type, row) {
               if (type == "sort")
@@ -4085,7 +4117,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: this.resources["_NAME"], className: "left", targets: [col++], data: "name",
+            title: this.resources["_NAME"], className: "dt-left", targets: [col++], data: "name",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxNameLength)
@@ -4098,7 +4130,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: this.resources["_CLASS"], className: "left", targets: [col++], data: "class",
+            title: this.resources["_CLASS"], className: "dt-left", targets: [col++], data: "class",
             render: function (data, type, row) {
               var param = row["class"];
               if (param && param.length > 0)
@@ -4107,7 +4139,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "&#8470;", className: "right", targets: [col++], data: (_this.curClassHasBibs ? "bib" : null),
+            title: "&#8470;", className: "dt-right", targets: [col++], data: (_this.curClassHasBibs ? "bib" : null),
             render: function (data, type, row) {
               if (type === 'display') {
                 if (row.bib < 0) // Relay
@@ -4127,7 +4159,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: this.resources["_START"], className: "right", type: "numeric", orderData: [col], targets: [col], "bUseRendered": false, data: "start",
+            title: this.resources["_START"], className: "dt-right", type: "numeric", orderData: [col], targets: [col], "bUseRendered": false, data: "start",
             render: function (data, type, row) {
               if (row.start == "") {
                 return "";
@@ -4139,7 +4171,7 @@ var LiveResults;
           });
           col++;
           columns.push({
-            title: this.resources["_CONTROLFINISH"], className: "right", type: "numeric", orderData: [col + 1, col, 0], targets: [col], "bUseRendered": false, data: "result",
+            title: this.resources["_CONTROLFINISH"], className: "dt-right", type: "numeric", orderData: [col + 1, col, 0], targets: [col], "bUseRendered": false, data: "result",
             render: function (data, type, row) {
               if (row.place == "-" || row.place == "" || row.place == "F") {
                 return _this.formatTime(row.result, row.status);
@@ -4152,7 +4184,7 @@ var LiveResults;
           col++;
           columns.push({ title: "Status", visible: false, targets: [col++], type: "numeric", data: "status" });
           columns.push({
-            title: "Diff", className: "right", orderable: true, targets: [col++], data: "timeplus",
+            title: "Diff", className: "dt-right", orderable: true, targets: [col++], data: "timeplus",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (row.status == 0)
@@ -4170,7 +4202,7 @@ var LiveResults;
           });
           if (hasPace) {
             columns.push({
-              title: "m/km", className: "right", orderable: true, targets: [col++], data: "pace",
+              title: "m/km", className: "dt-right", orderable: true, targets: [col++], data: "pace",
               render: function (data, type, row) {
                 if (row.status == 0 && data > 0) {
                   if (type === 'display')
@@ -4376,16 +4408,16 @@ var LiveResults;
               }
             });
           }
-          columns.push({ title: "#", className: "right", orderable: false, targets: [col++], data: "placeStr" });
-          columns.push({ title: "&#8470", className: "right", orderable: false, targets: [col++], data: "bib" });
-          columns.push({ title: this.resources["_NAME"], className: "left", orderable: false, targets: [col++], data: "names" });
-          columns.push({ title: "Total", className: "right", orderable: false, targets: [col++], data: "totTime" });
-          columns.push({ title: "", className: "right", orderable: false, targets: [col++], data: "totDiff" });
-          columns.push({ title: "", className: "right", orderable: false, targets: [col++], data: "placeDiff" });
-          columns.push({ title: "±Tet", className: "right", orderable: false, targets: [col++], data: "totGained" });
-          columns.push({ title: "Etappe", className: "right", orderable: false, targets: [col++], data: "legTime" });
-          columns.push({ title: "", className: "right", orderable: false, targets: [col++], data: "legDiff" });
-          columns.push({ title: "m/km", className: "right", orderable: false, targets: [col++], data: "kmTime" });
+          columns.push({ title: "#", className: "dt-right", orderable: false, targets: [col++], data: "placeStr" });
+          columns.push({ title: "&#8470", className: "dt-right", orderable: false, targets: [col++], data: "bib" });
+          columns.push({ title: this.resources["_NAME"], className: "dt-left", orderable: false, targets: [col++], data: "names" });
+          columns.push({ title: "Total", className: "dt-right", orderable: false, targets: [col++], data: "totTime" });
+          columns.push({ title: "", className: "dt-right", orderable: false, targets: [col++], data: "totDiff" });
+          columns.push({ title: "", className: "dt-right", orderable: false, targets: [col++], data: "placeDiff" });
+          columns.push({ title: "±Tet", className: "dt-right", orderable: false, targets: [col++], data: "totGained" });
+          columns.push({ title: "Etappe", className: "dt-right", orderable: false, targets: [col++], data: "legTime" });
+          columns.push({ title: "", className: "dt-right", orderable: false, targets: [col++], data: "legDiff" });
+          columns.push({ title: "m/km", className: "dt-right", orderable: false, targets: [col++], data: "kmTime" });
 
           this.currentTable = $('#' + this.resultsDiv).DataTable({
             fixedHeader: true,
@@ -4501,7 +4533,7 @@ var LiveResults;
 
           columns.push({
             title: "#",
-            className: "right",
+            className: "dt-right",
             orderable: false,
             targets: [col++],
             data: "place",
@@ -4511,7 +4543,7 @@ var LiveResults;
           if (_this.curClassHasBibs) {
             columns.push({
               title: "No",
-              className: "right",
+              className: "dt-right",
               orderable: false,
               targets: [col++],
               data: "bib",
@@ -4534,7 +4566,7 @@ var LiveResults;
           if (isRelayClass) {
             columns.push({
               title: this.resources["_CLUB"],
-              className: "left",
+              className: "dt-left",
               orderable: false,
               targets: [col++],
               data: "club",
@@ -4550,7 +4582,7 @@ var LiveResults;
 
             columns.push({
               title: this.resources["_NAME"],
-              className: "left",
+              className: "dt-left",
               orderable: false,
               targets: [col++],
               data: "name",
@@ -4567,7 +4599,7 @@ var LiveResults;
           {
             columns.push({
               title: this.resources["_NAME"],
-              className: "left",
+              className: "dt-left",
               orderable: false,
               targets: [col++],
               data: "name",
@@ -4583,7 +4615,7 @@ var LiveResults;
 
             columns.push({
               title: this.resources["_CLUB"],
-              className: "left",
+              className: "dt-left",
               orderable: false,
               targets: [col++],
               data: "club",
@@ -4599,7 +4631,7 @@ var LiveResults;
 
           columns.push({
             title: "Tid",
-            className: "right",
+            className: "dt-right",
             type: "numeric",
             orderable: false,
             targets: [col++],
@@ -4616,7 +4648,7 @@ var LiveResults;
 
           columns.push({
             title: "&nbsp;&nbsp;&nbsp;&nbsp;",
-            className: "right",
+            className: "dt-right",
             orderable: false,
             targets: [col++],
             data: "timeplus",
@@ -4733,7 +4765,7 @@ var LiveResults;
             this.splitAnalyze(data.results);
             var columns = Array();
             var col = 0;
-            columns.push({ title: "#", className: "right", orderData: [1], targets: [col++], data: "place" });
+            columns.push({ title: "#", className: "dt-right", orderData: [1], targets: [col++], data: "place" });
             columns.push({
               title: "placeSortable", visible: false, data: "placeSortable", targets: [col++], render: function (data, type, row) {
                 if (type == "sort")
@@ -4745,7 +4777,7 @@ var LiveResults;
 
             columns.push({
               title: this.resources["_NAME"] + "<br/>" + this.resources["_CLUB"],
-              className: "left",
+              className: "dt-left",
               orderable: false,
               targets: [col++],
               data: "club",
@@ -4765,7 +4797,7 @@ var LiveResults;
 
             columns.push({
               title: "tid<br/>m/km",
-              className: "right",
+              className: "dt-right",
               orderable: false,
               targets: [col++],
               data: "result",
@@ -4803,7 +4835,7 @@ var LiveResults;
                 columns.push({
                   title: title,
                   visible: true,
-                  className: "right",
+                  className: "dt-right",
                   orderable: true,
                   type: "numeric",
                   orderData: [col],
@@ -4918,7 +4950,7 @@ var LiveResults;
               }
             });
 
-            var scrollBody = $(this.currentTable.table().container()).find('.dataTables_scrollBody');
+            var scrollBody = $(this.currentTable.table().container()).find('.dt-scroll-body');
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
             if ($(".firstCol").width() > 0 && maxScroll > 5)
               $('#switchNavClick').trigger('click');

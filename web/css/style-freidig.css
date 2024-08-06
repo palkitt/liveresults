@@ -157,14 +157,6 @@ td.searchmenu {
   padding-left: 5px;
 }
 
-/* Modify datatable classes */
-table.dataTable>thead>tr>th,
-table.dataTable>thead>tr>td,
-table.dataTable tbody th,
-table.dataTable tbody td,
-table.dataTable td {
-  padding: 3px 7px 3px 3px;
-}
 
 /* Red row marking */
 tr.red_row>td {
@@ -810,7 +802,43 @@ td.menuchosen a:hover {
   cursor: pointer;
 }
 
-/* Fixed header formatting*/
-.dtfh-floatingparent {
-  z-index: 1000 !important;
+/*-----------------------------------*/
+/*---  Mofification of DataTables ---*/
+/*-----------------------------------*/
+table.dataTable>thead>tr>th,
+table.dataTable>thead>tr>td {
+  padding: 3px 7px 3px 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  background-color: white;
+  border-bottom: black 1px solid;
+}
+
+table.dataTable thead tr>.dtfc-fixed-start,
+table.dataTable thead tr>.dtfc-fixed-end,
+table.dataTable tfoot tr>.dtfc-fixed-start,
+table.dataTable tfoot tr>.dtfc-fixed-end {
+  background-color: white;
+}
+
+table.dataTable tbody tr>.dtfc-fixed-start,
+table.dataTable tbody tr>.dtfc-fixed-end {
+  background-color: white;
+}
+
+
+table.dataTable>tbody>tr>th,
+table.dataTable>tbody>tr>td {
+  padding: 3px 7px 3px 3px;
+  background-color: white;
+}
+
+table.dataTable>tbody>tr:nth-child(odd)>* {
+  box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgb(220, 220, 220)
+}
+
+table.dataTable>tbody>tr:nth-child(even)>* {
+  box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0);
+  border-top: 1px solid white;
 }
