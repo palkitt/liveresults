@@ -826,7 +826,6 @@ table.dataTable tbody tr>.dtfc-fixed-end {
   background-color: white;
 }
 
-
 table.dataTable>tbody>tr>th,
 table.dataTable>tbody>tr>td {
   padding: 3px 7px 3px 3px;
@@ -841,4 +840,18 @@ table.dataTable>tbody>tr:nth-child(odd)>* {
 table.dataTable>tbody>tr:nth-child(even)>* {
   box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0);
   border-top: 1px solid white;
+}
+
+div.dt-container div.dt-layout-row {
+  margin: 0 0;
+}
+
+table.dataTable tbody td {
+  vertical-align: top;
+}
+
+table.dataTable tbody tr>.sorting_1,
+table.dataTable tbody tr>.sorting_2,
+table.dataTable tbody tr>.sorting_3 {
+  background-color: #fff8e3;
 }
