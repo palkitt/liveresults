@@ -1005,13 +1005,12 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          time += 20 * 6000 * Math.random() - 12 * 60 * 60 * 100;
+          time += 20 * 6000 * Math.random() - 8 * 60 * 60 * 100;
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
           var highlight = false;
           var age = 0;
-
           var table = this.currentTable;
           var data = table.data().toArray();
           var offset = 3 + (this.curClassHasBibs ? 1 : 0) + ((this.curClassIsUnranked || this.compactView && !this.curClassLapTimes) ? 1 : 0);
@@ -1083,43 +1082,37 @@ var LiveResults;
                 highlight = (age < this.highTime);
               }
 
-              if (highlight) {
+              var colFinish = offset + this.curClassNumSplits * 2;
+              if (highlight && (data[i].highlight == undefined || data[i].highlight == false)) {
+                data[i].highlight = true;
                 if (this.compactView || this.curClassIsRelay || this.curClassLapTimes) {
-                  if (!$(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell_sqr')) {
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).addClass('red_cell_sqr');
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).addClass('red_cell');
-                    if (this.isMultiDayEvent) {
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 3)).node()).addClass('red_cell_sqr');
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 5)).node()).addClass('red_cell');
-                    }
+                  $(table.cell(i, colFinish).node()).addClass('red_cell_sqr');
+                  $(table.cell(i, colFinish + 2).node()).addClass('red_cell');
+                  if (this.isMultiDayEvent) {
+                    $(table.cell(i, colFinish + 3).node()).addClass('red_cell_sqr');
+                    $(table.cell(i, colFinish + 5).node()).addClass('red_cell');
                   }
                 }
                 else {
-                  if (!$(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell')) {
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).addClass('red_cell');
-                    if (this.isMultiDayEvent)
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).addClass('red_cell');
-                  }
+                  $(table.cell(i, colFinish).node()).addClass('red_cell');
+                  if (this.isMultiDayEvent)
+                    $(table.cell(i, colFinish + 2).node()).addClass('red_cell');
                 }
               }
-              else // Not highlight
-              {
+              else if (!highlight && data[i].highlight == true) {
+                data[i].highlight = false;
                 if (this.compactView || this.curClassIsRelay || this.curClassLapTimes) {
-                  if ($(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell_sqr')) {
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).removeClass('red_cell_sqr');
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).removeClass('red_cell');
-                    if (this.isMultiDayEvent) {
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 3)).node()).removeClass('red_cell_sqr');
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 5)).node()).removeClass('red_cell');
-                    }
+                  $(table.cell(i, colFinish).node()).removeClass('red_cell_sqr');
+                  $(table.cell(i, colFinish + 2).node()).removeClass('red_cell');
+                  if (this.isMultiDayEvent) {
+                    $(table.cell(i, colFinish + 3).node()).removeClass('red_cell_sqr');
+                    $(table.cell(i, colFinish + 5).node()).removeClass('red_cell');
                   }
                 }
                 else {
-                  if ($(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell')) {
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).removeClass('red_cell');
-                    if (this.isMultiDayEvent)
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).removeClass('red_cell');
-                  }
+                  $(table.cell(i, colFinish).node()).removeClass('red_cell');
+                  if (this.isMultiDayEvent)
+                    $(table.cell(i, colFinish + 2).node()).removeClass('red_cell');
                 }
               }
 
@@ -1134,7 +1127,6 @@ var LiveResults;
 
                 highlight = false;
                 if (this.EmmaServer && $(row).hasClass('new_result') && data[i].splits[this.curClassSplits[spRef].code] > 0) {
-                  $(table.cell(i, colNum).node()).addClass('red_cell');
                   highlightEmma = true;
                   highlight = true;
                 }
@@ -1142,10 +1134,14 @@ var LiveResults;
                   age = timeServer - data[i].splits[this.curClassSplits[spRef].code + "_changed"];
                   highlight = (age < this.highTime);
                 }
-                if (highlight && !$(table.cell(i, colNum).node()).hasClass('red_cell')) {
+
+                if (highlight && (data[i].splits[this.curClassSplits[spRef].code + "_highlight"] == undefined ||
+                  data[i].splits[this.curClassSplits[spRef].code + "_highlight"] == false)) {
+                  data[i].splits[this.curClassSplits[spRef].code + "_highlight"] = true;
                   $(table.cell(i, colNum).node()).addClass('red_cell');
                 }
-                else if (!highlight && $(table.cell(i, colNum).node()).hasClass('red_cell')) {
+                else if (!highlight && data[i].splits[this.curClassSplits[spRef].code + "_highlight"] == true) {
+                  data[i].splits[this.curClassSplits[spRef].code + "_highlight"] = false;
                   $(table.cell(i, colNum).node()).removeClass('red_cell');
                 }
               }
@@ -3635,9 +3631,12 @@ var LiveResults;
             fixedColumns: { left: 2 },
             scrollX: true,
             paging: false,
-            lengthChange: false,
-            searching: false,
-            info: false,
+            layout: {
+              topStart: null,
+              topEnd: null,
+              bottomStart: null,
+              bottomEnd: null
+            },
             data: data.results,
             order: [[col - 1, "asc"]],
             columns: columns,
@@ -4222,9 +4221,12 @@ var LiveResults;
             fixedColumns: { leftColumns: 2 },
             scrollX: true,
             paging: false,
-            lengthChange: false,
-            searching: false,
-            info: false,
+            layout: {
+              topStart: null,
+              topEnd: null,
+              bottomStart: null,
+              bottomEnd: null
+            },
             data: data.results,
             order: [[1, "asc"], [5, 'asc']],
             columnDefs: columns,
