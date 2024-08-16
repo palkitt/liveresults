@@ -290,16 +290,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<div id="classverification">...</div>
 
 			<h2>Brikkenummer</h2>
-			<input id="ecardnumber" type="number" style="width:95%"></select>
+			<input id="ecardnumber" type="number" style="width:95%" inputmode="numeric">
 			<br>
 			<div id="ecardverification">...</div>
 			<div id="ecardlastuse"><small>...</small></div>
 
 			<h2>Fornavn</h2>
-			<input id="firstname" type="text" style="width:95%"></select>
+			<input id="firstname" type="text" style="width:95%">
 
 			<h2>Etternavn</h2>
-			<input id="lastname" type="text" style="width:95%"></select>
+			<input id="lastname" type="text" style="width:95%">
 
 			<br><br>
 			<button id="submit" type="submit" onclick="submit();">Send in</button>
