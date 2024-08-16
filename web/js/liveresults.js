@@ -2233,7 +2233,7 @@ var LiveResults;
 
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
-      var table = this.currentTable.api();
+      var table = this.currentTable;
       table.search($('#' + this.filterDiv)[0].value).draw();
     };
 
@@ -2820,7 +2820,7 @@ var LiveResults;
       clearTimeout(this.resUpdateTimeout);
       clearTimeout(this.updatePredictedTimeTimer);
       this.inactiveTimer = 0;
-      if (this.currentTable != null) {
+      if (this.currentTable != null && DataTable.isDataTable('#' + this.resultsDiv)) {
         try {
           this.currentTable.destroy();
         }
@@ -4043,7 +4043,7 @@ var LiveResults;
         return;
       }
       this.inactiveTimer = 0;
-      if (this.currentTable != null) {
+      if (this.currentTable != null && DataTable.isDataTable('#' + this.resultsDiv)) {
         try {
           this.currentTable.destroy();
         }
@@ -4248,8 +4248,10 @@ var LiveResults;
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
       this.inactiveTimer = 0;
-      if (this.currentTable != null) {
-        try { this.currentTable.destroy(); }
+      if (this.currentTable != null && DataTable.isDataTable('#' + this.resultsDiv)) {
+        try {
+          this.currentTable.destroy();
+        }
         catch (e) { }
       }
       $('#divResults').html('');
@@ -4696,7 +4698,7 @@ var LiveResults;
         setTimeout(function () { _this.viewSplitTimeResults(className, course); }, 500);
         return;
       }
-      if (this.currentTable != null) {
+      if (this.currentTable != null && DataTable.isDataTable('#' + this.resultsDiv)) {
         try {
           this.currentTable.destroy();
         }

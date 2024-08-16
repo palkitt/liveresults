@@ -249,7 +249,7 @@ var Messages;
                         }
                     });
 
-                    this.currentTable = $('#divMessages').dataTable({
+                    this.currentTable = $('#divMessages').DataTable({
                         "bPaginate": false,
                         "bLengthChange": false,
                         "bFilter": true,
@@ -274,7 +274,7 @@ var Messages;
         AjaxViewer.prototype.updateMessageMarking = function () {
             if (this.currentTable != null) {
                 _this = this;
-                var table = this.currentTable.api();
+                var table = this.currentTable;
                 var lastID = null;
                 var lastChanged = null;
 

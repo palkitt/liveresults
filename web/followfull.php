@@ -85,24 +85,19 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <!-- link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
   <link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
   <link rel="stylesheet" type="text/css" href="css/fixedHeader.dataTables.min.css" -->
-  <link href="https://cdn.datatables.net/v/dt/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
 
-  <script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-  <!-- script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
+  <!-- script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
+  <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/dataTables.fixedHeader.min.js"></script -->
-  <script src="https://cdn.datatables.net/v/dt/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script>
+  <script language="javascript" type="text/javascript" src="js/dataTables.fixedHeader.min.js"></script>
+  <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script -->
+  <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <?php if ($isSpeaker) { ?>
     <script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
-  <?php } ?>
-
-  <?php if (isset($_GET['beta'])) { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults_beta.js"></script>
-  <?php } else { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults.js?20240716"></script>
   <?php } ?>
 
   <script language="javascript" type="text/javascript">
@@ -530,12 +525,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
         <tr>
           <td class="firstCol" valign="top" style="background-color:#FFF; color:#000;">
-            <div id="divClasses"></div>
-            <?php if (!$isEmmaComp) { ?>
-              Totalt: <span id="numberOfRunnersTotal"></span><br>
-              <?= $_START ?>: <span id="numberOfRunnersStarted"></span><br>
-              <?= $_CONTROLFINISH ?>: <span id="numberOfRunnersFinished"></span>
-            <?php } ?>
+
           </td>
           <td valign="top" width="100%">
           <?php } ?>
@@ -548,7 +538,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                       <?php if (!$isEmmaComp) { ?>
                         <span id="liveIndicator"></span>
                       <?php } ?>
-                      <span id="resultsHeader" style="font-size: 1.3em;"><b><?= $_NOCLASSCHOSEN ?></b></span>
+
+                      <div class="dropdownClass">
+                        <button class="dropbtnClass"><span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b></button>
+                        <div class="dropdownClass-content">
+                          <div id="divClasses"></div>
+                        </div>
+                      </div>
+                      </span>
                     </td>
                     <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
                   </tr>
@@ -566,7 +563,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           <?php if (!$isSingleClass && !$isSingleClub) { ?>
             <div align="left">
               Antall: <span id="numberOfRunners"></span>
+              <?php if (!$isEmmaComp) { ?>
+                <br>Totalt: <span id="numberOfRunnersTotal"></span>
+                <br><?= $_START ?>: <span id="numberOfRunnersStarted"></span>
+                <br><?= $_CONTROLFINISH ?>: <span id="numberOfRunnersFinished"></span>
+              <?php } ?>
             </div>
+
             <div align="left" style="font-size: 0.7em; color:#AAA">
               Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
               * <?= $_HELPREDRESULTS ?><br>

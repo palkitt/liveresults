@@ -802,53 +802,6 @@ td.menuchosen a:hover {
   cursor: pointer;
 }
 
-
-/*--------------------------------*/
-/*---  Dropdown class selector ---*/
-/*--------------------------------*/
-.dropbtnClass {
-  border: 0;
-  font-size: 1.3em;
-  background-color: transparent;
-}
-
-.dropdownClass {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdownClass-content {
-  font-size: 1em;
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 100px;
-  box-shadow: 2px 8px 16px 0px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.dropdownClass-content a {
-  color: black;
-  padding: 2px 2px;
-  text-decoration: none;
-  color: var(--livered)
-}
-
-.dropdownClass-content a:hover {
-  background-color: #DDD;
-}
-
-.dropdownClass:hover .dropdownClass-content {
-  display: block;
-}
-
-.dropdownClass:hover .dropbtnClass {
-  background-color: #DDD;
-}
-
-
 /*-----------------------------------*/
 /*---  Mofification of DataTables ---*/
 /*-----------------------------------*/
