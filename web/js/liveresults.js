@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = true;
+      this.local = false;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -1005,7 +1005,7 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          time += 20 * 6000 * Math.random() - 8 * 60 * 60 * 100;
+          //time += 20 * 6000 * Math.random() - 8 * 60 * 60 * 100;
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -2827,6 +2827,9 @@ var LiveResults;
         catch (e) { }
       }
 
+      // Remove dropdown class list
+      $('#dropdownClassContent').removeClass('open').addClass('closed');
+
       $('#divResults').html('');
       this.curClassName = className;
       this.curClubName = null;
@@ -3012,8 +3015,6 @@ var LiveResults;
             res += "</table></td></tr>"
           $('#' + this.resultsDiv).html(res);
           $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
-          if (this.browserType == 1)
-            $('#switchNavClick').trigger('click');
         }
         else if (data.className == "startlist") {
           $('#updateinterval').html("- ");
@@ -3065,8 +3066,6 @@ var LiveResults;
           var NumRunText = $("#numberOfRunnersTotal").html();
           NumRunText += "</br><a href=\"javascript:res.raceSplitterDialog();\">Lag RaceSplitter fil</a>";
           $('#numberOfRunners').html(NumRunText);
-          if (this.browserType == 1)
-            $('#switchNavClick').trigger('click');
         }
         else if (data.results != null && data.results.length > 0) {
           $('#updateinterval').html(this.updateInterval / 1000);
@@ -3669,8 +3668,6 @@ var LiveResults;
 
               if (scrollLength > 0) {
                 scrollBody.scrollLeft(scrollLength);
-                if ($(".firstCol").width() > 0 && maxScroll >= clubBibWidth + 5)
-                  $('#switchNavClick').trigger('click');
               }
             }
           }
@@ -4953,12 +4950,6 @@ var LiveResults;
                   $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
               }
             });
-
-            var scrollBody = $(this.currentTable.table().container()).find('.dt-scroll-body');
-            var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
-            if ($(".firstCol").width() > 0 && maxScroll > 5)
-              $('#switchNavClick').trigger('click');
-            this.currentTable.columns.adjust().draw();
           }
         }
       }

@@ -165,7 +165,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     runnerStatus[12] = "<?= $_STATUSMOVEDUP ?>";
     runnerStatus[13] = "<?= $_STATUSFINISHED ?>";
 
-    var sideBar = true;
     var topBar = false;
 
     $(document).ready(function() {
@@ -258,8 +257,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           $("#topBar").height('auto');
           topBar = true;
         }
-
-        document.getElementById("switchNavClick").classList.toggle("change");
       <?php } ?>
 
       loadFontSize();
@@ -267,19 +264,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       // Add no screen sleep
       document.addEventListener("click", enableNoSleep);
 
-      // Add function for dropdown list
-      window.onclick = function(event) {
-        if (!event.target.matches('.dropbtn')) {
-          var dropdowns = document.getElementsByClassName("dropdown-content");
-          var i;
-          for (i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) {
-              openDropdown.classList.remove('show');
-            }
-          }
-        }
-      }
+      // Open and close class selction dropdown list
+      $('#dropbtnClass').on('mouseover', function() {
+        $('#dropdownClassContent').removeClass('closed').addClass('open');
+      });
+      $('#dropdownClassContent').on('mouseleave', function() {
+        $('#dropdownClassContent').removeClass('open').addClass('closed');
+      });
     });
 
     let wakeLock = null;
@@ -314,44 +305,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         $('#divResults').DataTable().columns.adjust();
     }
 
-    function switchNav() {
-      if (sideBar)
-        closeNav();
-      else
-        openNav();
-    }
-
     function switchTop() {
       if (topBar)
         closeTop();
       else
         openTop();
-    }
-
-    function openNav() {
-      if (res.currentTable != null && res.curClassName != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist") {
-        $(".firstCol").width("6em");
-        $('#divResults').DataTable().columns.adjust();
-        $(".firstCol").width("0px");
-      }
-      $(".firstCol").animate({
-        'width': '6em'
-      }, 300);
-      $("#navLR").html("←");
-      sideBar = true;
-    }
-
-    function closeNav() {
-      if (res.currentTable != null && res.curClassName != null && !res.curClassName.includes("plainresults") && res.curClassName != "startlist") {
-        $(".firstCol").width("0px");
-        $('#divResults').DataTable().columns.adjust();
-        $(".firstCol").width("6em");
-      }
-      $(".firstCol").animate({
-        'width': '0px'
-      }, 300);
-      $("#navLR").html("→");
-      sideBar = false;
     }
 
     function openTop() {
@@ -383,12 +341,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <div id="main">
     <?php if (!$isSingleClass && !$isSingleClub) { ?>
       <table style="width:100%; table-layout:fixed;" cellpadding="0" cellspacing="3" border="0">
-        <tr>
-          <td class="firstCol"></td>
-          <td width="100%"></td>
-        </tr>
         <tr valign="top">
-          <td colspan="2" align="center">
+          <td align="center">
             <div id="topBar" style="overflow: hidden">
               <?php if ($organizer == "Freidig/Wing/Malvik") { ?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
               <?php if (in_array($compNo, array("10118", "10119", "10120", "10121"))) { ?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
@@ -472,7 +426,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
         <?php if ($showInfo) { ?>
           <tr valign="top">
-            <td colspan="2" align="center">
+            <td align="center">
               <div id="scrollBar" style="overflow: hidden">
                 <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 0px">
                   <tr>
@@ -487,22 +441,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         <?php } ?>
 
         <tr valign="top" style="background-color:#555555; color:#FFF">
-          <td class="firstCol">
-            <table border="0" cellpadding="3 px" cellspacing="0">
-              <tr>
-                <td align="left"><?= $_CHOOSECLASS ?></td>
-              </tr>
-            </table>
-          </td>
           <td width="100%">
             <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
               <tr>
                 <td align="left">
-                  <button id="switchNavClick" class="navbtn" onclick="switchNav()"><span id="navLR">←</span></button>
                   <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span id="navUD">↑</span></button>
                   <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
                   <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
-                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'">↗</button>
+                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'">☰</button>
                   &nbsp;
                   <b><span id="compname">loading comp name...</b>
                 </td>
@@ -524,9 +470,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         </tr>
 
         <tr>
-          <td class="firstCol" valign="top" style="background-color:#FFF; color:#000;">
-
-          </td>
           <td valign="top" width="100%">
           <?php } ?>
           <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0">
@@ -535,13 +478,15 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                 <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF">
                   <tr>
                     <td align="left">
-                      <?php if (!$isEmmaComp) { ?>
-                        <span id="liveIndicator"></span>
-                      <?php } ?>
-
                       <div class="dropdownClass">
-                        <button class="dropbtnClass"><span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b></button>
-                        <div class="dropdownClass-content">
+                        <button id="dropbtnClass" class="dropbtnClass">
+                          ☰&nbsp;
+                          <?php if (!$isEmmaComp) { ?>
+                            <span id="liveIndicator"></span>
+                          <?php } ?>
+                          <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b>
+                        </button>
+                        <div id="dropdownClassContent" class="dropdownClass-content">
                           <div id="divClasses"></div>
                         </div>
                       </div>
@@ -562,14 +507,25 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
           <?php if (!$isSingleClass && !$isSingleClub) { ?>
             <div align="left">
-              Antall: <span id="numberOfRunners"></span>
-              <?php if (!$isEmmaComp) { ?>
-                <br>Totalt: <span id="numberOfRunnersTotal"></span>
-                <br><?= $_START ?>: <span id="numberOfRunnersStarted"></span>
-                <br><?= $_CONTROLFINISH ?>: <span id="numberOfRunnersFinished"></span>
-              <?php } ?>
+              <table cellpadding="0px" cellspacing="2px" border="0">
+                <tr>
+                  <td align="left">Klasse:</td>
+                  <td align="right"><span id="numberOfRunners"></span></td>
+                  <?php if (!$isEmmaComp) { ?>
+                    <td>&nbsp;</td>
+                    <td align="left">Totalt:</td>
+                    <td align="right"><span id="numberOfRunnersTotal"></span></td>
+                </tr>
+                <tr>
+                  <td align="left"><?= $_START ?>:</td>
+                  <td align="right"><span id="numberOfRunnersStarted"></span></td>
+                  <td>&nbsp;</td>
+                  <td align="left"><?= $_CONTROLFINISH ?>:</td>
+                  <td align="right"><span id="numberOfRunnersFinished"></span></td>
+                <?php } ?>
+                </tr>
+              </table>
             </div>
-
             <div align="left" style="font-size: 0.7em; color:#AAA">
               Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
               * <?= $_HELPREDRESULTS ?><br>

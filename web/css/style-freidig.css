@@ -5,6 +5,7 @@
 :root {
   --livered: #F1592A;
   --bkgray: #E6E6E6;
+  --bkdark: #555555;
 }
 
 
@@ -674,7 +675,7 @@ td.menuchosen a:hover {
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  background-color: #555555;
+  background-color: var(--bkdark);
   color: white;
   text-align: center;
   border-radius: 5px;
@@ -691,7 +692,7 @@ td.menuchosen a:hover {
   right: -0.7em;
   border-width: 0.4em;
   border-style: solid;
-  border-color: transparent transparent transparent #555555;
+  border-color: transparent transparent transparent var(--bkdark);
 }
 
 .tooltip:hover .tooltiptext {
@@ -703,11 +704,6 @@ td.menuchosen a:hover {
 /*---       SideNav           ---*/
 /*-------------------------------*/
 
-
-.firstCol {
-  overflow: hidden;
-  width: 6em;
-}
 
 
 /* Scroll and full view toggle */
@@ -732,8 +728,8 @@ td.menuchosen a:hover {
 /*---  DropDown for splits    ---*/
 /*-------------------------------*/
 .dropbtn {
-  background-color: #555555;
-  opacity: 1;
+  background-color: var(--bkdark);
+  opacity: 0.9;
   color: white;
   text-align: right;
   padding: 0px 0px;
@@ -751,7 +747,7 @@ td.menuchosen a:hover {
   right: 4px;
   display: none;
   position: absolute;
-  background-color: #555555;
+  background-color: var(--bkdark);
   color: white;
   overflow: hidden;
   z-index: 1;
@@ -807,9 +803,13 @@ td.menuchosen a:hover {
 /*---  Dropdown class selector ---*/
 /*--------------------------------*/
 .dropbtnClass {
-  border: 0;
   font-size: 1.3em;
-  background-color: transparent;
+  background-color: var(--bkdark);
+  color: white;
+  text-align: left;
+  padding: 2px 2px;
+  border: none;
+  cursor: pointer;
 }
 
 .dropdownClass {
@@ -821,32 +821,33 @@ td.menuchosen a:hover {
   font-size: 1em;
   display: none;
   position: absolute;
-  background-color: #f1f1f1;
-  min-width: 100px;
-  box-shadow: 2px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  background-color: var(--bkdark);
+  min-width: 10em;
+  box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
   z-index: 100;
-  max-height: 300px;
+  max-height: 20em;
   overflow-y: auto;
+}
+
+.dropdownClass-content.closed {
+  display: none;
+}
+
+.dropdownClass-content.open {
+  display: block;
 }
 
 .dropdownClass-content a {
   color: black;
   padding: 2px 2px;
   text-decoration: none;
-  color: var(--livered)
+  color: white;
 }
 
 .dropdownClass-content a:hover {
-  background-color: #DDD;
+  background-color: #888888;
 }
 
-.dropdownClass:hover .dropdownClass-content {
-  display: block;
-}
-
-.dropdownClass:hover .dropbtnClass {
-  background-color: #DDD;
-}
 
 
 /*-----------------------------------*/
