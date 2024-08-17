@@ -271,6 +271,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       $('#dropdownClassContent').on('mouseleave', function() {
         $('#dropdownClassContent').removeClass('open').addClass('closed');
       });
+      $(document).on('click', function(event) {
+        if (!$(event.target).closest('#dropdownClassContent, #dropbtnClass').length) {
+          $('#dropdownClassContent').removeClass('open').addClass('closed');
+        }
+      });
     });
 
     let wakeLock = null;
@@ -472,65 +477,54 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         <tr>
           <td valign="top" width="100%">
           <?php } ?>
-          <table width="100%" style="table-layout:fixed;" cellspacing="0" border="0">
+          <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF">
             <tr>
-              <td>
-                <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF">
-                  <tr>
-                    <td align="left">
-                      <div class="dropdownClass">
-                        <button id="dropbtnClass" class="dropbtnClass">
-                          ☰&nbsp;
-                          <?php if (!$isEmmaComp) { ?>
-                            <span id="liveIndicator"></span>
-                          <?php } ?>
-                          <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b>
-                        </button>
-                        <div id="dropdownClassContent" class="dropdownClass-content">
-                          <div id="divClasses"></div>
-                        </div>
-                      </div>
-                      </span>
-                    </td>
-                    <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
-                  </tr>
-                </table>
+              <td align="left">
+                <div class="dropdownClass">
+                  <button id="dropbtnClass" class="dropbtnClass">
+                    ☰&nbsp;
+                    <?php if (!$isEmmaComp) { ?>
+                      <span id="liveIndicator"></span>
+                    <?php } ?>
+                    <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b>
+                  </button>
+                  <div id="dropdownClassContent" class="dropdownClass-content">
+                    <div id="divClasses"></div>
+                  </div>
+                </div>
+                </span>
               </td>
-            </tr>
-
-            <tr valign="top">
-              <td>
-                <table id="divResults" width="100%"></table>
-              </td>
+              <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
             </tr>
           </table>
 
+          <table id="divResults" width="100%"></table>
+
           <?php if (!$isSingleClass && !$isSingleClub) { ?>
-            <div align="left">
-              <table cellpadding="0px" cellspacing="2px" border="0">
-                <tr>
-                  <td align="left">Klasse:</td>
-                  <td align="right"><span id="numberOfRunners"></span></td>
-                  <?php if (!$isEmmaComp) { ?>
-                    <td>&nbsp;</td>
-                    <td align="left">Totalt:</td>
-                    <td align="right"><span id="numberOfRunnersTotal"></span></td>
-                </tr>
-                <tr>
-                  <td align="left"><?= $_START ?>:</td>
-                  <td align="right"><span id="numberOfRunnersStarted"></span></td>
-                  <td>&nbsp;</td>
-                  <td align="left"><?= $_CONTROLFINISH ?>:</td>
-                  <td align="right"><span id="numberOfRunnersFinished"></span></td>
+            <table class="numrunners">
+              <tr>
+                <td>Klasse</td>
+                <?php if (!$isEmmaComp) { ?>
+                  <td>Totalt</td>
+                  <td><?= $_START ?></td>
+                  <td><?= $_CONTROLFINISH ?></td>
                 <?php } ?>
-                </tr>
-              </table>
-            </div>
-            <div align="left" style="font-size: 0.7em; color:#AAA">
-              Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
-              * <?= $_HELPREDRESULTS ?><br>
-              &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
-            </div>
+              </tr>
+              <tr>
+                <td><span id="numberOfRunners"></span></td>
+                <?php if (!$isEmmaComp) { ?>
+                  <td><span id="numberOfRunnersTotal"></span></td>
+                  <td><span id="numberOfRunnersStarted"></span></td>
+                  <td><span id="numberOfRunnersFinished"></span></td>
+                <?php } ?>
+              </tr>
+            </table>
+            <table>
+              <div style="font-size: 0.7em; color:gray; line-height:1.3em;">
+                Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
+                * <?= $_HELPREDRESULTS ?><br>
+                &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
+              </div>
           </td>
         </tr>
       </table>

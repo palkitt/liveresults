@@ -798,6 +798,17 @@ td.menuchosen a:hover {
   cursor: pointer;
 }
 
+/* Number of runners table */
+.numrunners {
+  padding: 2px;
+  border-spacing: 0px;
+  text-align: left;
+}
+
+.numrunners td {
+  font-size: 0.7em;
+  color: gray;
+}
 
 /*--------------------------------*/
 /*---  Dropdown class selector ---*/
@@ -807,7 +818,7 @@ td.menuchosen a:hover {
   background-color: var(--bkdark);
   color: white;
   text-align: left;
-  padding: 2px 2px;
+  padding: 0px;
   border: none;
   cursor: pointer;
 }
@@ -821,12 +832,15 @@ td.menuchosen a:hover {
   font-size: 1em;
   display: none;
   position: absolute;
+  left: -3px;
+  top: calc(100% + 3px);
   background-color: var(--bkdark);
   min-width: 10em;
   box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
   z-index: 100;
   max-height: 20em;
   overflow-y: auto;
+  padding-left: 10px;
 }
 
 .dropdownClass-content.closed {
@@ -838,15 +852,15 @@ td.menuchosen a:hover {
 }
 
 .dropdownClass-content a {
-  color: black;
-  padding: 2px 2px;
   text-decoration: none;
   color: white;
 }
 
 .dropdownClass-content a:hover {
   background-color: #888888;
+  width: 100%;
 }
+
 
 
 
