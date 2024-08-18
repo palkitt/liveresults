@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = false;
+      this.local = true;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -1005,7 +1005,7 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          //time += 20 * 6000 * Math.random() - 8 * 60 * 60 * 100;
+          //time += 20 * 20 * 6000 * Math.random() + 5 * 60 * 60 * 100;
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -1664,16 +1664,18 @@ var LiveResults;
           this.currentTable = $('#' + this.radioPassingsDiv).DataTable({
             fixedHeader: true,
             paging: false,
-            lengthChange: false,
             searching: true,
-            info: false,
-            data: this.radioData,
             ordering: false,
+            data: this.radioData,
+            layout: {
+              topStart: null,
+              topEnd: null,
+              bottomStart: null,
+              bottomEnd: null
+            },
             order: [[1, "desc"]],
-            columnDefs: columns,
+            columns: columns,
             destroy: true,
-            dom: 'lrtip',
-            orderCellsTop: true
           });
         }
       }
@@ -2438,7 +2440,7 @@ var LiveResults;
             return item.class === _this.curClassName;
           });
           this.lastClassHash = data.hash;
-          if (data.lastchanged[index].lastchanged > this.lastChanged) {
+          if (true || data.lastchanged[index].lastchanged > this.lastChanged) {
             this.checkForClassUpdate();
             return;
           }
@@ -2582,153 +2584,154 @@ var LiveResults;
 
       if (this.animating)
         return
-      //try {
-      var _this = this;
-      var isResTab = (newData[0].virtual_position != undefined);
+      try {
+        var _this = this;
+        var isResTab = (newData[0].virtual_position != undefined);
 
-      // Make list of indexes and progress for all runners 
-      var prevInd = new Object();  // List of old indexes
-      var prevProg = new Object(); // List of old progress
-      for (var i = 0; i < oldData.length; i++) {
-        var oldID;
-        if (this.EmmaServer)
-          oldID = oldData[i].name + oldData[i].club;
-        else if (!isResTab && oldData[i].controlName != undefined)
-          oldID = oldData[i].controlName + oldData[i].dbid;
-        else
-          oldID = oldData[i].dbid;
-        if (prevInd[oldID] != undefined) {
-          prevInd[oldID] = "noAnimation"; // Skip if two identical ID
+        // Make list of indexes and progress for all runners 
+        var prevInd = new Object();  // List of old indexes
+        var prevProg = new Object(); // List of old progress
+        for (var i = 0; i < oldData.length; i++) {
+          var oldID;
+          if (this.EmmaServer)
+            oldID = oldData[i].name + oldData[i].club;
+          else if (!isResTab && oldData[i].controlName != undefined)
+            oldID = oldData[i].controlName + oldData[i].dbid;
+          else
+            oldID = oldData[i].dbid;
+          if (prevInd[oldID] != undefined) {
+            prevInd[oldID] = "noAnimation"; // Skip if two identical ID
+          }
+          else {
+            prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
+            prevProg[oldID] = (isResTab ? oldData[i].progress : 100);
+          }
         }
-        else {
-          prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
-          prevProg[oldID] = (isResTab ? oldData[i].progress : 100);
+
+        var lastInd = new Object(); // List of last index for updated entries
+        var updProg = new Object(); // List of progress change
+        for (var i = 0; i < newData.length; i++) {
+          var newID;
+          if (this.EmmaServer)
+            newID = newData[i].name + newData[i].club;
+          else if (!isResTab && newData[i].controlName != undefined)
+            newID = newData[i].controlName + newData[i].dbid;
+          else
+            newID = newData[i].dbid;
+          var newInd = (isResTab ? newData[i].virtual_position : i);
+          if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
+            lastInd[newInd] = prevInd[newID];
+            updProg[newInd] = (isResTab ? prevProg[newID] != newData[i].progress : false);
+          }
         }
-      }
-
-      var lastInd = new Object(); // List of last index for updated entries
-      var updProg = new Object(); // List of progress change
-      for (var i = 0; i < newData.length; i++) {
-        var newID;
-        if (this.EmmaServer)
-          newID = newData[i].name + newData[i].club;
-        else if (!isResTab && newData[i].controlName != undefined)
-          newID = newData[i].controlName + newData[i].dbid;
-        else
-          newID = newData[i].dbid;
-        var newInd = (isResTab ? newData[i].virtual_position : i);
-        if (prevInd[newID] != undefined && prevInd[newID] != "noAnimation" && prevInd[newID] != newInd) {
-          lastInd[newInd] = prevInd[newID];
-          updProg[newInd] = (isResTab ? prevProg[newID] != newData[i].progress : false);
+        if (Object.keys(lastInd).length == 0) { // No modifications
+          if (predRank)
+            this.startPredictedTimeTimer();
+          return;
         }
-      }
-      if (Object.keys(lastInd).length == 0) { // No modifications
-        if (predRank)
-          this.startPredictedTimeTimer();
-        return;
-      }
 
-      var order = this.currentTable.order();
-      var numCol = this.currentTable.settings().columns()[0].length;
-      if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
-        if (predRank)
-          this.startPredictedTimeTimer();
-        return;
-      }
-
-      // Prepare for animation
-      this.animating = true;
-      // Turn off fixed header if not already applied
-      if ($('div[class^="dtfh-floatingparent dtfh-floatingparent-head"]').length === 0)
-        this.currentTable.fixedHeader.disable();
-
-      var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
-
-      // Set each td's width
-      var column_widths = new Array();
-      $(table).find('tr:first-child td').each(function () {
-        column_widths.push($(this)[0].getBoundingClientRect().width);
-      });
-      $(table).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
-
-      // Set table height and width
-      var height = $(table).outerHeight();
-
-      // Put all the rows back in place
-      var rowPosArray = new Array();
-      var rowIndArray = new Array();
-      var ind = -1; // -1:header; 0:first data
-      var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : -window.scrollY);
-      $(table).find('tr').each(function () {
-        var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
-        $(this).css('top', rowPos);
-        if ($(this).is(":visible")) {
-          rowPosArray.push(rowPos);
-          rowIndArray.push(ind);
+        var order = this.currentTable.order();
+        var numCol = this.currentTable.settings().columns()[0].length;
+        if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
+          if (predRank)
+            this.startPredictedTimeTimer();
+          return;
         }
-        ind++;
-      });
-      $(table).height(height).width('100%');
-      if (isResTab) // Set fixed table layout to avoid slider 
+
+        // Prepare for animation
+        this.animating = true;
+        // Turn off fixed header if not already applied
+        if ($('div[class^="dtfh-floatingparent dtfh-floatingparent-head"]').length === 0)
+          this.currentTable.fixedHeader.disable();
+
+        var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
+
+        // Set each td's width
+        var column_widths = new Array();
+        $(table).find('tr:first-child th').each(function () {
+          column_widths.push($(this)[0].getBoundingClientRect().width);
+        });
+        $(table).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
+
+        // Set table height and width
+        var height = $(table).outerHeight();
+
+        // Put all the rows back in place
+        var rowPosArray = new Array();
+        var rowIndArray = new Array();
+        var ind = -1; // -1:header; 0:first data
+        //var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : -window.scrollY);
+        var tableTop = $(table)[0].getBoundingClientRect().top;
+        $(table).find('tr').each(function () {
+          var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
+          $(this).css('top', rowPos);
+          if ($(this).is(":visible")) {
+            rowPosArray.push(rowPos);
+            rowIndArray.push(ind);
+          }
+          ind++;
+        });
+        $(table).height(height).width('100%');
+        //if (isResTab) // Set fixed table layout to avoid slider 
         $(table).css({ 'table-layout': 'fixed' });
 
-      // Set table cells position to absolute
-      $(table).find('tbody tr').each(function () {
-        $(this).css('position', 'absolute').css('z-index', '-9');;
-      });
-
-      // Animation
-      for (var lastIndStr in lastInd) {
-        var newInd = parseInt(lastIndStr);
-        var oldInd = lastInd[newInd];
-        var oldPos = rowPosArray[oldInd + 1]; // First entry is header
-        var newPos = rowPosArray[newInd + 1];
-        var row = $(table).find("tbody tr").eq(rowIndArray[newInd + 1]);
-        var oldOpacity = (oldInd % 2 == 0 ? 0.08 : 0);
-        var newOpacity = (newInd % 2 == 0 ? 0.08 : 0);
-        var zind;
-        if (predRank) // Update from predictions of running times         
-          zind = (newInd == 0 ? -4 : (newInd > oldInd ? -5 : -7));
-        else // Updates from new data from server
-          zind = (updProg[newInd] ? -5 : -7);
-
-        $(row).css('z-index', zind);
-
-        var translateOld = "translate3d(0," + (oldPos - newPos) + "px,0)";
-        var translateNew = "translate3d(0,0,0)";
-
-        // Set the initial position instantly
-        $(row).css({
-          'transition': 'none',
-          'transform': translateOld
-        });
-        // Force a reflow to ensure the browser registers the initial position
-        $(row)[0].offsetHeight;
-        // Set the new position with a transition
-        $(row).css({
-          'transition': 'transform ' + _this.animTime + 'ms',
-          'transform': translateNew,
+        // Set table cells position to absolute
+        $(table).find('tbody tr').each(function () {
+          $(this).css('position', 'absolute').css('z-index', '-9');;
         });
 
-        $(row).find('td').each(function () {
-          if (Object.keys(lastInd).length < 10) { // Drop animation of background color for large updates
-            $(this).css('box-shadow', 'inset 0 0 0 9999px rgba(0, 0, 0, ' + oldOpacity + ')');
-            $(this)[0].offsetHeight;
-            $(this).css({
-              'transition': 'box-shadow ' + _this.animTime + 'ms',
-              'box-shadow': 'inset 0 0 0 9999px rgba(0, 0, 0, ' + newOpacity + ')'
-            });
-          }
-          else
-            $(this).css({
-              'transition': 'none',
-              'box-shadow': 'inset 0 0 0 9999px rgba(0, 0, 0, ' + newOpacity + ')'
-            });
-        });
+        // Animation
+        for (var lastIndStr in lastInd) {
+          var newInd = parseInt(lastIndStr);
+          var oldInd = lastInd[newInd];
+          var oldPos = rowPosArray[oldInd + 1]; // First entry is header
+          var newPos = rowPosArray[newInd + 1];
+          var row = $(table).find("tbody tr").eq(rowIndArray[newInd + 1]);
+          var oldOpacity = (oldInd % 2 == 0 ? 0.08 : 0);
+          var newOpacity = (newInd % 2 == 0 ? 0.08 : 0);
+          var zind;
+          if (predRank) // Update from predictions of running times         
+            zind = (newInd == 0 ? -4 : (newInd > oldInd ? -5 : -7));
+          else // Updates from new data from server
+            zind = (updProg[newInd] ? -5 : -7);
+
+          $(row).css('z-index', zind);
+
+          var translateOld = "translate3d(0," + (oldPos - newPos) + "px,0)";
+          var translateNew = "translate3d(0,0,0)";
+
+          // Set the initial position instantly
+          $(row).css({
+            'transition': 'none',
+            'transform': translateOld
+          });
+          // Force a reflow to ensure the browser registers the initial position
+          $(row)[0].offsetHeight;
+          // Set the new position with a transition
+          $(row).css({
+            'transition': 'transform ' + _this.animTime + 'ms',
+            'transform': translateNew,
+          });
+
+          $(row).find('td').each(function () {
+            if (Object.keys(lastInd).length < 10) { // Drop animation of background color for large updates
+              $(this).css('box-shadow', 'inset 0 0 0 9999px rgba(0, 0, 0, ' + oldOpacity + ')');
+              $(this)[0].offsetHeight;
+              $(this).css({
+                'transition': 'box-shadow ' + _this.animTime + 'ms',
+                'box-shadow': 'inset 0 0 0 9999px rgba(0, 0, 0, ' + newOpacity + ')'
+              });
+            }
+            else
+              $(this).css({
+                'transition': 'none',
+                'box-shadow': 'inset 0 0 0 9999px rgba(0, 0, 0, ' + newOpacity + ')'
+              });
+          });
+        }
+        setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
       }
-      setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
-      //}
-      //catch (e) { }
+      catch (e) { }
     };
 
     // Reset settings after animation is completed
@@ -2740,8 +2743,9 @@ var LiveResults;
       $(table).height(0).width('100%');
       $(table).css({ 'table-layout': 'auto' });
       this.animating = false;
-      if (!this.currentTable.fixedHeader.enabled())
+      if (!this.currentTable.fixedHeader.enabled()) {
         this.currentTable.fixedHeader.enable();
+      }
       if (predRank)
         this.startPredictedTimeTimer();
     };
@@ -3305,7 +3309,7 @@ var LiveResults;
                 columns.push({
                   title: splitName,
                   visible: _this.curClassSplitsOK[refSp],
-                  className: "dt-right",
+                  className: "dt-right timePlaceWidth",
                   orderable: !_this.curClassIsUnranked,
                   type: "numeric",
                   orderData: [col + 1, col],
@@ -3426,13 +3430,14 @@ var LiveResults;
 
           columns.push({
             title: this.resources["_CONTROLFINISH"],
-            className: "dt-right",
+            className: "dt-right timePlaceWidth",
             type: "numeric",
             orderData: [col + 1, col, 0],
             targets: [col],
             orderable: !_this.fixedTable,
             data: "result",
             width: (_this.fixedTable ? "10%" : null),
+            minWidth: "100px",
             render: function (data, type, row) {
               if (isNaN(parseInt(data)))
                 return data;
@@ -3502,9 +3507,9 @@ var LiveResults;
 
           if (!(haveSplitControls || _this.isMultiDayEvent) || !fullView || _this.curClassLapTimes) {
             columns.push({
-              title: "&nbsp;&nbsp;&nbsp;&nbsp;",
+              title: "",
               visible: (!isSprintHeat || _this.showTimesInSprint) && (!_this.curClassIsUnranked || _this.fixedTable),
-              className: "dt-right",
+              className: "dt-right timeWidth",
               orderable: false,
               targets: [col++],
               data: "timeplus",
@@ -3549,7 +3554,7 @@ var LiveResults;
           if (this.isMultiDayEvent && !courseResults) {
             columns.push({
               title: this.resources["_TOTAL"],
-              className: "dt-right",
+              className: "dt-right timePlaceWidth",
               type: "numeric",
               orderData: [col + 1, col, 0],
               targets: [col],
@@ -3676,7 +3681,6 @@ var LiveResults;
 
           if (this.isCompToday()) {
             this.updatePredictedTimes(true); // Insert times only
-            this.currentTable.columns.adjust().draw();
             if (this.lastChanged)
               this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
             else

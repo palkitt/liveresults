@@ -110,8 +110,8 @@ var Messages;
 
                 // Existing datatable
                 if (this.currentTable != null) {
-                    this.currentTable.fnClearTable();
-                    this.currentTable.fnAddData(this.messagesData, true);
+                    this.currentTable.clear();
+                    this.currentTable.rows.add(this.messagesData).draw();
                     this.filterTable();
                 }
 
@@ -250,18 +250,19 @@ var Messages;
                     });
 
                     this.currentTable = $('#divMessages').DataTable({
-                        "bPaginate": false,
-                        "bLengthChange": false,
-                        "bFilter": true,
-                        "dom": 'lrtip',
-                        "bSort": true,
-                        "bInfo": false,
-                        "bAutoWidth": false,
-                        "aaData": this.messagesData,
-                        "aaSorting": [[0, "desc"], [1, "desc"], [2, "desc"]],
-                        "aoColumnDefs": columns,
-                        "bDestroy": true,
-                        "orderCellsTop": true
+                        fixedHeader: true,
+                        paging: false,
+                        lengthChange: false,
+                        filter: true,
+                        dom: 'lrtip',
+                        ordering: true,
+                        info: false,
+                        autoWidth: false,
+                        data: this.messagesData,
+                        order: [[0, "desc"], [1, "desc"], [2, "desc"]],
+                        columns: columns,
+                        destroy: true,
+                        orderCellsTop: true
                     });
                 };
                 this.updateMessageMarking();
@@ -390,7 +391,7 @@ var Messages;
 
         // Filter rows in table
         AjaxViewer.prototype.filterTable = function () {
-            var table = this.currentTable.api();
+            var table = this.currentTable;
             table.search($('#filterText')[0].value).draw()
         };
 

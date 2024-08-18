@@ -125,6 +125,7 @@ h3 {
 
 .pre_post_start>td {
   background-color: #DFDFDF !important;
+  box-shadow: none !important;
 }
 
 .dns {
@@ -163,6 +164,7 @@ td.searchmenu {
 tr.red_row>td {
   color: white;
   background-color: var(--livered) !important;
+  box-shadow: none !important;
 }
 
 tr.red_row a {
@@ -221,6 +223,7 @@ tr.red_row .relayclub {
 .red_cell {
   color: white;
   background-color: var(--livered) !important;
+  box-shadow: none !important;
 }
 
 .red_cell .plustime {
@@ -251,6 +254,7 @@ tr.red_row .relayclub {
 .red_cell_sqr {
   color: white;
   background-color: var(--livered) !important;
+  box-shadow: none !important;
 }
 
 .red_cell_sqr .plustime {
@@ -343,12 +347,14 @@ tr.green_row_firststarter>td {
 tr.yellow_row>td {
   color: black;
   background-color: #FFFF00 !important;
+  box-shadow: none !important;
 }
 
 tr.yellow_row_new>td {
   color: black;
   background-color: #FFFF00 !important;
   border-top: 2px solid grey !important;
+  box-shadow: none !important;
 }
 
 /* Yellow row highlight for speaker, first non qualifyer */
@@ -356,17 +362,20 @@ tr.yellow_row_fnq>td {
   color: black;
   background-color: #FFFF00 !important;
   border-top: 3px solid grey !important;
+  box-shadow: none !important;
 }
 
 /* Yellow and green cells for messages */
 .yellow_cell {
   color: black;
   background-color: #FFFF00 !important;
+  box-shadow: none !important;
 }
 
 .green_cell {
   color: black;
   background-color: #00FF00 !important;
+  box-shadow: none !important;
 }
 
 
@@ -505,6 +514,14 @@ td i {
   font-style: normal;
 }
 
+/* min width of colums with times */
+.timeWidth {
+  min-width: 5em;
+}
+
+.timePlaceWidth {
+  min-width: 7em;
+}
 
 #langchooser {
   vertical-align: middle;
@@ -705,7 +722,6 @@ td.menuchosen a:hover {
 /*-------------------------------*/
 
 
-
 /* Scroll and full view toggle */
 .noUnderline a {
   text-decoration: none;
@@ -860,8 +876,6 @@ td.menuchosen a:hover {
   background-color: #888888;
   width: 100%;
 }
-
-
 
 
 /*-----------------------------------*/
