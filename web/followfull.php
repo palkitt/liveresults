@@ -86,7 +86,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" type="text/css" href="css/fixedColumns.dataTables.min.css">
   <link rel="stylesheet" type="text/css" href="css/fixedHeader.dataTables.min.css" -->
   <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
+  <link rel="stylesheet" type="text/css" href="css/style-freidig.css?d">
 
   <!-- script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
@@ -94,7 +94,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <script language="javascript" type="text/javascript" src="js/dataTables.fixedHeader.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script -->
   <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.js?c"></script>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <?php if ($isSpeaker) { ?>
     <script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
@@ -267,6 +267,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       // Open and close class selction dropdown list
       $('#dropbtnClass').on('mouseover', function() {
         $('#dropdownClassContent').removeClass('closed').addClass('open');
+        var windowHeight = $(window).height();
+        var elementOffsetTop = $('#dropdownClassContent').offset().top;
+        var newHeight = windowHeight - elementOffsetTop - 10;
+        $('#dropdownClassContent').height(newHeight);
       });
       $('#dropdownClassContent').on('mouseleave', function() {
         $('#dropdownClassContent').removeClass('open').addClass('closed');
@@ -453,8 +457,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span id="navUD">↑</span></button>
                   <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
                   <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
-                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'">☰</button>
-                  &nbsp;
+                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'">☰</button>&nbsp;
                   <b><span id="compname">loading comp name...</b>
                 </td>
               </tr>
@@ -486,7 +489,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                     <?php if (!$isEmmaComp) { ?>
                       <span id="liveIndicator"></span>
                     <?php } ?>
-                    <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b>
+                    <span id="resultsHeader"><b>Velg klasse</b>
                   </button>
                   <div id="dropdownClassContent" class="dropdownClass-content">
                     <div id="divClasses"></div>
