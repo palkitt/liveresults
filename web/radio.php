@@ -31,11 +31,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
   <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
-  <!-- script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/dataTables.fixedColumns.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/dataTables.fixedHeader.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/velocity.min.js"></script -->
   <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>

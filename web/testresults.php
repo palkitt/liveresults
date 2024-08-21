@@ -17,11 +17,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#555556">
-  <link rel="stylesheet" type="text/css" href="../css/style-freidig.css">
-  <link rel="stylesheet" type="text/css" href="../css/jquery.dataTables.css">
-
-  <script language="javascript" type="text/javascript" src="../js/jquery-3.7.0.min.js"></script>
-  <script language="javascript" type="text/javascript" src="../js/jquery.dataTables.min.js"></script>
+  <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="css/style-freidig.css?d">
+  <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
   <script language="javascript" type="text/javascript">
     var runnerStatus = Array();
     runnerStatus[0] = "<?= $_STATUSOK ?>";
@@ -45,32 +43,31 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       var columns = Array();
       var col = 0;
       columns.push({
-        "sTitle": "Blanl",
-        "sClass": "right",
-        "bVisible": false,
-        "bSortable": true,
-        "aTargets": [col++],
+        title: "Blanl",
+        visible: false,
+        orderable: true,
+        targets: [col++],
+        data: "date"
+      });
+      columns.push({
+        title: "Dato",
+        className: "dt-left",
+        orderable: true,
+        targets: [col++],
         "mDataProp": "date"
       });
       columns.push({
-        "sTitle": "Dato",
-        "sClass": "left",
-        "bSortable": true,
-        "aTargets": [col++],
-        "mDataProp": "date"
-      });
-      columns.push({
-        "sTitle": "Navn",
-        "sClass": "left",
-        "bSortable": true,
-        "aTargets": [col++],
+        title: "Navn",
+        className: "dt-left",
+        orderable: true,
+        targets: [col++],
         "mDataProp": "name"
       });
       columns.push({
         "sTitle": "Klasse",
         "sClass": "left",
-        "bSortable": true,
-        "aTargets": [col++],
+        orderable: true,
+        targets: [col++],
         "mDataProp": "class",
         "render": function(data, type, row) {
           var link = "<a href=\"followfull.php?comp=" + row.compid + "&class=" + encodeURIComponent(data);

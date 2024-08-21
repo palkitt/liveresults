@@ -29,7 +29,7 @@ if ($isEmmaComp) {
   $isMultiDayEvent = "false";
   $showTenths = false;
   $highTime = false;
-  $rankedStartlist = true;
+  $rankedStartlist = false;
   $qualLimits = "";
   $qualClasses = "";
   $infoText = "";
@@ -223,7 +223,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
       // Insert comp name
       var compName = "<?= $compName ?>";
-      compName = compName.substring(0, (res.browserType == 1 ? 20 : 60))
+      compName = compName.substring(0, (res.browserType == 1 ? 40 : 60))
       $("#compname").html(compName);
 
       // Show tenth of seconds
@@ -489,7 +489,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                     <?php if (!$isEmmaComp) { ?>
                       <span id="liveIndicator"></span>
                     <?php } ?>
-                    <span id="resultsHeader"><b>Velg klasse</b>
+                    <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b>
                   </button>
                   <div id="dropdownClassContent" class="dropdownClass-content">
                     <div id="divClasses"></div>

@@ -2440,7 +2440,7 @@ var LiveResults;
             return item.class === _this.curClassName;
           });
           this.lastClassHash = data.hash;
-          if (true || data.lastchanged[index].lastchanged > this.lastChanged) {
+          if (data.lastchanged[index].lastchanged > this.lastChanged) {
             this.checkForClassUpdate();
             return;
           }
@@ -2660,7 +2660,6 @@ var LiveResults;
         var rowPosArray = new Array();
         var rowIndArray = new Array();
         var ind = -1; // -1:header; 0:first data
-        //var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : -window.scrollY);
         var tableTop = $(table)[0].getBoundingClientRect().top;
         $(table).find('tr').each(function () {
           var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
@@ -2672,7 +2671,6 @@ var LiveResults;
           ind++;
         });
         $(table).height(height).width('100%');
-        //if (isResTab) // Set fixed table layout to avoid slider 
         $(table).css({ 'table-layout': 'fixed' });
 
         // Set table cells position to absolute
@@ -3437,7 +3435,6 @@ var LiveResults;
             orderable: !_this.fixedTable,
             data: "result",
             width: (_this.fixedTable ? "10%" : null),
-            minWidth: "100px",
             render: function (data, type, row) {
               if (isNaN(parseInt(data)))
                 return data;
@@ -3600,7 +3597,6 @@ var LiveResults;
             if (!fullView) {
               columns.push({
                 title: "",
-                className: "dt-right",
                 orderable: false,
                 targets: [col++],
                 data: "totalplus",
@@ -4640,7 +4636,6 @@ var LiveResults;
             type: "numeric",
             orderable: false,
             targets: [col++],
-            "bUseRendered": false,
             width: "10%",
             render: function (data, type, row) {
               if (type == "sort")
@@ -4845,7 +4840,6 @@ var LiveResults;
                   type: "numeric",
                   orderData: [col],
                   targets: [col],
-                  "bUseRendered": false,
                   data: "result",
                   render: function (data, type, row, meta) {
                     var no = meta.col - 4;
