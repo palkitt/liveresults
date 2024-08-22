@@ -37,51 +37,53 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
     updateTable = function(data) {
       if (this.currentTable != null) {
-        this.currentTable.api().destroy();
+        this.currentTable.destroy();
         $('#testresults').html('');
       }
       var columns = Array();
       var col = 0;
+
       columns.push({
-        title: "Blanl",
-        visible: false,
+        title: "Dato",
         orderable: true,
         targets: [col++],
-        data: "date"
+        data: "date",
+        visible: false,
       });
       columns.push({
         title: "Dato",
         className: "dt-left",
         orderable: true,
         targets: [col++],
-        "mDataProp": "date"
+        data: "date",
+        type: "text",
       });
       columns.push({
         title: "Navn",
         className: "dt-left",
         orderable: true,
         targets: [col++],
-        "mDataProp": "name"
+        data: "name"
       });
       columns.push({
-        "sTitle": "Klasse",
-        "sClass": "left",
+        title: "Klasse",
+        className: "dt-left",
         orderable: true,
         targets: [col++],
-        "mDataProp": "class",
-        "render": function(data, type, row) {
+        data: "class",
+        render: function(data, type, row) {
           var link = "<a href=\"followfull.php?comp=" + row.compid + "&class=" + encodeURIComponent(data);
           link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + data + "</a>";
           return link;
         }
       });
       columns.push({
-        "sTitle": "Tid",
-        "sClass": "right",
-        "bSortable": true,
-        "aTargets": [col++],
-        "mDataProp": "result",
-        "render": function(data, type, row) {
+        title: "Tid",
+        className: "dt-right",
+        orderable: true,
+        targets: [col++],
+        data: "result",
+        render: function(data, type, row) {
           if (isNaN(parseInt(data)))
             return data;
           else
@@ -89,26 +91,26 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         }
       });
 
-      this.currentTable = $('#testresults').dataTable({
-        "bSortable": true,
-        "bSort": true,
-        "bAutoWidth": false,
-        "aaData": data.results,
-        "aoColumnDefs": columns,
-        "bDestroy": true,
-        "orderCellsTop": true,
-        "bPaginate": false,
-        "bLengthChange": false,
-        "bFilter": false,
-        "aaSorting": [
+      this.currentTable = $('#testresults').DataTable({
+        orderable: true,
+        order: true,
+        autoWidth: false,
+        data: data.results,
+        columnDefs: columns,
+        destroy: true,
+        orderCellsTop: true,
+        paging: false,
+        lengthChange: false,
+        searching: false,
+        order: [
           [0]
         ],
-        "bInfo": false,
-        "fnPreDrawCallback": function(oSettings) {
-          if (oSettings.aaSorting[0][0] != 0) {
+        info: false,
+        preDrawCallback: function(settings) {
+          var api = new $.fn.dataTable.Api(settings);
+          if (api.order()[0][0] !== 0)
             $("#resetsorting").html("<a href=\"#\" onclick=\"resetSorting()\">&#8635; Reset sortering</a>");
-          }
-        },
+        }
       });
     };
 
@@ -191,9 +193,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     };
 
     resetSorting = function() {
-      this.currentTable.fnSort([
-        [0]
-      ]);
+      this.currentTable.order([0, 'asc']).draw();
       $("#resetsorting").html("");
     };
   </script>
