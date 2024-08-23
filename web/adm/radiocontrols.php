@@ -19,7 +19,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#555556">
-  <link rel="stylesheet" type="text/css" href="../css/style-freidig.css">
+  <link rel="stylesheet" type="text/css" href="../css/style-liveres.css">
   <link rel="stylesheet" type="text/css" href="../css/jquery.dataTables.css">
   <link rel="stylesheet" type="text/css" href="../css/fixedHeader.dataTables.min.css">
 

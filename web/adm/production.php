@@ -20,7 +20,7 @@ $currentComp = new Emma($_GET['comp']);
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="robots" content="noindex">
-  <link rel="stylesheet" type="text/css" href="../css/style-freidig.css">
+  <link rel="stylesheet" type="text/css" href="../css/style-liveres.css">
   <script language="javascript">
 
   </script>

@@ -28,7 +28,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <meta name="theme-color" content="#555556">
 
   <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
+  <link rel="stylesheet" type="text/css" href="css/style-liveres.css">
   <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
   <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>

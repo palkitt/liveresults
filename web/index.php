@@ -22,7 +22,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#555556">
 
-  <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
+  <link rel="stylesheet" type="text/css" href="css/style-liveres.css">
 
   <script language="javascript" type="text/javascript">
     function colorRow(row) {
@@ -169,10 +169,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         if ($date < $today && !$firstAfterToday) {
           $firstAfterToday = true;
         ?><tr id="row<?= $comp["id"] ?>" style="border-top: 2px solid gray;"><?php
-                                                                          } else {
-                                                                            ?>
+                                                                            } else {
+                                                                              ?>
           <tr id="row<?= $comp["id"] ?>"><?php
-                                                                          } ?>
+                                                                            } ?>
           <td>
             <?php if ($isActive) { ?>
               <span class="pulsing">◉</span>
