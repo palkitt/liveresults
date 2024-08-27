@@ -516,11 +516,11 @@ td i {
 
 /* min width of colums with times */
 .timeWidth {
-  min-width: 5em;
+  min-width: 3em;
 }
 
 .timePlaceWidth {
-  min-width: 7em;
+  min-width: 3em;
 }
 
 #langchooser {

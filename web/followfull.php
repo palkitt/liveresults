@@ -262,7 +262,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         var windowHeight = $(window).height();
         var elementOffsetTop = $('#dropdownClassContent').offset().top;
         var newHeight = windowHeight - elementOffsetTop - 10;
-        $('#dropdownClassContent').height(newHeight);
+        $('#dropdownClassContent').css('max-height', newHeight);
       });
       $('#dropdownClassContent').on('mouseleave', function() {
         $('#dropdownClassContent').removeClass('open').addClass('closed');

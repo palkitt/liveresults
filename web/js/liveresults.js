@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = true;
+      this.local = false;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -1005,7 +1005,7 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          //time += 20 * 20 * 6000 * Math.random() + 5 * 60 * 60 * 100;
+          // time += 3 * 20 * 6000 * Math.random() - 8.5 * 60 * 60 * 100;
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -1200,8 +1200,9 @@ var LiveResults;
                         else
                           elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\"> <i>&#10072;..&#10072;</i></span>";
                       }
-                      else
+                      else {
                         table.cell(i, 6 + MDoffset + (this.curClassHasBibs ? 1 : 0)).data(timeDiffStr);
+                      }
                     }
                     table.cell(i, 4 + MDoffset + (this.curClassHasBibs ? 1 : 0)).data(elapsedTimeStr);
 
@@ -2555,7 +2556,7 @@ var LiveResults;
             this.updatePredictedTimes(true); // Insert times only
             $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
             window.scrollTo(scrollX, scrollY);
-
+            this.currentTable.columns.adjust().draw();
             var newResults = table.data().toArray();
             this.animateTable(oldResults, newResults, this.animTime);
 
@@ -3677,6 +3678,7 @@ var LiveResults;
 
           if (this.isCompToday()) {
             this.updatePredictedTimes(true); // Insert times only
+            this.currentTable.columns.adjust().draw();
             if (this.lastChanged)
               this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
             else
