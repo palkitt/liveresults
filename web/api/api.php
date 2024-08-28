@@ -1163,7 +1163,7 @@ function sortByResult($a, $b)
 	else if ($a["Time"] == $b["Time"])
 		return $a["DbId"] - $b["DbId"];
 	else
-		return $a["Time"] - $b["Time"];
+		return intval($a["Time"]) - intval($b["Time"]);
 }
 
 
