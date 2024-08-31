@@ -190,7 +190,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         res.viewClubResults('<?= $singleClub ?>');
       <?php } else { ?>
         $("#divClasses").html("<?= $_LOADINGCLASSES ?>...");
-        res.updateClassList();
+        res.updateClassList(true);
       <?php } ?>
 
       <?php if ($showLastPassings) { ?>

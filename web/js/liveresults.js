@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = false;
+      this.local = true;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -212,7 +212,7 @@ var LiveResults;
     }
 
     // Update the classlist
-    AjaxViewer.prototype.updateClassList = function () {
+    AjaxViewer.prototype.updateClassList = function (first = false) {
       var _this = this;
       this.inactiveTimer += this.classUpdateInterval / 1000;
 
@@ -221,16 +221,16 @@ var LiveResults;
           url: this.apiURL,
           data: "comp=" + this.competitionId + "&method=getclasses&last_hash=" + this.lastClassListHash,
           success: function (data) {
-            _this.handleUpdateClassListResponse(data);
+            _this.handleUpdateClassListResponse(data, first);
           },
           error: function () {
-            _this.classUpdateTimer = setTimeout(function () { _this.updateClassList(); }, _this.classUpdateInterval);
+            _this.classUpdateTimer = setTimeout(function () { _this.updateClassList(first); }, _this.classUpdateInterval);
           },
           dataType: "json"
         });
       }
     };
-    AjaxViewer.prototype.handleUpdateClassListResponse = function (data) {
+    AjaxViewer.prototype.handleUpdateClassListResponse = function (data, first) {
       var _this = this;
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
@@ -376,6 +376,8 @@ var LiveResults;
           }
 
           str += "<hr></nowrap>";
+          if (first) // Open class list if first time update
+            $('#dropdownClassContent').removeClass('closed').addClass('open');
           $("#" + this.classesDiv).html(str);
           $("#numberOfRunnersTotal").html(data.numberOfRunners);
           $("#numberOfRunnersStarted").html(data.numberOfStartedRunners);
