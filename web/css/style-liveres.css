@@ -794,7 +794,7 @@ td.menuchosen a:hover {
 .navbtn {
   border: none;
   background-color: black;
-  font-size: 1em;
+  font-size: 1.3em;
   cursor: pointer;
   display: inline-block;
   color: white;
