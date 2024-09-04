@@ -38,6 +38,7 @@ namespace LiveResults.Client
         public event MergeCourseControlsDelegate OnMergeCourseControls;
         public event MergeCourseNamesDelegate OnMergeCourseNames;
         public event MergeVacantsDelegate OnMergeVacants;
+        public event DeleteVacantIDDelegate OnDeleteVacantID;
         private bool m_updateEcardTimes;
         private bool m_updateRadioControls;
         private bool m_continue;
@@ -86,12 +87,17 @@ namespace LiveResults.Client
             if (OnDeleteID != null)
                 OnDeleteID(runnerID);
         }
+        private void FireOnDeleteVacantID(int runnerID)
+        {
+            if (OnDeleteVacantID != null)
+                OnDeleteVacantID(runnerID);
+        }
         private void FireOnDeleteUnusedID(List<int> usedIds, bool first = false)
         {
             if (OnDeleteUnusedID != null)
                 OnDeleteUnusedID(usedIds, first);
         }
-
+       
 
         Thread m_monitorThread;
 
@@ -1893,6 +1899,7 @@ namespace LiveResults.Client
                     string club = (entry["club"]).ToObject<string>();
                     string className = (entry["className"]).ToObject<string>();
                     int ecard = (entry["ecardNumber"]).ToObject<int>();
+                    int rent = (entry["rent"]).ToObject<int>();
 
                     try
                     {
@@ -1913,11 +1920,9 @@ namespace LiveResults.Client
                         else
                         {
                             IDbCommand cmd = m_connection.CreateCommand();
-
                             cmd.CommandText = string.Format(@"SELECT name.id FROM name LEFT JOIN class ON name.class = class.code 
                                                                 WHERE name.{0} = {1} AND class.class = '{2}' AND name.status='V'",
                                                                 kid > 0 ? "kid" : "id", kid > 0 ? kid : dbid, className);
-
                             var dbidOut = cmd.ExecuteScalar();
                             if (dbidOut == null || dbidOut == DBNull.Value)
                             {
@@ -1936,10 +1941,10 @@ namespace LiveResults.Client
                                 // Vacant runner ID found
                                 cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'", club);
                                 var clubCode = cmd.ExecuteScalar();
-                                if (clubCode != null || clubCode != DBNull.Value)
+                                if (clubCode != null && clubCode != DBNull.Value)
                                     clubCode = clubCode.ToString();
-                                cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',status='I' WHERE id={4}",
-                                                      firstName, lastName, ecard, clubCode, dbidOut);
+                                cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',ecardfee={4}, status='I' WHERE id={5}",
+                                                      firstName, lastName, ecard, clubCode, rent, dbidOut);
                                 var update = cmd.ExecuteNonQuery();
                                 if (update != 1)
                                 {
@@ -1955,6 +1960,7 @@ namespace LiveResults.Client
                                 }
                                 else
                                 {
+                                    FireOnDeleteVacantID(dbidIn); // Remove used vacant ID from list
                                     FireLogMsg("eTiming Message: " + firstName + " " + lastName + " entered class " + className);
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setmessagedbid&dbid=" + dbidIn + "&messid=" + messid);
                                     apiResponse = client.DownloadString(messageServer + "messageapi.php?method=setcompleted&completed=1&messid=" + messid);

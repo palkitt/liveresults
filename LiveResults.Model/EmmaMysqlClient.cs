@@ -545,13 +545,11 @@ namespace LiveResults.Model
             }
         }
 
-
         public void DeleteID(int runnerID)
         {
             if (m_runners.ContainsKey(runnerID))
                 RemoveRunner(m_runners[runnerID]);
         }
-
 
         public void RemoveRunner(Runner r)
         {
@@ -875,13 +873,20 @@ namespace LiveResults.Model
                 {
                     int key = vacant.Key;
                     if (!vacantRunners.Any(r => r.dbid == key))
-                    {
-                        m_itemsToUpdate.Add(new DelVacantRunner() { ToDelete = m_vacantRunners[key] });
-                        m_vacantRunners.Remove(key);
-                    }
+                        DeleteVacantID(key);
                 }
             }
         }
+
+        public void DeleteVacantID(int dbid)
+        {
+            if (m_vacantRunners.ContainsKey(dbid))
+            {
+                m_itemsToUpdate.Add(new DelVacantRunner() { ToDelete = m_vacantRunners[dbid] });
+                m_vacantRunners.Remove(dbid);
+            }
+        }
+
 
         public void MergeRunners(Runner[] runners)
         {

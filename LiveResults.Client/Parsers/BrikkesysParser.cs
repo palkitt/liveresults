@@ -27,6 +27,7 @@ namespace LiveResults.Client
         private readonly bool m_recreateRadioControls;
         private readonly int m_raceID;
         public event DeleteUnusedIDDelegate OnDeleteUnusedID;
+        public event DeleteVacantIDDelegate OnDeleteVacantID;
         public event MergeRadioControlsDelegate OnMergeRadioControls;
         public event MergeCourseControlsDelegate OnMergeCourseControls;
         public event RadioControlDelegate OnRadioControl;

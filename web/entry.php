@@ -45,16 +45,21 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					if (!data.active) {
+					if (false && !data.active) {
 						$('#inactiveinfo').html('Løpet er ikke online! Kontakt løpskontor eller prøv igjen senere.');
 						$('#clubSelect').prop('disabled', true);
 						$('#clubSelect').prop('disabled', true).css('background-color', '');
 					}
 					let clubSelect = $('#clubSelect');
 					clubSelect.append($('<option>').text('--- Velg klubb ---').val(''));
+					var noClubOption = false;
 					data.clubs.forEach(club => {
 						clubSelect.append($('<option>').text(club.name));
+						if (club.name == 'NOTEAM')
+							noClubOption = true;
 					});
+					if (!noClubOption)
+						clubSelect.append($('<option>').text('NOTEAM'));
 					vacants = data.vacants;
 					var classes = vacants.map(vacant => vacant.class);
 					var classCounts = classes.reduce((counts, className) => {
@@ -103,6 +108,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 						});
 					$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
 					$('#ecardnumber').prop('disabled', false);
+					$('#rent').prop('disabled', false);
 				}
 			});
 
@@ -125,6 +131,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 			$('#classSelect').prop('disabled', true);
 			$('#ecardnumber').prop('disabled', true);
+			$('#rent').prop('disabled', true);
 			$('#firstname').prop('disabled', true);
 			$('#lastname').prop('disabled', true);
 			$('#submit').hide();
@@ -175,9 +182,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			var ecardNumber = $('#ecardnumber').val();
 			var club = $('#clubSelect').val();
 			var className = $('#classSelect').val();
+			var rent = $('#rent').prop('checked');
 			$('#clubSelect').prop('disabled', true);
 			$('#classSelect').prop('disabled', true);
 			$('#ecardnumber').prop('disabled', true);
+			$('#rent').prop('disabled', true);
 			$('#firstname').prop('disabled', true);
 			$('#lastname').prop('disabled', true);
 			$('#submit').hide();
@@ -188,7 +197,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				lastName: lastName,
 				ecardNumber: ecardNumber,
 				club: club,
-				className: className
+				className: className,
+				rent: rent
 			};
 
 			var jsonData = JSON.stringify(data);
@@ -290,7 +300,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<div id="classverification">...</div>
 
 			<h2>Brikkenummer</h2>
-			<input id="ecardnumber" type="number" style="width:95%" inputmode="numeric">
+			<input id="ecardnumber" type="number" style="width:70%" inputmode="numeric">
+			<div style="text-align: right; display: inline-block; width: 25%;">&nbsp;
+				<input id="rent" type="checkbox" value="no">&nbsp;Leiebrikke
+			</div>
 			<br>
 			<div id="ecardverification">...</div>
 			<div id="ecardlastuse"><small>...</small></div>

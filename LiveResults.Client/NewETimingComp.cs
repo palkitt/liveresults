@@ -32,7 +32,7 @@ namespace LiveResults.Client
             comboBox1.SelectedIndex = 0;
             lstDB.PreviousSelectedIndex = 0;
             txtUser.Text = "emit";
-            txtPw.Text   = "time";
+            txtPw.Text = "time";
             txtPort.Text = "1433";
             txtETimingDb.Text = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
             txtSleepTime.Text = "3";
@@ -94,7 +94,7 @@ namespace LiveResults.Client
                 if (c is ComboBox)
                 {
                     string val = setts.Where(x => x.Key == c.Name).Select(x => x.Value).FirstOrDefault();
-                    (c as ComboBox).SelectedItem = val;                    
+                    (c as ComboBox).SelectedItem = val;
                 }
                 if (c is CheckBox)
                 {
@@ -108,7 +108,7 @@ namespace LiveResults.Client
                 {
                     string val = setts.Where(x => x.Key == c.Name).Select(x => x.Value).FirstOrDefault();
                     if (val != null)
-                        (c as DBListBox).PreviousSelectedIndex = Int32.Parse(val);               
+                        (c as DBListBox).PreviousSelectedIndex = Int32.Parse(val);
                 }
 
                 applyControlValues(c.Controls, setts);
@@ -217,8 +217,8 @@ namespace LiveResults.Client
 
                         string[] databases = GetDatabases(conn);
                         lstDB.DataSource = databases;
-                        if (lstDB.Items.Count>lstDB.PreviousSelectedIndex)
-                           lstDB.SetSelected(lstDB.PreviousSelectedIndex,true);
+                        if (lstDB.Items.Count > lstDB.PreviousSelectedIndex)
+                            lstDB.SetSelected(lstDB.PreviousSelectedIndex, true);
                     }
                 }
             }
@@ -272,11 +272,11 @@ namespace LiveResults.Client
                 case 1:
                     return new SqlConnection("Data Source=" + txtHost.Text + (txtPort.TextLength > 0 ? "," + txtPort.Text : "") + "; UID=" + txtUser.Text + ";PWD=" + txtPw.Text + (schema != null ? "; Database=" + schema : ""));
                     //return new OleDbConnection("Provider=SQL Server Native Client 11.0;Data Source=" + txtHost.Text + (txtPort.TextLength>0 ? ";Port=" + txtPort : "") + "; UID=" + txtUser.Text + ";PWD=" + txtPw.Text + (schema != null ? "; Database=" + schema : ""));
-            } 
+            }
             return null;
         }
 
-      
+
         private class ETimingComp
         {
             public string Name;
@@ -383,42 +383,51 @@ namespace LiveResults.Client
                     default:
                         txtCompType.Text = "Other (maybe not supported)";
                         break;
-                }                             
+                }
             }
         }
 
         private void wizardPage5_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
         {
             StoreSettings();
-
+            if (!Int32.TryParse(txtIdOffset.Text, out int IdOffset))
+                IdOffset = 0;
+            if (IdOffset > 0)
+            {
+                DialogResult result = MessageBox.Show("Use offset > 0 only when you want to show results from multiple databases in one LiveRes event!",
+                    "Database ID offset > 0", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+                if (result == DialogResult.Cancel)            
+                    return;
+            }
+            if (!Int32.TryParse(txtSleepTime.Text, out int SleepTime))
+                SleepTime = 3;
+            if (!Int32.TryParse(txtOsOffset.Text, out int OsOffset))
+                OsOffset = 0;
+            if (!Double.TryParse(txtMinPace.Text, out double MinPace))
+            {
+                if (!Double.TryParse(txtMinPace.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out MinPace))
+                    MinPace = 0;
+            }
+            if (!Int32.TryParse(txtCompID.Text, out int CompID))
+            {
+                MessageBox.Show("Invalid compID value", "Invalid input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            bool MSSQL = (comboBox1.SelectedIndex == 1);
             FrmETimingMonitor monForm = new FrmETimingMonitor();
             this.Hide();
 
-            bool MSSQL = false, parseOK = false;
-            if (comboBox1.SelectedIndex == 1) MSSQL = true;
-
-            int CompID = 0, IdOffset = 0, SleepTime = 0, OsOffset = 0;
-            double MinPace = 0;
-
-            if (!Int32.TryParse(txtSleepTime.Text, out SleepTime))
-                SleepTime = 3; 
-            parseOK = Int32.TryParse(txtCompID.Text, out CompID);
-            parseOK = Int32.TryParse(txtIdOffset.Text, out IdOffset);
-            parseOK = Int32.TryParse(txtOsOffset.Text, out OsOffset);
-            if (!Double.TryParse(txtMinPace.Text, out MinPace))
-                parseOK = Double.TryParse(txtMinPace.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out MinPace);
-
             ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
-                    SleepTime, 
-                    chkUpdateRadioControls.Checked, MinPace, MSSQL, chkEcardAsBackup.Checked, 
-                    chkLapTimes.Checked, chkEventorID.Checked, IdOffset, 
+                    SleepTime,
+                    chkUpdateRadioControls.Checked, MinPace, MSSQL, chkEcardAsBackup.Checked,
+                    chkLapTimes.Checked, chkEventorID.Checked, IdOffset,
                     chkUpdateMessage.Checked, chkAddEcardSplits.Checked, CompID, OsOffset);
             monForm.SetParser(pars as IExternalSystemResultParserEtiming);
             monForm.CompetitionID = CompID;
             monForm.Organizer = cmp.Organizer;
-            monForm.CompDate  = cmp.CompDate;
+            monForm.CompDate = cmp.CompDate;
             monForm.useEventorID = chkEventorID.Checked;
-            monForm.deleteEmmaIDs = false; 
+            monForm.deleteEmmaIDs = false;
             monForm.clientIDpars = cmp.eTimingIDpars;
             monForm.IdOffset = IdOffset;
             monForm.OsOffset = OsOffset;
@@ -432,7 +441,7 @@ namespace LiveResults.Client
             ofd.Filter = "eTiming databases (*.mdb)|*.mdb";
             ofd.FileName = txtETimingDb.Text;
             ofd.CustomPlaces.Add(new FileDialogCustomPlace(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData)));
-            ofd.InitialDirectory = Directory.Exists(txtETimingDb.Text) ? txtETimingDb.Text : Path.GetDirectoryName(txtETimingDb.Text); 
+            ofd.InitialDirectory = Directory.Exists(txtETimingDb.Text) ? txtETimingDb.Text : Path.GetDirectoryName(txtETimingDb.Text);
             if (ofd.ShowDialog(this) == DialogResult.OK)
             {
                 txtETimingDb.Text = ofd.FileName;

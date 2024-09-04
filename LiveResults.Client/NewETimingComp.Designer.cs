@@ -96,12 +96,13 @@
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
+            this.wizard1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.wizard1.Name = "wizard1";
             this.wizard1.Pages.AddRange(new Gui.Wizard.WizardPage[] {
             this.wizardPage1,
             this.wizardPage2,
             this.wizardPage5});
-            this.wizard1.Size = new System.Drawing.Size(514, 277);
+            this.wizard1.Size = new System.Drawing.Size(1028, 533);
             this.wizard1.TabIndex = 0;
             // 
             // wizardPage5
@@ -135,25 +136,28 @@
             this.wizardPage5.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizardPage5.IsFinishPage = false;
             this.wizardPage5.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage5.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.wizardPage5.Name = "wizardPage5";
-            this.wizardPage5.Size = new System.Drawing.Size(514, 229);
+            this.wizardPage5.Size = new System.Drawing.Size(1028, 441);
             this.wizardPage5.TabIndex = 5;
             this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
             this.wizardPage5.ShowFromNext += new System.EventHandler(this.wizardPage5_ShowFromNext);
             // 
             // txtMinPace
             // 
-            this.txtMinPace.Location = new System.Drawing.Point(178, 132);
+            this.txtMinPace.Location = new System.Drawing.Point(380, 254);
+            this.txtMinPace.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtMinPace.Name = "txtMinPace";
-            this.txtMinPace.Size = new System.Drawing.Size(67, 21);
+            this.txtMinPace.Size = new System.Drawing.Size(106, 34);
             this.txtMinPace.TabIndex = 27;
             // 
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(12, 136);
+            this.label18.Location = new System.Drawing.Point(24, 262);
+            this.label18.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(167, 13);
+            this.label18.Size = new System.Drawing.Size(349, 27);
             this.label18.TabIndex = 28;
             this.label18.Text = "Pace limit for radio times [min/km]";
             this.label18.Click += new System.EventHandler(this.label18_Click);
@@ -161,9 +165,10 @@
             // chkEcardAsBackup
             // 
             this.chkEcardAsBackup.AutoSize = true;
-            this.chkEcardAsBackup.Location = new System.Drawing.Point(251, 187);
+            this.chkEcardAsBackup.Location = new System.Drawing.Point(502, 360);
+            this.chkEcardAsBackup.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.chkEcardAsBackup.Name = "chkEcardAsBackup";
-            this.chkEcardAsBackup.Size = new System.Drawing.Size(258, 17);
+            this.chkEcardAsBackup.Size = new System.Drawing.Size(518, 31);
             this.chkEcardAsBackup.TabIndex = 26;
             this.chkEcardAsBackup.Text = "Use ecard splits (strekktider) as backup for radio";
             this.chkEcardAsBackup.UseVisualStyleBackColor = true;
@@ -171,9 +176,10 @@
             // chkAddEcardSplits
             // 
             this.chkAddEcardSplits.AutoSize = true;
-            this.chkAddEcardSplits.Location = new System.Drawing.Point(251, 163);
+            this.chkAddEcardSplits.Location = new System.Drawing.Point(502, 313);
+            this.chkAddEcardSplits.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.chkAddEcardSplits.Name = "chkAddEcardSplits";
-            this.chkAddEcardSplits.Size = new System.Drawing.Size(268, 17);
+            this.chkAddEcardSplits.Size = new System.Drawing.Size(539, 31);
             this.chkAddEcardSplits.TabIndex = 25;
             this.chkAddEcardSplits.Text = "Upload ecard splits (strekktider) and course names";
             this.chkAddEcardSplits.UseVisualStyleBackColor = true;
@@ -181,43 +187,48 @@
             // txtCompType
             // 
             this.txtCompType.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtCompType.Location = new System.Drawing.Point(319, 107);
+            this.txtCompType.Location = new System.Drawing.Point(638, 206);
+            this.txtCompType.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtCompType.Name = "txtCompType";
             this.txtCompType.ReadOnly = true;
-            this.txtCompType.Size = new System.Drawing.Size(175, 21);
+            this.txtCompType.Size = new System.Drawing.Size(348, 34);
             this.txtCompType.TabIndex = 24;
             // 
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(251, 111);
+            this.label15.Location = new System.Drawing.Point(502, 213);
+            this.label15.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(60, 13);
+            this.label15.Size = new System.Drawing.Size(115, 27);
             this.label15.TabIndex = 23;
             this.label15.Text = "Event type";
             // 
             // txtOsOffset
             // 
-            this.txtOsOffset.Location = new System.Drawing.Point(178, 107);
+            this.txtOsOffset.Location = new System.Drawing.Point(380, 206);
+            this.txtOsOffset.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtOsOffset.Name = "txtOsOffset";
-            this.txtOsOffset.Size = new System.Drawing.Size(67, 21);
+            this.txtOsOffset.Size = new System.Drawing.Size(106, 34);
             this.txtOsOffset.TabIndex = 21;
             // 
             // label17
             // 
             this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(12, 111);
+            this.label17.Location = new System.Drawing.Point(24, 213);
+            this.label17.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(141, 13);
+            this.label17.Size = new System.Drawing.Size(284, 27);
             this.label17.TabIndex = 22;
             this.label17.Text = "Open start time offset [min]";
             // 
             // chkUpdateMessage
             // 
             this.chkUpdateMessage.AutoSize = true;
-            this.chkUpdateMessage.Location = new System.Drawing.Point(12, 187);
+            this.chkUpdateMessage.Location = new System.Drawing.Point(24, 360);
+            this.chkUpdateMessage.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.chkUpdateMessage.Name = "chkUpdateMessage";
-            this.chkUpdateMessage.Size = new System.Drawing.Size(175, 17);
+            this.chkUpdateMessage.Size = new System.Drawing.Size(351, 31);
             this.chkUpdateMessage.TabIndex = 20;
             this.chkUpdateMessage.Text = "Update eTiming from Messages";
             this.chkUpdateMessage.UseVisualStyleBackColor = true;
@@ -225,9 +236,10 @@
             // chkEventorID
             // 
             this.chkEventorID.AutoSize = true;
-            this.chkEventorID.Location = new System.Drawing.Point(251, 211);
+            this.chkEventorID.Location = new System.Drawing.Point(502, 406);
+            this.chkEventorID.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.chkEventorID.Name = "chkEventorID";
-            this.chkEventorID.Size = new System.Drawing.Size(177, 17);
+            this.chkEventorID.Size = new System.Drawing.Size(352, 31);
             this.chkEventorID.TabIndex = 19;
             this.chkEventorID.Text = "Use Eventor ID (multi day race)";
             this.chkEventorID.UseVisualStyleBackColor = true;
@@ -235,17 +247,19 @@
             // 
             // txtIdOffset
             // 
-            this.txtIdOffset.Location = new System.Drawing.Point(178, 82);
+            this.txtIdOffset.Location = new System.Drawing.Point(380, 158);
+            this.txtIdOffset.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtIdOffset.Name = "txtIdOffset";
-            this.txtIdOffset.Size = new System.Drawing.Size(67, 21);
+            this.txtIdOffset.Size = new System.Drawing.Size(106, 34);
             this.txtIdOffset.TabIndex = 17;
             // 
             // label16
             // 
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(12, 86);
+            this.label16.Location = new System.Drawing.Point(24, 165);
+            this.label16.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(99, 13);
+            this.label16.Size = new System.Drawing.Size(196, 27);
             this.label16.TabIndex = 18;
             this.label16.Text = "Database ID offset";
             this.label16.Click += new System.EventHandler(this.label16_Click);
@@ -253,27 +267,30 @@
             // chkLapTimes
             // 
             this.chkLapTimes.AutoSize = true;
-            this.chkLapTimes.Location = new System.Drawing.Point(12, 211);
+            this.chkLapTimes.Location = new System.Drawing.Point(24, 406);
+            this.chkLapTimes.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.chkLapTimes.Name = "chkLapTimes";
-            this.chkLapTimes.Size = new System.Drawing.Size(164, 17);
+            this.chkLapTimes.Size = new System.Drawing.Size(331, 31);
             this.chkLapTimes.TabIndex = 16;
             this.chkLapTimes.Text = "Add lap times (multi lap race)";
             this.chkLapTimes.UseVisualStyleBackColor = true;
             // 
             // txtSleepTime
             // 
-            this.txtSleepTime.Location = new System.Drawing.Point(178, 57);
+            this.txtSleepTime.Location = new System.Drawing.Point(380, 110);
+            this.txtSleepTime.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtSleepTime.Name = "txtSleepTime";
-            this.txtSleepTime.Size = new System.Drawing.Size(67, 21);
+            this.txtSleepTime.Size = new System.Drawing.Size(106, 34);
             this.txtSleepTime.TabIndex = 5;
             // 
             // label8
             // 
             this.label8.AutoSize = true;
             this.label8.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label8.Location = new System.Drawing.Point(75, 13);
+            this.label8.Location = new System.Drawing.Point(150, 25);
+            this.label8.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(128, 13);
+            this.label8.Size = new System.Drawing.Size(250, 27);
             this.label8.TabIndex = 15;
             this.label8.Text = "Options for live event";
             this.label8.Click += new System.EventHandler(this.label8_Click);
@@ -282,54 +299,60 @@
             // 
             this.label14.AutoSize = true;
             this.label14.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label14.Location = new System.Drawing.Point(338, 13);
+            this.label14.Location = new System.Drawing.Point(676, 25);
+            this.label14.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(132, 13);
+            this.label14.Size = new System.Drawing.Size(256, 27);
             this.label14.TabIndex = 12;
             this.label14.Text = "eTiming database info";
             // 
             // txtCompDate
             // 
             this.txtCompDate.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtCompDate.Location = new System.Drawing.Point(319, 32);
+            this.txtCompDate.Location = new System.Drawing.Point(638, 62);
+            this.txtCompDate.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtCompDate.Name = "txtCompDate";
             this.txtCompDate.ReadOnly = true;
-            this.txtCompDate.Size = new System.Drawing.Size(175, 21);
+            this.txtCompDate.Size = new System.Drawing.Size(348, 34);
             this.txtCompDate.TabIndex = 11;
             // 
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(251, 36);
+            this.label13.Location = new System.Drawing.Point(502, 69);
+            this.label13.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label13.Name = "label13";
-            this.label13.Size = new System.Drawing.Size(30, 13);
+            this.label13.Size = new System.Drawing.Size(58, 27);
             this.label13.TabIndex = 10;
             this.label13.Text = "Date";
             // 
             // txtOrgName
             // 
             this.txtOrgName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtOrgName.Location = new System.Drawing.Point(319, 57);
+            this.txtOrgName.Location = new System.Drawing.Point(638, 110);
+            this.txtOrgName.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtOrgName.Name = "txtOrgName";
             this.txtOrgName.ReadOnly = true;
-            this.txtOrgName.Size = new System.Drawing.Size(175, 21);
+            this.txtOrgName.Size = new System.Drawing.Size(348, 34);
             this.txtOrgName.TabIndex = 9;
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(251, 61);
+            this.label7.Location = new System.Drawing.Point(502, 117);
+            this.label7.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(54, 13);
+            this.label7.Size = new System.Drawing.Size(107, 27);
             this.label7.TabIndex = 8;
             this.label7.Text = "Organizer";
             // 
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(12, 61);
+            this.label12.Location = new System.Drawing.Point(24, 117);
+            this.label12.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(111, 13);
+            this.label12.Size = new System.Drawing.Size(224, 27);
             this.label12.TabIndex = 6;
             this.label12.Text = "Client refresh time [s]";
             this.label12.Click += new System.EventHandler(this.label12_Click);
@@ -337,9 +360,10 @@
             // chkUpdateRadioControls
             // 
             this.chkUpdateRadioControls.AutoSize = true;
-            this.chkUpdateRadioControls.Location = new System.Drawing.Point(12, 163);
+            this.chkUpdateRadioControls.Location = new System.Drawing.Point(24, 313);
+            this.chkUpdateRadioControls.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.chkUpdateRadioControls.Name = "chkUpdateRadioControls";
-            this.chkUpdateRadioControls.Size = new System.Drawing.Size(193, 17);
+            this.chkUpdateRadioControls.Size = new System.Drawing.Size(388, 31);
             this.chkUpdateRadioControls.TabIndex = 4;
             this.chkUpdateRadioControls.Text = "Update radio controls from eTiming";
             this.chkUpdateRadioControls.UseVisualStyleBackColor = true;
@@ -348,35 +372,39 @@
             // txtCompName
             // 
             this.txtCompName.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtCompName.Location = new System.Drawing.Point(319, 82);
+            this.txtCompName.Location = new System.Drawing.Point(638, 158);
+            this.txtCompName.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtCompName.Name = "txtCompName";
             this.txtCompName.ReadOnly = true;
-            this.txtCompName.Size = new System.Drawing.Size(175, 21);
+            this.txtCompName.Size = new System.Drawing.Size(348, 34);
             this.txtCompName.TabIndex = 3;
             this.txtCompName.TextChanged += new System.EventHandler(this.txtCompName_TextChanged);
             // 
             // label10
             // 
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(251, 86);
+            this.label10.Location = new System.Drawing.Point(502, 165);
+            this.label10.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(64, 13);
+            this.label10.Size = new System.Drawing.Size(127, 27);
             this.label10.TabIndex = 2;
             this.label10.Text = "Event name";
             // 
             // txtCompID
             // 
-            this.txtCompID.Location = new System.Drawing.Point(178, 32);
+            this.txtCompID.Location = new System.Drawing.Point(380, 62);
+            this.txtCompID.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtCompID.Name = "txtCompID";
-            this.txtCompID.Size = new System.Drawing.Size(67, 21);
+            this.txtCompID.Size = new System.Drawing.Size(106, 34);
             this.txtCompID.TabIndex = 1;
             // 
             // label9
             // 
             this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 36);
+            this.label9.Location = new System.Drawing.Point(24, 69);
+            this.label9.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(76, 13);
+            this.label9.Size = new System.Drawing.Size(152, 27);
             this.label9.TabIndex = 0;
             this.label9.Text = "Competiton ID";
             this.label9.Click += new System.EventHandler(this.label9_Click);
@@ -388,8 +416,9 @@
             this.wizardPage2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizardPage2.IsFinishPage = false;
             this.wizardPage2.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.wizardPage2.Name = "wizardPage2";
-            this.wizardPage2.Size = new System.Drawing.Size(514, 229);
+            this.wizardPage2.Size = new System.Drawing.Size(1028, 441);
             this.wizardPage2.TabIndex = 2;
             this.wizardPage2.ShowFromBack += new System.EventHandler(this.wizardPage2_ShowFromBack);
             this.wizardPage2.ShowFromNext += new System.EventHandler(this.wizardPage2_ShowFromNext);
@@ -397,18 +426,21 @@
             // lstDB
             // 
             this.lstDB.FormattingEnabled = true;
-            this.lstDB.Location = new System.Drawing.Point(13, 26);
+            this.lstDB.ItemHeight = 27;
+            this.lstDB.Location = new System.Drawing.Point(26, 50);
+            this.lstDB.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.lstDB.Name = "lstDB";
             this.lstDB.PreviousSelectedIndex = 0;
-            this.lstDB.Size = new System.Drawing.Size(218, 186);
+            this.lstDB.Size = new System.Drawing.Size(432, 328);
             this.lstDB.TabIndex = 1;
             // 
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(12, 9);
+            this.label6.Location = new System.Drawing.Point(24, 17);
+            this.label6.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(79, 13);
+            this.label6.Size = new System.Drawing.Size(157, 27);
             this.label6.TabIndex = 0;
             this.label6.Text = "SQL databases";
             // 
@@ -428,8 +460,9 @@
             this.wizardPage1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizardPage1.IsFinishPage = false;
             this.wizardPage1.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.wizardPage1.Name = "wizardPage1";
-            this.wizardPage1.Size = new System.Drawing.Size(514, 229);
+            this.wizardPage1.Size = new System.Drawing.Size(1028, 441);
             this.wizardPage1.TabIndex = 1;
             // 
             // panel1
@@ -437,17 +470,19 @@
             this.panel1.Controls.Add(this.button1);
             this.panel1.Controls.Add(this.txtETimingDb);
             this.panel1.Controls.Add(this.label11);
-            this.panel1.Location = new System.Drawing.Point(13, 117);
+            this.panel1.Location = new System.Drawing.Point(26, 225);
+            this.panel1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(481, 84);
+            this.panel1.Size = new System.Drawing.Size(962, 162);
             this.panel1.TabIndex = 2;
             // 
             // button1
             // 
             this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Location = new System.Drawing.Point(441, 30);
+            this.button1.Location = new System.Drawing.Point(882, 58);
+            this.button1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(37, 23);
+            this.button1.Size = new System.Drawing.Size(74, 44);
             this.button1.TabIndex = 2;
             this.button1.Text = "...";
             this.button1.UseVisualStyleBackColor = true;
@@ -457,81 +492,91 @@
             // 
             this.txtETimingDb.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtETimingDb.Location = new System.Drawing.Point(6, 30);
+            this.txtETimingDb.Location = new System.Drawing.Point(12, 58);
+            this.txtETimingDb.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtETimingDb.Name = "txtETimingDb";
-            this.txtETimingDb.Size = new System.Drawing.Size(429, 21);
+            this.txtETimingDb.Size = new System.Drawing.Size(854, 34);
             this.txtETimingDb.TabIndex = 1;
             // 
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(3, 1);
+            this.label11.Location = new System.Drawing.Point(6, 2);
+            this.label11.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(233, 13);
+            this.label11.Size = new System.Drawing.Size(467, 27);
             this.label11.TabIndex = 0;
             this.label11.Text = "Select the database file from the server-share.";
             // 
             // txtPw
             // 
-            this.txtPw.Location = new System.Drawing.Point(322, 90);
+            this.txtPw.Location = new System.Drawing.Point(644, 173);
+            this.txtPw.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtPw.Name = "txtPw";
-            this.txtPw.Size = new System.Drawing.Size(171, 21);
+            this.txtPw.Size = new System.Drawing.Size(338, 34);
             this.txtPw.TabIndex = 9;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(261, 93);
+            this.label5.Location = new System.Drawing.Point(522, 179);
+            this.label5.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(53, 13);
+            this.label5.Size = new System.Drawing.Size(104, 27);
             this.label5.TabIndex = 8;
             this.label5.Text = "Password";
             // 
             // txtUser
             // 
-            this.txtUser.Location = new System.Drawing.Point(322, 63);
+            this.txtUser.Location = new System.Drawing.Point(644, 121);
+            this.txtUser.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtUser.Name = "txtUser";
-            this.txtUser.Size = new System.Drawing.Size(171, 21);
+            this.txtUser.Size = new System.Drawing.Size(338, 34);
             this.txtUser.TabIndex = 7;
             // 
             // txtPort
             // 
-            this.txtPort.Location = new System.Drawing.Point(322, 36);
+            this.txtPort.Location = new System.Drawing.Point(644, 69);
+            this.txtPort.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtPort.Name = "txtPort";
-            this.txtPort.Size = new System.Drawing.Size(171, 21);
+            this.txtPort.Size = new System.Drawing.Size(338, 34);
             this.txtPort.TabIndex = 6;
             // 
             // txtHost
             // 
-            this.txtHost.Location = new System.Drawing.Point(323, 9);
+            this.txtHost.Location = new System.Drawing.Point(646, 17);
+            this.txtHost.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.txtHost.Name = "txtHost";
-            this.txtHost.Size = new System.Drawing.Size(170, 21);
+            this.txtHost.Size = new System.Drawing.Size(336, 34);
             this.txtHost.TabIndex = 5;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(261, 66);
+            this.label4.Location = new System.Drawing.Point(522, 127);
+            this.label4.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(55, 13);
+            this.label4.Size = new System.Drawing.Size(110, 27);
             this.label4.TabIndex = 4;
             this.label4.Text = "Username";
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(289, 39);
+            this.label3.Location = new System.Drawing.Point(578, 75);
+            this.label3.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(27, 13);
+            this.label3.Size = new System.Drawing.Size(51, 27);
             this.label3.TabIndex = 3;
             this.label3.Text = "Port";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(287, 12);
+            this.label2.Location = new System.Drawing.Point(574, 23);
+            this.label2.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 13);
+            this.label2.Size = new System.Drawing.Size(56, 27);
             this.label2.TabIndex = 2;
             this.label2.Text = "Host";
             // 
@@ -539,28 +584,31 @@
             // 
             this.comboBox1.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(15, 25);
+            this.comboBox1.Location = new System.Drawing.Point(30, 48);
+            this.comboBox1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(175, 21);
+            this.comboBox1.Size = new System.Drawing.Size(346, 35);
             this.comboBox1.TabIndex = 1;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Location = new System.Drawing.Point(24, 17);
+            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(117, 13);
+            this.label1.Size = new System.Drawing.Size(238, 27);
             this.label1.TabIndex = 0;
             this.label1.Text = "Type of eTiming server";
             // 
             // NewETimingComp
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(514, 277);
+            this.ClientSize = new System.Drawing.Size(1028, 533);
             this.Controls.Add(this.wizard1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "NewETimingComp";
             this.Text = "New eTiming connection";
             this.wizard1.ResumeLayout(false);

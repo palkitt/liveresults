@@ -43,6 +43,7 @@ namespace LiveResults.Client
             m_Parser.OnLogMessage += new LogMessageDelegate(m_Parser_OnLogMessage);
             m_Parser.OnResult += new ResultDelegate(m_Parser_OnResult);
             m_Parser.OnDeleteID += new DeleteIDDelegate(m_Parser_OnDeleteID);
+            m_Parser.OnDeleteVacantID += new DeleteVacantIDDelegate(m_Parser_OnDeleteVacantID);
             m_Parser.OnDeleteUnusedID += new DeleteUnusedIDDelegate(m_Parser_OnDeleteUnusedID);
             m_Parser.OnMergeRadioControls += new MergeRadioControlsDelegate(m_Parser_OnMergeRadioControls);
             m_Parser.OnMergeCourseControls += new MergeCourseControlsDelegate(m_Parser_OnMergeCourseControls);
@@ -99,6 +100,14 @@ namespace LiveResults.Client
             foreach (EmmaMysqlClient client in m_Clients)
             {
               client.DeleteID(runnerID);
+            }
+        }
+
+        void m_Parser_OnDeleteVacantID(int runnerID)
+        {
+            foreach (EmmaMysqlClient client in m_Clients)
+            {
+                client.DeleteVacantID(runnerID);
             }
         }
 
