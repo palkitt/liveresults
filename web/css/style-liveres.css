@@ -110,10 +110,6 @@ h3 {
   margin-bottom: 0px;
 }
 
-#divClasses {
-  font-size: 1.1em;
-  line-height: 1.4em;
-}
 
 .firstnonqualifier>td {
   border-top: 3px solid gray !important;
@@ -816,8 +812,7 @@ td.menuchosen a:hover {
 
 /* Number of runners table */
 .numrunners {
-  padding: 2px;
-  border-spacing: 0px;
+  border-spacing: 10px 0px;
   text-align: left;
 }
 
@@ -826,9 +821,10 @@ td.menuchosen a:hover {
   color: gray;
 }
 
-/*--------------------------------*/
-/*---  Dropdown class selector ---*/
-/*--------------------------------*/
+/*-----------------------------------*/
+/*---  Class and results columns  ---*/
+/*-----------------------------------*/
+
 .dropbtnClass {
   font-size: 1.3em;
   background-color: var(--bkdark);
@@ -839,42 +835,71 @@ td.menuchosen a:hover {
   cursor: pointer;
 }
 
-.dropdownClass {
+.container {
+  display: flex;
+}
+
+.class-column {
+  flex: 1;
   position: relative;
   display: inline-block;
+  min-width: 7em;
+  max-width: 9em;
 }
 
-.dropdownClass-content {
-  font-size: 1.3em;
-  display: none;
-  position: absolute;
-  left: -3px;
-  top: calc(100% + 6px);
-  background-color: var(--bkdark);
-  opacity: 0.9;
-  min-width: 8em;
-  box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
-  z-index: 100;
-  overflow-y: auto;
-  padding-left: 10px;
-}
-
-.dropdownClass-content.closed {
-  display: none;
-}
-
-.dropdownClass-content.open {
-  display: block;
-}
-
-.dropdownClass-content a {
-  text-decoration: none;
+.class-column-content {
+  line-height: 1.4em;
+  font-size: 1.1em;
+  top: 0;
+  left: 0;
+  background-color: white;
   color: white;
+  text-decoration: none;
+  overflow-y: auto;
+  z-index: 100;
+  padding-left: 10px;
+  padding-top: 3px;
+  box-shadow: 0px -2px 2px 2px rgba(0, 0, 0, 0.3);
 }
 
-.dropdownClass-content a:hover {
-  background-color: #888888;
-  width: 100%;
+.result-column {
+  flex: 2;
+  width: calc(100vw - 9em);
+  display: inline-block;
+  padding-left: 3px;
+}
+
+/* Media query for narrow screens display: none;*/
+@media (max-width: 600px) {
+  .class-column {
+    max-width: 0px;
+    min-width: 0px;
+  }
+
+  .class-column-content {
+    min-width: 7em;
+    max-width: 10em;
+    display: block;
+    font-size: 1.3em;
+    position: absolute;
+    top: 3px;
+    opacity: 0.9;
+    box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
+  }
+
+  .class-column-content.closed {
+    display: none;
+  }
+
+  .class-column-content.open {
+    display: block;
+  }
+}
+
+@media (min-width: 601px) {
+  .class-column-content {
+    height: auto !important;
+  }
 }
 
 

@@ -83,7 +83,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#555556">
   <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
-  <link rel="stylesheet" type="text/css" href="css/style-liveres.css">
+  <link rel="stylesheet" type="text/css" href="css/style-liveres.css?a">
 
   <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
@@ -256,20 +256,27 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       // Add no screen sleep
       document.addEventListener("click", enableNoSleep);
 
-      // Open and close class selction dropdown list
       $('#dropbtnClass').on('mouseover', function() {
-        $('#dropdownClassContent').removeClass('closed').addClass('open');
+        if ($('#divClassColumn').css('max-width') != '0px')
+          return;
+        $('#divClasses').removeClass('closed').addClass('open');
         var windowHeight = $(window).height();
-        var elementOffsetTop = $('#dropdownClassContent').offset().top;
+        var elementOffsetTop = $('#divClasses').offset().top;
         var newHeight = windowHeight - elementOffsetTop - 10;
-        $('#dropdownClassContent').css('max-height', newHeight);
+        $('#divClasses').css('height', newHeight);
       });
-      $('#dropdownClassContent').on('mouseleave', function() {
-        $('#dropdownClassContent').removeClass('open').addClass('closed');
+
+      $('#divClasses').on('mouseleave', function() {
+        if ($('#divClassColumn').css('max-width') != '0px')
+          return;
+        $('#divClasses').removeClass('open').addClass('closed');
       });
+
       $(document).on('click', function(event) {
-        if (!$(event.target).closest('#dropdownClassContent, #dropbtnClass').length) {
-          $('#dropdownClassContent').removeClass('open').addClass('closed');
+        if ($('#divClassColumn').css('max-width') != '0px')
+          return;
+        if (!$(event.target).closest('#divClasses, #dropbtnClass').length) {
+          $('#divClasses').removeClass('open').addClass('closed');
         }
       });
     });
@@ -483,43 +490,46 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                     <?php } ?>
                     <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b>
                   </button>
-                  <div id="dropdownClassContent" class="dropdownClass-content">
-                    <div id="divClasses"></div>
-                  </div>
                 </div>
                 </span>
               </td>
               <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
             </tr>
           </table>
+          <div class="container">
+            <div class="class-column" id="divClassColumn">
+              <div class="class-column-content" id="divClasses"></div>
+            </div>
 
-          <table id="divResults" width="100%"></table>
+            <div class="result-column">
+              <table id="divResults" width="100%"></table>
 
-          <?php if (!$isSingleClass && !$isSingleClub) { ?>
-            <table class="numrunners">
-              <tr>
-                <td>Klasse</td>
-                <?php if (!$isEmmaComp) { ?>
-                  <td>Totalt</td>
-                  <td><?= $_START ?></td>
-                  <td><?= $_CONTROLFINISH ?></td>
-                <?php } ?>
-              </tr>
-              <tr>
-                <td><span id="numberOfRunners"></span></td>
-                <?php if (!$isEmmaComp) { ?>
-                  <td><span id="numberOfRunnersTotal"></span></td>
-                  <td><span id="numberOfRunnersStarted"></span></td>
-                  <td><span id="numberOfRunnersFinished"></span></td>
-                <?php } ?>
-              </tr>
-            </table>
-            <table>
-              <div style="font-size: 0.7em; color:gray; line-height:1.3em;">
-                Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
-                * <?= $_HELPREDRESULTS ?><br>
-                &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
-              </div>
+              <?php if (!$isSingleClass && !$isSingleClub) { ?>
+                <table class="numrunners">
+                  <tr>
+                    <td>Klasse</td>
+                    <?php if (!$isEmmaComp) { ?>
+                      <td>Totalt</td>
+                      <td><?= $_START ?></td>
+                      <td><?= $_CONTROLFINISH ?></td>
+                    <?php } ?>
+                  </tr>
+                  <tr>
+                    <td><span id="numberOfRunners"></span></td>
+                    <?php if (!$isEmmaComp) { ?>
+                      <td><span id="numberOfRunnersTotal"></span></td>
+                      <td><span id="numberOfRunnersStarted"></span></td>
+                      <td><span id="numberOfRunnersFinished"></span></td>
+                    <?php } ?>
+                  </tr>
+                </table>
+                <div style="font-size: 0.7em; color:gray; line-height:1.3em;">
+                  Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
+                  * <?= $_HELPREDRESULTS ?><br>
+                  &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
+                </div>
+            </div>
+          </div>
           </td>
         </tr>
       </table>

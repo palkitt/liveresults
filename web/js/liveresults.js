@@ -375,9 +375,9 @@ var LiveResults;
             }
           }
 
-          str += "<hr></nowrap>";
+          str += "</nowrap>";
           if (first) // Open class list if first time update
-            $('#dropdownClassContent').removeClass('closed').addClass('open');
+            $('#divClasses').removeClass('closed').addClass('open');
           $("#" + this.classesDiv).html(str);
           $("#numberOfRunnersTotal").html(data.numberOfRunners);
           $("#numberOfRunnersStarted").html(data.numberOfStartedRunners);
@@ -2833,7 +2833,7 @@ var LiveResults;
       }
 
       // Remove dropdown class list
-      $('#dropdownClassContent').removeClass('open').addClass('closed');
+      $('#divClasses').removeClass('open').addClass('closed');
 
       $('#divResults').html('');
       this.curClassName = className;
