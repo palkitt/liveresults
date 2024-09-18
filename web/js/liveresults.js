@@ -1007,7 +1007,6 @@ var LiveResults;
           var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
-          // time += 3 * 20 * 6000 * Math.random() - 8.5 * 60 * 60 * 100;
           var timeServer = (dt - this.serverTimeDiff) / 1000;
           var timeDiff = 0;
           var timeDiffCol = 0;
@@ -1518,11 +1517,11 @@ var LiveResults;
         var dt = new Date();
         var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
         $.each(this.radioData, function (idx, passing) {
-
           if (_this.currentTable != null && (passing.status == 1 || _this.messageBibs.indexOf(parseInt(passing.dbid)) > -1)) {
             var row = _this.currentTable.row(idx).node();
             $(row).addClass('dns');
           }
+
           var hms = passing.passtime.split(':');
           var passTime = (+hms[0]) * 60 * 60 + (+hms[1]) * 60 + (+hms[2]);
           var age = time - passTime;
@@ -1571,7 +1570,7 @@ var LiveResults;
             columns.push({ title: "Tidsp.", className: "dt-left", orderable: false, targets: [col++], data: "passtime" });
           }
           columns.push({
-            title: "&#8470;", className: "dt-right", orderable: false, targets: [col++], data: "bib",
+            title: "&#8470;", className: "dt-right", orderable: leftInForest, targets: [col++], data: "bib",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (data < 0) // Relay
@@ -1586,7 +1585,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "runnerName",
+            title: "Navn", className: "dt-left", orderable: leftInForest, targets: [col++], data: "runnerName",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxNameLength)
@@ -1599,7 +1598,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
+            title: "Klubb", className: "dt-left", orderable: leftInForest, targets: [col++], data: "club",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxClubLength) {
@@ -1613,7 +1612,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
+            title: "Klasse", className: "dt-left", orderable: leftInForest, targets: [col++], data: "class",
             render: function (data, type, row) {
               var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
               link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
@@ -1633,7 +1632,7 @@ var LiveResults;
           var timeTitle = "Tid";
           if (leftInForest)
             timeTitle = "Starttid";
-          columns.push({ title: timeTitle, className: "dt-right", orderable: false, targets: [col++], data: "time" });
+          columns.push({ title: timeTitle, className: "dt-right", orderable: leftInForest, targets: [col++], data: "time" });
 
           if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
             columns.push({
@@ -1649,7 +1648,7 @@ var LiveResults;
             });
           if (leftInForest) {
             columns.push({
-              title: "", className: "dt-left", orderable: false, targets: [col++], data: "status",
+              title: "Sjekk", className: "dt-center", orderable: true, targets: [col++], data: "status",
               render: function (data, type, row) {
                 var res = "";
                 if (row.checked == 1 || row.status == 9)
@@ -1673,7 +1672,7 @@ var LiveResults;
             fixedHeader: true,
             paging: false,
             searching: true,
-            ordering: false,
+            ordering: leftInForest,
             data: this.radioData,
             layout: {
               topStart: null,
@@ -1681,7 +1680,7 @@ var LiveResults;
               bottomStart: null,
               bottomEnd: null
             },
-            order: [[1, "desc"]],
+            order: (leftInForest ? [] : [[1, "desc"]]),
             columns: columns,
             destroy: true,
           });
@@ -2563,7 +2562,6 @@ var LiveResults;
             this.updatePredictedTimes(true); // Insert times only
             $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
             window.scrollTo(scrollX, scrollY);
-            this.currentTable.columns.adjust().draw();
             var newResults = table.data().toArray();
             this.animateTable(oldResults, newResults, this.animTime);
 
@@ -2817,7 +2815,6 @@ var LiveResults;
         $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
         window.scrollTo(scrollX, scrollY)
         this.lastClubHash = data.hash;
-        this.currentTable.columns.adjust().draw();
       }
       if (_this.isCompToday())
         this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
@@ -3656,9 +3653,8 @@ var LiveResults;
             },
           });
 
-          // Scroll to initial view and hide class column if necessary
-          if (data.results[0].progress != undefined) // Scroll to inital view
-          {
+          // Scroll to initial view 
+          if (data.results[0].progress != undefined) {
             var scrollBody = $(this.currentTable.table().container()).find('.dt-scroll-body');
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
             if (maxScroll > 5) {
@@ -3685,7 +3681,6 @@ var LiveResults;
 
           if (this.isCompToday()) {
             this.updatePredictedTimes(true); // Insert times only
-            this.currentTable.columns.adjust().draw();
             if (this.lastChanged)
               this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
             else
