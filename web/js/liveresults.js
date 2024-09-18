@@ -1518,6 +1518,11 @@ var LiveResults;
         var dt = new Date();
         var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
         $.each(this.radioData, function (idx, passing) {
+
+          if (_this.currentTable != null && (passing.status == 1 || _this.messageBibs.indexOf(parseInt(passing.dbid)) > -1)) {
+            var row = _this.currentTable.row(idx).node();
+            $(row).addClass('dns');
+          }
           var hms = passing.passtime.split(':');
           var passTime = (+hms[0]) * 60 * 60 + (+hms[1]) * 60 + (+hms[2]);
           var age = time - passTime;
