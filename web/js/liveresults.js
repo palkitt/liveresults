@@ -514,7 +514,7 @@ var LiveResults;
 
           var spRef = this.splitRef(sp);
           var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-          var finishTime = (finishOK ? parseInt(data.results[j].result) : 8640000); // 24 h
+          var finishTime = (finishOK ? parseInt(data.results[j].result) : 360000000); // 1000 h
           if (isNaN(split) && laterSplitOKj[j]) { // Split does not exist and missing split detected
             statusN++;
             runnerOK[j] = false;
