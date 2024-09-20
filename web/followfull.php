@@ -81,7 +81,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <meta http-equiv="Content-Type" content="text/html;charset=<?= $CHARSET ?>">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#555556">
+  <meta name="theme-color" content="#555555">
   <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="css/style-liveres.css?a">
 
@@ -356,7 +356,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <?php if (in_array($compNo, array("10118", "10119", "10120", "10121"))) { ?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
               <?php if (in_array($compNo, array("10110", "10111", "10112"))) { ?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
               <?php if (in_array($compNo, array("10203"))) { ?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
-              <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 5px">
+              <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:var(--bkdark); padding: 5px">
                 <tr>
                   <?php
                   if (in_array($compNo, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
@@ -436,7 +436,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           <tr valign="top">
             <td align="center">
               <div id="scrollBar" style="overflow: hidden">
-                <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:#555555; padding: 0px">
+                <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:var(--bkdark); padding: 0px">
                   <tr>
                     <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;">
                         <div id="divInfoText"></div>
@@ -448,7 +448,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           </tr>
         <?php } ?>
 
-        <tr valign="top" style="background-color:#555555; color:#FFF">
+        <tr valign="top" style="background-color:var(--bkdark); color:#FFF">
           <td width="100%">
             <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
               <tr>
@@ -479,7 +479,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         <tr>
           <td valign="top" width="100%">
           <?php } ?>
-          <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:#555555; color:#FFF">
+          <table width="100%" cellpadding="3px" cellspacing="0px" border="0" style="background-color:var(--bkdark); color:#FFF">
             <tr>
               <td align="left">
                 <div class="dropdownClass">

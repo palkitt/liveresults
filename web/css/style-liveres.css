@@ -850,16 +850,20 @@ td.menuchosen a:hover {
 .class-column-content {
   line-height: 1.4em;
   font-size: 1.1em;
-  top: 0;
+  position: relative;
+  top: 3px;
   left: 0;
-  background-color: white;
   color: white;
+  background-color: var(--bkdark);
   text-decoration: none;
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 100;
-  padding-left: 10px;
-  padding-top: 3px;
-  box-shadow: 0px -2px 2px 2px rgba(0, 0, 0, 0.3);
+  padding: 3px 3px 3px 10px;
+}
+
+.class-column-content a {
+  color: white;
 }
 
 .result-column {
@@ -870,7 +874,7 @@ td.menuchosen a:hover {
 }
 
 /* Media query for narrow screens display: none;*/
-@media (max-width: 600px) {
+@media (max-width: 1000px) {
   .class-column {
     max-width: 0px;
     min-width: 0px;
@@ -879,10 +883,7 @@ td.menuchosen a:hover {
   .class-column-content {
     min-width: 7em;
     max-width: 10em;
-    display: block;
     font-size: 1.3em;
-    position: absolute;
-    top: 3px;
     opacity: 0.9;
     box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
   }
@@ -896,7 +897,7 @@ td.menuchosen a:hover {
   }
 }
 
-@media (min-width: 601px) {
+@media (min-width: 1001px) {
   .class-column-content {
     height: auto !important;
   }
