@@ -856,10 +856,15 @@ td.menuchosen a:hover {
   color: white;
   background-color: var(--bkdark);
   text-decoration: none;
-  overflow-y: auto;
+  overflow-y: scroll;
   overflow-x: hidden;
   z-index: 100;
   padding: 3px 3px 3px 10px;
+}
+
+.class-column-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
 }
 
 .class-column-content a {
