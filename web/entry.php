@@ -237,8 +237,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 						if (data.status = "OK" && data.runners != undefined) {
 							hash = data.hash;
 							for (var i = 0; i < data.runners.length; i++) {
-								// Check if the dbid of the current entry matches the input dbid
-								if (data.runners[i].dbid == dbid) {
+								// Check if the dbid and ecard number in the database matches the one we just registered
+								if (data.runners[i].dbid == dbid && data.runners[i].ecard1 == ecardNumber) {
 									found = true;
 									$('#entrydata').html('<b>Din påmelding er registrert som følger:</b><br>' +
 										'<table>' +

@@ -97,7 +97,7 @@ namespace LiveResults.Client
             if (OnDeleteUnusedID != null)
                 OnDeleteUnusedID(usedIds, first);
         }
-       
+
 
         Thread m_monitorThread;
 
@@ -223,11 +223,11 @@ namespace LiveResults.Client
                     client.Encoding = System.Text.Encoding.UTF8;
                     ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
 
-                    int maxCCTimer = 60;                // Time between reading courses and controls
+                    int maxCCTimer = 60;      // Time between reading courses and controls
                     int CCTimer = maxCCTimer;
-                    int maxMessageTimer = 9;                 // Time between reading messages
+                    int maxMessageTimer = 9;  // Time between reading messages
                     int messageTimer = maxMessageTimer;
-                    int maxActiveTimer = 60;                // Time between setting new live active signal
+                    int maxActiveTimer = 60;  // Time between setting new live active signal
                     int activeTimer = maxActiveTimer;
 
                     bool failedLast = false;
@@ -523,20 +523,16 @@ namespace LiveResults.Client
 
         private void setRadioControls(bool isRelay, bool isSprint, int day, Dictionary<int, List<CourseControl>> courses, out List<RadioControl> intermediates)
         {
-            /* ****************************
-            *  Ordinary controls       =  code + 1000*N
-            *  Pass/leg time           =  code + 1000*N           + 100000
-            *  Relay controls          =  code + 1000*N + 10000*L 
-            *  Pass/leg time for relay =  code + 1000*N + 10000*L + 100000
-            *  Change-over code        =  999  + 1000   + 10000*L
-            *  Exchange time code      =  0
-            *  Leg time code           =  999
-            *  Unranked fin. time code = -999
-            *  Unranked ord. controls  = -(code + 1000*N)
+            /* ************************************************
+            *  Ordinary controls      =  code + 1000*N
+            *  Pass/leg time          =  code + 1000*N + 100000
+            *  Exchange time          =  0
+            *  Leg time               =  999
+            *  Unranked fin. time     = -999
+            *  Unranked ord. controls = -(code + 1000*N)
             * 
             *  N = number of occurrence
-            *  L = leg number
-            */
+            ***************************************************/
 
             intermediates = new List<RadioControl>();
             try
@@ -544,7 +540,7 @@ namespace LiveResults.Client
                 List<RadioControl> extraTimes = new List<RadioControl>();
                 IDbCommand cmd = m_connection.CreateCommand();
                 cmd.CommandText = string.Format(@"SELECT code, radiocourceno, radiotype, timingpointtype, description, etappe, radiorundenr, live, radiodist 
-                                        FROM radiopost WHERE radioday={0} ORDER BY radiorundenr", day);
+                                        FROM radiopost WHERE radioday={0} ORDER BY etappe, radiorundenr", day);
                 var RadioPosts = new Dictionary<int, List<RadioStruct>>();
                 using (IDataReader reader = cmd.ExecuteReader())
                 {
@@ -644,6 +640,7 @@ namespace LiveResults.Client
                 cmd.CommandText = @"SELECT code, cource, class, purmin, timingtype, cheaseing FROM class";
                 using (IDataReader reader = cmd.ExecuteReader())
                 {
+                    int leg = 0;
                     while (reader.Read())
                     {
                         int course = 0, numLegs = 0, timingType = 0, sign = 1;
@@ -750,10 +747,7 @@ namespace LiveResults.Client
                                 if (isSprint)
                                     classN += " | Prolog";
 
-                                int CodeforCnt = 0; // Code for counter
-                                int AddforLeg = 0;  // Addition for relay legs
                                 int nStep = 1;      // Multiplicator used in relay order  
-
                                 if (numLegs > 0 || chaseStart || (m_lapTimes && !isRelay)) // Make ready for pass times
                                     nStep = 2;
 
@@ -762,23 +756,26 @@ namespace LiveResults.Client
                                     if (!classN.EndsWith("-"))
                                         classN += "-";
                                     classN += Convert.ToString(radioControl.Leg);
-                                    AddforLeg = 10000 * radioControl.Leg;
                                 }
 
                                 if (Code < 999 && Code != 90 && radioControl.TimingPoint != "VK") // Not 90, not 999 and not exchange)
                                 {
-                                    CodeforCnt = Code + AddforLeg;
-                                    if (!radioCnt.ContainsKey(CodeforCnt))
-                                        radioCnt.Add(CodeforCnt, 0);
-                                    radioCnt[CodeforCnt]++;
+                                    if (leg != radioControl.Leg) // Reset if change of leg
+                                    {
+                                        leg = radioControl.Leg;
+                                        radioCnt.Clear();
+                                    }
+                                    if (!radioCnt.ContainsKey(Code))
+                                        radioCnt.Add(Code, 0);
+                                    radioCnt[Code]++;
 
-                                    // Add codes for ordinary classes and leg based classes
+                                    // Add codes for ordinary classes 
                                     // sign = -1 for unranked classes
                                     intermediates.Add(new RadioControl
                                     {
                                         ClassName = classN,
                                         ControlName = radioControl.Description,
-                                        Code = sign * (Code + radioCnt[CodeforCnt] * 1000 + AddforLeg),
+                                        Code = sign * (Code + radioCnt[Code] * 1000),
                                         Order = nStep * radioControl.Order,
                                         Distance = radioControl.Distance
                                     });
@@ -790,7 +787,7 @@ namespace LiveResults.Client
                                         {
                                             ClassName = classN,
                                             ControlName = radioControl.Description + "PassTime",
-                                            Code = Code + radioCnt[CodeforCnt] * 1000 + AddforLeg + 100000,
+                                            Code = Code + radioCnt[Code] * 1000 + 100000,
                                             Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
                                         });
                                     }
@@ -1050,22 +1047,22 @@ namespace LiveResults.Client
                                     continue;
                                 }
 
-                                if (RelayTeams[teambib].TeamMembers[legs].LegStatus == "D")
+                                switch (RelayTeams[teambib].TeamMembers[legs].LegStatus)
                                 {
-                                    TeamStatus = "D";
-                                    status = "D";
-                                }
-                                else if (RelayTeams[teambib].TeamMembers[legs].LegStatus == "B")
-                                {
-                                    TeamStatus = "B";
-                                    status = "B";
-                                }
-                                else if (RelayTeams[teambib].TeamMembers[legs].LegStatus == "N")
-                                {
-                                    if (legs == 1)
-                                        TeamStatus = "N";
-                                    else if (!(TeamStatus == "N"))
+                                    case "D":
+                                        TeamStatus = "D";
+                                        status = "D";
+                                        break;
+                                    case "B":
                                         TeamStatus = "B";
+                                        status = "B";
+                                        break;
+                                    case "N":
+                                        if (legs == 1)
+                                            TeamStatus = "N";
+                                        else if (!(TeamStatus == "N"))
+                                            TeamStatus = "B";
+                                        break;
                                 }
 
                             }
@@ -1130,30 +1127,17 @@ namespace LiveResults.Client
 
                         var splits = new List<SplitRawStruct>();
                         var numStart = 0;  // Number of ecards with 0 (start) registered
-                        if (splitList.ContainsKey(ecard1))
+                        var ecardList = new List<int> { ecard1, ecard2, ecard3, ecard4 };
+                        foreach (int ecard in ecardList)
                         {
-                            if (splitList[ecard1].Any(s => s.controlCode == 0))
-                                numStart += 1;
-                            splits.AddRange(splitList[ecard1]);
-                            splitList.Remove(ecard1);
-                        }
-                        if (splitList.ContainsKey(ecard2))
-                        {
-                            if (splitList[ecard2].Any(s => s.controlCode == 0))
-                                numStart += 1;
-                            splits.AddRange(splitList[ecard2]);
-                            splitList.Remove(ecard2);
-                        }
-                        if (splitList.ContainsKey(ecard3))
-                        {
-                            splits.AddRange(splitList[ecard3]);
-                            splitList.Remove(ecard3);
-                        }
-                        if (splitList.ContainsKey(ecard4))
-                        {
-                            splits.AddRange(splitList[ecard4]);
-                            splitList.Remove(ecard4);
-                        }
+                            if (splitList.ContainsKey(ecard))
+                            {
+                                if (splitList[ecard].Any(s => s.controlCode == 0))
+                                    numStart += 1;
+                                splits.AddRange(splitList[ecard]);
+                                splitList.Remove(ecard);
+                            }
+                        }                      
                         splits = splits.OrderBy(s => s.passTime).ToList();
 
                         var lsplitCodes = new List<int>();
@@ -1245,7 +1229,7 @@ namespace LiveResults.Client
                                 passTime = -10;
                             var SplitTime = new ResultStruct
                             {
-                                ControlCode = iSplitcode + 10000 * leg,
+                                ControlCode = iSplitcode,
                                 Time = passTime
                             };
                             SplitTimes.Add(SplitTime);
@@ -1254,7 +1238,7 @@ namespace LiveResults.Client
                             {
                                 var passLegTimeStruct = new ResultStruct
                                 {
-                                    ControlCode = iSplitcode + 10000 * leg + 100000,
+                                    ControlCode = iSplitcode + 100000,
                                     Time = passLegTime
                                 };
                                 SplitTimes.Add(passLegTimeStruct);
@@ -1264,7 +1248,8 @@ namespace LiveResults.Client
                                 calcStartTime = split.changedTime - split.netTime - 500;
                         }
 
-                        if (time > 0 && m_lapTimes && !isRelay && lastSplitTime > 0) // Add lap time for last lap
+                        // Add lap time for last lap
+                        if (time > 0 && m_lapTimes && !isRelay && lastSplitTime > 0) 
                         {
                             var LegTime = new ResultStruct
                             {
@@ -1303,10 +1288,11 @@ namespace LiveResults.Client
                         {
                             var backupRadioTimes = new List<ResultStruct>();
                             var ecardTimes = new List<EcardTimesRawStruct>();
-                            if (ecardTimesList.ContainsKey(ecard1)) ecardTimes.AddRange(ecardTimesList[ecard1]);
-                            if (ecardTimesList.ContainsKey(ecard2)) ecardTimes.AddRange(ecardTimesList[ecard2]);
-                            if (ecardTimesList.ContainsKey(ecard3)) ecardTimes.AddRange(ecardTimesList[ecard3]);
-                            if (ecardTimesList.ContainsKey(ecard4)) ecardTimes.AddRange(ecardTimesList[ecard4]);
+                            foreach (int ecard in ecardList)
+                            {
+                                if (ecardTimesList.ContainsKey(ecard))
+                                    ecardTimes.AddRange(ecardTimesList[ecard]);
+                            }                            
                             ecardTimes = ecardTimes.OrderBy(s => s.time).ToList();
 
                             int controlNo = 0, timeNo = 0, timeNoLast = -1, numControls = 0;
@@ -1468,36 +1454,14 @@ namespace LiveResults.Client
             int rstatus = 10; //  Default: Entered
             switch (status)
             {
-                case "S": // Started
-                    rstatus = 9;
-                    time = -3;
-                    break;
-                case "I": // Entered 
-                    rstatus = 10;
-                    time = -3;
-                    break;
-                case "A": // OK
-                    rstatus = 0;
-                    break;
-                case "N": // Ikke startet
-                    rstatus = 1;
-                    time = -3;
-                    break;
-                case "B": // Brutt
-                    rstatus = 2;
-                    time = -3;
-                    break;
-                case "D": // Disk / mp
-                    rstatus = 3;
-                    time = -3;
-                    break;
-                case "NC": // Not classified
-                    rstatus = 6;
-                    time = -3;
-                    break;
-                case "F": // Finished (Fullført). For not ranked classes
-                    rstatus = 13;
-                    break;
+                case "A":  rstatus = 0;  break; // OK
+                case "N":  rstatus = 1;  time = -3; break; // DNS
+                case "B":  rstatus = 2;  time = -3; break; // DNF
+                case "D":  rstatus = 3;  time = -3; break; // DSQ / MP
+                case "NC": rstatus = 6;  time = -3; break; // Not classified
+                case "S":  rstatus = 9;  time = -3; break; // Started
+                case "I":  rstatus = 10; time = -3; break; // Entered
+                case "F":  rstatus = 13; break; // Finished (Fullført). For not ranked classes
             }
             return rstatus;
         }
@@ -1560,9 +1524,7 @@ namespace LiveResults.Client
                         };
 
                         if (!splitList.ContainsKey(ecard))
-                        {
                             splitList.Add(ecard, new List<SplitRawStruct>());
-                        };
                         splitList[ecard].Add(res);
 
                     }
@@ -1611,9 +1573,7 @@ namespace LiveResults.Client
                         };
 
                         if (!ecardTimesList.ContainsKey(ecard))
-                        {
                             ecardTimesList.Add(ecard, new List<EcardTimesRawStruct>());
-                        };
                         ecardTimesList[ecard].Add(res);
 
                     }
@@ -1643,7 +1603,6 @@ namespace LiveResults.Client
             var objects = JsonConvert.DeserializeObject<dynamic>(apiResponse);
             if (objects != null && objects.status == "OK")
             {
-
                 // DNS
                 // *****************************
                 JArray itemsDNS = (JArray)objects["dns"];
@@ -2066,7 +2025,6 @@ namespace LiveResults.Client
                     }
                 }
             }
-
             return (int)Math.Round(dt.TimeOfDay.TotalSeconds * 100 * factor);
         }
 
@@ -2077,5 +2035,10 @@ namespace LiveResults.Client
             return timecs;
         }
 
+        private void FireOnRadioControl()
+        {
+            if (OnRadioControl != null)
+                OnRadioControl(null, 0, null, 0);
+        }
     }
 }

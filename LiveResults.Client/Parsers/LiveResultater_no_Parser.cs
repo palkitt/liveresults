@@ -55,7 +55,7 @@ namespace LiveResults.Client.Parsers
             m_continue = false;
         }
 
-       
+
         private void Run()
         {
             var radios = new Dictionary<string, List<RadioControl>>();
@@ -88,10 +88,10 @@ namespace LiveResults.Client.Parsers
 
                         foreach (Match m in matches)
                         {
-                            
+
                             var data = m.Groups["data"].Value;
                             var passing = m.Groups["passing"].Value;
-                            
+
                             data = data.Replace("class=siste", "class=\"siste\"");
                             data = data.Replace("class=odd", "class=\"odd\"");
                             data = data.Replace("class=even", "class=\"even\"");
@@ -123,22 +123,22 @@ namespace LiveResults.Client.Parsers
                                 if (!results.ContainsKey(id))
                                     results.Add(id, new List<ResultStruct>());
 
-                                if (place=="DNF" || place=="DSQ")
+                                if (place == "DNF" || place == "DSQ")
                                 {
                                     status = 4;
                                 }
-                                else if (place=="DNS")
+                                else if (place == "DNS")
                                 {
                                     status = 1;
                                 }
                                 else if (raceTime.Length > 0)
                                 {
                                     var tid = ParseDateTime(raceTime);
-                                    time = tid.Hour*360000 + tid.Minute*6000 + tid.Second*100;
+                                    time = tid.Hour * 360000 + tid.Minute * 6000 + tid.Second * 100;
                                     if (string.Compare(passing, "Finish", StringComparison.InvariantCultureIgnoreCase) == 0)
                                         status = 0;
                                 }
-                                if (string.Compare(passing,"Finish", StringComparison.InvariantCultureIgnoreCase) == 0)
+                                if (string.Compare(passing, "Finish", StringComparison.InvariantCultureIgnoreCase) == 0)
                                 {
                                     if (!radios.ContainsKey(className) || radios[className].Count < results[id].Count)
                                     {
@@ -150,7 +150,7 @@ namespace LiveResults.Client.Parsers
                                         Class = className,
                                         RunnerClub = club,
                                         RunnerName = name,
-                                        SplitTimes = results[id].OrderBy(x=>x.Time).ToList(),
+                                        SplitTimes = results[id].OrderBy(x => x.Time).ToList(),
                                         Status = status,
                                         Time = time
 
@@ -176,10 +176,10 @@ namespace LiveResults.Client.Parsers
 
                             }
 
-                            
+
 
                             //                        data = data.Replace("&nbsp;", " ");
- //                       data = data.Replace("&nbsp", "");
+                            //                       data = data.Replace("&nbsp", "");
 
                         }
 
@@ -207,7 +207,7 @@ namespace LiveResults.Client.Parsers
 
 
 
-                       
+
                     }
 
                     var stream = File.Create("runnerids.data");
@@ -271,7 +271,7 @@ namespace LiveResults.Client.Parsers
 
 
                 }
-                catch (Exception ee)
+                catch (Exception)
                 {
                     Debug.WriteLine("Exception fetching data from remote host");
                 }

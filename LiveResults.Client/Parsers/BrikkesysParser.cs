@@ -24,7 +24,7 @@ namespace LiveResults.Client
     public class BrikkesysParser : IExternalSystemResultParserEtiming
     {
         private readonly IDbConnection m_connection;
-        private readonly bool m_recreateRadioControls;
+        private readonly bool m_recreateRadioControls = false;
         private readonly int m_raceID;
         public event DeleteUnusedIDDelegate OnDeleteUnusedID;
         public event DeleteVacantIDDelegate OnDeleteVacantID;
@@ -56,16 +56,15 @@ namespace LiveResults.Client
             public int length;
             public string name;
         }
-                
+
         public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID, int IdOffset)
         {
             m_connection = conn;
-            m_recreateRadioControls = false;
             m_isRelay = false;
             m_raceID = BrikkesysID;
             m_compID = compID;
             m_IdOffset = IdOffset;
-        }      
+        }
 
         private void Run()
         {
@@ -98,7 +97,7 @@ namespace LiveResults.Client
                     string lastRunner = "";
                     List<int> usedID = new List<int>();
                     Dictionary<int, List<SplitRawStruct>> splitList = null;
-                    
+
                     string messageServer = ConfigurationManager.AppSettings["messageServer"];
                     string apiServer = ConfigurationManager.AppSettings["apiServer"];
                     WebClient client = new WebClient();
@@ -106,14 +105,14 @@ namespace LiveResults.Client
 
                     Dictionary<int, CourseInfo> courses = new Dictionary<int, CourseInfo>();
 
-                    int m_sleepTime     = 3;                 // Time between each scan
+                    int m_sleepTime = 3;                 // Time between each scan
                     int maxMessageTimer = 9;                 // Time between reading messages
-                    int messageTimer    = maxMessageTimer;
-                    int maxActiveTimer  = 60;                // Time between setting new live active signal
-                    int activeTimer     = maxActiveTimer;
-                    int maxCCTimer      = 60;                // Time between reading courses and controls
-                    int CCTimer         = maxCCTimer;
-                    bool failedLast     = false;
+                    int messageTimer = maxMessageTimer;
+                    int maxActiveTimer = 60;                // Time between setting new live active signal
+                    int activeTimer = maxActiveTimer;
+                    int maxCCTimer = 60;                // Time between reading courses and controls
+                    int CCTimer = maxCCTimer;
+                    bool failedLast = false;
 
                     // Main loop
                     while (m_continue)
@@ -193,7 +192,7 @@ namespace LiveResults.Client
             {
                 while (reader.Read())
                 {
-                    int time = -2, runnerID = 0, iIntime = 0, iNullTime = 0, bib = 0, leg = 0, 
+                    int time = -2, runnerID = 0, iIntime = 0, iNullTime = 0, bib = 0, leg = 0,
                         team = 0, ecard = 0, length = 0, noSort = 0, courseID = -1, timeOffset = 0;
                     int iStartTime = -1, iCStartTime = -1;
                     int startBehind = 0;
@@ -203,7 +202,7 @@ namespace LiveResults.Client
                     bool useEcardTime = false;
                     string runnerName = "", club = "", classN = "";
                     string status = "", timeCalc = "", codesAndTimes = "", EcardTimes = "";
-                    
+
                     var SplitTimes = new List<ResultStruct>();
 
                     try
@@ -212,7 +211,7 @@ namespace LiveResults.Client
                         runnerName = reader["name"] as string;
                         lastRunner = runnerName;
                         club = reader["club"] as string;
-                        classN = reader["cname"] as string;                                                
+                        classN = reader["cname"] as string;
 
                         if (reader["legno"] != null && reader["legno"] != DBNull.Value)
                             leg = Convert.ToInt32(reader["legno"]);
@@ -231,7 +230,7 @@ namespace LiveResults.Client
                         else if (reader["ccourceid"] != null && reader["ccourceid"] != DBNull.Value)
                             courseID = Convert.ToInt32(reader["ccourceid"]);
                         else if (reader["classid"] != null && reader["classid"] != DBNull.Value)
-                            courseID = Convert.ToInt32(reader["classid"]); 
+                            courseID = Convert.ToInt32(reader["classid"]);
 
                         if (courses.ContainsKey(courseID))
                             length = courses[courseID].length;
@@ -290,7 +289,7 @@ namespace LiveResults.Client
 
                         if (reader["nosort"] != null && reader["nosort"] != DBNull.Value)
                             noSort = Convert.ToInt32(reader["nosort"]);
-                       
+
                         if (noSort >= 1)
                         {
                             sign = -1;
@@ -299,26 +298,26 @@ namespace LiveResults.Client
 
                             if (noSort == 1 && time > 0 && (status == "F" || status == "D")) // Unranked, show times
                                 SplitTimes.Add(new ResultStruct { ControlCode = -999, Time = time });
-                        }                                                
+                        }
 
                         if (timeCalc == "B") // Use ecard time
                             useEcardTime = true;
 
                         // *** Chase start handling ***
-                        if (timeCalc == "J") 
+                        if (timeCalc == "J")
                         {
                             chaseStart = true;
                             startBehind = iStartTime - Math.Max(0, iCStartTime);
-                            if (startBehind >= 0)                                
-                                SplitTimes.Add(new ResultStruct{ ControlCode = 0, Time = startBehind });
-                            
+                            if (startBehind >= 0)
+                                SplitTimes.Add(new ResultStruct { ControlCode = 0, Time = startBehind });
+
                             int legTime = time - startBehind;
                             if (legTime > 0)
-                                SplitTimes.Add(new ResultStruct{ ControlCode = 999,  Time = legTime });                            
+                                SplitTimes.Add(new ResultStruct { ControlCode = 999, Time = legTime });
                         }
 
                         // *** Relay handling ***
-                        if (leg > 0) 
+                        if (leg > 0)
                         {
                             int teambib = bib;
                             bib = -(bib * 100 + leg);
@@ -326,7 +325,7 @@ namespace LiveResults.Client
                             if (!classN.EndsWith("-"))
                                 classN += "-";
                             classN += leg.ToString();
-                            
+
                             if (team > 0)
                                 club += "-" + team.ToString();
 
@@ -350,7 +349,7 @@ namespace LiveResults.Client
                             {
                                 var ExchangeTime = new ResultStruct
                                 {
-                                    ControlCode = 0,  
+                                    ControlCode = 0,
                                     Time = teamTimePre + (restart ? 100 * 3600 * 100 : 0)
                                 };
                                 SplitTimes.Add(ExchangeTime);
@@ -367,8 +366,8 @@ namespace LiveResults.Client
                             }
 
                             if (time > 0)
-                                teamTime += time + (restart ? 100 * 3600 * 100 : 0); 
-                                  
+                                teamTime += time + (restart ? 100 * 3600 * 100 : 0);
+
                             if (teamOK && (status == "A" || status == "C"))
                                 teamStatus = status;
                             else
@@ -386,18 +385,18 @@ namespace LiveResults.Client
                                         teamStatus = "E";
                                 }
                             }
-                            
+
                             status = teamStatus;
 
                             if (time > 0)
                                 time = teamTime;
-                            
+
                             teamTimePre = teamTime;
                         }
 
                         // Add radio times
                         int calcStartTime = -2;
-                        if (splitList.ContainsKey(ecard))                                                   
+                        if (splitList.ContainsKey(ecard))
                             AddSplits(ecard, iStartTime, time, startBehind, sign, noSort, chaseStart, freeStart, useEcardTime, allEcardTimesOK, splitList[ecard], ref SplitTimes, out calcStartTime);
 
                         if (freeStart && (calcStartTime > 0) && (Math.Abs(calcStartTime - iStartTime) > 2000))  // Update starttime if deviation more than 20 sec
@@ -540,7 +539,7 @@ namespace LiveResults.Client
 
                         var res = new SplitRawStruct
                         {
-                            controlCode = code,                            
+                            controlCode = code,
                             passTime = passTime,
                             netTime = netTime,
                         };
@@ -583,7 +582,7 @@ namespace LiveResults.Client
                         rstatus = 10;
                         time = -3;
                     }
-                    break;          
+                    break;
                 default: rstatus = 999; break;  // Unsupported status
             }
             return rstatus;
@@ -593,6 +592,11 @@ namespace LiveResults.Client
         {
             try
             {
+                if (m_recreateRadioControls)
+                {
+                    // Add logic to recreate radio controls here
+                }
+
                 // Setting up extra times               
                 List<RadioControl> extraTimes = new List<RadioControl>();
                 var dlgMergeRadio = OnMergeRadioControls;
@@ -600,10 +604,10 @@ namespace LiveResults.Client
                 if (m_connection.State != ConnectionState.Open)
                     m_connection.Open();
                 IDbCommand cmd = m_connection.CreateCommand();
-                string classTimingType = 
+                string classTimingType =
                     "SELECT classes.name, CAST(classes.nosort AS SIGNED) AS nosort, classes.timecalculation, " +
                     "(SELECT MAX(names.legno) FROM names WHERE names.classid=classes.id) AS legs " +
-                    "FROM classes WHERE classes.raceid=" + m_raceID;                    
+                    "FROM classes WHERE classes.raceid=" + m_raceID;
                 cmd.CommandText = classTimingType;
 
                 using (IDataReader reader = cmd.ExecuteReader())
@@ -685,7 +689,7 @@ namespace LiveResults.Client
             catch (Exception ee)
             {
                 FireLogMsg("Brikkesys Parser makeRadioControls: " + ee.Message);
-            }            
+            }
         }
 
         private string MakeSplitTimes(string splitTimeString, int timeOffset, int course, Dictionary<int, CourseInfo> courses, out bool allOK)
@@ -1017,7 +1021,21 @@ namespace LiveResults.Client
             if (OnDeleteUnusedID != null)
                 OnDeleteUnusedID(usedIds, first);
         }
-
+        private void FireOnDeleteVacantID(int runnerID)
+        {
+            if (OnDeleteVacantID != null)
+                OnDeleteVacantID(runnerID);
+        }
+        private void FireOnRadioControl()
+        {
+            if (OnRadioControl != null)
+                OnRadioControl(null, 0, null, 0);
+        }
+        private void FireOnMergeVacants(VacantRunner[] vacantRunners)
+        {
+            if (OnMergeVacants != null)
+                OnMergeVacants(vacantRunners, false);
+        }
         public void Start()
         {
             m_continue = true;
