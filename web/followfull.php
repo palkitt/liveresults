@@ -256,27 +256,27 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       // Add no screen sleep
       document.addEventListener("click", enableNoSleep);
 
+      // Show/hide class column
       $('#dropbtnClass').on('mouseover', function() {
-        if ($('#divClassColumn').css('max-width') != '0px')
-          return;
-        $('#divClasses').removeClass('closed').addClass('open');
-        var windowHeight = $(window).height();
-        var elementOffsetTop = $('#divClasses').offset().top;
-        var newHeight = windowHeight - elementOffsetTop - 10;
-        $('#divClasses').css('height', newHeight);
+        if ($('#classColumnContent').hasClass('closed')) {
+          $('#classColumnContent').removeClass('closed').addClass('open');
+          var windowHeight = $(window).height();
+          var elementOffsetTop = $('#classColumnContent').offset().top;
+          var newHeight = windowHeight - elementOffsetTop - 10;
+          $('#divClassColumn').css('height', newHeight);
+        }
       });
 
-      $('#divClasses').on('mouseleave', function() {
-        if ($('#divClassColumn').css('max-width') != '0px')
-          return;
-        $('#divClasses').removeClass('open').addClass('closed');
+      $('#divClassColumn').on('mouseleave', function() {
+        if ($('#classColumnContent').hasClass('open'))
+          $('#classColumnContent').removeClass('open').addClass('closed');
       });
 
       $(document).on('click', function(event) {
-        if ($('#divClassColumn').css('max-width') != '0px')
-          return;
-        if (!$(event.target).closest('#divClasses, #dropbtnClass').length) {
-          $('#divClasses').removeClass('open').addClass('closed');
+        if ($('#classColumnContent').hasClass('closed')) {
+          if (!$(event.target).closest('#divClassColumn, #dropbtnClass').length) {
+            $('#classColumnContent').removeClass('open').addClass('closed');
+          }
         }
       });
     });
@@ -292,6 +292,19 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         console.log("Wake lock is now active");
       } catch (err) {
         console.error("Failed to acquire wake lock:", err);
+      }
+    }
+
+    function togglepinned() {
+      var content = document.querySelector('.class-column');
+      if (content.classList.contains('unpinned')) {
+        content.classList.remove('unpinned');
+        $('#classColumnContent').removeClass('unpinned');
+        $('#pinn').css('color', 'white');
+      } else {
+        content.classList.add('unpinned');
+        $('#classColumnContent').addClass('unpinned');
+        $('#pinn').css('color', 'grey');
       }
     }
 
@@ -498,12 +511,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           </table>
           <div class="container">
             <div class="class-column" id="divClassColumn">
-              <div class="class-column-content" id="divClasses"></div>
+              <div id="classColumnContent" class="class-column-content">
+                <div id="pinn" class="pinn" onclick="togglepinned()">🖈</div>
+                <div id="divClasses"></div>
+              </div>
             </div>
-
             <div class="result-column">
               <table id="divResults" width="100%"></table>
-
               <?php if (!$isSingleClass && !$isSingleClub) { ?>
                 <table class="numrunners">
                   <tr>

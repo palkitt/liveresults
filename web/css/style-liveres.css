@@ -787,6 +787,7 @@ td.menuchosen a:hover {
 /*-------------------------------*/
 /*---  Buttons for navigation ---*/
 /*-------------------------------*/
+
 .navbtn {
   border: none;
   background-color: black;
@@ -835,6 +836,16 @@ td.menuchosen a:hover {
   cursor: pointer;
 }
 
+.pinn {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  color: white;
+  font-size: 1.5em;
+  cursor: pointer;
+  z-index: 102;
+}
+
 .container {
   display: flex;
 }
@@ -843,13 +854,20 @@ td.menuchosen a:hover {
   flex: 1;
   position: relative;
   display: inline-block;
-  min-width: 7em;
-  max-width: 9em;
+  z-index: 100;
+  line-height: 1.4em;
+  font-size: 1.3em;
+  max-width: 8em;
+  min-width: 8em;
+}
+
+.class-column.unpinned {
+  max-width: 0px !important;
+  min-width: 0px !important;
 }
 
 .class-column-content {
-  line-height: 1.4em;
-  font-size: 1.1em;
+  box-sizing: border-box;
   position: relative;
   top: 3px;
   left: 0;
@@ -858,8 +876,15 @@ td.menuchosen a:hover {
   text-decoration: none;
   overflow-y: scroll;
   overflow-x: hidden;
-  z-index: 100;
+  z-index: 101;
   padding: 3px 3px 3px 10px;
+  height: auto !important;
+  min-width: 8em;
+  max-width: 8em;
+}
+
+.class-column-content a {
+  color: white;
 }
 
 .class-column-content::-webkit-scrollbar {
@@ -867,47 +892,28 @@ td.menuchosen a:hover {
   height: 0;
 }
 
-.class-column-content a {
-  color: white;
+.class-column-content.unpinned {
+  opacity: 0.9;
+  box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
+  height: auto;
 }
 
 .result-column {
   flex: 2;
-  width: calc(100vw - 9em);
   display: inline-block;
   padding-left: 3px;
+  width: calc(100vw - 8em);
+  box-sizing: border-box;
 }
 
-/* Media query for narrow screens display: none;*/
-@media (max-width: 1000px) {
-  .class-column {
-    max-width: 0px;
-    min-width: 0px;
-  }
-
-  .class-column-content {
-    min-width: 7em;
-    max-width: 10em;
-    font-size: 1.3em;
-    opacity: 0.9;
-    box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
-  }
-
-  .class-column-content.closed {
-    display: none;
-  }
-
-  .class-column-content.open {
-    display: block;
-  }
+.class-column-content.unpinned.closed {
+  display: none;
+  padding: 0;
 }
 
-@media (min-width: 1001px) {
-  .class-column-content {
-    height: auto !important;
-  }
+.class-column-content.unpinned.open {
+  display: block;
 }
-
 
 /*-----------------------------------*/
 /*---  Mofification of DataTables ---*/

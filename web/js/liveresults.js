@@ -377,7 +377,7 @@ var LiveResults;
 
           str += "</nowrap>";
           if (first) // Open class list if first time update
-            $('#divClasses').removeClass('closed').addClass('open');
+            $('#classColumnContent').removeClass('closed').addClass('open');
           $("#" + this.classesDiv).html(str);
           $("#numberOfRunnersTotal").html(data.numberOfRunners);
           $("#numberOfRunnersStarted").html(data.numberOfStartedRunners);
@@ -2835,7 +2835,7 @@ var LiveResults;
       }
 
       // Remove dropdown class list
-      $('#divClasses').removeClass('open').addClass('closed');
+      $('#classColumnContent').removeClass('open').addClass('closed');
 
       $('#divResults').html('');
       this.curClassName = className;
