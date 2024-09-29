@@ -902,7 +902,7 @@ td.menuchosen a:hover {
   flex: 2;
   display: inline-block;
   padding-left: 3px;
-  width: calc(100vw - 8em);
+  width: calc(100vw - 15em);
   box-sizing: border-box;
 }
 
