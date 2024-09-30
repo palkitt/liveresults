@@ -82,10 +82,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#555555">
-  <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.7/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
   <link rel="stylesheet" type="text/css" href="css/style-liveres.css?a">
 
-  <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
+  <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.7/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <?php if ($isSpeaker) { ?>
@@ -263,7 +263,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           var windowHeight = $(window).height();
           var elementOffsetTop = $('#classColumnContent').offset().top;
           var newHeight = windowHeight - elementOffsetTop - 10;
-          $('#divClassColumn').css('height', newHeight);
+          $('#classColumnContent').css('max-height', newHeight);
         }
       });
 
@@ -306,6 +306,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         $('#classColumnContent').addClass('unpinned');
         $('#pinn').css('color', 'grey');
       }
+      if ($.fn.dataTable.isDataTable('#divResults'))
+        $('#divResults').DataTable().columns.adjust();
     }
 
     function loadFontSize() {
