@@ -45,7 +45,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					if (false && !data.active) {
+					if (!data.active) {
 						$('#inactiveinfo').html('Løpet er ikke online! Kontakt løpskontor eller prøv igjen senere.');
 						$('#clubSelect').prop('disabled', true);
 						$('#clubSelect').prop('disabled', true).css('background-color', '');
@@ -96,7 +96,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					var reservedOK = false
 					var className = $('#classSelect').val();
 					var classNameURI = encodeURIComponent(className);
-					fetch(url + "messageapi.php?method=reservevacant&comp=" + comp + "&class=" + classNameURI + "&cancelid=" + reservedID)
+					var randomNo = Date.now().toString().slice(-4);
+					fetch(url + "messageapi.php?method=reservevacant&comp=" + comp + "&class=" + classNameURI + "&cancelid=" + reservedID + "&rand=" + randomNo)
 						.then(response => response.json())
 						.then(data => {
 							reservedOK = data.status == "OK";
