@@ -17,6 +17,7 @@ namespace LiveResults.Model
         void Stop();
         event ResultDelegate OnResult;
         event DeleteIDDelegate OnDeleteID;
+        event DeleteVacantIDDelegate OnDeleteVacantID;
         event DeleteUnusedIDDelegate OnDeleteUnusedID;
         event LogMessageDelegate OnLogMessage;
         event RadioControlDelegate OnRadioControl;

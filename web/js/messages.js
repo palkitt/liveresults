@@ -231,7 +231,8 @@ var Messages;
                         "render": function (data, type, row) {
                             try {
                                 var jsonData = JSON.parse(data);
-                                return `Påmelding: ${jsonData.firstName} ${jsonData.lastName}, ${jsonData.club}, ${jsonData.ecardNumber}, ${jsonData.className}, ID:${row.dbid}`;
+                                var star = (jsonData.rent != undefined && jsonData.rent == 1 ? "*" : "");
+                                return `Påmelding: ${jsonData.firstName} ${jsonData.lastName}, ${jsonData.club}, ${jsonData.ecardNumber}${star}, ${jsonData.className}, ID:${row.dbid}`;
                             } catch (error) {
                                 return "<div class=\"wrapok\">" + data + "</div>";
                             }

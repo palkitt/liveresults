@@ -53,7 +53,7 @@ namespace LiveResults.Client
                     }
                 }
             }
-            catch (Exception ee)
+            catch (Exception)
             {
 
             }
@@ -72,7 +72,7 @@ namespace LiveResults.Client
                 {
                     string val = setts.Where(x => x.Key == c.Name).Select(x => x.Value).FirstOrDefault();
                     (c as ComboBox).SelectedItem = val;
-                    
+
                 }
                 if (c is CheckBox)
                 {
@@ -173,7 +173,7 @@ namespace LiveResults.Client
 
             return new MySql.Data.MySqlClient.MySqlConnection("Server=" + txtHost.Text + ";User Id=" + txtUser.Text + ";Port=" + txtPort.Text + ";Password=" + txtPw.Text + (schema != null ? ";Initial Catalog=" + schema : "") + ";charset=utf8;ConnectionTimeout=30");
         }
-        
+
         private void wizardPage3_ShowFromNext(object sender, EventArgs e)
         {
             StoreSettings();
@@ -184,8 +184,8 @@ namespace LiveResults.Client
 
                 conn = GetDBConnection();
                 conn.Open();
-                lstDB.DataSource = null; 
-                IDbCommand cmd = conn.CreateCommand();cmd.CommandText = "SELECT id, name, DATE_FORMAT(racedate,'%Y-%m-%d') AS date FROM races ORDER BY date desc";
+                lstDB.DataSource = null;
+                IDbCommand cmd = conn.CreateCommand(); cmd.CommandText = "SELECT id, name, DATE_FORMAT(racedate,'%Y-%m-%d') AS date FROM races ORDER BY date desc";
                 IDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
@@ -224,7 +224,7 @@ namespace LiveResults.Client
             }
         }
 
-        
+
         private void wizardPage5_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
         {
             lstDB.PreviousSelectedIndex = lstDB.SelectedIndex;
@@ -235,8 +235,8 @@ namespace LiveResults.Client
             bool parseOK = false;
 
             parseOK = Int32.TryParse(txtCompID.Text, out CompID);
-            parseOK = Int32.TryParse(txtIdOffset.Text, out IdOffset);           
-                    
+            parseOK = Int32.TryParse(txtIdOffset.Text, out IdOffset);
+
             FrmBrikkesysMonitor monForm = new FrmBrikkesysMonitor();
             this.Hide();
             BrikkesysParser pars = new BrikkesysParser(GetDBConnection(), (lstDB.SelectedItem as BrikkesysComp).Id, CompID, IdOffset);

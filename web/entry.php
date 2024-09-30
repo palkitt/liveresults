@@ -52,9 +52,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					}
 					let clubSelect = $('#clubSelect');
 					clubSelect.append($('<option>').text('--- Velg klubb ---').val(''));
+					var noClubOption = false;
 					data.clubs.forEach(club => {
 						clubSelect.append($('<option>').text(club.name));
+						if (club.name == 'NOTEAM')
+							noClubOption = true;
 					});
+					if (!noClubOption)
+						clubSelect.append($('<option>').text('NOTEAM'));
 					vacants = data.vacants;
 					var classes = vacants.map(vacant => vacant.class);
 					var classCounts = classes.reduce((counts, className) => {
@@ -91,7 +96,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					var reservedOK = false
 					var className = $('#classSelect').val();
 					var classNameURI = encodeURIComponent(className);
-					fetch(url + "messageapi.php?method=reservevacant&comp=" + comp + "&class=" + classNameURI + "&cancelid=" + reservedID)
+					var randomNo = Date.now().toString().slice(-4);
+					fetch(url + "messageapi.php?method=reservevacant&comp=" + comp + "&class=" + classNameURI + "&cancelid=" + reservedID + "&rand=" + randomNo)
 						.then(response => response.json())
 						.then(data => {
 							reservedOK = data.status == "OK";
@@ -103,6 +109,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 						});
 					$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
 					$('#ecardnumber').prop('disabled', false);
+					$('#rent').prop('disabled', false);
 				}
 			});
 
@@ -125,6 +132,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 			$('#classSelect').prop('disabled', true);
 			$('#ecardnumber').prop('disabled', true);
+			$('#rent').prop('disabled', true);
 			$('#firstname').prop('disabled', true);
 			$('#lastname').prop('disabled', true);
 			$('#submit').hide();
@@ -175,9 +183,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			var ecardNumber = $('#ecardnumber').val();
 			var club = $('#clubSelect').val();
 			var className = $('#classSelect').val();
+			var rent = $('#rent').prop('checked');
 			$('#clubSelect').prop('disabled', true);
 			$('#classSelect').prop('disabled', true);
 			$('#ecardnumber').prop('disabled', true);
+			$('#rent').prop('disabled', true);
 			$('#firstname').prop('disabled', true);
 			$('#lastname').prop('disabled', true);
 			$('#submit').hide();
@@ -188,7 +198,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				lastName: lastName,
 				ecardNumber: ecardNumber,
 				club: club,
-				className: className
+				className: className,
+				rent: rent
 			};
 
 			var jsonData = JSON.stringify(data);
@@ -227,8 +238,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 						if (data.status = "OK" && data.runners != undefined) {
 							hash = data.hash;
 							for (var i = 0; i < data.runners.length; i++) {
-								// Check if the dbid of the current entry matches the input dbid
-								if (data.runners[i].dbid == dbid) {
+								// Check if the dbid and ecard number in the database matches the one we just registered
+								if (data.runners[i].dbid == dbid && data.runners[i].ecard1 == ecardNumber) {
 									found = true;
 									$('#entrydata').html('<b>Din påmelding er registrert som følger:</b><br>' +
 										'<table>' +
@@ -290,7 +301,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<div id="classverification">...</div>
 
 			<h2>Brikkenummer</h2>
-			<input id="ecardnumber" type="number" style="width:95%" inputmode="numeric">
+			<input id="ecardnumber" type="number" style="width:70%" inputmode="numeric">
+			<div style="text-align: right; display: inline-block; width: 25%;">&nbsp;
+				<input id="rent" type="checkbox" value="no">&nbsp;Leiebrikke
+			</div>
 			<br>
 			<div id="ecardverification">...</div>
 			<div id="ecardlastuse"><small>...</small></div>

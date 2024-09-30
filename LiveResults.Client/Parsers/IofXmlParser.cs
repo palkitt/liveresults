@@ -13,7 +13,7 @@ namespace LiveResults.Client.Parsers
     {
         public static Runner[] ParseFile(string filename, LogMessageDelegate logit, GetIdDelegate getIdFunc, bool readRadioControls, out RadioControl[] radioControls)
         {
-            return ParseFile(filename, logit, true, getIdFunc, readRadioControls,out radioControls);
+            return ParseFile(filename, logit, true, getIdFunc, readRadioControls, out radioControls);
         }
 
         public static Runner[] ParseFile(string filename, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls, out RadioControl[] radioControls)
