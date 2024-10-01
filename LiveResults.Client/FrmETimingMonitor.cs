@@ -18,6 +18,7 @@ namespace LiveResults.Client
         public FrmETimingMonitor()
         {
             InitializeComponent();
+            this.FormClosing += FrmETimingMonitor_FormClosing;
         }
 
         private int m_CompetitionID;
@@ -85,7 +86,6 @@ namespace LiveResults.Client
             }
         }
 
-
         void m_Parser_OnMergeRadioControls(RadioControl[] radioControls, bool update)
         {
             foreach (EmmaMysqlClient client in m_Clients)
@@ -126,7 +126,6 @@ namespace LiveResults.Client
                 }
             }           
         }
-
 
         void m_Parser_OnResult(Result newResult)
         {
@@ -266,7 +265,11 @@ namespace LiveResults.Client
         {
 
         }
-        //private void FrmETimingMonitor_Load
+        private void FrmETimingMonitor_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (btnStartSTop.Text == "Stop")
+                btnStartSTop_Click(null, new EventArgs());
+        }
 
     }
 }

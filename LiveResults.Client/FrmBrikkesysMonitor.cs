@@ -18,6 +18,7 @@ namespace LiveResults.Client
         public FrmBrikkesysMonitor()
         {
             InitializeComponent();
+            this.FormClosing += FrmBrikkesysMonitor_FormClosing;
         }
 
         private int m_CompetitionID;
@@ -220,9 +221,15 @@ namespace LiveResults.Client
 
             this.Close();
         }
-        private void FrmETimingMonitor_Load(object sender, EventArgs e)
+        private void FrmBrikkesysMonitor_Load(object sender, EventArgs e)
         {
 
         }
+        private void FrmBrikkesysMonitor_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (btnStartSTop.Text == "Stop")
+                btnStartSTop_Click(null, new EventArgs());
+        }
+
     }
 }

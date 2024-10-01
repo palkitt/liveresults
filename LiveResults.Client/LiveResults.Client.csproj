@@ -137,7 +137,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Resources\emit.ico</ApplicationIcon>
+    <ApplicationIcon>liveres.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="BouncyCastle.Crypto, Version=1.8.5.0, Culture=neutral, PublicKeyToken=0e99375e54769942">
@@ -459,8 +459,10 @@
     <None Include="Resources\iof_logohead1.png" />
     <None Include="Resources\ssftiming.png" />
     <None Include="Resources\brikkesys.png" />
+    <Content Include="liveres.ico" />
     <Content Include="Resources\emit.ico" />
     <Content Include="Resources\emitE.png" />
+    <Content Include="Resources\liveres.ico" />
     <Content Include="Wizard\Wizard.bmp" />
     <Content Include="Wizard\wizBigOnlineFolder.gif" />
   </ItemGroup>

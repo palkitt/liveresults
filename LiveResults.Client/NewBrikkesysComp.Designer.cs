@@ -33,7 +33,18 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewBrikkesysComp));
             this.wizard1 = new Gui.Wizard.Wizard();
+            this.wizardPage5 = new Gui.Wizard.WizardPage();
+            this.txtIdOffset = new System.Windows.Forms.TextBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.txtOrganizer = new System.Windows.Forms.TextBox();
+            this.organizer = new System.Windows.Forms.Label();
+            this.txtCompID = new System.Windows.Forms.TextBox();
+            this.label9 = new System.Windows.Forms.Label();
+            this.wizardPage3 = new Gui.Wizard.WizardPage();
+            this.lstDB = new LiveResults.Client.NewBrikkesysComp.DBListBox();
+            this.label7 = new System.Windows.Forms.Label();
             this.wizardPage1 = new Gui.Wizard.WizardPage();
             this.txtPw = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -43,27 +54,17 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.wizardPage3 = new Gui.Wizard.WizardPage();
-            this.lstDB = new LiveResults.Client.NewBrikkesysComp.DBListBox();
-            this.label7 = new System.Windows.Forms.Label();
-            this.wizardPage5 = new Gui.Wizard.WizardPage();
-            this.txtOrganizer = new System.Windows.Forms.TextBox();
-            this.organizer = new System.Windows.Forms.Label();
-            this.txtCompID = new System.Windows.Forms.TextBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.txtIdOffset = new System.Windows.Forms.TextBox();
-            this.label16 = new System.Windows.Forms.Label();
             this.wizard1.SuspendLayout();
-            this.wizardPage1.SuspendLayout();
-            this.wizardPage3.SuspendLayout();
             this.wizardPage5.SuspendLayout();
+            this.wizardPage3.SuspendLayout();
+            this.wizardPage1.SuspendLayout();
             this.SuspendLayout();
             // 
             // wizard1
             // 
+            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage3);
-            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
@@ -74,6 +75,100 @@
             this.wizardPage5});
             this.wizard1.Size = new System.Drawing.Size(506, 290);
             this.wizard1.TabIndex = 0;
+            // 
+            // wizardPage5
+            // 
+            this.wizardPage5.Controls.Add(this.txtIdOffset);
+            this.wizardPage5.Controls.Add(this.label16);
+            this.wizardPage5.Controls.Add(this.txtOrganizer);
+            this.wizardPage5.Controls.Add(this.organizer);
+            this.wizardPage5.Controls.Add(this.txtCompID);
+            this.wizardPage5.Controls.Add(this.label9);
+            this.wizardPage5.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wizardPage5.IsFinishPage = false;
+            this.wizardPage5.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage5.Name = "wizardPage5";
+            this.wizardPage5.Size = new System.Drawing.Size(506, 242);
+            this.wizardPage5.TabIndex = 5;
+            this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
+            // 
+            // txtIdOffset
+            // 
+            this.txtIdOffset.Location = new System.Drawing.Point(15, 113);
+            this.txtIdOffset.Name = "txtIdOffset";
+            this.txtIdOffset.Size = new System.Drawing.Size(175, 21);
+            this.txtIdOffset.TabIndex = 19;
+            // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(12, 98);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(150, 13);
+            this.label16.TabIndex = 20;
+            this.label16.Text = "Database ID offset. Default 0";
+            // 
+            // txtOrganizer
+            // 
+            this.txtOrganizer.Location = new System.Drawing.Point(15, 69);
+            this.txtOrganizer.Name = "txtOrganizer";
+            this.txtOrganizer.Size = new System.Drawing.Size(175, 21);
+            this.txtOrganizer.TabIndex = 3;
+            // 
+            // organizer
+            // 
+            this.organizer.AutoSize = true;
+            this.organizer.Location = new System.Drawing.Point(12, 54);
+            this.organizer.Name = "organizer";
+            this.organizer.Size = new System.Drawing.Size(54, 13);
+            this.organizer.TabIndex = 2;
+            this.organizer.Text = "Organizer";
+            // 
+            // txtCompID
+            // 
+            this.txtCompID.Location = new System.Drawing.Point(15, 25);
+            this.txtCompID.Name = "txtCompID";
+            this.txtCompID.Size = new System.Drawing.Size(175, 21);
+            this.txtCompID.TabIndex = 1;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(12, 10);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(73, 13);
+            this.label9.TabIndex = 0;
+            this.label9.Text = "CompetitonID";
+            // 
+            // wizardPage3
+            // 
+            this.wizardPage3.Controls.Add(this.lstDB);
+            this.wizardPage3.Controls.Add(this.label7);
+            this.wizardPage3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wizardPage3.IsFinishPage = false;
+            this.wizardPage3.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage3.Name = "wizardPage3";
+            this.wizardPage3.Size = new System.Drawing.Size(506, 242);
+            this.wizardPage3.TabIndex = 3;
+            this.wizardPage3.ShowFromNext += new System.EventHandler(this.wizardPage3_ShowFromNext);
+            // 
+            // lstDB
+            // 
+            this.lstDB.FormattingEnabled = true;
+            this.lstDB.Location = new System.Drawing.Point(13, 19);
+            this.lstDB.Name = "lstDB";
+            this.lstDB.PreviousSelectedIndex = 0;
+            this.lstDB.Size = new System.Drawing.Size(343, 186);
+            this.lstDB.TabIndex = 2;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(10, 3);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(84, 13);
+            this.label7.TabIndex = 1;
+            this.label7.Text = "Select database";
             // 
             // wizardPage1
             // 
@@ -156,115 +251,22 @@
             this.label2.TabIndex = 2;
             this.label2.Text = "Host";
             // 
-            // wizardPage3
-            // 
-            this.wizardPage3.Controls.Add(this.lstDB);
-            this.wizardPage3.Controls.Add(this.label7);
-            this.wizardPage3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wizardPage3.IsFinishPage = false;
-            this.wizardPage3.Location = new System.Drawing.Point(0, 0);
-            this.wizardPage3.Name = "wizardPage3";
-            this.wizardPage3.Size = new System.Drawing.Size(506, 242);
-            this.wizardPage3.TabIndex = 3;
-            this.wizardPage3.ShowFromNext += new System.EventHandler(this.wizardPage3_ShowFromNext);
-            // 
-            // lstDB
-            // 
-            this.lstDB.FormattingEnabled = true;
-            this.lstDB.Location = new System.Drawing.Point(13, 19);
-            this.lstDB.Name = "lstDB";
-            this.lstDB.PreviousSelectedIndex = 0;
-            this.lstDB.Size = new System.Drawing.Size(343, 186);
-            this.lstDB.TabIndex = 2;
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(10, 3);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(84, 13);
-            this.label7.TabIndex = 1;
-            this.label7.Text = "Select database";
-            // 
-            // wizardPage5
-            // 
-            this.wizardPage5.Controls.Add(this.txtIdOffset);
-            this.wizardPage5.Controls.Add(this.label16);
-            this.wizardPage5.Controls.Add(this.txtOrganizer);
-            this.wizardPage5.Controls.Add(this.organizer);
-            this.wizardPage5.Controls.Add(this.txtCompID);
-            this.wizardPage5.Controls.Add(this.label9);
-            this.wizardPage5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.wizardPage5.IsFinishPage = false;
-            this.wizardPage5.Location = new System.Drawing.Point(0, 0);
-            this.wizardPage5.Name = "wizardPage5";
-            this.wizardPage5.Size = new System.Drawing.Size(506, 242);
-            this.wizardPage5.TabIndex = 5;
-            this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
-            // 
-            // txtOrganizer
-            // 
-            this.txtOrganizer.Location = new System.Drawing.Point(15, 69);
-            this.txtOrganizer.Name = "txtOrganizer";
-            this.txtOrganizer.Size = new System.Drawing.Size(175, 21);
-            this.txtOrganizer.TabIndex = 3;
-            // 
-            // organizer
-            // 
-            this.organizer.AutoSize = true;
-            this.organizer.Location = new System.Drawing.Point(12, 54);
-            this.organizer.Name = "organizer";
-            this.organizer.Size = new System.Drawing.Size(54, 13);
-            this.organizer.TabIndex = 2;
-            this.organizer.Text = "Organizer";
-            // 
-            // txtCompID
-            // 
-            this.txtCompID.Location = new System.Drawing.Point(15, 25);
-            this.txtCompID.Name = "txtCompID";
-            this.txtCompID.Size = new System.Drawing.Size(175, 21);
-            this.txtCompID.TabIndex = 1;
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 10);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(73, 13);
-            this.label9.TabIndex = 0;
-            this.label9.Text = "CompetitonID";
-            // 
-            // txtIdOffset
-            // 
-            this.txtIdOffset.Location = new System.Drawing.Point(15, 113);
-            this.txtIdOffset.Name = "txtIdOffset";
-            this.txtIdOffset.Size = new System.Drawing.Size(175, 21);
-            this.txtIdOffset.TabIndex = 19;
-            // 
-            // label16
-            // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(12, 98);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(99, 13);
-            this.label16.TabIndex = 20;
-            this.label16.Text = "Database ID offset. Default 0";
-            // 
             // NewBrikkesysComp
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(506, 290);
             this.Controls.Add(this.wizard1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "NewBrikkesysComp";
             this.Text = "New Brikkesys-connection";
             this.wizard1.ResumeLayout(false);
-            this.wizardPage1.ResumeLayout(false);
-            this.wizardPage1.PerformLayout();
-            this.wizardPage3.ResumeLayout(false);
-            this.wizardPage3.PerformLayout();
             this.wizardPage5.ResumeLayout(false);
             this.wizardPage5.PerformLayout();
+            this.wizardPage3.ResumeLayout(false);
+            this.wizardPage3.PerformLayout();
+            this.wizardPage1.ResumeLayout(false);
+            this.wizardPage1.PerformLayout();
             this.ResumeLayout(false);
 
         }
