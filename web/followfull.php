@@ -308,19 +308,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       if (content.classList.contains('unpinned')) {
         content.classList.remove('unpinned');
         $('#classColumnContent').removeClass('unpinned');
-        $('#locksymbol').html("L");
+        $('#locksymbol').removeClass('fa-unlock').addClass('fa-lock');
         if (typeof(Storage) !== "undefined")
           localStorage.setItem("classLock", true);
-        // $('#locksymbol').removeClass('fa-lock-open').addClass('fa-lock');
-        // <i class="fa-solid fa-lock-open"></i>
-        // <i class="fa-solid fa-lock"></i>
       } else {
         content.classList.add('unpinned');
         $('#classColumnContent').addClass('unpinned');
-        $('#locksymbol').html('Å');
+        $('#locksymbol').removeClass('fa-lock').addClass('fa-unlock');
         if (typeof(Storage) !== "undefined")
           localStorage.setItem("classLock", false);
-        //$('#locksymbol').removeClass('pinned').addClass('unpinned');
+        $('#locksymbol').removeClass('pinned').addClass('unpinned');
       }
       if ($.fn.dataTable.isDataTable('#divResults'))
         $('#divResults').DataTable().columns.adjust();
@@ -531,8 +528,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             <div class="class-column" id="divClassColumn">
               <div id="classColumnContent" class="class-column-content">
                 <div class="lock" onclick="togglelocked()">
-                  <span id="locksymbol">L</span>
-                  <!-- class="fa-solid fa-lock" -->
+                  <span id="locksymbol" class="fa-solid fa-lock"></span>
                 </div>
                 <div id="divClasses"></div>
               </div>
