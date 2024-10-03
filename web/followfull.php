@@ -240,14 +240,22 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       // Initialize info text
       $("#divInfoText").html("<?= $infoText ?>");
 
-      // Check for mobile and close top if mobile is detected
+      var locked = undefined;
+      if (typeof(Storage) !== "undefined")
+        var locked = (localStorage.getItem("classLock") == "true");
+
+      // If mobile: close top and use unpinned class column
       <?php if ((!$isSingleClass && !$isSingleClub)) { ?>
-        if (res.browserType == 1 && <?= (in_array($compNo, array("10203")) ? 0 : 1) ?>)
+        if (res.browserType == 1 && <?= (in_array($compNo, array("10203")) ? 0 : 1) ?>) {
           closeTop();
-        else {
+          if (locked == undefined || !locked)
+            togglelocked();
+        } else {
           document.getElementById("switchTopClick").classList.toggle("change");
           $("#topBar").height('auto');
           topBar = true;
+          if (locked != undefined && !locked)
+            togglelocked();
         }
       <?php } ?>
 
@@ -273,7 +281,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       });
 
       $(document).on('click', function(event) {
-        if ($('#classColumnContent').hasClass('closed')) {
+        if ($('#classColumnContent').hasClass('open')) {
           if (!$(event.target).closest('#divClassColumn, #dropbtnClass').length) {
             $('#classColumnContent').removeClass('open').addClass('closed');
           }
@@ -295,16 +303,24 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       }
     }
 
-    function togglepinned() {
+    function togglelocked() {
       var content = document.querySelector('.class-column');
       if (content.classList.contains('unpinned')) {
         content.classList.remove('unpinned');
         $('#classColumnContent').removeClass('unpinned');
-        $('#pinn').css('color', 'white');
+        $('#locksymbol').html("L");
+        if (typeof(Storage) !== "undefined")
+          localStorage.setItem("classLock", true);
+        // $('#locksymbol').removeClass('fa-lock-open').addClass('fa-lock');
+        // <i class="fa-solid fa-lock-open"></i>
+        // <i class="fa-solid fa-lock"></i>
       } else {
         content.classList.add('unpinned');
         $('#classColumnContent').addClass('unpinned');
-        $('#pinn').css('color', 'grey');
+        $('#locksymbol').html('Å');
+        if (typeof(Storage) !== "undefined")
+          localStorage.setItem("classLock", false);
+        //$('#locksymbol').removeClass('pinned').addClass('unpinned');
       }
       if ($.fn.dataTable.isDataTable('#divResults'))
         $('#divResults').DataTable().columns.adjust();
@@ -514,7 +530,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           <div class="container">
             <div class="class-column" id="divClassColumn">
               <div id="classColumnContent" class="class-column-content">
-                <div id="pinn" class="pinn" onclick="togglepinned()">🖈</div>
+                <div class="lock" onclick="togglelocked()">
+                  <span id="locksymbol">L</span>
+                  <!-- class="fa-solid fa-lock" -->
+                </div>
                 <div id="divClasses"></div>
               </div>
             </div>
