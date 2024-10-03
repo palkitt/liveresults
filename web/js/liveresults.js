@@ -377,12 +377,7 @@ var LiveResults;
 
           str += "</nowrap>";
           if (first) // Open class list if first time update
-          {
             $('#classColumnContent').removeClass('closed').addClass('open');
-            if (this.browserType == 1) // Select unpinned class list for mobile
-            { }
-          }
-
           $("#" + this.classesDiv).html(str);
           $("#numberOfRunnersTotal").html(data.numberOfRunners);
           $("#numberOfRunnersStarted").html(data.numberOfStartedRunners);
