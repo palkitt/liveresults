@@ -16,6 +16,7 @@ var Messages;
             this.currentTable = null;
             this.messagesData = null;
             this.showAllMessages = true;
+            this.timeOrdered = false;
             this.audioMute = true;
             this.lastNumberOfMessages = null;
             this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
@@ -27,7 +28,7 @@ var Messages;
 
         //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
         AjaxViewer.prototype.isMobile = function () {
-            if (navigator.userAgent.match(/iPad/i) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
+            if (navigator.userAgent.match(/iPad/i) || navigator.maxTouchPoints > 1)
                 return 2;
             if (navigator.userAgent.match(/Mobi/))
                 return 1;
@@ -121,26 +122,26 @@ var Messages;
                     var col = 0;
 
                     columns.push({
-                        "sTitle": "GroupTime", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "groupchanged",
+                        title: "GroupTime", visible: false, className: "dt-left", orderable: true, targets: [col++], data: "groupchanged",
                         "render": function (data, type, row) {
                             return data;
                         }
                     });
                     columns.push({
-                        "sTitle": "Time", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "changed",
+                        title: "Time", visible: false, className: "dt-left", orderable: true, targets: [col++], data: "changed",
                         "render": function (data, type, row) {
                             return data;
                         }
                     });
                     columns.push({
-                        "sTitle": "MessId", "bVisible": false, "sClass": "left", "bSortable": true, "aTargets": [col++], "mDataProp": "messid",
+                        title: "MessId", visible: false, className: "dt-left", orderable: true, targets: [col++], data: "messid",
                         "render": function (data, type, row) {
                             return data;
                         }
                     });
 
                     columns.push({
-                        "sTitle": "&#8470;", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
+                        title: "&#8470;", className: "dt-left", orderable: false, targets: [col++], data: "bib",
                         "render": function (data, type, row) {
                             if (type === 'display') {
                                 if (data < 0) // Relay
@@ -156,7 +157,7 @@ var Messages;
                     });
 
                     columns.push({
-                        "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
+                        title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
                         "render": function (data, type, row) {
                             if (type === 'display') {
                                 var ret = "";
@@ -171,7 +172,7 @@ var Messages;
                         }
                     });
                     columns.push({
-                        "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
+                        title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
                         "render": function (data, type, row) {
                             if (type === 'display') {
                                 if (data.length > _this.maxClubLength)
@@ -183,10 +184,10 @@ var Messages;
                                 return data;
                         }
                     });
-                    columns.push({ "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class" });
+                    columns.push({ title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class" });
 
                     columns.push({
-                        "sTitle": "Brikke", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
+                        title: "Brikke", className: "dt-left", orderable: false, targets: [col++], data: "ecard1",
                         "render": function (data, type, row) {
                             var ecardstr = "";
                             if (row.ecard1 > 0) {
@@ -199,10 +200,10 @@ var Messages;
                         }
                     });
 
-                    columns.push({ "sTitle": "Start", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "start" });
+                    columns.push({ title: "Start", className: "dt-left", orderable: false, targets: [col++], data: "start" });
 
                     columns.push({
-                        "sTitle": "Status", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
+                        title: "Status", className: "dt-left", orderable: false, targets: [col++], data: "status",
                         "render": function (data, type, row) {
                             if (row.dbid <= 0)
                                 return ""
@@ -216,7 +217,7 @@ var Messages;
                     });
 
                     columns.push({
-                        "sTitle": "Tidsp.", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "changed",
+                        title: "Tidsp.", className: "dt-left", orderable: false, targets: [col++], data: "changed",
                         "render": function (data, type, row) {
                             if (type === 'display')
                                 return "<div class=\"tooltip\">" + data.substring(11, 19) + "<span class=\"tooltiptext\">" + data.substring(2, 10) + "</span></div>";
@@ -227,7 +228,7 @@ var Messages;
 
                     var messageTitle = "Melding <a href=\"javascript:;\" onclick=\"mess.popupDialog('Generell melding',0)\">(generell)</a>";
                     columns.push({
-                        "sTitle": messageTitle, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "message",
+                        title: messageTitle, className: "dt-left", orderable: false, targets: [col++], data: "message",
                         "render": function (data, type, row) {
                             try {
                                 var jsonData = JSON.parse(data);
@@ -240,7 +241,7 @@ var Messages;
                     });
 
                     columns.push({
-                        "sTitle": "Utført", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "completed",
+                        title: "Utført", className: "dt-center", orderable: false, targets: [col++], data: "completed",
                         "render": function (data, type, row) {
                             if (data == 1)
                                 return '<input type="checkbox" onclick="mess.setMessageCompleted(' + row.messid + ',0);" checked>';
@@ -279,6 +280,11 @@ var Messages;
                 var lastID = null;
                 var lastChanged = null;
 
+                if (this.timeOrdered)
+                    table.order([1, 'desc']).draw();
+                else
+                    table.order([0, 'desc'], [1, 'desc'], [2, 'desc']).draw();
+
                 table.rows().every(function (rowIdx, tableLoop, rowLoop) {
                     var data = this.data();
                     if (data.completed) {
@@ -298,9 +304,10 @@ var Messages;
                     //if (data.dbid != lastID && Math.abs(data.dbid) != lastEcard1 && Math.abs(data.dbid) != lastEcard2 && data.groupchanged != lastChanged)
                     if (data.groupchanged != lastChanged && data.dbid != lastID)
                         $(table.row(rowIdx).node()).addClass('firstnonqualifier');
+                    else
+                        $(table.row(rowIdx).node()).removeClass('firstnonqualifier');
                     lastID = data.dbid;
                     lastChanged = data.groupchanged;
-
                 });
             };
         }
