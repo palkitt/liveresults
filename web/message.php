@@ -147,7 +147,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							<td style="text-align: center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
 							<td style="text-align: center"><b><?= $currentComp->CompName() ?> [<?= $currentComp->CompDate() ?>]</b></td>
 							<td style="text-align: center"><b><span id="clock"></span></b></td>
-							<td style="text-align: right"><b>Vis alle<input type="checkbox" checked="checked" onclick="mess.showAllMessages = !(mess.showAllMessages); mess.updateMessageMarking();"></span></b></td>
+							<td style="text-align: right"><b>Sorter tid<input type="checkbox" onclick="mess.timeOrdered = !(mess.timeOrdered); mess.updateMessageMarking();"></span></b></td>
+							<td style="text-align: right"><b>Alle<input type="checkbox" checked="checked" onclick="mess.showAllMessages = !(mess.showAllMessages); mess.updateMessageMarking();"></span></b></td>
 						</tr>
 					</table>
 				</td>
