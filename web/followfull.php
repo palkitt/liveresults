@@ -355,7 +355,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       $("#topBar").animate({
         'height': height
       }, 300);
-      $("#navUD").html("↑");
       topBar = true;
       res.autoUpdateLastPassings = true;
       res.updateLastPassings();
@@ -367,7 +366,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       }, 300);
       topBar = false;
       res.autoUpdateLastPassings = false;
-      $("#navUD").html("↓")
     }
   </script>
 </head>
@@ -481,10 +479,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
               <tr>
                 <td align="left">
-                  <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span id="navUD">↑</span></button>
-                  <button class="navbtn" onclick="changeFontSize(2)">&plus;</button>
-                  <button class="navbtn" onclick="changeFontSize(-2)">&minus;</button>
-                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'">☰</button>&nbsp;
+                  <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span class="fa-solid fa-arrows-up-down"></span></button>
+                  <button class="navbtn" onclick="changeFontSize(2)"><span class="fa-solid fa-plus"></span></button>
+                  <button class="navbtn" onclick="changeFontSize(-2)"><span class="fa-solid fa-minus"></span></button>
+                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'"><span class="fa-solid fa-bars"></span></button>&nbsp;
                   <b><span id="compname">loading comp name...</b>
                 </td>
               </tr>
@@ -512,14 +510,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <td align="left">
                 <div class="dropdownClass">
                   <button id="dropbtnClass" class="dropbtnClass">
-                    ☰&nbsp;
+                    <span class="fa-solid fa-bars"></span>&nbsp;
                     <?php if (!$isEmmaComp) { ?>
                       <span id="liveIndicator"></span>
                     <?php } ?>
-                    <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b>
+                    <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b></span>
                   </button>
                 </div>
-                </span>
               </td>
               <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
             </tr>
