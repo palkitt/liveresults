@@ -27,11 +27,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#555556">
 
-  <link href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.8/fc-5.0.3/fh-4.0.1/datatables.min.css">
   <link rel="stylesheet" type="text/css" href="css/style-liveres.css">
   <link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 
-  <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.3/fc-5.0.1/fh-4.0.1/datatables.min.js"></script>
+  <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.8/fc-5.0.3/fh-4.0.1/datatables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
 
