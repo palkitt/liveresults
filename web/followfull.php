@@ -407,6 +407,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   else if (in_array($compNo, array("10606")))  $image = "images/Blodslitet.jpg";
                   else if (in_array($compNo, array("10836", "10837", "10838")))  $image = "images/HL_logo_200.png";
                   else switch (strtolower($organizer)) {
+                    case "larvik ok":
+                      $image = "images/larvikok.png";
+                      break;
                     case "freidig":
                       $image = "images/Freidig60.png";
                       break;
