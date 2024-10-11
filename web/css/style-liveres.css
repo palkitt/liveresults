@@ -496,11 +496,7 @@ tr.yellow_row_fnq>td {
   color: black;
 }
 
-.legicon::before {
-  content: "\f01e ";
-  /* fa-arrow-rotate-left */
-  font-family: "Font Awesome 6 Free";
-  font-weight: 900;
+.legicon {
   font-size: 0.6em;
   vertical-align: 0.3em;
 }
