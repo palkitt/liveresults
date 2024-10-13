@@ -2447,7 +2447,7 @@ var LiveResults;
             return item.class === _this.curClassName;
           });
           this.lastClassHash = data.hash;
-          if (data.lastchanged[index].lastchanged > this.lastChanged) {
+          if (true || data.lastchanged[index].lastchanged > this.lastChanged) {
             this.checkForClassUpdate();
             return;
           }
@@ -2548,7 +2548,7 @@ var LiveResults;
               this.updateQualLimMarks(newData.results, newData.className);
 
             table.clear();
-            table.rows.add(newData.results).draw();
+            table.rows.add(newData.results);
 
             // Hide columns if split is BAD
             if (this.curClassSplits != null && this.curClassSplits.length > 0) {
