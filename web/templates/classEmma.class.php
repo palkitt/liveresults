@@ -1301,7 +1301,7 @@ class Emma
 					$haveAll = true;
 					$numComp = count($ar);
 					foreach ($ar as $c) {
-						if (--$numComp <= 0)
+						if ($numComp-- <= 0)
 							break;
 						if (!$val["c_" . $c]) {
 							$haveAll = false;
