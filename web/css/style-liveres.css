@@ -839,10 +839,14 @@ td.menuchosen a:hover {
   position: absolute;
   top: 3px;
   right: 3px;
-  color: lightgrey;
+  color: white;
   font-size: 1em;
   cursor: pointer;
   z-index: 102;
+}
+
+.lockunpinned {
+  color: lightgrey;
 }
 
 .container {

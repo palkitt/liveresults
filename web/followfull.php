@@ -311,7 +311,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       if (content.classList.contains('unpinned')) {
         content.classList.remove('unpinned');
         $('#classColumnContent').removeClass('unpinned');
-        $('#locksymbol').removeClass('fa-unlock').addClass('fa-lock');
+        $('#locksymbol').removeClass('fa-unlock').addClass('fa-lock').removeClass('lockunpinned');;
         if (typeof(Storage) !== "undefined")
           localStorage.setItem("classLock", true);
       } else {
@@ -320,7 +320,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         $('#locksymbol').removeClass('fa-lock').addClass('fa-unlock');
         if (typeof(Storage) !== "undefined")
           localStorage.setItem("classLock", false);
-        $('#locksymbol').removeClass('pinned').addClass('unpinned');
+        $('#locksymbol').removeClass('pinned').addClass('lockunpinned');
       }
       if ($.fn.dataTable.isDataTable('#divResults'))
         $('#divResults').DataTable().columns.adjust();
