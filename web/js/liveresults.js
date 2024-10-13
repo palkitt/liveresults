@@ -2447,7 +2447,7 @@ var LiveResults;
             return item.class === _this.curClassName;
           });
           this.lastClassHash = data.hash;
-          if (true || data.lastchanged[index].lastchanged > this.lastChanged) {
+          if (data.lastchanged[index].lastchanged > this.lastChanged) {
             this.checkForClassUpdate();
             return;
           }
