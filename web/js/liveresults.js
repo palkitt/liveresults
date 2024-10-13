@@ -115,9 +115,9 @@ var LiveResults;
         if (_this.currentTable == null || _this.curClassName == "startlist" || (_this.curClassName != null && _this.curClassName.includes("plainresults")))
           return;
         else {
-          _this.currentTable.api().fixedHeader.disable();
-          _this.currentTable.api().columns.adjust().draw();
-          _this.currentTable.api().fixedHeader.enable();
+          _this.currentTable.fixedHeader.disable();
+          _this.currentTable.columns.adjust().draw();
+          _this.currentTable.fixedHeader.enable();
         }
 
       });
@@ -212,7 +212,7 @@ var LiveResults;
     }
 
     // Update the classlist
-    AjaxViewer.prototype.updateClassList = function () {
+    AjaxViewer.prototype.updateClassList = function (first = false) {
       var _this = this;
       this.inactiveTimer += this.classUpdateInterval / 1000;
 
@@ -221,16 +221,16 @@ var LiveResults;
           url: this.apiURL,
           data: "comp=" + this.competitionId + "&method=getclasses&last_hash=" + this.lastClassListHash,
           success: function (data) {
-            _this.handleUpdateClassListResponse(data);
+            _this.handleUpdateClassListResponse(data, first);
           },
           error: function () {
-            _this.classUpdateTimer = setTimeout(function () { _this.updateClassList(); }, _this.classUpdateInterval);
+            _this.classUpdateTimer = setTimeout(function () { _this.updateClassList(first); }, _this.classUpdateInterval);
           },
           dataType: "json"
         });
       }
     };
-    AjaxViewer.prototype.handleUpdateClassListResponse = function (data) {
+    AjaxViewer.prototype.handleUpdateClassListResponse = function (data, first) {
       var _this = this;
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
@@ -375,7 +375,9 @@ var LiveResults;
             }
           }
 
-          str += "<hr></nowrap>";
+          str += "</nowrap>";
+          if (first) // Open class list if first time update
+            $('#classColumnContent').removeClass('closed').addClass('open');
           $("#" + this.classesDiv).html(str);
           $("#numberOfRunnersTotal").html(data.numberOfRunners);
           $("#numberOfRunnersStarted").html(data.numberOfStartedRunners);
@@ -512,7 +514,7 @@ var LiveResults;
 
           var spRef = this.splitRef(sp);
           var split = parseInt(data.results[j].splits[classSplits[spRef].code]);
-          var finishTime = (finishOK ? parseInt(data.results[j].result) : 8640000); // 24 h
+          var finishTime = (finishOK ? parseInt(data.results[j].result) : 360000000); // 1000 h
           if (isNaN(split) && laterSplitOKj[j]) { // Split does not exist and missing split detected
             statusN++;
             runnerOK[j] = false;
@@ -1010,9 +1012,8 @@ var LiveResults;
           var timeDiffCol = 0;
           var highlight = false;
           var age = 0;
-
-          var data = this.currentTable.fnGetData();
-          var table = this.currentTable.api();
+          var table = this.currentTable;
+          var data = table.data().toArray();
           var offset = 3 + (this.curClassHasBibs ? 1 : 0) + ((this.curClassIsUnranked || this.compactView && !this.curClassLapTimes) ? 1 : 0);
           var MDoffset = (this.curClassIsCourse ? 1 : 0) + (this.isMultiDayEvent && !this.compactView && !this.curClassIsUnranked ? -1 : 0) // Multiday offset
           var rank;
@@ -1082,43 +1083,37 @@ var LiveResults;
                 highlight = (age < this.highTime);
               }
 
-              if (highlight) {
+              var colFinish = offset + this.curClassNumSplits * 2;
+              if (highlight && (data[i].highlight == undefined || data[i].highlight == false)) {
+                data[i].highlight = true;
                 if (this.compactView || this.curClassIsRelay || this.curClassLapTimes) {
-                  if (!$(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell_sqr')) {
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).addClass('red_cell_sqr');
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).addClass('red_cell');
-                    if (this.isMultiDayEvent) {
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 3)).node()).addClass('red_cell_sqr');
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 5)).node()).addClass('red_cell');
-                    }
+                  $(table.cell(i, colFinish).node()).addClass('red_cell_sqr');
+                  $(table.cell(i, colFinish + 2).node()).addClass('red_cell');
+                  if (this.isMultiDayEvent) {
+                    $(table.cell(i, colFinish + 3).node()).addClass('red_cell_sqr');
+                    $(table.cell(i, colFinish + 5).node()).addClass('red_cell');
                   }
                 }
                 else {
-                  if (!$(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell')) {
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).addClass('red_cell');
-                    if (this.isMultiDayEvent)
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).addClass('red_cell');
-                  }
+                  $(table.cell(i, colFinish).node()).addClass('red_cell');
+                  if (this.isMultiDayEvent)
+                    $(table.cell(i, colFinish + 2).node()).addClass('red_cell');
                 }
               }
-              else // Not highlight
-              {
+              else if (!highlight && data[i].highlight == true) {
+                data[i].highlight = false;
                 if (this.compactView || this.curClassIsRelay || this.curClassLapTimes) {
-                  if ($(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell_sqr')) {
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).removeClass('red_cell_sqr');
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).removeClass('red_cell');
-                    if (this.isMultiDayEvent) {
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 3)).node()).removeClass('red_cell_sqr');
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 5)).node()).removeClass('red_cell');
-                    }
+                  $(table.cell(i, colFinish).node()).removeClass('red_cell_sqr');
+                  $(table.cell(i, colFinish + 2).node()).removeClass('red_cell');
+                  if (this.isMultiDayEvent) {
+                    $(table.cell(i, colFinish + 3).node()).removeClass('red_cell_sqr');
+                    $(table.cell(i, colFinish + 5).node()).removeClass('red_cell');
                   }
                 }
                 else {
-                  if ($(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).hasClass('red_cell')) {
-                    $(table.cell(i, (offset + this.curClassNumSplits * 2)).node()).removeClass('red_cell');
-                    if (this.isMultiDayEvent)
-                      $(table.cell(i, (offset + this.curClassNumSplits * 2 + 2)).node()).removeClass('red_cell');
-                  }
+                  $(table.cell(i, colFinish).node()).removeClass('red_cell');
+                  if (this.isMultiDayEvent)
+                    $(table.cell(i, colFinish + 2).node()).removeClass('red_cell');
                 }
               }
 
@@ -1133,7 +1128,6 @@ var LiveResults;
 
                 highlight = false;
                 if (this.EmmaServer && $(row).hasClass('new_result') && data[i].splits[this.curClassSplits[spRef].code] > 0) {
-                  $(table.cell(i, colNum).node()).addClass('red_cell');
                   highlightEmma = true;
                   highlight = true;
                 }
@@ -1141,10 +1135,14 @@ var LiveResults;
                   age = timeServer - data[i].splits[this.curClassSplits[spRef].code + "_changed"];
                   highlight = (age < this.highTime);
                 }
-                if (highlight && !$(table.cell(i, colNum).node()).hasClass('red_cell')) {
+
+                if (highlight && (data[i].splits[this.curClassSplits[spRef].code + "_highlight"] == undefined ||
+                  data[i].splits[this.curClassSplits[spRef].code + "_highlight"] == false)) {
+                  data[i].splits[this.curClassSplits[spRef].code + "_highlight"] = true;
                   $(table.cell(i, colNum).node()).addClass('red_cell');
                 }
-                else if (!highlight && $(table.cell(i, colNum).node()).hasClass('red_cell')) {
+                else if (!highlight && data[i].splits[this.curClassSplits[spRef].code + "_highlight"] == true) {
+                  data[i].splits[this.curClassSplits[spRef].code + "_highlight"] = false;
                   $(table.cell(i, colNum).node()).removeClass('red_cell');
                 }
               }
@@ -1171,7 +1169,7 @@ var LiveResults;
                   }
 
                   var timeDiffStr = "";
-                  var elapsedTimeStr = (this.curClassIsRelay ? "<i>⟳" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
+                  var elapsedTimeStr = (this.curClassIsRelay ? "<i><span class=\"legicon\">&#8635; </span>" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
                   if (this.curClassSplits == null || this.curClassSplits.length == 0) {
                     // No split controls
                     if (!this.curClassIsUnranked) {
@@ -1203,8 +1201,9 @@ var LiveResults;
                         else
                           elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\"> <i>&#10072;..&#10072;</i></span>";
                       }
-                      else
+                      else {
                         table.cell(i, 6 + MDoffset + (this.curClassHasBibs ? 1 : 0)).data(timeDiffStr);
+                      }
                     }
                     table.cell(i, 4 + MDoffset + (this.curClassHasBibs ? 1 : 0)).data(elapsedTimeStr);
 
@@ -1518,6 +1517,11 @@ var LiveResults;
         var dt = new Date();
         var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
         $.each(this.radioData, function (idx, passing) {
+          if (_this.currentTable != null && (passing.status == 1 || _this.messageBibs.indexOf(parseInt(passing.dbid)) > -1)) {
+            var row = _this.currentTable.row(idx).node();
+            $(row).addClass('dns');
+          }
+
           var hms = passing.passtime.split(':');
           var passTime = (+hms[0]) * 60 * 60 + (+hms[1]) * 60 + (+hms[2]);
           var age = time - passTime;
@@ -1548,9 +1552,9 @@ var LiveResults;
       {
         var scrollX = window.scrollX;
         var scrollY = window.scrollY;
-        var oldData = $.extend(true, [], this.currentTable.fnGetData());
-        this.currentTable.fnClearTable();
-        this.currentTable.fnAddData(this.radioData, true);
+        var oldData = $.extend(true, [], this.currentTable.data().toArray());
+        this.currentTable.clear();
+        this.currentTable.rows.add(this.radioData).draw();
         this.filterTable();
         window.scrollTo(scrollX, scrollY);
         this.animateTable(oldData, this.radioData, this.animTime);
@@ -1562,12 +1566,12 @@ var LiveResults;
           var columns = Array();
           var col = 0;
           if (!leftInForest) {
-            columns.push({ "sTitle": "Sted", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName" });
-            columns.push({ "sTitle": "Tidsp.", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "passtime" });
+            columns.push({ title: "Sted", className: "dt-left", orderable: false, targets: [col++], data: "controlName" });
+            columns.push({ title: "Tidsp.", className: "dt-left", orderable: false, targets: [col++], data: "passtime" });
           }
           columns.push({
-            "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
-            "render": function (data, type, row) {
+            title: "&#8470;", className: "dt-right", orderable: leftInForest, targets: [col++], data: "bib",
+            render: function (data, type, row) {
               if (type === 'display') {
                 if (data < 0) // Relay
                   return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
@@ -1581,8 +1585,8 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "runnerName",
-            "render": function (data, type, row) {
+            title: "Navn", className: "dt-left", orderable: leftInForest, targets: [col++], data: "runnerName",
+            render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxNameLength)
                   return _this.nameShort(data);
@@ -1594,8 +1598,8 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
-            "render": function (data, type, row) {
+            title: "Klubb", className: "dt-left", orderable: leftInForest, targets: [col++], data: "club",
+            render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxClubLength) {
                   return _this.clubShort(data);
@@ -1608,8 +1612,8 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
-            "render": function (data, type, row) {
+            title: "Klasse", className: "dt-left", orderable: leftInForest, targets: [col++], data: "class",
+            render: function (data, type, row) {
               var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
               link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
               return link;
@@ -1617,8 +1621,8 @@ var LiveResults;
           });
           if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
             columns.push({
-              "sTitle": "#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "rank",
-              "render": function (data, type, row) {
+              title: "#", className: "dt-right", orderable: false, targets: [col++], data: "rank",
+              render: function (data, type, row) {
                 var res = "";
                 if (row.rank >= 0) res += row.rank;
                 return res;
@@ -1628,12 +1632,12 @@ var LiveResults;
           var timeTitle = "Tid";
           if (leftInForest)
             timeTitle = "Starttid";
-          columns.push({ "sTitle": timeTitle, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "time" });
+          columns.push({ title: timeTitle, className: "dt-right", orderable: leftInForest, targets: [col++], data: "time" });
 
           if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
             columns.push({
-              "sTitle": "Diff", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "timeDiff",
-              "render": function (data, type, row) {
+              title: "Diff", className: "dt-right", orderable: false, targets: [col++], data: "timeDiff",
+              render: function (data, type, row) {
                 var res = "";
                 if (row.timeDiff >= 0)
                   res += "+" + _this.formatTime(row.timeDiff, 0, _this.showTenthOfSecond);
@@ -1644,8 +1648,8 @@ var LiveResults;
             });
           if (leftInForest) {
             columns.push({
-              "sTitle": "", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "status",
-              "render": function (data, type, row) {
+              title: "Sjekk", className: "dt-center", orderable: true, targets: [col++], data: "status",
+              render: function (data, type, row) {
                 var res = "";
                 if (row.checked == 1 || row.status == 9)
                   res += "&#9989; "; // Green checkmark
@@ -1655,8 +1659,8 @@ var LiveResults;
               }
             });
             columns.push({
-              "sTitle": "DNS", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "controlName",
-              "render": function (data, type, row) {
+              title: "DNS", className: "dt-left", orderable: false, targets: [col++], data: "controlName",
+              render: function (data, type, row) {
                 var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.runnerName;
                 var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + ",1);\">&#128172;</button>";
                 return link;
@@ -1664,19 +1668,21 @@ var LiveResults;
             });
           }
 
-          this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
+          this.currentTable = $('#' + this.radioPassingsDiv).DataTable({
             fixedHeader: true,
             paging: false,
-            lengthChange: false,
             searching: true,
-            info: false,
+            ordering: leftInForest,
             data: this.radioData,
-            ordering: false,
-            order: [[1, "desc"]],
-            columnDefs: columns,
+            layout: {
+              topStart: null,
+              topEnd: null,
+              bottomStart: null,
+              bottomEnd: null
+            },
+            order: (leftInForest ? [] : [[1, "desc"]]),
+            columns: columns,
             destroy: true,
-            dom: 'lrtip',
-            orderCellsTop: true
           });
         }
       }
@@ -1740,8 +1746,8 @@ var LiveResults;
         {
           var scrollX = window.scrollX;
           var scrollY = window.scrollY;
-          this.currentTable.fnClearTable();
-          this.currentTable.fnAddData(this.radioData, true);
+          this.currentTable.clear();
+          this.currentTable.rows.add(this.radioData).draw();
           this.filterTable();
           window.scrollTo(scrollX, scrollY);
         }
@@ -1751,8 +1757,8 @@ var LiveResults;
             var columns = Array();
             var col = 0;
             columns.push({
-              "sTitle": "&#8470;", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
-              "render": function (data, type, row) {
+              title: "&#8470;", className: "dt-right", orderable: false, targets: [col++], data: "bib",
+              render: function (data, type, row) {
                 if (type === 'display') {
                   if (data < 0) // Relay
                     return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
@@ -1766,8 +1772,8 @@ var LiveResults;
               }
             });
             columns.push({
-              "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
-              "render": function (data, type, row) {
+              title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
+              render: function (data, type, row) {
                 if (type === 'display') {
                   var name = (data.length > _this.maxNameLength ? _this.nameShort(data) : data);
                   return name;
@@ -1777,8 +1783,8 @@ var LiveResults;
               }
             });
             columns.push({
-              "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
-              "render": function (data, type, row) {
+              title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
+              render: function (data, type, row) {
                 if (type === 'display') {
                   var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);
                   return club;
@@ -1788,16 +1794,16 @@ var LiveResults;
               }
             });
             columns.push({
-              "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
-              "render": function (data, type, row) {
+              title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
+              render: function (data, type, row) {
                 var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
                 link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
                 return link;
               }
             });
             columns.push({
-              "sTitle": "Brikke", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
-              "render": function (data, type, row) {
+              title: "Brikke", className: "dt-left", orderable: false, targets: [col++], data: "ecard1",
+              render: function (data, type, row) {
                 var ecards = "";
                 if (row.ecard1 > 0) {
                   ecards += row.ecard1;
@@ -1817,16 +1823,16 @@ var LiveResults;
               }
             });
             columns.push({
-              "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
-              "render": function (data, type, row) {
+              title: "Starttid", className: "dt-right", orderable: false, targets: [col++], data: "start",
+              render: function (data, type, row) {
                 return data;
               }
             });
 
             var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
             columns.push({
-              "sTitle": message, "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
-              "render": function (data, type, row) {
+              title: message, className: "dt-left", orderable: false, targets: [col++], data: "start",
+              render: function (data, type, row) {
                 var defaultDNS = (row.dbid > 0 ? 1 : 0);
                 var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
                 var link = "<button onclick=\"res.popupDialog('" + name + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";
@@ -1834,7 +1840,7 @@ var LiveResults;
               }
             });
 
-            this.currentTable = $('#' + this.radioPassingsDiv).dataTable({
+            this.currentTable = $('#' + this.radioPassingsDiv).DataTable({
               fixedHeader: true,
               paging: false,
               lengthChange: false,
@@ -1876,8 +1882,7 @@ var LiveResults;
           var dt = new Date();
           this.updateStartClock(dt);
           var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
-          var data = this.currentTable.fnGetData();
-          var table = this.currentTable.api();
+          var data = this.currentTable.data().toArray();
 
           var callTime = parseInt($('#callTime')[0].value) * 60;
           var postTime = parseInt($('#postTime')[0].value) * 60;
@@ -1896,7 +1901,7 @@ var LiveResults;
 
           // *** Hide or highlight rows ***
           for (var i = 0; i < data.length; i++) {
-            var row = table.row(i).node();
+            var row = this.currentTable.row(i).node();
             $(row).hide();
 
             const showStatus = [1, 9, 10]; // DNS, Started, Entered
@@ -2053,7 +2058,6 @@ var LiveResults;
     };
     //Handle response for updating start list
     AjaxViewer.prototype.handleUpdateStartList = function (data) {
-
       var _this = this;
       // Insert data from query
       if (data != null && data.status == "OK" && data.runners != null) {
@@ -2061,14 +2065,14 @@ var LiveResults;
         var columns = Array();
         var col = 0;
         columns.push({
-          "sTitle": "St.no", "bVisible": false, "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
-          "render": function (data, type, row) {
+          title: "St.no", visible: false, className: "dt-right", orderable: false, targets: [col++], data: "bib",
+          render: function (data, type, row) {
             return Math.abs(data);
           }
         });
         columns.push({
-          "sTitle": "St.no", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib",
-          "render": function (data, type, row) {
+          title: "St.no", className: "dt-right", orderable: false, targets: [col++], data: "bib",
+          render: function (data, type, row) {
             if (type === 'display') {
               var res;
               if (data < 0) // Relay
@@ -2087,8 +2091,8 @@ var LiveResults;
           }
         });
         columns.push({
-          "sTitle": "Navn", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "name",
-          "render": function (data, type, row) {
+          title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
+          render: function (data, type, row) {
             if (type === 'display') {
               var res;
               if (data.length > _this.maxNameLength)
@@ -2105,8 +2109,8 @@ var LiveResults;
           }
         });
         columns.push({
-          "sTitle": "Klubb", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "club",
-          "render": function (data, type, row) {
+          title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
+          render: function (data, type, row) {
             if (type === 'display') {
               var res;
               if (data.length > _this.maxClubLength)
@@ -2123,8 +2127,8 @@ var LiveResults;
           }
         });
         columns.push({
-          "sTitle": "Klasse", "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "class",
-          "render": function (data, type, row) {
+          title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
+          render: function (data, type, row) {
             className = row.class;
             var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
             link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
@@ -2136,8 +2140,8 @@ var LiveResults;
         });
 
         columns.push({
-          "sTitle": "Starttid", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "start",
-          "render": function (data, type, row) {
+          title: "Starttid", className: "dt-right", orderable: false, targets: [col++], data: "start",
+          render: function (data, type, row) {
             if (type === 'display') {
               if (row.status == 1) // DNS
                 return ("<del>" + data + "</del>");
@@ -2150,8 +2154,8 @@ var LiveResults;
         });
 
         columns.push({
-          "sTitle": "Brikke#1", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "ecard1",
-          "render": function (data, type, row) {
+          title: "Brikke#1", className: "dt-center", orderable: false, targets: [col++], data: "ecard1",
+          render: function (data, type, row) {
             var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib / 100 | 0) + "-" + (-row.bib % 100) : row.bib) + ") ");
             var ecardStr = (row.ecard1 == 0 ? "-" : row.ecard1);
             var runnerName = bibStr + row.name;
@@ -2161,8 +2165,8 @@ var LiveResults;
           }
         });
         columns.push({
-          "sTitle": "Brikke#2", "sClass": "center", "bSortable": false, "aTargets": [col++], "mDataProp": "ecard2",
-          "render": function (data, type, row) {
+          title: "Brikke#2", className: "dt-center", orderable: false, targets: [col++], data: "ecard2",
+          render: function (data, type, row) {
             var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib / 100 | 0) + "-" + (-row.bib % 100) : row.bib) + ") ");
             var ecardStr = (row.ecard2 == 0 ? "-" : row.ecard2);
             var runnerName = bibStr + row.name;
@@ -2172,7 +2176,7 @@ var LiveResults;
           }
         });
 
-        this.currentTable = $('#startList').dataTable({
+        this.currentTable = $('#startList').DataTable({
           fixedHeader: true,
           paging: false,
           lengthChange: false,
@@ -2238,7 +2242,7 @@ var LiveResults;
 
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
-      var table = this.currentTable.api();
+      var table = this.currentTable;
       table.search($('#' + this.filterDiv)[0].value).draw();
     };
 
@@ -2262,10 +2266,10 @@ var LiveResults;
             + this.runnerList.runners[ind].start;
           this.highlightID = this.runnerList.runners[ind].dbid;
           if (this.curClassName == this.runnerList.runners[ind].class) {
-            var tableData = this.currentTable.fnGetData();
+            var tableData = this.currentTable.data().toArray();
             this.setHighlight(tableData, this.highlightID);
-            this.currentTable.fnClearTable();
-            this.currentTable.fnAddData(tableData, true);
+            this.currentTable.clear();
+            this.currentTable.rows.add(this.tableData).draw();
           }
           else
             this.chooseClass(this.runnerList.runners[ind].class);
@@ -2274,10 +2278,10 @@ var LiveResults;
       $('#searchRunner').html(runnerText);
       if (ind == -1 && this.highlightID != null) {
         this.highlightID = null;
-        var tableData = this.currentTable.fnGetData();
+        var tableData = this.currentTable.data().toArray();
         this.setHighlight(tableData, this.highlightID);
-        this.currentTable.fnClearTable();
-        this.currentTable.fnAddData(tableData, true);
+        this.currentTable.clear();
+        this.currentTable.rows.add(tableData).draw();
       }
     };
 
@@ -2381,7 +2385,6 @@ var LiveResults;
       if (error)
         window.alert("Feil input!");
     };
-
 
     // Check for updates in class
     AjaxViewer.prototype.checkForChanges = function () {
@@ -2517,6 +2520,7 @@ var LiveResults;
             $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
         }
         var _this = this;
+        var table = this.currentTable;
         if (newData.status == "OK") {
           clearTimeout(this.updatePredictedTimeTimer);
           if (this.animating) // Wait until animation is completed
@@ -2524,12 +2528,11 @@ var LiveResults;
             setTimeout(function () { _this.handleUpdateClassResults(newData, expTime); }, 100);
             return;
           }
-          if (this.currentTable != null) {
+          if (table != null) {
             $('#divInfoText').html(newData.infotext);
 
-            var oldResults = $.extend(true, [], this.currentTable.fnGetData());
-            var table = this.currentTable.api();
-            var posLeft = $(table.settings()[0].nScrollBody).scrollLeft();
+            var oldResults = $.extend(true, [], table.data().toArray());
+            var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
             var scrollX = window.scrollX;
             var scrollY = window.scrollY;
 
@@ -2544,8 +2547,8 @@ var LiveResults;
             if (this.qualLimits != null && this.qualLimits.length > 0)
               this.updateQualLimMarks(newData.results, newData.className);
 
-            this.currentTable.fnClearTable();
-            this.currentTable.fnAddData(newData.results, true);
+            table.clear();
+            table.rows.add(newData.results);
 
             // Hide columns if split is BAD
             if (this.curClassSplits != null && this.curClassSplits.length > 0) {
@@ -2557,10 +2560,9 @@ var LiveResults;
             }
 
             this.updatePredictedTimes(true); // Insert times only
-            $(table.settings()[0].nScrollBody).scrollLeft(posLeft);
+            $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
             window.scrollTo(scrollX, scrollY);
-
-            var newResults = this.currentTable.fnGetData();
+            var newResults = table.data().toArray();
             this.animateTable(oldResults, newResults, this.animTime);
 
             if (!newData.lastChanged)
@@ -2634,9 +2636,8 @@ var LiveResults;
           return;
         }
 
-        var tableDT = this.currentTable.api();
-        var order = tableDT.order();
-        var numCol = tableDT.settings().columns()[0].length;
+        var order = this.currentTable.order();
+        var numCol = this.currentTable.settings().columns()[0].length;
         if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
           if (predRank)
             this.startPredictedTimeTimer();
@@ -2645,11 +2646,17 @@ var LiveResults;
 
         // Prepare for animation
         this.animating = true;
+        // Turn off fixed header if not already applied
+        if ($('div[class^="dtfh-floatingparent dtfh-floatingparent-head"]').length === 0)
+          this.currentTable.fixedHeader.disable();
+
         var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
 
-        // Set each td's width. Subtract 9 for the padding width of the td
+        // Set each td's width
         var column_widths = new Array();
-        $(table).find('tr:first-child th').each(function () { column_widths.push($(this)[0].getBoundingClientRect().width - 9); });
+        $(table).find('tr:first-child th').each(function () {
+          column_widths.push($(this)[0].getBoundingClientRect().width);
+        });
         $(table).find('tr td, tr th').each(function () { $(this).css('min-width', column_widths[$(this).index()]); });
 
         // Set table height and width
@@ -2659,7 +2666,7 @@ var LiveResults;
         var rowPosArray = new Array();
         var rowIndArray = new Array();
         var ind = -1; // -1:header; 0:first data
-        var tableTop = (isResTab ? $(table)[0].getBoundingClientRect().top : -window.scrollY);
+        var tableTop = $(table)[0].getBoundingClientRect().top;
         $(table).find('tr').each(function () {
           var rowPos = $(this)[0].getBoundingClientRect().top - tableTop;
           $(this).css('top', rowPos);
@@ -2670,12 +2677,11 @@ var LiveResults;
           ind++;
         });
         $(table).height(height).width('100%');
-        if (isResTab) // Set fixed table layout to avoid slider 
-          $(table).css({ 'table-layout': 'fixed' });
+        $(table).css({ 'table-layout': 'fixed' });
 
         // Set table cells position to absolute
         $(table).find('tbody tr').each(function () {
-          $(this).css('position', 'absolute').css('z-index', '91');
+          $(this).css('position', 'absolute').css('z-index', '-9');;
         });
 
         // Animation
@@ -2685,21 +2691,47 @@ var LiveResults;
           var oldPos = rowPosArray[oldInd + 1]; // First entry is header
           var newPos = rowPosArray[newInd + 1];
           var row = $(table).find("tbody tr").eq(rowIndArray[newInd + 1]);
-          var oldBkCol = (oldInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
-          var newBkCol = (newInd % 2 == 0 ? '#E6E6E6' : '#FFFFFF');
+          var oldOpacity = (oldInd % 2 == 0 ? 0.08 : 0);
+          var newOpacity = (newInd % 2 == 0 ? 0.08 : 0);
           var zind;
           if (predRank) // Update from predictions of running times         
-            zind = (newInd == 0 ? 96 : (newInd > oldInd ? 95 : 93));
+            zind = (newInd == 0 ? -4 : (newInd > oldInd ? -5 : -7));
           else // Updates from new data from server
-            zind = (updProg[newInd] ? 95 : 93);
+            zind = (updProg[newInd] ? -5 : -7);
 
-          $(row).css('top', oldPos).css('z-index', zind);
-          $(row).velocity({ translateZ: 0, top: newPos }, { duration: animTime });
-          $(row).find('td').each(function () {
-            $(this).css('background-color', oldBkCol);
-            $(this).velocity({ backgroundColor: newBkCol }, { duration: animTime });
+          $(row).css('z-index', zind);
+
+          var translateOld = "translate3d(0," + (oldPos - newPos) + "px,0)";
+          var translateNew = "translate3d(0,0,0)";
+
+          // Set the initial position instantly
+          $(row).css({
+            'transition': 'none',
+            'transform': translateOld
+          });
+          // Force a reflow to ensure the browser registers the initial position
+          $(row)[0].offsetHeight;
+          // Set the new position with a transition
+          $(row).css({
+            'transition': 'transform ' + _this.animTime + 'ms',
+            'transform': translateNew,
           });
 
+          $(row).find('td').each(function () {
+            if (Object.keys(lastInd).length < 10) { // Drop animation of background color for large updates
+              $(this).css('box-shadow', 'inset 0 0 0 9999px rgba(0, 0, 0, ' + oldOpacity + ')');
+              $(this)[0].offsetHeight;
+              $(this).css({
+                'transition': 'box-shadow ' + _this.animTime + 'ms',
+                'box-shadow': 'inset 0 0 0 9999px rgba(0, 0, 0, ' + newOpacity + ')'
+              });
+            }
+            else
+              $(this).css({
+                'transition': 'none',
+                'box-shadow': 'inset 0 0 0 9999px rgba(0, 0, 0, ' + newOpacity + ')'
+              });
+          });
         }
         setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
       }
@@ -2709,13 +2741,17 @@ var LiveResults;
     // Reset settings after animation is completed
     AjaxViewer.prototype.endAnimateTable = function (table, predRank) {
       $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
-      $(table).find('tr').each(function () { $(this).css('position', ''); });
+      $(table).find('tr').each(function () {
+        $(this).css('position', '');
+      });
       $(table).height(0).width('100%');
       $(table).css({ 'table-layout': 'auto' });
       this.animating = false;
+      if (!this.currentTable.fixedHeader.enabled()) {
+        this.currentTable.fixedHeader.enable();
+      }
       if (predRank)
         this.startPredictedTimeTimer();
-
     };
 
     //Check for update in clubresults
@@ -2760,10 +2796,9 @@ var LiveResults;
       if (data.status == "OK" && this.currentTable != null) {
         var numberOfRunners = data.results.length;
         $('#numberOfRunners').html(numberOfRunners);
-        var posLeft = $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft();
+        var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
         var scrollX = window.scrollX;
         var scrollY = window.scrollY;
-        this.currentTable.fnClearTable();
         if (data && data.results) {
           $.each(data.results, function (idx, res) {
             res.placeSortable = res.place;
@@ -2775,11 +2810,11 @@ var LiveResults;
               res.placeSortable = 0;
           });
         }
-        this.currentTable.fnAddData(data.results, true);
-        $(this.currentTable.api().settings()[0].nScrollBody).scrollLeft(posLeft);
+        this.currentTable.clear();
+        this.currentTable.rows.add(data.results).draw();
+        $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
         window.scrollTo(scrollX, scrollY)
         this.lastClubHash = data.hash;
-        this.currentTable.api().columns.adjust().draw();
       }
       if (_this.isCompToday())
         this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
@@ -2792,12 +2827,15 @@ var LiveResults;
       clearTimeout(this.resUpdateTimeout);
       clearTimeout(this.updatePredictedTimeTimer);
       this.inactiveTimer = 0;
-      if (this.currentTable != null) {
+      if (this.currentTable != null && DataTable.isDataTable('#' + this.resultsDiv)) {
         try {
-          this.currentTable.api().destroy();
+          this.currentTable.destroy();
         }
         catch (e) { }
       }
+
+      // Remove dropdown class list
+      $('#classColumnContent').removeClass('open').addClass('closed');
 
       $('#divResults').html('');
       this.curClassName = className;
@@ -2984,8 +3022,6 @@ var LiveResults;
             res += "</table></td></tr>"
           $('#' + this.resultsDiv).html(res);
           $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
-          if (this.browserType == 1)
-            $('#switchNavClick').trigger('click');
         }
         else if (data.className == "startlist") {
           $('#updateinterval').html("- ");
@@ -3037,8 +3073,6 @@ var LiveResults;
           var NumRunText = $("#numberOfRunnersTotal").html();
           NumRunText += "</br><a href=\"javascript:res.raceSplitterDialog();\">Lag RaceSplitter fil</a>";
           $('#numberOfRunners').html(NumRunText);
-          if (this.browserType == 1)
-            $('#switchNavClick').trigger('click');
         }
         else if (data.results != null && data.results.length > 0) {
           $('#updateinterval').html(this.updateInterval / 1000);
@@ -3056,6 +3090,9 @@ var LiveResults;
           this.curClassIsUnranked = !(this.curClassSplits.every(function check(el) { return el.code != "-999"; })) || !(data.results.every(function check(el) { return el.status != 13; }));
           this.curClassHasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
           this.curClassIsCourse = (data.results[0].class != undefined);
+          this.curClassIsMassStart = (this.checkForMassStart(data) || this.curClassIsRelay);
+          this.compactView = !(this.curClassIsRelay || this.curClassLapTimes || this.isMultiDayEvent);
+          var fullView = !this.compactView;
 
           if (this.curClassSplits == null)
             this.curClassNumSplits = 0;
@@ -3065,9 +3102,6 @@ var LiveResults;
             this.curClassNumSplits = (this.curClassSplits.length - 1) / 2;
           else
             this.curClassNumSplits = this.curClassSplits.length;
-
-          this.compactView = !(this.curClassIsRelay || this.curClassLapTimes || this.isMultiDayEvent);
-          this.curClassIsMassStart = (this.checkForMassStart(data) || this.curClassIsRelay);
 
           this.curClassSplitsOK = new Array(this.curClassNumSplits).fill(true);
           this.checkRadioControls(data);
@@ -3084,37 +3118,30 @@ var LiveResults;
 
           var columns = Array();
           var col = 0;
-          var fullView = !this.compactView;
           var isRelayClass = this.relayClasses.includes(data.className);
           var isSprintHeat = (data.className.includes('| Kvart') || data.className.includes('| Semi') || data.className.includes('| Finale'));
 
-          const vertLine = "<span class=\"hideplace\">&#10072;</span>";
-
           columns.push({
-            "sTitle": "#",
-            "sClass": "right",
-            "bSortable": false,
-            "aTargets": [col++],
-            "mDataProp": "place",
-            "width": (_this.fixedTable ? "5%" : null),
-            "render": function (data, type, row) {
-              if (type === 'display' && data != "")
-                return vertLine + data;
-              else
-                return data;
+            title: "#",
+            className: "dt-right",
+            orderable: false,
+            targets: [col++],
+            data: "place",
+            width: (_this.fixedTable ? "5%" : null),
+            render: function (data, type, row) {
+              return data;
             }
-
           });
 
           if (isRelayClass) {
             if (!haveSplitControls || !fullView)
               columns.push({
-                "sTitle": this.resources["_CLUB"],
-                "sClass": "left",
-                "bSortable": false,
-                "aTargets": [col++],
-                "mDataProp": "club",
-                "render": function (data, type, row) {
+                title: this.resources["_CLUB"],
+                className: "dt-left",
+                orderable: false,
+                targets: [col++],
+                data: "club",
+                render: function (data, type, row) {
                   var param = row.club;
                   var clubShort = row.club;
                   if (param && param.length > 0) {
@@ -3122,17 +3149,16 @@ var LiveResults;
                     if (clubShort.length > _this.maxClubLength)
                       clubShort = _this.clubShort(clubShort);
                   }
-                  return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>" + vertLine;
+                  return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 }
               });
             columns.push({
-              "sTitle": (haveSplitControls && fullView) ? this.resources["_CLUB"] + " / " + this.resources["_NAME"] : this.resources["_NAME"],
-              "sClass": "left",
-              "responsivePriority": (haveSplitControls && fullView) ? 1 : 10000,
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "name",
-              "render": function (data, type, row) {
+              title: (haveSplitControls && fullView) ? this.resources["_CLUB"] + " / " + this.resources["_NAME"] : this.resources["_NAME"],
+              className: "dt-left",
+              orderable: false,
+              targets: [col++],
+              data: "name",
+              render: function (data, type, row) {
                 var param = row.club;
                 var clubShort = row.club;
                 var nameShort = row.name;
@@ -3144,7 +3170,7 @@ var LiveResults;
                     clubShort = _this.clubShort(clubShort);
                 }
                 var clubLink = "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
-                return (haveSplitControls && fullView ? clubLink + vertLine + "<br/>" + nameShort : nameShort + vertLine);
+                return (haveSplitControls && fullView ? clubLink + "<br/>" + nameShort : nameShort);
               }
             });
           }
@@ -3152,28 +3178,28 @@ var LiveResults;
           {
             if (!(haveSplitControls || _this.isMultiDayEvent) || _this.curClassIsUnranked || (!fullView && !_this.curClassLapTimes))
               columns.push({
-                "sTitle": this.resources["_NAME"],
-                "sClass": "left",
-                "bSortable": false,
-                "aTargets": [col++],
-                "mDataProp": "name",
-                "width": (_this.fixedTable ? "30%" : null),
-                "render": function (data, type, row) {
+                title: this.resources["_NAME"],
+                className: "dt-left",
+                orderable: false,
+                targets: [col++],
+                data: "name",
+                width: (_this.fixedTable ? "30%" : null),
+                render: function (data, type, row) {
                   if (type === 'display')
-                    return (data.length > _this.maxNameLength ? _this.nameShort(data) : data) + vertLine;
+                    return (data.length > _this.maxNameLength ? _this.nameShort(data) : data);
                   else
                     return data;
                 }
               });
 
             columns.push({
-              "sTitle": ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
-              "sClass": "left",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "club",
-              "width": (_this.fixedTable ? "20%" : null),
-              "render": function (data, type, row) {
+              title: ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
+              className: "dt-left",
+              orderable: false,
+              targets: [col++],
+              data: "club",
+              width: (_this.fixedTable ? "20%" : null),
+              render: function (data, type, row) {
                 var param = row.club;
                 var clubShort = row.club;
                 if (param && param.length > 0) {
@@ -3183,19 +3209,19 @@ var LiveResults;
                 }
                 var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 if ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes))
-                  return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + vertLine + "<br/>" + link;
+                  return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
                 else if (_this.fixedTable)
-                  return clubShort + vertLine;
+                  return clubShort;
                 else
-                  return link + vertLine;
+                  return link;
               }
             });
           }
 
           if (this.curClassIsCourse) {
             columns.push({
-              "sTitle": this.resources["_CLASS"], "sClass": "left", "aTargets": [col++], "mDataProp": "class",
-              "render": function (data, type, row) {
+              title: this.resources["_CLASS"], className: "dt-left", targets: [col++], data: "class",
+              render: function (data, type, row) {
                 var classRaw = row["class"];
                 var classDisplay = _this.shortClassName(classRaw);
                 if (classRaw && classRaw.length > 0)
@@ -3207,15 +3233,15 @@ var LiveResults;
 
           if (_this.curClassHasBibs) {
             columns.push({
-              "sTitle": "&#8470",
-              "sClass": "right",
-              "bSortable": !_this.fixedTable,
-              "aTargets": [col++],
-              "mDataProp": "bib",
-              "width": (_this.fixedTable ? "5%" : null),
-              "render": function (data, type, row) {
+              title: "&#8470",
+              className: "dt-right",
+              orderable: !_this.fixedTable,
+              targets: [col++],
+              data: "bib",
+              width: (_this.fixedTable ? "5%" : null),
+              render: function (data, type, row) {
                 if (type === 'display') {
-                  var txt = vertLine;
+                  var txt = "";
                   if (data < 0)       // Relay
                     txt += "<span class=\"bib\">" + (-data / 100 | 0) + "</span>";
                   else if (data > 0)  // Ordinary
@@ -3229,16 +3255,15 @@ var LiveResults;
           }
 
           columns.push({
-            "sTitle": this.resources["_START"],
-            "sClass": "right",
-            "bSortable": !_this.fixedTable,
-            "sType": "numeric",
-            "aDataSort": [col],
-            "aTargets": [col],
-            "bUseRendered": false,
-            "mDataProp": "start",
-            "width": (_this.fixedTable ? "10%" : null),
-            "render": function (data, type, row) {
+            title: this.resources["_START"],
+            className: "dt-right",
+            orderable: !_this.fixedTable,
+            type: "numeric",
+            orderData: [col],
+            targets: [col],
+            data: "start",
+            width: (_this.fixedTable ? "10%" : null),
+            render: function (data, type, row) {
               if (row.start == "")
                 return "";
               else if (type == "sort")
@@ -3260,15 +3285,15 @@ var LiveResults;
                       txt += "<span class=\"besttime\">";
                     else
                       txt += "<span>";
-                    txt += "+" + _this.formatTime(Math.max(0, row.splits["0_timeplus"]), 0, _this.showTenthOfSecond) + place + "</span><br />";
+                    txt += "+" + _this.formatTime(Math.max(0, row.splits["0_timeplus"]), 0, _this.showTenthOfSecond) + place + "</span><br/>";
                   }
-                  txt += vertLine + "<span>";
+                  txt += "<span>";
                   if (!fullView && row.splits["0_place"] >= 1)
                     txt += place;
                   txt += _this.formatTime(row.start, 0, false, true, true, true) + "</span>";
                 }
                 else
-                  txt += vertLine + _this.formatTime(row.start, 0, false, true, true, true);
+                  txt += _this.formatTime(row.start, 0, false, true, true, true);
                 return txt;
               }
             }
@@ -3284,135 +3309,138 @@ var LiveResults;
                 if (splitName.length >= 10)
                   splitName = splitName.replace("Mellomtid", "M.tid");
 
-                columns.push(
-                  {
-                    "sTitle": splitName,
-                    "bVisible": _this.curClassSplitsOK[refSp],
-                    "sClass": "right",
-                    "bSortable": !_this.curClassIsUnranked,
-                    "sType": "numeric",
-                    "aDataSort": [col + 1, col],
-                    "aTargets": [col],
-                    "bUseRendered": false,
-                    "mDataProp": "splits." + value.code,
-                    "render": function (data, type, row) {
-                      if (isNaN(parseInt(data)))
-                        return data;
-                      else if (type == "sort")
-                        return parseInt(data);
+                columns.push({
+                  title: splitName,
+                  visible: _this.curClassSplitsOK[refSp],
+                  className: "dt-right timePlaceWidth",
+                  orderable: !_this.curClassIsUnranked,
+                  type: "numeric",
+                  orderData: [col + 1, col],
+                  targets: [col],
+                  data: "splits." + value.code,
+                  render: function (data, type, row) {
+                    if (isNaN(parseInt(data)))
+                      return data;
+                    else if (type == "sort")
+                      return parseInt(data);
+                    else {
+                      if (!row.splits[value.code + "_place"])
+                        return "";
                       else {
-                        if (!row.splits[value.code + "_place"])
-                          return "";
-                        else {
-                          var txt = "";
-                          var place = "";
-                          if (!row.splits[value.code + "_estimate"] && row.splits[value.code + "_place"] == 1)
-                            place += "<span class=\"bestplace\"> ";
-                          else
-                            place += "<span class=\"place\"> ";
-                          if (_this.curClassNumberOfRunners >= 10 && (row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-" || row.splits[value.code + "_place"] == "="))
-                            place += "&numsp;"
-                          place += "&#10072;" + row.splits[value.code + "_place"] + "&#10072;</span>";
+                        var txt = "";
+                        var place = "";
+                        if (!row.splits[value.code + "_estimate"] && row.splits[value.code + "_place"] == 1)
+                          place += "<span class=\"bestplace\"> ";
+                        else
+                          place += "<span class=\"place\"> ";
+                        if (_this.curClassNumberOfRunners >= 10 && (row.splits[value.code + "_place"] < 10 || row.splits[value.code + "_place"] == "-" || row.splits[value.code + "_place"] == "="))
+                          place += "&numsp;"
+                        place += "&#10072;" + row.splits[value.code + "_place"] + "&#10072;</span>";
 
-                          // First line
-                          if ((!fullView || _this.curClassIsRelay) && (row.splits[value.code + "_place"] != 1) && !_this.curClassIsUnranked && !_this.curClassLapTimes && (value.code > 0))
-                          // Compact view or relay view, all but first place
-                          {
-                            txt += "<div class=\"";
-                            if (row.splits[value.code + "_estimate"])
-                              txt += "estimate ";
-                            txt += "tooltip\">+" + _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond)
-                              + place + "<span class=\"tooltiptext\">"
-                              + _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond) + "</span></div>";
-                          }
-                          else
-                          // Ordinary passing or first place at passing for relay (drop place if code is negative - unranked)
-                          {
-                            if (row.splits[value.code + "_estimate"])
-                              if (row.splits[value.code + "_place"] == 1 && value.code > 0)
-                                txt += "<span class=\"estimatebest\">";
-                              else
-                                txt += "<span class=\"estimate\">";
-                            else if (row.splits[value.code + "_place"] == 1 && value.code > 0)
-                              txt += "<span class=\"besttime\">";
+                        // First line
+                        if ((!fullView || _this.curClassIsRelay) && (row.splits[value.code + "_place"] != 1) && !_this.curClassIsUnranked && !_this.curClassLapTimes && (value.code > 0))
+                        // Compact view or relay view, all but first place
+                        {
+                          txt += "<div class=\"";
+                          if (row.splits[value.code + "_estimate"])
+                            txt += "estimate ";
+                          txt += "tooltip\">+" + _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond)
+                            + place + "<span class=\"tooltiptext\">"
+                            + _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond) + "</span></div>";
+                        }
+                        else
+                        // Ordinary passing or first place at passing for relay (drop place if code is negative - unranked)
+                        {
+                          if (row.splits[value.code + "_estimate"])
+                            if (row.splits[value.code + "_place"] == 1 && value.code > 0)
+                              txt += "<span class=\"estimatebest\">";
                             else
-                              txt += "<span>";
-                            txt += _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond);
-                            if (value.code > 0)
-                              txt += place;
-                            txt += "</span>";
-                          }
-                          // Second line
-                          if ((fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
-                          // Relay passing, second line with leg time to passing 
-                          {
-                            txt += "<br/><span class=";
-                            var legplace = "";
+                              txt += "<span class=\"estimate\">";
+                          else if (row.splits[value.code + "_place"] == 1 && value.code > 0)
+                            txt += "<span class=\"besttime\">";
+                          else
+                            txt += "<span>";
+                          txt += _this.formatTime(row.splits[value.code], 0, _this.showTenthOfSecond);
+                          if (value.code > 0)
+                            txt += place;
+                          txt += "</span>";
+                        }
+                        // Second line
+                        if ((fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
+                        // Relay passing, second line with leg time to passing 
+                        {
+                          txt += "<br/><span class=";
+                          var legplace = "";
 
-                            if (row.splits[value.code + 100000 + "_estimate"]) {
-                              if (row.splits[(value.code + 100000) + "_place"] == 1) {
-                                txt += "\"estimatebest\">";
-                                legplace += "<span class=\"place\"> ";
-                              }
-                              else {
-                                txt += "\"estimate\">";
-                                legplace += "<span class=\"place\"> ";
-                              }
-                            }
-                            else if (row.splits[(value.code + 100000) + "_place"] == 1) {
-                              txt += "\"besttime\">";
-                              legplace += "<span class=\"bestplace\"> ";
-                            }
-                            else {
-                              txt += "\"legtime\">";
+                          if (row.splits[value.code + 100000 + "_estimate"]) {
+                            if (row.splits[(value.code + 100000) + "_place"] == 1) {
+                              txt += "\"estimatebest\">";
                               legplace += "<span class=\"place\"> ";
                             }
+                            else {
+                              txt += "\"estimate\">";
+                              legplace += "<span class=\"place\"> ";
+                            }
+                          }
+                          else if (row.splits[(value.code + 100000) + "_place"] == 1) {
+                            txt += "\"besttime\">";
+                            legplace += "<span class=\"bestplace\"> ";
+                          }
+                          else {
+                            txt += "\"legtime\">";
+                            legplace += "<span class=\"place\"> ";
+                          }
 
-                            if (_this.curClassNumberOfRunners >= 10 && (row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-"))
-                              legplace += "&numsp;"
-                            legplace += "&#10072;" + row.splits[(value.code + 100000) + "_place"] + "&#10072;</span>";
-                            if (_this.curClassIsRelay)
-                              txt += "⟳" + _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
-                            else
-                              txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
-                            txt += legplace + "</span>";
-                          }
-                          else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !_this.curClassIsRelay && (value.code > 0) && row.splits[value.code + "_place"] > 1)
-                          // Second line for ordinary passing (drop if code is negative - unranked)
-                          {
-                            txt += "<br/><span class=";
-                            if (row.splits[value.code + "_estimate"])
-                              txt += "\"estimate\">+";
-                            else
-                              txt += "\"plustime\">+";
-                            txt += _this.formatTime(Math.abs(row.splits[value.code + "_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
-                            if (_this.curClassNumberOfRunners >= 10)
-                              txt += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
-                            else
-                              txt += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
-                          }
+                          if (_this.curClassNumberOfRunners >= 10 && (row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-"))
+                            legplace += "&numsp;"
+                          legplace += "&#10072;" + row.splits[(value.code + 100000) + "_place"] + "&#10072;</span>";
+                          if (_this.curClassIsRelay)
+                            txt += "<span class=\"legicon\">&#8635; </span>" + _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
+                          else
+                            txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
+                          txt += legplace + "</span>";
                         }
-                        return txt;
+                        else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !_this.curClassIsRelay && (value.code > 0) && row.splits[value.code + "_place"] > 1)
+                        // Second line for ordinary passing (drop if code is negative - unranked)
+                        {
+                          txt += "<br/><span class=";
+                          if (row.splits[value.code + "_estimate"])
+                            txt += "\"estimate\">+";
+                          else
+                            txt += "\"plustime\">+";
+                          txt += _this.formatTime(Math.abs(row.splits[value.code + "_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
+                          if (_this.curClassNumberOfRunners >= 10)
+                            txt += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
+                          else
+                            txt += "<span class=\"hideplace\"> <i>&#10072;..&#10072;</i></span>";
+                        }
                       }
+                      return txt;
                     }
-                  });
+                  }
+                });
                 col++;
-                columns.push({ "sTitle": value.name + "_Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "splits." + value.code + "_status" });
+                columns.push({
+                  title: value.name + "_Status",
+                  visible: false,
+                  targets: [col++],
+                  type: "numeric",
+                  data: "splits." + value.code + "_status"
+                });
               }
             });
           }
 
           columns.push({
-            "sTitle": this.resources["_CONTROLFINISH"],
-            "sClass": "right",
-            "sType": "numeric",
-            "aDataSort": [col + 1, col, 0],
-            "aTargets": [col],
-            "bUseRendered": false,
-            "bSortable": !_this.fixedTable,
-            "mDataProp": "result",
-            "width": (_this.fixedTable ? "10%" : null),
-            "render": function (data, type, row) {
+            title: this.resources["_CONTROLFINISH"],
+            className: "dt-right timePlaceWidth",
+            type: "numeric",
+            orderData: [col + 1, col, 0],
+            targets: [col],
+            orderable: !_this.fixedTable,
+            data: "result",
+            width: (_this.fixedTable ? "10%" : null),
+            render: function (data, type, row) {
               if (isNaN(parseInt(data)))
                 return data;
               else if (type == "sort")
@@ -3459,7 +3487,7 @@ var LiveResults;
                     legplace += "<span class=\"place\"> ";
                   }
                   if (_this.curClassIsRelay)
-                    res += "⟳";
+                    res += "<span class=\"legicon\">&#8635; </span>";
                   if (_this.curClassNumberOfRunners >= 10 && (row.splits["999_place"] < 10 || row.splits["999_place"] == "-"))
                     legplace += "&numsp;"
                   legplace += "&#10072;" + row.splits["999_place"] + "&#10072;</span>";
@@ -3471,21 +3499,27 @@ var LiveResults;
           });
 
           col++;
-          columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
+          columns.push({
+            title: "Status",
+            visible: false,
+            targets: [col++],
+            type: "numeric",
+            data: "status"
+          });
 
           if (!(haveSplitControls || _this.isMultiDayEvent) || !fullView || _this.curClassLapTimes) {
             columns.push({
-              "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
-              "bVisible": (!isSprintHeat || _this.showTimesInSprint) && (!_this.curClassIsUnranked || _this.fixedTable),
-              "sClass": "right",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "timeplus",
-              "width": (this.fixedTable ? "10%" : null),
-              "render": function (data, type, row) {
+              title: "",
+              visible: (!isSprintHeat || _this.showTimesInSprint) && (!_this.curClassIsUnranked || _this.fixedTable),
+              className: "dt-right timeWidth",
+              orderable: false,
+              targets: [col++],
+              data: "timeplus",
+              width: (this.fixedTable ? "10%" : null),
+              render: function (data, type, row) {
                 if (isNaN(parseInt(data)))
                   return data;
-                var res = vertLine;
+                var res = "";
                 if (row.status == 0 && row.timeplus > 0) {
                   res += "<span class=\"plustime\">+";
                   res += _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
@@ -3497,20 +3531,20 @@ var LiveResults;
           else
             if (_this.curClassIsRelay && fullView) {
               columns.push({
-                "sTitle": "Total<br/><span class=\"legtime\">⟳Etp</span>",
-                "sClass": "right",
-                "bSortable": false,
-                "aTargets": [col++],
-                "mDataProp": "timeplus",
-                "render": function (data, type, row) {
+                title: "Total<br/><span class=\"legtime\"><span class=\"legicon\">&#8635; </span>Etp</span>",
+                className: "dt-right",
+                orderable: false,
+                targets: [col++],
+                data: "timeplus",
+                render: function (data, type, row) {
                   if (isNaN(parseInt(data)))
                     return data;
-                  var res = vertLine;
+                  var res = "";
                   if (row.status == 0) {
                     res += "<span>";
                     if (row.place > 1)
                       res += "+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond);
-                    res += "</span><br />" + vertLine;
+                    res += "</span><br/>";
                     if (row.splits["999_place"] > 1)
                       res += "<span class=\"legtime\">+" + _this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
                   }
@@ -3521,14 +3555,13 @@ var LiveResults;
 
           if (this.isMultiDayEvent && !courseResults) {
             columns.push({
-              "sTitle": this.resources["_TOTAL"],
-              "sClass": "right",
-              "sType": "numeric",
-              "aDataSort": [col + 1, col, 0],
-              "aTargets": [col],
-              "bUseRendered": false,
-              "mDataProp": "totalresult",
-              "render": function (data, type, row) {
+              title: this.resources["_TOTAL"],
+              className: "dt-right timePlaceWidth",
+              type: "numeric",
+              orderData: [col + 1, col, 0],
+              targets: [col],
+              data: "totalresult",
+              render: function (data, type, row) {
                 if (type == "sort")
                   return parseInt(data);
                 if (isNaN(parseInt(data)))
@@ -3565,21 +3598,20 @@ var LiveResults;
             });
 
             col++;
-            columns.push({ "sTitle": "TotalStatus", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "totalstatus" });
+            columns.push({ title: "TotalStatus", visible: false, targets: [col++], type: "numeric", data: "totalstatus" });
             if (!fullView) {
               columns.push({
-                "sTitle": "",
-                "sClass": "right",
-                "bSortable": false,
-                "aTargets": [col++],
-                "mDataProp": "totalplus",
-                "render": function (data, type, row) {
+                title: "",
+                orderable: false,
+                targets: [col++],
+                data: "totalplus",
+                render: function (data, type, row) {
                   if (isNaN(parseInt(data)))
                     return data;
                   if (row.totalstatus != 0)
                     return "";
                   else {
-                    var res = vertLine;
+                    var res = "";
                     if (row.totalplace == 1)
                       res += "<span class=\"besttime\">+";
                     else
@@ -3591,32 +3623,39 @@ var LiveResults;
               });
             }
           }
-          columns.push({ "sTitle": "VP", "bVisible": false, "aTargets": [col++], "mDataProp": "virtual_position" });
+          columns.push({
+            title: "VP",
+            visible: false,
+            targets: [col++],
+            data: "virtual_position"
+          });
           $('#' + this.resultsDiv).height(0);
 
-          this.currentTable = $('#' + this.resultsDiv).dataTable({
+          this.currentTable = $('#' + this.resultsDiv).DataTable({
             fixedHeader: true,
-            fixedColumns: { leftColumns: 2 },
+            fixedColumns: { left: 2 },
             scrollX: true,
             paging: false,
-            lengthChange: false,
-            searching: false,
-            info: false,
+            layout: {
+              topStart: null,
+              topEnd: null,
+              bottomStart: null,
+              bottomEnd: null
+            },
             data: data.results,
             order: [[col - 1, "asc"]],
-            columnDefs: columns,
+            columns: columns,
             destroy: true,
             preDrawCallback: function (settings) {
               var api = new $.fn.dataTable.Api(settings);
-              if (api.order()[0][0] != col - 1)
+              if (api.order()[0][0] !== col - 1)
                 $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
             },
           });
 
-          // Scroll to initial view and hide class column if necessary
-          if (data.results[0].progress != undefined) // Scroll to inital view
-          {
-            var scrollBody = $(this.currentTable).parent();
+          // Scroll to initial view 
+          if (data.results[0].progress != undefined) {
+            var scrollBody = $(this.currentTable.table().container()).find('.dt-scroll-body');
             var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
             if (maxScroll > 5) {
               var clubBibWidth = 0;
@@ -3634,8 +3673,6 @@ var LiveResults;
 
               if (scrollLength > 0) {
                 scrollBody.scrollLeft(scrollLength);
-                if ($(".firstCol").width() > 0 && maxScroll >= clubBibWidth + 5)
-                  $('#switchNavClick').trigger('click');
               }
             }
           }
@@ -3644,7 +3681,6 @@ var LiveResults;
 
           if (this.isCompToday()) {
             this.updatePredictedTimes(true); // Insert times only
-            this.currentTable.api().columns.adjust().draw();
             if (this.lastChanged)
               this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
             else
@@ -4008,9 +4044,9 @@ var LiveResults;
         return;
       }
       this.inactiveTimer = 0;
-      if (this.currentTable != null) {
+      if (this.currentTable != null && DataTable.isDataTable('#' + this.resultsDiv)) {
         try {
-          this.currentTable.api().destroy();
+          this.currentTable.destroy();
         }
         catch (e) { }
       }
@@ -4071,9 +4107,9 @@ var LiveResults;
           $('#numberOfRunners').html(numberOfRunners);
           var columns = Array();
           var col = 0;
-          columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
+          columns.push({ title: "#", className: "dt-right", orderData: [1], targets: [col++], data: "place" });
           columns.push({
-            "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data, type, row) {
+            title: "placeSortable", visible: false, data: "placeSortable", targets: [col++], render: function (data, type, row) {
               if (type == "sort")
                 return row.placeSortable;
               else
@@ -4081,8 +4117,8 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": this.resources["_NAME"], "sClass": "left", "aTargets": [col++], "mDataProp": "name",
-            "render": function (data, type, row) {
+            title: this.resources["_NAME"], className: "dt-left", targets: [col++], data: "name",
+            render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxNameLength)
                   return _this.nameShort(data);
@@ -4094,8 +4130,8 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": this.resources["_CLASS"], "sClass": "left", "aTargets": [col++], "mDataProp": "class",
-            "render": function (data, type, row) {
+            title: this.resources["_CLASS"], className: "dt-left", targets: [col++], data: "class",
+            render: function (data, type, row) {
               var param = row["class"];
               if (param && param.length > 0)
                 param = param.replace('\'', '\\\'');
@@ -4103,8 +4139,8 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": "&#8470;", "sClass": "right", "aTargets": [col++], "mDataProp": (_this.curClassHasBibs ? "bib" : null),
-            "render": function (data, type, row) {
+            title: "&#8470;", className: "dt-right", targets: [col++], data: (_this.curClassHasBibs ? "bib" : null),
+            render: function (data, type, row) {
               if (type === 'display') {
                 if (row.bib < 0) // Relay
                   return "<span class=\"bib\">" + (-row.bib / 100 | 0) + "</span>";
@@ -4118,13 +4154,13 @@ var LiveResults;
             }
           });
           columns.push({
-            "sTitle": "bibSortable", "bVisible": false, "mDataProp": (_this.curClassHasBibs ? "bib" : null), "aTargets": [col++], "render": function (data, type, row) {
+            title: "bibSortable", visible: false, data: (_this.curClassHasBibs ? "bib" : null), targets: [col++], render: function (data, type, row) {
               return Math.abs(data);
             }
           });
           columns.push({
-            "sTitle": this.resources["_START"], "sClass": "right", "sType": "numeric", "aDataSort": [col], "aTargets": [col], "bUseRendered": false, "mDataProp": "start",
-            "render": function (data, type, row) {
+            title: this.resources["_START"], className: "dt-right", type: "numeric", orderData: [col], targets: [col], "bUseRendered": false, data: "start",
+            render: function (data, type, row) {
               if (row.start == "") {
                 return "";
               }
@@ -4135,8 +4171,8 @@ var LiveResults;
           });
           col++;
           columns.push({
-            "sTitle": this.resources["_CONTROLFINISH"], "sClass": "right", "sType": "numeric", "aDataSort": [col + 1, col, 0], "aTargets": [col], "bUseRendered": false, "mDataProp": "result",
-            "render": function (data, type, row) {
+            title: this.resources["_CONTROLFINISH"], className: "dt-right", type: "numeric", orderData: [col + 1, col, 0], targets: [col], "bUseRendered": false, data: "result",
+            render: function (data, type, row) {
               if (row.place == "-" || row.place == "" || row.place == "F") {
                 return _this.formatTime(row.result, row.status);
               }
@@ -4146,10 +4182,10 @@ var LiveResults;
             }
           });
           col++;
-          columns.push({ "sTitle": "Status", "bVisible": false, "aTargets": [col++], "sType": "numeric", "mDataProp": "status" });
+          columns.push({ title: "Status", visible: false, targets: [col++], type: "numeric", data: "status" });
           columns.push({
-            "sTitle": "Diff", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "timeplus",
-            "render": function (data, type, row) {
+            title: "Diff", className: "dt-right", orderable: true, targets: [col++], data: "timeplus",
+            render: function (data, type, row) {
               if (type === 'display') {
                 if (row.status == 0)
                   return "<span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status) + "</span>";
@@ -4166,8 +4202,8 @@ var LiveResults;
           });
           if (hasPace) {
             columns.push({
-              "sTitle": "m/km", "sClass": "right", "bSortable": true, "aTargets": [col++], "mDataProp": "pace",
-              "render": function (data, type, row) {
+              title: "m/km", className: "dt-right", orderable: true, targets: [col++], data: "pace",
+              render: function (data, type, row) {
                 if (row.status == 0 && data > 0) {
                   if (type === 'display')
                     return "<span class=\"plustime\">" + _this.formatTime(data, 0) + "</span>";
@@ -4181,21 +4217,24 @@ var LiveResults;
               }
             });
           }
-          this.currentTable = $('#' + this.resultsDiv).dataTable({
+          this.currentTable = $('#' + this.resultsDiv).DataTable({
             fixedHeader: true,
             fixedColumns: { leftColumns: 2 },
             scrollX: true,
             paging: false,
-            lengthChange: false,
-            searching: false,
-            info: false,
+            layout: {
+              topStart: null,
+              topEnd: null,
+              bottomStart: null,
+              bottomEnd: null
+            },
             data: data.results,
             order: [[1, "asc"], [5, 'asc']],
             columnDefs: columns,
             destroy: true,
             preDrawCallback: function (settings) {
               var api = new $.fn.dataTable.Api(settings);
-              if (api.order()[0][0] != 1)
+              if (api.order()[0][0] !== 1)
                 $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
             }
           });
@@ -4210,10 +4249,13 @@ var LiveResults;
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
       this.inactiveTimer = 0;
-      if (this.currentTable != null) {
-        try { this.currentTable.api().destroy(); }
+      if (this.currentTable != null && DataTable.isDataTable('#' + this.resultsDiv)) {
+        try {
+          this.currentTable.destroy();
+        }
         catch (e) { }
       }
+      $('#classColumnContent').removeClass('open').addClass('closed');
       $('#divResults').html('');
       $('#' + this.txtResetSorting).html('');
       this.curClubName = null;
@@ -4366,24 +4408,24 @@ var LiveResults;
           for (let leg = 1; leg <= legs; leg++) {
             sorting.unshift([col, "asc"]);
             columns.push({
-              "sTitle": "sort", "bVisible": false, "mDataProp": "sort", "aTargets": [col++], "render": function (data, type, row, meta) {
+              title: "sort", visible: false, data: "sort", targets: [col++], render: function (data, type, row, meta) {
                 leg = meta.col;
                 return row.sort[leg];
               }
             });
           }
-          columns.push({ "sTitle": "#", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeStr" });
-          columns.push({ "sTitle": "&#8470", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "bib" });
-          columns.push({ "sTitle": this.resources["_NAME"], "sClass": "left", "bSortable": false, "aTargets": [col++], "mDataProp": "names" });
-          columns.push({ "sTitle": "Total", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totTime" });
-          columns.push({ "sTitle": "", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totDiff" });
-          columns.push({ "sTitle": "", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "placeDiff" });
-          columns.push({ "sTitle": "±Tet", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "totGained" });
-          columns.push({ "sTitle": "Etappe", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legTime" });
-          columns.push({ "sTitle": "", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "legDiff" });
-          columns.push({ "sTitle": "m/km", "sClass": "right", "bSortable": false, "aTargets": [col++], "mDataProp": "kmTime" });
+          columns.push({ title: "#", className: "dt-right", orderable: false, targets: [col++], data: "placeStr" });
+          columns.push({ title: "&#8470", className: "dt-right", orderable: false, targets: [col++], data: "bib" });
+          columns.push({ title: this.resources["_NAME"], className: "dt-left", orderable: false, targets: [col++], data: "names" });
+          columns.push({ title: "Total", className: "dt-right", orderable: false, targets: [col++], data: "totTime" });
+          columns.push({ title: "", className: "dt-right", orderable: false, targets: [col++], data: "totDiff" });
+          columns.push({ title: "", className: "dt-right", orderable: false, targets: [col++], data: "placeDiff" });
+          columns.push({ title: "±Tet", className: "dt-right", orderable: false, targets: [col++], data: "totGained" });
+          columns.push({ title: "Etappe", className: "dt-right", orderable: false, targets: [col++], data: "legTime" });
+          columns.push({ title: "", className: "dt-right", orderable: false, targets: [col++], data: "legDiff" });
+          columns.push({ title: "m/km", className: "dt-right", orderable: false, targets: [col++], data: "kmTime" });
 
-          this.currentTable = $('#' + this.resultsDiv).dataTable({
+          this.currentTable = $('#' + this.resultsDiv).DataTable({
             fixedHeader: true,
             fixedColumns: { leftColumns: 3 },
             scrollX: true,
@@ -4400,15 +4442,15 @@ var LiveResults;
       };
     };
 
-
     AjaxViewer.prototype.resetSorting = function () {
       var idxCol = 1;
-      $.each(this.currentTable.fnSettings().aoColumns, function (idx, val) {
-        if (val.sTitle == "VP") {
+      this.currentTable.columns().every(function (idx) {
+        var column = this;
+        if (column.header().textContent == "VP") {
           idxCol = idx;
         }
       });
-      this.currentTable.fnSort([[idxCol, 'asc']]);
+      this.currentTable.order([idxCol, 'asc']).draw();
       var link = "";
       if (this.curSplitView != null)
         link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" + this.curSplitView[0].replace('\'', '\\\'') + "')\">&#5130; Resultater</a>";
@@ -4496,23 +4538,23 @@ var LiveResults;
           var col = 0;
 
           columns.push({
-            "sTitle": "#",
-            "sClass": "right",
-            "bSortable": false,
-            "aTargets": [col++],
-            "mDataProp": "place",
-            "width": "5%"
+            title: "#",
+            className: "dt-right",
+            orderable: false,
+            targets: [col++],
+            data: "place",
+            width: "5%"
           });
 
           if (_this.curClassHasBibs) {
             columns.push({
-              "sTitle": "No",
-              "sClass": "right",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "bib",
-              "width": "5%",
-              "render": function (data, type, row) {
+              title: "No",
+              className: "dt-right",
+              orderable: false,
+              targets: [col++],
+              data: "bib",
+              width: "5%",
+              render: function (data, type, row) {
                 if (type === 'display') {
                   if (data < 0) // Relay
                     return "(" + (-data / 100 | 0) + ")";
@@ -4529,13 +4571,13 @@ var LiveResults;
 
           if (isRelayClass) {
             columns.push({
-              "sTitle": this.resources["_CLUB"],
-              "sClass": "left",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "club",
-              "width": "20%",
-              "render": function (data, type, row) {
+              title: this.resources["_CLUB"],
+              className: "dt-left",
+              orderable: false,
+              targets: [col++],
+              data: "club",
+              width: "20%",
+              render: function (data, type, row) {
 
                 var clubShort = row.club;
                 if (clubShort.length > _this.maxClubLength)
@@ -4545,13 +4587,13 @@ var LiveResults;
             });
 
             columns.push({
-              "sTitle": this.resources["_NAME"],
-              "sClass": "left",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "name",
-              "width": "20%",
-              "render": function (data, type, row) {
+              title: this.resources["_NAME"],
+              className: "dt-left",
+              orderable: false,
+              targets: [col++],
+              data: "name",
+              width: "20%",
+              render: function (data, type, row) {
                 var nameShort = row.name;
                 if (row.name.length > _this.maxNameLength)
                   nameShort = _this.nameShort(row.name);
@@ -4562,13 +4604,13 @@ var LiveResults;
           else // Not this.curClassIsRelay
           {
             columns.push({
-              "sTitle": this.resources["_NAME"],
-              "sClass": "left",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "name",
-              "width": "20%",
-              "render": function (data, type, row) {
+              title: this.resources["_NAME"],
+              className: "dt-left",
+              orderable: false,
+              targets: [col++],
+              data: "name",
+              width: "20%",
+              render: function (data, type, row) {
                 var nameShort = row.name;
                 if (row.name.length > _this.maxNameLength)
                   nameShort = _this.nameShort(row.name);
@@ -4578,13 +4620,13 @@ var LiveResults;
             });
 
             columns.push({
-              "sTitle": this.resources["_CLUB"],
-              "sClass": "left",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "club",
-              "width": "20%",
-              "render": function (data, type, row) {
+              title: this.resources["_CLUB"],
+              className: "dt-left",
+              orderable: false,
+              targets: [col++],
+              data: "club",
+              width: "20%",
+              render: function (data, type, row) {
                 var clubShort = row.club;
                 if (clubShort.length > _this.maxClubLength)
                   clubShort = _this.clubShort(clubShort);
@@ -4594,14 +4636,13 @@ var LiveResults;
           }
 
           columns.push({
-            "sTitle": "Tid",
-            "sClass": "right",
-            "sType": "numeric",
-            "bSortable": false,
-            "aTargets": [col++],
-            "bUseRendered": false,
-            "width": "10%",
-            "render": function (data, type, row) {
+            title: "Tid",
+            className: "dt-right",
+            type: "numeric",
+            orderable: false,
+            targets: [col++],
+            width: "10%",
+            render: function (data, type, row) {
               if (type == "sort")
                 return parseInt(data);
               var res = "";
@@ -4611,13 +4652,13 @@ var LiveResults;
           });
 
           columns.push({
-            "sTitle": "&nbsp;&nbsp;&nbsp;&nbsp;",
-            "sClass": "right",
-            "bSortable": false,
-            "aTargets": [col++],
-            "mDataProp": "timeplus",
-            "width": "10%",
-            "render": function (data, type, row) {
+            title: "&nbsp;&nbsp;&nbsp;&nbsp;",
+            className: "dt-right",
+            orderable: false,
+            targets: [col++],
+            data: "timeplus",
+            width: "10%",
+            render: function (data, type, row) {
               var res = "";
               if (row.status == 0) {
                 res += "<span class=\"plustime\">+";
@@ -4627,9 +4668,14 @@ var LiveResults;
             }
           });
 
-          columns.push({ "sTitle": "sort", "bVisible": false, "aTargets": [col++], "mDataProp": "place" });
+          columns.push({
+            title: "sort",
+            visible: false,
+            targets: [col++],
+            data: "place"
+          });
 
-          this.currentTable = $('#' + this.resultsDiv).dataTable({
+          this.currentTable = $('#' + this.resultsDiv).DataTable({
             paging: false,
             lengthChange: false,
             searching: false,
@@ -4653,9 +4699,9 @@ var LiveResults;
         setTimeout(function () { _this.viewSplitTimeResults(className, course); }, 500);
         return;
       }
-      if (this.currentTable != null) {
+      if (this.currentTable != null && DataTable.isDataTable('#' + this.resultsDiv)) {
         try {
-          this.currentTable.api().destroy();
+          this.currentTable.destroy();
         }
         catch (e) { }
       }
@@ -4724,9 +4770,9 @@ var LiveResults;
             this.splitAnalyze(data.results);
             var columns = Array();
             var col = 0;
-            columns.push({ "sTitle": "#", "sClass": "right", "aDataSort": [1], "aTargets": [col++], "mDataProp": "place" });
+            columns.push({ title: "#", className: "dt-right", orderData: [1], targets: [col++], data: "place" });
             columns.push({
-              "sTitle": "placeSortable", "bVisible": false, "mDataProp": "placeSortable", "aTargets": [col++], "render": function (data, type, row) {
+              title: "placeSortable", visible: false, data: "placeSortable", targets: [col++], render: function (data, type, row) {
                 if (type == "sort")
                   return row.placeSortable;
                 else
@@ -4735,13 +4781,13 @@ var LiveResults;
             });
 
             columns.push({
-              "sTitle": this.resources["_NAME"] + "<br/>" + this.resources["_CLUB"],
-              "sClass": "left",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "club",
-              "width": null,
-              "render": function (data, type, row) {
+              title: this.resources["_NAME"] + "<br/>" + this.resources["_CLUB"],
+              className: "dt-left",
+              orderable: false,
+              targets: [col++],
+              data: "club",
+              width: null,
+              render: function (data, type, row) {
                 var param = row.club;
                 var clubShort = row.club;
                 if (param && param.length > 0) {
@@ -4755,13 +4801,13 @@ var LiveResults;
             });
 
             columns.push({
-              "sTitle": "tid<br/>m/km",
-              "sClass": "right",
-              "bSortable": false,
-              "aTargets": [col++],
-              "mDataProp": "result",
-              "width": null,
-              "render": function (data, type, row) {
+              title: "tid<br/>m/km",
+              className: "dt-right",
+              orderable: false,
+              targets: [col++],
+              data: "result",
+              width: null,
+              render: function (data, type, row) {
                 var ret = _this.formatTime(row.result, row.status);
                 if (row.status == 0 && row.pace > 0)
                   ret += "<br/>" + _this.formatTime(row.pace, 0);
@@ -4792,16 +4838,15 @@ var LiveResults;
                 }
 
                 columns.push({
-                  "sTitle": title,
-                  "bVisible": true,
-                  "sClass": "right",
-                  "bSortable": true,
-                  "sType": "numeric",
-                  "aDataSort": [col],
-                  "aTargets": [col],
-                  "bUseRendered": false,
-                  "mDataProp": "result",
-                  "render": function (data, type, row, meta) {
+                  title: title,
+                  visible: true,
+                  className: "dt-right",
+                  orderable: true,
+                  type: "numeric",
+                  orderData: [col],
+                  targets: [col],
+                  data: "result",
+                  render: function (data, type, row, meta) {
                     var no = meta.col - 4;
                     var last = (no == (row.split_place.length - 1));
                     if (type == "sort") {
@@ -4890,7 +4935,7 @@ var LiveResults;
               };
             };
 
-            this.currentTable = $('#' + this.resultsDiv).dataTable({
+            this.currentTable = $('#' + this.resultsDiv).DataTable({
               fixedHeader: true,
               fixedColumns: { leftColumns: 2 },
               scrollX: true,
@@ -4904,16 +4949,10 @@ var LiveResults;
               destroy: true,
               preDrawCallback: function (settings) {
                 var api = new $.fn.dataTable.Api(settings);
-                if (api.order()[0][0] != 1)
+                if (api.order()[0][0] !== 1)
                   $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
               }
             });
-
-            var scrollBody = $(this.currentTable).parent();
-            var maxScroll = scrollBody[0].scrollWidth - scrollBody[0].clientWidth;
-            if ($(".firstCol").width() > 0 && maxScroll > 5)
-              $('#switchNavClick').trigger('click');
-            this.currentTable.api().columns.adjust().draw();
           }
         }
       }

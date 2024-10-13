@@ -5,6 +5,7 @@
 :root {
   --livered: #F1592A;
   --bkgray: #E6E6E6;
+  --bkdark: #555555;
 }
 
 
@@ -109,10 +110,6 @@ h3 {
   margin-bottom: 0px;
 }
 
-#divClasses {
-  font-size: 1.1em;
-  line-height: 1.4em;
-}
 
 .firstnonqualifier>td {
   border-top: 3px solid gray !important;
@@ -124,6 +121,7 @@ h3 {
 
 .pre_post_start>td {
   background-color: #DFDFDF !important;
+  box-shadow: none !important;
 }
 
 .dns {
@@ -157,10 +155,12 @@ td.searchmenu {
   padding-left: 5px;
 }
 
+
 /* Red row marking */
 tr.red_row>td {
   color: white;
   background-color: var(--livered) !important;
+  box-shadow: none !important;
 }
 
 tr.red_row a {
@@ -219,6 +219,7 @@ tr.red_row .relayclub {
 .red_cell {
   color: white;
   background-color: var(--livered) !important;
+  box-shadow: none !important;
 }
 
 .red_cell .plustime {
@@ -249,6 +250,7 @@ tr.red_row .relayclub {
 .red_cell_sqr {
   color: white;
   background-color: var(--livered) !important;
+  box-shadow: none !important;
 }
 
 .red_cell_sqr .plustime {
@@ -341,12 +343,14 @@ tr.green_row_firststarter>td {
 tr.yellow_row>td {
   color: black;
   background-color: #FFFF00 !important;
+  box-shadow: none !important;
 }
 
 tr.yellow_row_new>td {
   color: black;
   background-color: #FFFF00 !important;
   border-top: 2px solid grey !important;
+  box-shadow: none !important;
 }
 
 /* Yellow row highlight for speaker, first non qualifyer */
@@ -354,17 +358,20 @@ tr.yellow_row_fnq>td {
   color: black;
   background-color: #FFFF00 !important;
   border-top: 3px solid grey !important;
+  box-shadow: none !important;
 }
 
 /* Yellow and green cells for messages */
 .yellow_cell {
   color: black;
   background-color: #FFFF00 !important;
+  box-shadow: none !important;
 }
 
 .green_cell {
   color: black;
   background-color: #00FF00 !important;
+  box-shadow: none !important;
 }
 
 
@@ -489,6 +496,11 @@ tr.yellow_row_fnq>td {
   color: black;
 }
 
+.legicon {
+  font-size: 0.6em;
+  vertical-align: 0.3em;
+}
+
 a.club {
   color: var(--livered);
 }
@@ -503,6 +515,14 @@ td i {
   font-style: normal;
 }
 
+/* min width of colums with times */
+.timeWidth {
+  min-width: 3em;
+}
+
+.timePlaceWidth {
+  min-width: 3em;
+}
 
 #langchooser {
   vertical-align: middle;
@@ -673,7 +693,7 @@ td.menuchosen a:hover {
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  background-color: #555555;
+  background-color: var(--bkdark);
   color: white;
   text-align: center;
   border-radius: 5px;
@@ -690,7 +710,7 @@ td.menuchosen a:hover {
   right: -0.7em;
   border-width: 0.4em;
   border-style: solid;
-  border-color: transparent transparent transparent #555555;
+  border-color: transparent transparent transparent var(--bkdark);
 }
 
 .tooltip:hover .tooltiptext {
@@ -698,18 +718,6 @@ td.menuchosen a:hover {
   opacity: 0.9;
 }
 
-/*-------------------------------*/
-/*---       SideNav           ---*/
-/*-------------------------------*/
-
-
-.firstCol {
-  overflow: hidden;
-  width: 6em;
-}
-
-
-/* Scroll and full view toggle */
 .noUnderline a {
   text-decoration: none;
   color: white;
@@ -731,8 +739,8 @@ td.menuchosen a:hover {
 /*---  DropDown for splits    ---*/
 /*-------------------------------*/
 .dropbtn {
-  background-color: #555555;
-  opacity: 1;
+  background-color: var(--bkdark);
+  opacity: 0.9;
   color: white;
   text-align: right;
   padding: 0px 0px;
@@ -750,7 +758,7 @@ td.menuchosen a:hover {
   right: 4px;
   display: none;
   position: absolute;
-  background-color: #555555;
+  background-color: var(--bkdark);
   color: white;
   overflow: hidden;
   z-index: 1;
@@ -778,10 +786,11 @@ td.menuchosen a:hover {
 /*-------------------------------*/
 /*---  Buttons for navigation ---*/
 /*-------------------------------*/
+
 .navbtn {
   border: none;
   background-color: black;
-  font-size: 1em;
+  font-size: 1.3em;
   cursor: pointer;
   display: inline-block;
   color: white;
@@ -801,7 +810,189 @@ td.menuchosen a:hover {
   cursor: pointer;
 }
 
-/* Fixed header formatting*/
-.dtfh-floatingparent {
-  z-index: 1000 !important;
+/* Number of runners table */
+.numrunners {
+  border-spacing: 10px 0px;
+  text-align: left;
+}
+
+.numrunners td {
+  font-size: 0.7em;
+  color: gray;
+}
+
+/*-----------------------------------*/
+/*---  Class and results columns  ---*/
+/*-----------------------------------*/
+
+.dropbtnClass {
+  font-size: 1.3em;
+  background-color: var(--bkdark);
+  color: white;
+  text-align: left;
+  padding: 0px;
+  border: none;
+  cursor: pointer;
+}
+
+.lock {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  color: white;
+  font-size: 1em;
+  cursor: pointer;
+  z-index: 102;
+}
+
+.lockunpinned {
+  color: lightgrey;
+}
+
+.container {
+  display: flex;
+}
+
+.class-column {
+  flex: 1;
+  position: relative;
+  display: inline-block;
+  z-index: 100;
+  line-height: 1.4em;
+  font-size: 1.3em;
+  max-width: 8em;
+  min-width: 8em;
+}
+
+.class-column.unpinned {
+  max-width: 0px !important;
+  min-width: 0px !important;
+}
+
+.class-column-content {
+  box-sizing: border-box;
+  position: relative;
+  top: 3px;
+  left: 0;
+  color: white;
+  background-color: var(--bkdark);
+  text-decoration: none;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  z-index: 101;
+  padding: 3px 3px 3px 10px;
+  height: auto !important;
+  min-width: 8em;
+  max-width: 8em;
+}
+
+.class-column-content a {
+  color: white;
+}
+
+.class-column-content::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.class-column-content.unpinned {
+  opacity: 0.9;
+  box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
+  height: auto;
+}
+
+.result-column {
+  flex: 2;
+  display: inline-block;
+  padding-left: 3px;
+  width: calc(100vw - 15em);
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.class-column-content.unpinned.closed {
+  display: none;
+  padding: 0;
+}
+
+.class-column-content.unpinned.open {
+  display: block;
+}
+
+/*-----------------------------------*/
+/*---  Mofification of DataTables ---*/
+/*-----------------------------------*/
+table.dataTable>thead>tr>th,
+table.dataTable>thead>tr>td {
+  padding: 3px 7px 3px 3px;
+  cursor: pointer;
+  white-space: nowrap;
+  background-color: white;
+  border-bottom: black 1px solid;
+}
+
+table.dataTable thead tr>.dtfc-fixed-start,
+table.dataTable thead tr>.dtfc-fixed-end,
+table.dataTable tfoot tr>.dtfc-fixed-start,
+table.dataTable tfoot tr>.dtfc-fixed-end {
+  background-color: white;
+}
+
+table.dataTable tbody tr>.dtfc-fixed-start,
+table.dataTable tbody tr>.dtfc-fixed-end {
+  background-color: white;
+}
+
+table.dataTable>tbody>tr>th,
+table.dataTable>tbody>tr>td {
+  padding: 3px 7px 3px 3px;
+  background-color: white;
+}
+
+table.dataTable>tbody>tr:nth-child(odd)>* {
+  box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0.08);
+  border-top: 1px solid rgb(220, 220, 220)
+}
+
+table.dataTable>tbody>tr:nth-child(even)>* {
+  box-shadow: inset 0 0 0 9999px rgba(0, 0, 0, 0);
+  border-top: 1px solid white;
+}
+
+div.dt-container div.dt-layout-row {
+  margin: 0 0;
+}
+
+table.dataTable tbody td {
+  vertical-align: top;
+}
+
+table.dataTable tbody tr>.sorting_1,
+table.dataTable tbody tr>.sorting_2,
+table.dataTable tbody tr>.sorting_3 {
+  background-color: #fff8e3;
+}
+
+table.dataTable thead>tr>th.dt-orderable-asc,
+table.dataTable thead>tr>th.dt-orderable-desc,
+table.dataTable thead>tr>th.dt-ordering-asc,
+table.dataTable thead>tr>th.dt-ordering-desc,
+table.dataTable thead>tr>td.dt-orderable-asc,
+table.dataTable thead>tr>td.dt-orderable-desc,
+table.dataTable thead>tr>td.dt-ordering-asc,
+table.dataTable thead>tr>td.dt-ordering-desc {
+  padding-right: 20px;
+  color: var(--livered);
+}
+
+table.dataTable thead>tr>th.dt-orderable-asc span.dt-column-order,
+table.dataTable thead>tr>th.dt-orderable-desc span.dt-column-order,
+table.dataTable thead>tr>th.dt-ordering-asc span.dt-column-order,
+table.dataTable thead>tr>th.dt-ordering-desc span.dt-column-order,
+table.dataTable thead>tr>td.dt-orderable-asc span.dt-column-order,
+table.dataTable thead>tr>td.dt-orderable-desc span.dt-column-order,
+table.dataTable thead>tr>td.dt-ordering-asc span.dt-column-order,
+table.dataTable thead>tr>td.dt-ordering-desc span.dt-column-order {
+  right: 7px;
+  width: 7px
 }

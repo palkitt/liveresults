@@ -22,7 +22,7 @@ echo ("<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n");
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#555556">
 
-  <link rel="stylesheet" type="text/css" href="css/style-freidig.css">
+  <link rel="stylesheet" type="text/css" href="css/style-liveres.css">
 
   <script language="javascript" type="text/javascript">
     function colorRow(row) {

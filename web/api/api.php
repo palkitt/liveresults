@@ -1135,7 +1135,7 @@ function lengthToStr($lengthMin, $lengthMax)
 {
 	if ($lengthMin == null || $lengthMin == 0)
 		return "";
-	elseif (abs($lengthMin - $lengthMax) < 50)
+	elseif (abs($lengthMin - $lengthMax) < 100)
 		return str_replace('.', ',', sprintf("%01.1f", $lengthMin / 1000));
 	else
 		return str_replace('.', ',', sprintf("%01.1f", $lengthMin / 1000) . " - " . sprintf("%01.1f", $lengthMax / 1000));

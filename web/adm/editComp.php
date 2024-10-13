@@ -53,7 +53,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 
 <head>
   <title><?= $_TITLE ?></title>
-  <link rel="stylesheet" type="text/css" href="../css/style-eoc.css">
+  <link rel="stylesheet" type="text/css" href="../css/style-liveres.css">
   <meta name="robots" content="noindex">
   <meta http-equiv="Content-Type" content="text/html;charset=<?= $CHARSET ?>">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

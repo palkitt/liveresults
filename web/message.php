@@ -26,12 +26,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="theme-color" content="#555556">
 
-	<link rel="stylesheet" type="text/css" href="css/jquery.dataTables.css">
-	<link rel="stylesheet" type="text/css" href="css/style-freidig.css">
-
-	<script language="javascript" type="text/javascript" src="js/jquery-3.7.0.min.js"></script>
-	<script language="javascript" type="text/javascript" src="js/jquery.dataTables.min.js"></script>
-	<script language="javascript" type="text/javascript" src="js/messages.js"></script>
+	<!--link rel="stylesheet" href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.8/fc-5.0.3/fh-4.0.1/datatables.min.css"  -->
+	<link rel="stylesheet" href="css/datatables.min.css">
+	<link rel="stylesheet" href="css/style-liveres.css?a">
+	<!--link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" -->
+	<!-- script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.8/fc-5.0.3/fh-4.0.1/datatables.min.js"></script -->
+	<script src="js/datatables.min.js"></script>
+	<script src="js/messages.js"></script>
 
 	<script language="javascript" type="text/javascript">
 		var runnerStatus = Array();
@@ -148,7 +149,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							<td style="text-align: center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
 							<td style="text-align: center"><b><?= $currentComp->CompName() ?> [<?= $currentComp->CompDate() ?>]</b></td>
 							<td style="text-align: center"><b><span id="clock"></span></b></td>
-							<td style="text-align: right"><b>Vis alle<input type="checkbox" checked="checked" onclick="mess.showAllMessages = !(mess.showAllMessages); mess.updateMessageMarking();"></span></b></td>
+							<td style="text-align: right"><b>Sorter tid<input type="checkbox" onclick="mess.timeOrdered = !(mess.timeOrdered); mess.updateMessageMarking();"></span></b></td>
+							<td style="text-align: right"><b>Alle<input type="checkbox" checked="checked" onclick="mess.showAllMessages = !(mess.showAllMessages); mess.updateMessageMarking();"></span></b></td>
 						</tr>
 					</table>
 				</td>
