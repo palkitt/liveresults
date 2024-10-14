@@ -2269,7 +2269,7 @@ var LiveResults;
             var tableData = this.currentTable.data().toArray();
             this.setHighlight(tableData, this.highlightID);
             this.currentTable.clear();
-            this.currentTable.rows.add(this.tableData).draw();
+            this.currentTable.rows.add(tableData).draw();
           }
           else
             this.chooseClass(this.runnerList.runners[ind].class);
