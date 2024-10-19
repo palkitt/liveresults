@@ -2548,7 +2548,7 @@ var LiveResults;
               this.updateQualLimMarks(newData.results, newData.className);
 
             table.clear();
-            table.rows.add(newData.results);
+            table.rows.add(newData.results).draw();
 
             // Hide columns if split is BAD
             if (this.curClassSplits != null && this.curClassSplits.length > 0) {
