@@ -40,6 +40,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var vacants = [];
 		var reservedID = 0;
 		var ecardFieldActive = false;
+		var noEcardEntry = <?= $currentComp->NoEcardEntry() ? "true" : "false" ?>;
 
 		$(document).ready(function() {
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
@@ -108,8 +109,18 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 								reservedID = data.reservedID;
 						});
 					$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
-					$('#ecardnumber').prop('disabled', false);
-					$('#rent').prop('disabled', false);
+					if (noEcardEntry) {
+						$('#ecardverification').html('Brikke benyttes ikke i dette arrangmentet');
+						$('#ecardnumber').val('-1');
+						$('#ecardnumber').css({
+							'color': 'transparent'
+						}); // Hide the -1 value
+						$('#firstname').prop('disabled', false);
+						$('#lastname').prop('disabled', false);
+					} else {
+						$('#ecardnumber').prop('disabled', false);
+						$('#rent').prop('disabled', false);
+					}
 				}
 			});
 
@@ -241,14 +252,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							hash = data.hash;
 							for (var i = 0; i < data.runners.length; i++) {
 								// Check if the dbid and ecard number in the database matches the one we just registered
-								if (data.runners[i].dbid == dbid && data.runners[i].ecard1 == ecardNumber) {
+								if (data.runners[i].dbid == dbid && (data.runners[i].ecard1 == ecardNumber || data.runners[i].ecard1 == 0)) {
 									found = true;
 									$('#entrydata').html('<b>Din påmelding er registrert som følger:</b><br>' +
 										'<table>' +
 										'<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>' +
 										'<tr><td>Klubb:</td><td>' + data.runners[i].club + '</td></tr>' +
 										'<tr><td>Klasse:</td><td>' + data.runners[i].class + '</td></tr>' +
-										'<tr><td>Brikkenummer:</td><td>' + data.runners[i].ecard1 + '</td></tr>' +
+										'<tr><td>Brikkenummer:</td><td>' + (data.runners[i].ecard1 > 0 ? data.runners[i].ecard1 : " - ") + '</td></tr>' +
 										'<tr><td>Startnummer:</td><td>' + (data.runners[i].bib > 0 ? data.runners[i].bib : " - ") + '</td></tr>' +
 										'<tr><td>Starttid:</td><td>' + data.runners[i].start + '</td></tr>' +
 										'</table>');

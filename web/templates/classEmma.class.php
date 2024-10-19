@@ -20,6 +20,7 @@ class Emma
 	var $m_ShowFullView = false;
 	var $m_ShowTimesInSprint = false;
 	var $m_ShowCourseResults = false;
+	var $m_NoEcardEntry = false;
 	var $m_MultiDayStage = -1;
 	var $m_MultiDayParent = -1;
 
@@ -225,6 +226,7 @@ class Emma
 		$showecardtimes,
 		$showtimesinsprint,
 		$showcourseresults,
+		$noecardentry,
 		$livecenterurl,
 		$sport
 	) {
@@ -240,6 +242,7 @@ class Emma
 			, showecardtimes=" . (!isset($showecardtimes) ? "0" : "1") . "
 			, showtimesinsprint=" . (!isset($showtimesinsprint) ? "0" : "1") . "
 			, showcourseresults=" . (!isset($showcourseresults) ? "0" : "1") . "
+			, noecardentry=" . (!isset($noecardentry) ? "0" : "1") . "
 			, infotext='$infotext',livecenterurl='$livecenterurl' WHERE tavid=$id";
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
@@ -261,7 +264,7 @@ class Emma
 		$conn = self::openConnection();
 		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, 
 				fullviewdefault, rankedstartlist, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, 
-				multidayparent, showinfo, infotext, showecardtimes, showtimesinsprint, livecenterurl, showcourseresults, sport 
+				multidayparent, showinfo, infotext, showecardtimes, showtimesinsprint, noecardentry, livecenterurl, showcourseresults, sport 
 				from login WHERE tavid=$compid");
 		$ret = null;
 		while ($tmp = mysqli_fetch_array($result))
@@ -433,6 +436,7 @@ class Emma
 			$this->m_ShowEcardTimes = $tmp["showecardtimes"];
 			$this->m_ShowTimesInSprint = $tmp["showtimesinsprint"];
 			$this->m_ShowCourseResults = $tmp["showcourseresults"];
+			$this->m_NoEcardEntry = $tmp["noecardentry"];
 			$this->m_LiveCenterURL = $tmp["livecenterurl"];
 			$this->m_Sport = $tmp["sport"];
 
@@ -523,6 +527,11 @@ class Emma
 	function ShowCourseResults()
 	{
 		return $this->m_ShowCourseResults;
+	}
+
+	function NoEcardEntry()
+	{
+		return $this->m_NoEcardEntry;
 	}
 
 	function RankedStartlist()
