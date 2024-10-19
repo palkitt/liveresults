@@ -149,8 +149,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			var ecardNumber = parseInt($('#ecardnumber').val());
 			if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
 				$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
+				$('#submit').hide();
 			} else if (ecards.includes(ecardNumber)) {
 				$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
+				$('#submit').hide();
 			} else {
 				var ecard = $('#ecardnumber').val();
 				$('#ecardverification').html('Brikke ' + ecard + ' er OK.');
