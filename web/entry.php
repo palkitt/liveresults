@@ -40,7 +40,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var vacants = [];
 		var reservedID = 0;
 		var ecardFieldActive = false;
-		var noEcardEntry = <?= $currentComp->NoEcardEntry() ? "true" : "false" ?>;
+		var ecardEntry = <?= $currentComp->NoEcardEntry() ? "false" : "true" ?>;
 
 		$(document).ready(function() {
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
@@ -109,17 +109,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 								reservedID = data.reservedID;
 						});
 					$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
-					if (noEcardEntry) {
-						$('#ecardverification').html('Brikke benyttes ikke i dette arrangmentet');
-						$('#ecardnumber').val('-1');
-						$('#ecardnumber').css({
-							'color': 'transparent'
-						}); // Hide the -1 value
-						$('#firstname').prop('disabled', false);
-						$('#lastname').prop('disabled', false);
-					} else {
+					if (ecardEntry) {
 						$('#ecardnumber').prop('disabled', false);
 						$('#rent').prop('disabled', false);
+					} else { // Go directly to name input if no ecard entry
+						$('#firstname').prop('disabled', false);
+						$('#lastname').prop('disabled', false);
 					}
 				}
 			});
@@ -142,15 +137,17 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			});
 
 			$('#classSelect').prop('disabled', true);
-			$('#ecardnumber').prop('disabled', true);
-			$('#rent').prop('disabled', true);
+			if (ecardEntry) {
+				$('#ecardnumber').prop('disabled', true);
+				$('#rent').prop('disabled', true);
+			}
 			$('#firstname').prop('disabled', true);
 			$('#lastname').prop('disabled', true);
 			$('#submit').hide();
 		});
 
 		$(document).on('touchend', function(e) {
-			if (e.target.id !== 'ecardnumber' && ecardFieldActive) {
+			if (e.target.id !== 'ecardnumber' && ecardFieldActive && ecardEntry) {
 				// The touchend event was fired outside the ecardnumber text box
 				verifyEcard();
 			}
@@ -191,16 +188,17 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function submit() {
-			var firstName = $('#firstname').val();
-			var lastName = $('#lastname').val();
-			var ecardNumber = $('#ecardnumber').val();
 			var club = $('#clubSelect').val();
 			var className = $('#classSelect').val();
-			var rent = $('#rent').prop('checked');
-			$('#clubSelect').prop('disabled', true);
-			$('#classSelect').prop('disabled', true);
-			$('#ecardnumber').prop('disabled', true);
-			$('#rent').prop('disabled', true);
+			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
+			var rent = (ecardEntry ? $('#rent').prop('checked') : 0);
+			var firstName = $('#firstname').val();
+			var lastName = $('#lastname').val();
+
+			if (!ecardEntry) {
+				$('#ecardnumber').prop('disabled', true);
+				$('#rent').prop('disabled', true);
+			}
 			$('#firstname').prop('disabled', true);
 			$('#lastname').prop('disabled', true);
 			$('#submit').hide();
@@ -239,7 +237,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function lookForEntry(dbid, last_hash = "", no = 1) {
-			var ecardNumber = $('#ecardnumber').val();
+			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
 			var className = encodeURIComponent($('#classSelect').val());
 			$.ajax({
 				url: url + "api.php?method=getrunners",
@@ -252,7 +250,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							hash = data.hash;
 							for (var i = 0; i < data.runners.length; i++) {
 								// Check if the dbid and ecard number in the database matches the one we just registered
-								if (data.runners[i].dbid == dbid && (data.runners[i].ecard1 == ecardNumber || data.runners[i].ecard1 == 0)) {
+								if (data.runners[i].dbid == dbid && (data.runners[i].ecard1 == ecardNumber)) {
 									found = true;
 									$('#entrydata').html('<b>Din påmelding er registrert som følger:</b><br>' +
 										'<table>' +
@@ -313,14 +311,17 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<br>
 			<div id="classverification">...</div>
 
-			<h2>Brikkenummer</h2>
-			<input id="ecardnumber" type="number" style="width:70%" inputmode="numeric">
-			<div style="text-align: right; display: inline-block; width: 25%;">&nbsp;
-				<input id="rent" type="checkbox" value="no">&nbsp;Leiebrikke
-			</div>
-			<br>
-			<div id="ecardverification">...</div>
-			<div id="ecardlastuse"><small>...</small></div>
+			<?php if (!$currentComp->NoEcardEntry()) { ?>
+				<h2>Brikkenummer</h2>
+				<input id="ecardnumber" type="number" style="width:70%" inputmode="numeric">
+				<div style="text-align: right; display: inline-block; width: 25%;">&nbsp;
+					<input id="rent" type="checkbox" value="no">&nbsp;Leiebrikke
+				</div>
+				<br>
+				<div id="ecardverification">...</div>
+				<div id="ecardlastuse"><small>...</small></div>
+
+			<?php } ?>
 
 			<h2>Fornavn</h2>
 			<input id="firstname" type="text" style="width:95%">

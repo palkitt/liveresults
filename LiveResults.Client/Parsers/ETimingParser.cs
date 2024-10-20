@@ -1902,12 +1902,10 @@ namespace LiveResults.Client
                                 var clubCode = cmd.ExecuteScalar();
                                 if (clubCode != null && clubCode != DBNull.Value)
                                     clubCode = clubCode.ToString();
-                                if (ecard < 0)
-                                    cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}', team='{2}', status='I' WHERE id={3}",
-                                                      firstName, lastName, clubCode, dbidOut);
-                                else
-                                    cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',ecardfee={4}, status='I' WHERE id={5}",
-                                                      firstName, lastName, ecard, clubCode, rent, dbidOut);
+                                string ecardstring = (ecard == 0 ? "null" : ecard.ToString());
+
+                                cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',ecardfee={4}, status='I' WHERE id={5}",
+                                                      firstName, lastName, ecardstring, clubCode, rent, dbidOut);
                                 var update = cmd.ExecuteNonQuery();
                                 if (update != 1)
                                 {
