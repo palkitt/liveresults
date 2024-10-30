@@ -23,6 +23,7 @@ if (isset($_POST['btnSave'])) {
     (isset($_POST['showecardtimes']) ? 1 : null),
     (isset($_POST['showtimesinsprint']) ? 1 : null),
     (isset($_POST['showcourseresults']) ? 1 : null),
+    (isset($_POST['noecardentry']) ? 1 : null),
     $_POST['livecenterurl'],
     $_POST['sport']
   );
@@ -246,6 +247,12 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                       <td><b>Show times in sprint heats</td>
                       <td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?> /></td>
                       <td>Show times in addition to places in sprint heats</td>
+                    </tr>
+
+                    <tr>
+                      <td><b>Remove ecard in online entry</td>
+                      <td><input type="checkbox" name="noecardentry" <?= $comp['noecardentry'] == 1 ? "checked" : "" ?> /></td>
+                      <td>Do not show ecard input box (for races without ecards)</td>
                     </tr>
 
                     <tr>

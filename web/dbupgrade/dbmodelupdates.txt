@@ -109,7 +109,7 @@ CREATE TABLE `coursedata` (
 alter table login add column showcourseresults tinyint(1) DEFAULT NULL;
 
 -- addition 2024-05-13
-REATE TABLE `vacants` (
+CREATE TABLE `vacants` (
   `tavid` int(11) NOT NULL DEFAULT '0',
   `dbid` int(11) NOT NULL DEFAULT '0',
   `bib` int(11) DEFAULT NULL,
@@ -121,3 +121,6 @@ REATE TABLE `vacants` (
 ) DEFAULT CHARSET=utf8;
 
 alter table messages add column newentry tinyint(1) DEFAULT NULL;
+
+-- addition 2024-10-19
+alter table login add column noecardentry tinyint(1) DEFAULT NULL;

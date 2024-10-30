@@ -1902,8 +1902,10 @@ namespace LiveResults.Client
                                 var clubCode = cmd.ExecuteScalar();
                                 if (clubCode != null && clubCode != DBNull.Value)
                                     clubCode = clubCode.ToString();
+                                string ecardstring = (ecard == 0 ? "null" : ecard.ToString());
+
                                 cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',ecardfee={4}, status='I' WHERE id={5}",
-                                                      firstName, lastName, ecard, clubCode, rent, dbidOut);
+                                                      firstName, lastName, ecardstring, clubCode, rent, dbidOut);
                                 var update = cmd.ExecuteNonQuery();
                                 if (update != 1)
                                 {
@@ -1945,6 +1947,9 @@ namespace LiveResults.Client
 
             int eTimingBib = 0;
             int dbid = 0;
+
+            if (ecard < 0)
+                return;
 
             IDbCommand cmd = m_connection.CreateCommand();
             cmd.CommandText = string.Format(@"SELECT id, ename, name, startno, status FROM name WHERE ecard={0} OR ecard2={0} OR ecard3={0} OR ecard4={0}", ecard);
