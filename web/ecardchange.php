@@ -34,11 +34,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		<?php } ?>
 
 		var comp = <?= $_GET['comp'] ?>;
+		var raceOffline = false;
 		var ecards = [];
 		var runners = [];
 		var runnerOK = false;
 		var ecardOK = false;
-		var raceOnline = false;
 		var sendt = false;
 
 		$(document).ready(function() {
@@ -47,8 +47,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "api.php?method=getrunners&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					raceOnline = data.active;
-					if (!raceOnline) {
+					raceOffline = !data.active;
+					if (raceOffline) {
 						$('#inactiveinfo').html('Løpsbasen er ikke online så du får ikke bekreftet endringen før senere.');
 					}
 					// parse all data and fill the ecard array with ecard numbers
@@ -205,7 +205,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function submit() {
-			var bib = $('#bib').val();
+			var bib = $('#bib').text();
 			var ecardNumber = $('#ecardnumber').val();
 			$('#submit').hide();
 			$('#cancel').hide();
@@ -213,6 +213,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				url: url + "messageapi.php?method=sendmessage",
 				data: "comp=" + comp + "&dbid=" + -ecardNumber + "&ecardchange=1&message=startnummer: " + bib,
 				success: function(data) {
+					sendt = true;
 					lookForEntry(bib);
 				},
 				error: function(data) {
@@ -220,7 +221,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					window.location.href = ('entry.php?comp=' + comp);
 				}
 			});
-			sendt = true;
 		}
 
 		function cancel() {
@@ -228,8 +228,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function lookForEntry(bib, last_hash = "", no = 1) {
-			if (!raceOnline) {
-				$('#entrydata').html('Melding om ditt brikkebytte er sendt. Når løpet kommer online blir byttet gjort.');
+			if (raceOffline) {
+				$('#entrydata').html('Melding om brikkebytte er sendt. Når løpet kommer online blir byttet gjort.');
 			} else {
 				var ecardNumber = $('#ecardnumber').val();
 				$.ajax({
@@ -249,7 +249,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 											'<table>' +
 											'<tr><td>Startnummer:</td><td>' + data.runners[i].bib + '</td></tr>' +
 											'<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>' +
-											'<tr><td>Brikkenummer:</td><td>' + (data.runners[i].ecard1 > 0 ? data.runners[i].ecard1 : " - ") + '</td></tr>' +
+											'<tr><td>Brikkenummer:</td><td>' + ecardString(data.runners[i]) + '</td></tr>' +
 											'</table>');
 										break;
 									}
@@ -285,7 +285,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		<div style="font-size: 20px; font-weight: bold; height: 50px; background-color: #555555; padding-left: 5px; 
 	vertical-align: middle; line-height:45px; color: white; width: 100%">
 			<img src="images/LiveRes.png" height="40px" style="vertical-align: middle" />&nbsp;
-			Brikkeendring for <?= $currentComp->CompName() ?>, <small><?= $currentComp->CompDate() ?></small>
+			Brikkeendring - <?= $currentComp->CompName() ?>
 		</div>
 
 		<div class="maindiv" style="padding-left: 10px; width: 95%; font-size:larger">
