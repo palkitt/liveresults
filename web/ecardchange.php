@@ -22,17 +22,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 	<META HTTP-EQUIV="expires" CONTENT="-1">
 	<meta http-equiv="Content-Type" content="text/html;charset=<?= $CHARSET ?>">
-
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="theme-color" content="#555556">
-
 	<link rel="stylesheet" type="text/css" href="css/style-liveres.css">
-	<style>
-		.search-container {
-			margin-bottom: 10px;
-			width: 95%;
-		}
-	</style>
 	<script language="javascript" type="text/javascript" src="../js/jquery-3.7.0.min.js"></script>
 	<script language="javascript" type="text/javascript">
 		<?php if ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost') { ?>
@@ -46,6 +38,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var runners = [];
 		var runnerOK = false;
 		var ecardOK = false;
+		var raceOnline = false;
+		var sendt = false;
 
 		$(document).ready(function() {
 			$('#submit').hide();
@@ -53,11 +47,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "api.php?method=getrunners&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					if (!data.active) {
+					raceOnline = data.active;
+					if (!raceOnline) {
 						$('#inactiveinfo').html('Løpsbasen er ikke online så du får ikke bekreftet endringen før senere.');
 					}
 					// parse all data and fill the ecard array with ecard numbers
 					for (var i = 0; i < data.runners.length; i++) {
+						if (data.runners[i].bib == 0)
+							continue;
 						runners.push(data.runners[i]);
 						if (data.runners[i].ecard1 > 0)
 							ecards.push(data.runners[i].ecard1);
@@ -78,7 +75,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					populateSelect(runners, true);
 				});
 
-
 			$('#ecardnumber').on('focusout keypress', function(e) {
 				if (e.type === 'keypress' && e.which !== 13) {
 					ecardFieldActive = true;
@@ -96,7 +92,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					var index = runners.findIndex(function(runner) {
 						return runner.bib === bib;
 					});
-					$('#bib').html(bib);
+					$('#bib').html(Math.abs(bib));
 					$('#name').html(runners[index].name);
 					$('#oldecard').html(ecardString(runners[index]));
 					runnerOK = true;
@@ -121,7 +117,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				if (filteredRunners.length > 0 && filteredRunners.length < runners.length) {
 					populateSelect(filteredRunners);
 					$('#personSelect').val(filteredRunners[0].bib);
-					$('#bib').html(filteredRunners[0].bib);
+					$('#bib').html(Math.abs(filteredRunners[0].bib));
 					$('#name').html(filteredRunners[0].name);
 					$('#oldecard').html(ecardString(filteredRunners[0]));
 					runnerOK = true;
@@ -132,7 +128,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					$('#oldecard').html('...');
 					runnerOK = false;
 				}
-				if (runnerOK && ecardOK)
+				if (runnerOK && ecardOK && !sendt)
 					$('#submit').show();
 				else
 					$('#submit').hide();
@@ -202,7 +198,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 						};
 					});
 			}
-			if (runnerOK && ecardOK)
+			if (runnerOK && ecardOK && !sendt)
 				$('#submit').show();
 			else
 				$('#submit').hide();
@@ -224,6 +220,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					window.location.href = ('entry.php?comp=' + comp);
 				}
 			});
+			sendt = true;
 		}
 
 		function cancel() {
@@ -231,47 +228,51 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function lookForEntry(bib, last_hash = "", no = 1) {
-			var ecardNumber = $('#ecardnumber').val();
-			$.ajax({
-				url: url + "api.php?method=getrunners",
-				data: "comp=" + comp + "&last_hash=" + last_hash,
-				success: function(data) {
-					if (data != null && data != "") {
-						found = false;
-						hash = last_hash;
-						if (data.status = "OK" && data.runners != undefined) {
-							hash = data.hash;
-							for (var i = 0; i < data.runners.length; i++) {
-								// Check if the bib and ecard number in the database matches the one we just registered
-								if (data.runners[i].bib == bib && (data.runners[i].ecard1 == ecardNumber || data.runners[i].ecard2 == ecardNumber)) {
-									found = true;
-									$('#entrydata').html('<b>Ditt brikkebytte er registrert som følger:</b><br>' +
-										'<table>' +
-										'<tr><td>Startnummer:</td><td>' + data.runners[i].bib + '</td></tr>' +
-										'<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>' +
-										'<tr><td>Brikkenummer:</td><td>' + (data.runners[i].ecard1 > 0 ? data.runners[i].ecard1 : " - ") + '</td></tr>' +
-										'</table>');
-									break;
+			if (!raceOnline) {
+				$('#entrydata').html('Melding om ditt brikkebytte er sendt. Når løpet kommer online blir byttet gjort.');
+			} else {
+				var ecardNumber = $('#ecardnumber').val();
+				$.ajax({
+					url: url + "api.php?method=getrunners",
+					data: "comp=" + comp + "&last_hash=" + last_hash,
+					success: function(data) {
+						if (data != null && data != "") {
+							found = false;
+							hash = last_hash;
+							if (data.status = "OK" && data.runners != undefined) {
+								hash = data.hash;
+								for (var i = 0; i < data.runners.length; i++) {
+									// Check if the bib and ecard number in the database matches the one we just registered
+									if (data.runners[i].bib == bib && (data.runners[i].ecard1 == ecardNumber || data.runners[i].ecard2 == ecardNumber)) {
+										found = true;
+										$('#entrydata').html('<b>Ditt brikkebytte er registrert som følger:</b><br>' +
+											'<table>' +
+											'<tr><td>Startnummer:</td><td>' + data.runners[i].bib + '</td></tr>' +
+											'<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>' +
+											'<tr><td>Brikkenummer:</td><td>' + (data.runners[i].ecard1 > 0 ? data.runners[i].ecard1 : " - ") + '</td></tr>' +
+											'</table>');
+										break;
+									}
+								}
+							}
+							if (!found) {
+								if (no > 6)
+									$('#entrydata').html('Ditt bytte ble ikke registrert! Kontakt løpskontor.');
+								else {
+									$('#entrydata').html('Venter på tilbakemelding for ditt bytte... <br>Dette kan ta inntil 30 sekunder (nå: ' + no * data.rt + 's)');
+									setTimeout(function() {
+										lookForEntry(bib, hash, (no + 1));
+									}, Math.max(5000, data.rt * 1000));
 								}
 							}
 						}
-						if (!found) {
-							if (no > 6)
-								$('#entrydata').html('Ditt bytte ble ikke registrert! Kontakt løpskontor.');
-							else {
-								$('#entrydata').html('Venter på tilbakemelding for ditt bytte... <br>Dette kan ta inntil 30 sekunder (nå: ' + no * data.rt + 's)');
-								setTimeout(function() {
-									lookForEntry(bib, hash, (no + 1));
-								}, Math.max(5000, data.rt * 1000));
-							}
-						}
+					},
+					error: function(data) {
+						alert('Det oppstod en feil under forsøk på brikkebytte. Prøv igjen eller kontakt løpskontoret.');
+						window.location.href = ('entry.php?comp=' + comp);
 					}
-				},
-				error: function(data) {
-					alert('Det oppstod en feil under forsøk på brikkebytte. Prøv igjen eller kontakt løpskontoret.');
-					window.location.href = ('entry.php?comp=' + comp);
-				}
-			});
+				});
+			}
 		}
 	</script>
 </head>
