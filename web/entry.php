@@ -36,6 +36,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		<?php } ?>
 
 		var comp = <?= $_GET['comp'] ?>;
+		var eventOffline = true;
+		var sendt = false;
 		var ecards = [];
 		var vacants = [];
 		var reservedID = 0;
@@ -46,7 +48,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					if (!data.active) {
+					eventOffline = !data.active;
+					if (eventOffline) {
 						$('#inactiveinfo').html('Løpet er ikke online! Kontakt løpskontor eller prøv igjen senere.');
 						$('#clubSelect').prop('disabled', true);
 						$('#clubSelect').prop('disabled', true).css('background-color', '');
@@ -130,7 +133,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			$('#firstname, #lastname').on('input', function() {
 				var firstName = $('#firstname').val();
 				var lastName = $('#lastname').val();
-				if (firstName.trim() !== '' && lastName.trim() !== '')
+				if (firstName.trim() !== '' && lastName.trim() !== '' && !sendt)
 					$('#submit').show();
 				else
 					$('#submit').hide();
@@ -154,6 +157,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		});
 
 		function verifyEcard() {
+			if (sendt)
+				return;
 			var ecardNumber = parseInt($('#ecardnumber').val());
 			if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
 				$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
@@ -195,7 +200,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			var firstName = $('#firstname').val();
 			var lastName = $('#lastname').val();
 
-			if (!ecardEntry) {
+			$('#clubSelect').prop('disabled', true);
+			$('#classSelect').prop('disabled', true);
+			if (ecardEntry) {
 				$('#ecardnumber').prop('disabled', true);
 				$('#rent').prop('disabled', true);
 			}
@@ -220,6 +227,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					url: url + "messageapi.php?method=sendmessage",
 					data: "comp=" + comp + "&dbid=" + reservedID + "&newentry=1&message=" + jsonData,
 					success: function(data) {
+						sendt = true;
 						lookForEntry(reservedID);
 					},
 					error: function(data) {
@@ -261,6 +269,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 										'<tr><td>Startnummer:</td><td>' + (data.runners[i].bib > 0 ? data.runners[i].bib : " - ") + '</td></tr>' +
 										'<tr><td>Starttid:</td><td>' + data.runners[i].start + '</td></tr>' +
 										'</table>');
+
+									// Show new entry button
+									reservedID = 0;
+									$('#cancel').html('Ny påmelding');
+									$('#cancel').show();
 									break;
 								}
 							}
@@ -294,7 +307,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		<div style="font-size: 20px; font-weight: bold; height: 50px; background-color: #555555; padding-left: 5px; 
 	vertical-align: middle; line-height:45px; color: white; width: 100%">
 			<img src="images/LiveRes.png" height="40px" style="vertical-align: middle" />&nbsp;
-			Direktepåmelding til <?= $currentComp->CompName() ?>, <small><?= $currentComp->CompDate() ?></small>
+			Direktepåmelding - <?= $currentComp->CompName() ?>
 		</div>
 
 		<div class="maindiv" style="padding-left: 10px; width: 95%; font-size:larger">

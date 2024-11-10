@@ -283,8 +283,14 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                     <td>
                       &nbsp;
                     <td>
-                      <a href="../entry.php?comp=<?= $_GET['compid'] ?>">Entry form</a><br>
+                      <a href="../entry.php?comp=<?= $_GET['compid'] ?>">Online entry</a><br>
                       <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://liveres.live/entry.php?comp=<?= $_GET['compid'] ?>&amp;size=150x150" alt="" title="" />
+                    </td>
+                    <td>
+                      &nbsp;
+                    <td>
+                      <a href="../ecardchange.php?comp=<?= $_GET['compid'] ?>">Online ecard change</a><br>
+                      <img src="https://api.qrserver.com/v1/create-qr-code/?data=https://liveres.live/ecardchange.php?comp=<?= $_GET['compid'] ?>&amp;size=150x150" alt="" title="" />
                     </td>
                   </tr>
                 </table>
