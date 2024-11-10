@@ -36,7 +36,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		<?php } ?>
 
 		var comp = <?= $_GET['comp'] ?>;
-		var raceOffline = true;
+		var eventOffline = true;
 		var sendt = false;
 		var ecards = [];
 		var vacants = [];
@@ -48,8 +48,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					raceOffline = !data.active;
-					if (raceOffline) {
+					eventOffline = !data.active;
+					if (eventOffline) {
 						$('#inactiveinfo').html('Løpet er ikke online! Kontakt løpskontor eller prøv igjen senere.');
 						$('#clubSelect').prop('disabled', true);
 						$('#clubSelect').prop('disabled', true).css('background-color', '');
@@ -200,7 +200,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			var firstName = $('#firstname').val();
 			var lastName = $('#lastname').val();
 
-			if (!ecardEntry) {
+			$('#clubSelect').prop('disabled', true);
+			$('#classSelect').prop('disabled', true);
+			if (ecardEntry) {
 				$('#ecardnumber').prop('disabled', true);
 				$('#rent').prop('disabled', true);
 			}
@@ -267,6 +269,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 										'<tr><td>Startnummer:</td><td>' + (data.runners[i].bib > 0 ? data.runners[i].bib : " - ") + '</td></tr>' +
 										'<tr><td>Starttid:</td><td>' + data.runners[i].start + '</td></tr>' +
 										'</table>');
+
+									// Show new entry button
+									reservedID = 0;
+									$('#cancel').html('Ny påmelding');
+									$('#cancel').show();
 									break;
 								}
 							}

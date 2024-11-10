@@ -34,12 +34,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		<?php } ?>
 
 		var comp = <?= $_GET['comp'] ?>;
-		var raceOffline = false;
+		var eventOffline = false;
 		var ecards = [];
 		var runners = [];
 		var runnerOK = false;
 		var ecardOK = false;
 		var sendt = false;
+		var ecardFieldActive = false;
 
 		$(document).ready(function() {
 			$('#submit').hide();
@@ -47,20 +48,21 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "api.php?method=getrunners&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					raceOffline = !data.active;
-					if (raceOffline) {
+					eventOffline = !data.active;
+					if (eventOffline) {
 						$('#inactiveinfo').html('Løpsbasen er ikke online så du får ikke bekreftet endringen før senere.');
 					}
 					// parse all data and fill the ecard array with ecard numbers
 					for (var i = 0; i < data.runners.length; i++) {
-						if (data.runners[i].bib == 0)
-							continue;
-						runners.push(data.runners[i]);
 						if (data.runners[i].ecard1 > 0)
 							ecards.push(data.runners[i].ecard1);
 						if (data.runners[i].ecard2 > 0)
 							ecards.push(data.runners[i].ecard2);
 
+						// Only include runners with bib number and status between 9 and 10
+						if (data.runners[i].bib == 0 || data.runners[i].status < 9 || data.runners[i].status > 10)
+							continue;
+						runners.push(data.runners[i]);
 						var name = data.runners[i].name;
 						var nameParts = name.split(' ');
 						var familyName = nameParts.pop();
@@ -136,7 +138,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		});
 
 		$(document).on('touchend', function(e) {
-			if (e.target.id !== 'ecardnumber') {
+			if (e.target.id !== 'ecardnumber' && ecardFieldActive) {
 				// The touchend event was fired outside the ecardnumber text box
 				verifyEcard();
 			}
@@ -169,6 +171,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function verifyEcard() {
+			if (sendt)
+				return false;
 			var ecardNumber = parseInt($('#ecardnumber').val());
 			if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
 				ecardOK = false;
@@ -202,13 +206,22 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				$('#submit').show();
 			else
 				$('#submit').hide();
+			return ecardOK;
 		}
 
 		function submit() {
+			if (!verifyEcard()) {
+				alert('Brikkenummeret er ikke gyldig. Prøv på nytt.');
+				return;
+			}
 			var bib = $('#bib').text();
 			var ecardNumber = $('#ecardnumber').val();
 			$('#submit').hide();
 			$('#cancel').hide();
+
+			$('#searchInput').prop('disabled', true);
+			$('#personSelect').prop('disabled', true);
+			$('#ecardnumber').prop('disabled', true);
 			$.ajax({
 				url: url + "messageapi.php?method=sendmessage",
 				data: "comp=" + comp + "&dbid=" + -ecardNumber + "&ecardchange=1&message=startnummer: " + bib,
@@ -218,7 +231,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				},
 				error: function(data) {
 					alert('Det oppstod en feil under registreringen. Prøv igjen eller kontakt løpskontoret.');
-					window.location.href = ('entry.php?comp=' + comp);
+					window.location.href = ('ecardchange.php?comp=' + comp);
 				}
 			});
 		}
@@ -228,7 +241,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function lookForEntry(bib, last_hash = "", no = 1) {
-			if (raceOffline) {
+			if (eventOffline) {
 				$('#entrydata').html('Melding om brikkebytte er sendt. Når løpet kommer online blir byttet gjort.');
 			} else {
 				var ecardNumber = $('#ecardnumber').val();
@@ -251,6 +264,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 											'<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>' +
 											'<tr><td>Brikkenummer:</td><td>' + ecardString(data.runners[i]) + '</td></tr>' +
 											'</table>');
+
+										// Show new ecard change button
+										$('#cancel').html('Ny endring');
+										$('#cancel').show();
 										break;
 									}
 								}
