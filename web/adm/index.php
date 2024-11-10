@@ -94,11 +94,10 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                             <a href="/followfull.php?comp=<?= $comp['tavid'] ?>">Results page</a>
                             <a href="/followfull.php?speaker&comp=<?= $comp["tavid"] ?>">Speaker view</a>
                             <a href="/message.php?comp=<?= $comp["tavid"] ?>">Messages</a>
-                            <a href="/entry.php?comp=<?= $comp["tavid"] ?>">Online entry form</a>
                             <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=0">Start registration</a>
                             <a href="/adm/radiolinks.php?comp=<?= $comp["tavid"] ?>">Radio links</a>
                             <a href="/adm/runners.php?compid=<?= $comp["tavid"] ?>">Runner list and edit</a>
-                            <a href="/startlist.php?comp=<?= $comp["tavid"] ?>">Startlist </a>
+                            <a href="/startlist.php?comp=<?= $comp["tavid"] ?>">Startlist</a>
                             <a href="/adm/radiocontrols.php?comp=<?= $comp["tavid"] ?>">Radio control editor</a>
                             <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=-2">Remaining runners</a>
                           </div>
