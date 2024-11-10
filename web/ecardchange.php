@@ -286,7 +286,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					},
 					error: function(data) {
 						alert('Det oppstod en feil under forsøk på brikkebytte. Prøv igjen eller kontakt løpskontoret.');
-						window.location.href = ('entry.php?comp=' + comp);
+						window.location.href = ('ecardchange.php?comp=' + comp);
 					}
 				});
 			}
@@ -297,7 +297,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <body>
 
 	<?php if (!isset($_GET['comp'])) { ?>
-		<h1 class="categoriesheader">Feil. Har du satt compID? Eks: ecardentry.php?comp=10016</h1>
+		<h1 class="categoriesheader">Feil. Har du satt compID? Eks: ecardchange.php?comp=10016</h1>
 	<?php } else { ?>
 		<div style="font-size: 20px; font-weight: bold; height: 50px; background-color: #555555; padding-left: 5px; 
 	vertical-align: middle; line-height:45px; color: white; width: 100%">
