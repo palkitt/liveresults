@@ -116,7 +116,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
     searchname = function() {
       var searchtext = $("#searchField").val();
-      $races = "10686, 10624, 10418, 10347, 10207, 10161, 10076, 10054, 10051, 10012, 10052";
+      $races = "10952, 10686, 10624, 10418, 10347, 10207, 10161, 10076, 10054, 10051, 10012, 10052";
       if (searchtext.length > 0) {
         $.ajax({
           url: "/api/api.php",
