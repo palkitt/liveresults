@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = true;
+      this.local = false;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -111,16 +111,6 @@ var LiveResults;
         _this.onload();
       });
 
-      $(window).on('resize', function () {
-        if (_this.currentTable == null || _this.curClassName == "startlist" || (_this.curClassName != null && _this.curClassName.includes("plainresults")))
-          return;
-        else {
-          _this.currentTable.fixedHeader.disable();
-          _this.currentTable.columns.adjust().draw();
-          _this.currentTable.fixedHeader.enable();
-        }
-
-      });
     }
 
     AjaxViewer.prototype.onload = function () {

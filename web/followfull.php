@@ -11,6 +11,7 @@ $compNo = $_GET['comp'];
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
+include_once("templates/datatablesURL.php");
 
 if ($isEmmaComp) {
   $url = "https://liveresultat.orientering.se/api.php?method=getcompetitioninfo&comp=" . $compNo;
@@ -85,10 +86,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <!-- link rel="stylesheet" href="css/datatables.min.css">
   <link rel="stylesheet" href="css/font-awesome/6.6.0/css/all.min.css">
   <script src="js/datatables.min.js"></script -->
-  <link rel="stylesheet" href="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.8/fc-5.0.3/fh-4.0.1/datatables.min.css">
+  <link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link rel="stylesheet" href="css/style-liveres.css?a">
-  <script src="https://cdn.datatables.net/v/dt/jq-3.7.0/dt-2.1.8/fc-5.0.3/fh-4.0.1/datatables.min.js"></script>
+  <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <?php if ($isSpeaker) { ?>
