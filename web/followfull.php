@@ -449,6 +449,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                     case "trøsken il":
                       $image = "images/trosken.png";
                       break;
+                    case "lillomarka":
+                    case "lillomarka OL":
+                      $image = "images/lillomarka.png";
+                      break;
                     default:
                       $image = "images/LiveRes60.png";
                   }
