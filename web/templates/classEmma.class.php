@@ -760,7 +760,7 @@ class Emma
 		return $ret;
 	}
 
-	function getRadioPassings($code, $calltime, $lastUpdate, $maxNum, $minBib, $maxBib)
+	function getRadioPassings($code, $lastUpdate, $maxNum)
 	{
 		$ret = array();
 		if ($code == -2) // Left in forest
@@ -772,7 +772,6 @@ class Emma
 			LEFT JOIN results AS results2 ON results.DbID=results2.DbID
 			WHERE results.TavId =" . $this->m_CompId . "  AND results2.TavId = results.TavId
 			AND runners.TavId = results.TavId AND (results.Status = 9 OR results.Status = 10) AND results.control = 1000 AND results2.Control = 100 AND runners.class NOT LIKE '%-All' 
-			AND runners.bib >= " . $minBib . " AND runners.bib <= " . $maxBib . " 
 			ORDER BY runners.Club, results2.Time, runners.Name";
 		else {
 			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results.dbid, results.Time, results.Status, results.Changed, 
@@ -780,7 +779,6 @@ class Emma
 			left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=" . $this->m_CompId . " 
 			AND runners.class = splitcontrols.classname) 
 			WHERE results.TavId =" . $this->m_CompId . " 
-			AND runners.bib >= " . $minBib . " AND runners.bib <= " . $maxBib . "
 			AND runners.TavId = results.TavId ";
 
 			if ($code == 1000) // Finish

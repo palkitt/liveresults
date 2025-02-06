@@ -58,10 +58,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     var runnerStatus = null;
     var callTime = 3;
     var postTime = 5;
-    var minBib = -100000;
-    var maxBib = 100000;
+    var minBib = null;
+    var maxBib = null;
 
     function switchOpenTimed(open) {
+      if (minBib == "")
+        minBib = null;
+      if (maxBib == "")
+        maxBib = null;
       var url = "radio.php?comp=<?= $_GET['comp'] ?>&code=0&calltime=" + callTime + "&posttime=" + postTime + "&minbib=" + minBib + "&maxbib=" + maxBib;
       if (open)
         url += "&openstart";
@@ -140,11 +144,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       if (<?= $_GET['code'] ?> == 0) {
         document.getElementById("callTime").value = callTime;
         document.getElementById("postTime").value = postTime;
-        document.getElementById("minBib").value = minBib;
-        document.getElementById("maxBib").value = maxBib;
+        if (minBib != null)
+          document.getElementById("minBib").value = minBib;
+        if (maxBib != null)
+          document.getElementById("maxBib").value = maxBib;
         res.updateStartRegistration(<?= (isset($_GET['openstart']) ? 1 : 0) ?>);
       } else
-        res.updateRadioPassings(<?= $_GET['code'] ?>, callTime, minBib, maxBib);
+        res.updateRadioPassings(<?= $_GET['code'] ?>);
 
       $('#filterText').on('keyup', function() {
         res.filterTable();
@@ -171,7 +177,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <?php if (!isset($_GET['comp']) || !isset($_GET['code'])) { ?>
     <h1 class="categoriesheader">Feil. Har du satt compID og postkode? Eks: radio.php?comp=15109&code=120</h1>
   <?php } else { ?>
-    <table style="border:none; min-width:100%; table-layout:fixed; padding:3; border-spacing:3px;">
+    <table style="border:none; width:100%; table-layout:fixed; padding:3; border-spacing:3px;">
       <tr style="vertical-align: top;">
         <td>
           <table style="border:none; background-color:#555556; color:#FFF; padding:10px; margin-top:3px; width:100%;">
@@ -185,14 +191,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                     <b>Tidsstart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(1)">Fri→</a>
                   <?php } ?>
                 </td>
-                <td style="text-align: right">Før ⏲ <input type="text" id="callTime" style="width: 20px;"></td>
-                <td style="text-align: right">Min № <input type="text" id="minBib" style="width: 50px;"></td>
+                <td style="text-align: right">Før ⏲ <input type="text" id="callTime" style="width: 30px;"></td>
+                <td style="text-align: right">Min № <input type="text" id="minBib" style="width: 30px;"></td>
                 <td style="text-align: right" width="10%"><span id="pretime" style="font-style:italic; color:lightgray">00:00:00</span></td>
               </tr>
               <tr>
                 <td style="text-align: left"><input type="text" id="filterText" placeholder="filter..." style="width: 90px;"></td>
-                <td style="text-align: right">Etter ⏲ <input type="text" id="postTime" style="width: 20px;"></td>
-                <td style="text-align: right">Max № <input type="text" id="maxBib" style="width: 50px;"></td>
+                <td style="text-align: right">Etter ⏲ <input type="text" id="postTime" style="width: 30px;"></td>
+                <td style="text-align: right">Max № <input type="text" id="maxBib" style="width: 30px;"></td>
                 <td style="text-align: right" width="10%"><span id="time">00:00:00</span></td>
               </tr>
             <?php } else { ?>

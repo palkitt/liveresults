@@ -1437,19 +1437,18 @@ var LiveResults;
     };
 
     //Request data for the last radio passings div
-    AjaxViewer.prototype.updateRadioPassings = function (code, calltime, minBib, maxBib) {
+    AjaxViewer.prototype.updateRadioPassings = function (code) {
       var _this = this;
       clearTimeout(this.radioPassingsUpdateTimer);
       if (this.updateAutomatically) {
         $.ajax({
           url: this.radioURL,
-          data: "comp=" + this.competitionId + "&method=getradiopassings&code=" + code + "&calltime=" + calltime +
-            "&minbib=" + minBib + "&maxbib=" + maxBib +
+          data: "comp=" + this.competitionId + "&method=getradiopassings&code=" + code +
             "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash,
           success: function (data, status, resp) {
             var expTime = new Date();
             expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-            _this.handleUpdateRadioPassings(data, expTime, code, calltime, minBib, maxBib);
+            _this.handleUpdateRadioPassings(data, expTime, code);
           },
           error: function () {
             _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateRadioPassings(); }, _this.radioUpdateInterval);
@@ -1460,7 +1459,7 @@ var LiveResults;
     };
 
     //Handle response for updating the last radio passings..
-    AjaxViewer.prototype.handleUpdateRadioPassings = function (data, expTime, code, calltime, minBib, maxBib) {
+    AjaxViewer.prototype.handleUpdateRadioPassings = function (data, expTime, code) {
 
       if (data.rt != undefined && data.rt > 0)
         this.radioUpdateInterval = data.rt * 1000;
@@ -1660,6 +1659,11 @@ var LiveResults;
 
           this.currentTable = $('#' + this.radioPassingsDiv).DataTable({
             fixedHeader: true,
+            fixedColumns: {
+              leftColumns: (leftInForest ? 2 : 4),
+              rightColumns: (leftInForest ? 1 : 0)
+            },
+            scrollX: true,
             paging: false,
             searching: true,
             ordering: leftInForest,
@@ -1677,7 +1681,7 @@ var LiveResults;
         }
       }
       if (this.isCompToday())
-        this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateRadioPassings(code, calltime, minBib, maxBib); }, this.radioUpdateInterval);
+        this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateRadioPassings(code); }, this.radioUpdateInterval);
       else
         $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
 
@@ -1728,6 +1732,9 @@ var LiveResults;
 
         clearTimeout(this.updateStartRegistrationTimer);
         this.lastRadioPassingsUpdateHash = data.hash;
+        data.runners.forEach(function (runner) {
+          runner.show = 'true';
+        });
         this.radioData = data.runners;
         this.radioData.sort(this.startSorter);
 
@@ -1746,6 +1753,9 @@ var LiveResults;
           if (this.radioData != null && this.radioData.length > 0) {
             var columns = Array();
             var col = 0;
+            columns.push({
+              title: "Show", orderable: false, targets: [col++], data: "show", visible: false
+            });
             columns.push({
               title: "&#8470;", className: "dt-right", orderable: false, targets: [col++], data: "bib",
               render: function (data, type, row) {
@@ -1832,16 +1842,20 @@ var LiveResults;
 
             this.currentTable = $('#' + this.radioPassingsDiv).DataTable({
               fixedHeader: true,
+              fixedColumns: {
+                leftColumns: 2,
+                rightColumns: 2
+              },
+              scrollX: true,
               paging: false,
               lengthChange: false,
               searching: true,
               info: false,
               data: this.radioData,
               ordering: false,
-              columnDefs: columns,
+              columns: columns,
               destroy: true,
-              dom: 'lrtip',
-              orderCellsTop: true
+              dom: 'lrtip'
             });
           }
         }
@@ -1872,7 +1886,6 @@ var LiveResults;
           var dt = new Date();
           this.updateStartClock(dt);
           var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
-          var data = this.currentTable.data().toArray();
 
           var callTime = parseInt($('#callTime')[0].value) * 60;
           var postTime = parseInt($('#postTime')[0].value) * 60;
@@ -1889,10 +1902,12 @@ var LiveResults;
           var timeBeforeStartMakeSound = 4;
           var startBeep = 0; // 0: no, 1: short, 2: long
 
+          var data = this.radioData;
           // *** Hide or highlight rows ***
           for (var i = 0; i < data.length; i++) {
             var row = this.currentTable.row(i).node();
-            $(row).hide();
+            data[i].show = 'false';
+            $(row).removeClass();
 
             const showStatus = [1, 9, 10]; // DNS, Started, Entered
             if (data[i].bib < minBib || data[i].bib > maxBib || !showStatus.includes(data[i].status)) {
@@ -1900,7 +1915,7 @@ var LiveResults;
             }
 
             if (data[i].dbid < 0) {
-              $(row).show();
+              data[i].show = 'true';
               shownId.push({ dbid: data[i].dbid });
               if (firstUnknown) {
                 $(row).addClass('firstnonqualifier');
@@ -1912,7 +1927,7 @@ var LiveResults;
 
             if (openStart) {
               if (data[i].starttime == -999) {
-                $(row).show();
+                data[i].show = 'true';
                 shownId.push({ dbid: data[i].dbid });
                 if (firstOpen) {
                   $(row).addClass('firstnonqualifier');
@@ -1921,7 +1936,6 @@ var LiveResults;
               }
             }
             else { // Timed start
-              $(row).removeClass();
               var startTimeSeconds = data[i].starttime / 100;
               var timeToStart = startTimeSeconds - time;
 
@@ -1933,7 +1947,7 @@ var LiveResults;
               if (timeToStart <= -postTime)
                 continue;
               else if (timeToStart <= 0) {
-                $(row).show();
+                data[i].show = 'true';
                 shownId.push({ dbid: data[i].dbid });
                 $(row).addClass('pre_post_start')
                 if (firstInPostTime) {
@@ -1942,7 +1956,7 @@ var LiveResults;
                 }
               }
               else if (timeToStart <= callTime) {
-                $(row).show();
+                data[i].show = 'true';
                 shownId.push({ dbid: data[i].dbid });
                 if (firstInCallTime) {
                   $(row).addClass('firststarter yellow_row');
@@ -1954,7 +1968,7 @@ var LiveResults;
                   $(row).addClass('yellow_row');
               }
               else if (timeToStart <= callTime + preTime) {
-                $(row).show();
+                data[i].show = 'true';
                 shownId.push({ dbid: data[i].dbid });
                 $(row).addClass('pre_post_start');
               }
@@ -1963,13 +1977,10 @@ var LiveResults;
             if (data[i].status == 1 || this.messageBibs.indexOf(data[i].dbid) > -1)
               $(row).addClass('dns');
           }
+          this.currentTable.rows().invalidate();
+          this.currentTable.column(0).search('true').draw();
 
-          for (var i = 0; i < shownId.length; ++i) {
-            if (shownId[i].dbid !== this.prewShownId[i]) {
-              this.animateTable(_this.prewShownId, shownId, _this.animTime);
-              break;
-            }
-          }
+          this.animateTable(_this.prewShownId, shownId, _this.animTime);
           this.prewShownId = shownId;
           if (startBeep > 0 && !this.audioMute)
             window.makeStartBeep(startBeep == 2); // 2 : long beep
@@ -1979,7 +1990,9 @@ var LiveResults;
           var timer = (ms > 800 ? 2000 - ms : 1000 - ms);
           this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, timer);
         }
-        catch (e) { };
+        catch (e) {
+          console.log(e);
+        };
       }
     }
 
@@ -2725,7 +2738,14 @@ var LiveResults;
         }
         setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
       }
-      catch (e) { }
+      catch (e) {
+        this.animating = false;
+        if (!this.currentTable.fixedHeader.enabled()) {
+          this.currentTable.fixedHeader.enable();
+        }
+        if (predRank)
+          this.startPredictedTimeTimer();
+      }
     };
 
     // Reset settings after animation is completed
@@ -3623,7 +3643,7 @@ var LiveResults;
 
           this.currentTable = $('#' + this.resultsDiv).DataTable({
             fixedHeader: true,
-            fixedColumns: { left: 2 },
+            fixedColumns: { leftColumns: 2 },
             scrollX: true,
             paging: false,
             layout: {
