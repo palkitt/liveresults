@@ -7,7 +7,7 @@ var LiveResults;
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer = false, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = false;
+      this.local = true;
       this.competitionId = competitionId;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -1603,7 +1603,7 @@ var LiveResults;
           columns.push({
             title: "Klasse", className: "dt-left", orderable: leftInForest, targets: [col++], data: "class",
             render: function (data, type, row) {
-              var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
+              var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "#" + encodeURIComponent(row.class);
               link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
               return link;
             }
@@ -1796,7 +1796,7 @@ var LiveResults;
             columns.push({
               title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
               render: function (data, type, row) {
-                var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
+                var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "#" + encodeURIComponent(row.class);
                 link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
                 return link;
               }
@@ -2133,7 +2133,7 @@ var LiveResults;
           title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
           render: function (data, type, row) {
             className = row.class;
-            var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "&class=" + encodeURIComponent(row.class);
+            var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "#" + encodeURIComponent(row.class);
             link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
             if (row.status == 1) // DNS
               return ("<del>" + link + "</del>");
