@@ -315,6 +315,14 @@ class Emma
 		return $ret1 + $ret2;
 	}
 
+	public static function DelRunner($compid, $dbid)
+	{
+		$conn = self::openConnection();
+		$ret1 = mysqli_query($conn, "DELETE FROM runners WHERE tavid=$compid AND dbid=$dbid");
+		$ret2 = mysqli_query($conn, "DELETE FROM results WHERE tavid=$compid AND dbid=$dbid");
+		return ($ret1 && $ret2);
+	}
+
 	public static function SendMessage($compid, $dbid, $changed, $message, $dns, $ecardchange, $completed, $newentry)
 	{
 		$conn = self::openConnection();

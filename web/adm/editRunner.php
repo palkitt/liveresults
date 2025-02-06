@@ -1,9 +1,11 @@
 <?php
 include_once("../templates/classEmma.class.php");
 
+$runner = Emma::GetRunnerData($_GET['compid'], $_GET['dbid']);
+
 if (isset($_POST['btnSave'])) {
   if ($_POST['pin'] == "0000") {
-    $test = Emma::UpdateRunner(
+    $ret = Emma::UpdateRunner(
       $_GET['compid'],
       $_GET['dbid'],
       $_POST['bib'],
@@ -14,12 +16,22 @@ if (isset($_POST['btnSave'])) {
       $_POST['status'],
       (isset($_POST['ecardchecked']) ? 1 : null)
     );
-    if ($test == 2)
+    if ($ret == 2)
       echo ('<b>&nbsp;Update OK</b>');
     else
       echo ('<b>&nbsp;Update failed</b>');
   } else
     echo ('<b>&nbsp;Invalid PIN code</b>');
+}
+if (isset($_POST['btnDelete'])) {
+
+  $ret = Emma::DelRunner($_GET['compid'], $_GET['dbid']);
+  $message = $ret ? 'Delete successful' : 'Delete failed';
+  echo "<script type='text/javascript'>
+          alert('$message');
+          window.location.href = 'runners.php?compid={$_GET['compid']}';
+        </script>";
+  exit;
 }
 
 include_once("../templates/emmalang_no.php");
@@ -43,7 +55,9 @@ header('Content-Type: text/html; charset=' . $CHARSET);
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <script language="javascript">
-
+    function confirmDelete() {
+      return confirm('Are you sure you want to DELETE the following runner?\n(<?= $runner['bib'] ?>) <?= $runner['name'] ?>');
+    }
   </script>
 
 </head>
@@ -92,7 +106,6 @@ header('Content-Type: text/html; charset=' . $CHARSET);
             <tr>
               <td>
                 <?php
-                $runner = Emma::GetRunnerData($_GET['compid'], $_GET['dbid']);
                 ?>
                 <form name="form1" action="editRunner.php?compid=<?= $runner['tavid'] ?>&dbid=<?= $runner['dbid'] ?>" method="post">
 
@@ -149,6 +162,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                     </tr>
                   </table>
                   <input type="submit" name="btnSave" value="Update" />
+                  <input type="submit" name="btnDelete" value="Delete" onclick="return confirmDelete();" />
                 </form>
               </td>
             </tr>
