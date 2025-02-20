@@ -266,7 +266,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 										'<tr><td>Klubb:</td><td>' + data.runners[i].club + '</td></tr>' +
 										'<tr><td>Klasse:</td><td>' + data.runners[i].class + '</td></tr>' +
 										'<tr><td>Brikkenummer:</td><td>' + (data.runners[i].ecard1 > 0 ? data.runners[i].ecard1 : " - ") + '</td></tr>' +
-										'<tr><td>Startnummer:</td><td>' + (data.runners[i].bib > 0 ? data.runners[i].bib : " - ") + '</td></tr>' +
+										'<tr><td>Startnummer:</td><td>' + (data.runners[i].bib == 0 ? " - " : Math.abs(data.runners[i].bib)) + '</td></tr>' +
 										'<tr><td>Starttid:</td><td>' + data.runners[i].start + '</td></tr>' +
 										'</table>');
 

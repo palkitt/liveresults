@@ -468,6 +468,7 @@ namespace LiveResults.Client
             }
         }
 
+        // Update list of vacant runners
         private void setVacants()
         {
             try
@@ -477,8 +478,20 @@ namespace LiveResults.Client
                 {
                     List<VacantRunner> vacantRunner = new List<VacantRunner>();
                     IDbCommand cmd = m_connection.CreateCommand();
-                    cmd.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.class, C.class as cclass FROM name N, Class C WHERE N.class=C.code AND N.status = 'V'");
-
+                    // Check if vacants are before or behind ordinary starters
+                    // max(vacant) < min(ordinary) => all before, use last startno
+                    // else after or inbetween => use first startno
+                    // Change sign so that smallest startno is first
+                    cmd.CommandText = @"
+                        SELECT 
+                            N.id, N.kid, N.class, C.class as classname,
+                            IIF((SELECT MAX(N2.startno) FROM name N2 WHERE N2.class = N.class AND N2.status = 'V') <
+                                (SELECT MIN(N2.startno) FROM name N2 WHERE N2.class = N.class AND N2.status <> 'V'),
+                                -N.startno, N.startno) AS startno                      
+                        FROM 
+                            name N INNER JOIN class C ON N.class = C.code 
+                        WHERE
+                            N.status = 'V'";
                     using (IDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -490,7 +503,7 @@ namespace LiveResults.Client
                                 parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
                             string bibread = (reader["startno"].ToString()).Trim();
                             int bib = string.IsNullOrEmpty(bibread) ? 0 : Convert.ToInt32(bibread);
-                            string classname = reader["cclass"] as string;
+                            string classname = reader["classname"] as string;
                             string classid = reader["class"] as string;
 
                             int runnerID = 0;
@@ -1137,7 +1150,7 @@ namespace LiveResults.Client
                                 splits.AddRange(splitList[ecard]);
                                 splitList.Remove(ecard);
                             }
-                        }                      
+                        }
                         splits = splits.OrderBy(s => s.passTime).ToList();
 
                         var lsplitCodes = new List<int>();
@@ -1249,7 +1262,7 @@ namespace LiveResults.Client
                         }
 
                         // Add lap time for last lap
-                        if (time > 0 && m_lapTimes && !isRelay && lastSplitTime > 0) 
+                        if (time > 0 && m_lapTimes && !isRelay && lastSplitTime > 0)
                         {
                             var LegTime = new ResultStruct
                             {
@@ -1292,7 +1305,7 @@ namespace LiveResults.Client
                             {
                                 if (ecardTimesList.ContainsKey(ecard))
                                     ecardTimes.AddRange(ecardTimesList[ecard]);
-                            }                            
+                            }
                             ecardTimes = ecardTimes.OrderBy(s => s.time).ToList();
 
                             int controlNo = 0, timeNo = 0, timeNoLast = -1, numControls = 0;
@@ -1454,14 +1467,14 @@ namespace LiveResults.Client
             int rstatus = 10; //  Default: Entered
             switch (status)
             {
-                case "A":  rstatus = 0;  break; // OK
-                case "N":  rstatus = 1;  time = -3; break; // DNS
-                case "B":  rstatus = 2;  time = -3; break; // DNF
-                case "D":  rstatus = 3;  time = -3; break; // DSQ / MP
-                case "NC": rstatus = 6;  time = -3; break; // Not classified
-                case "S":  rstatus = 9;  time = -3; break; // Started
-                case "I":  rstatus = 10; time = -3; break; // Entered
-                case "F":  rstatus = 13; break; // Finished (Fullført). For not ranked classes
+                case "A": rstatus = 0; break; // OK
+                case "N": rstatus = 1; time = -3; break; // DNS
+                case "B": rstatus = 2; time = -3; break; // DNF
+                case "D": rstatus = 3; time = -3; break; // DSQ / MP
+                case "NC": rstatus = 6; time = -3; break; // Not classified
+                case "S": rstatus = 9; time = -3; break; // Started
+                case "I": rstatus = 10; time = -3; break; // Entered
+                case "F": rstatus = 13; break; // Finished (Fullført). For not ranked classes
             }
             return rstatus;
         }
