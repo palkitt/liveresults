@@ -55,10 +55,9 @@
             this.flowLayoutPanel1.Controls.Add(this.button5);
             this.flowLayoutPanel1.Controls.Add(this.button7);
             this.flowLayoutPanel1.Controls.Add(this.button6);
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(32, 56);
-            this.flowLayoutPanel1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(16, 29);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(664, 400);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(332, 208);
             this.flowLayoutPanel1.TabIndex = 0;
             this.flowLayoutPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.flowLayoutPanel1_Paint);
             // 
@@ -66,10 +65,9 @@
             // 
             this.btnOLA.Image = global::LiveResults.Client.Properties.Resources.OLAImg;
             this.btnOLA.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.btnOLA.Location = new System.Drawing.Point(6, 6);
-            this.btnOLA.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.btnOLA.Location = new System.Drawing.Point(3, 3);
             this.btnOLA.Name = "btnOLA";
-            this.btnOLA.Size = new System.Drawing.Size(150, 173);
+            this.btnOLA.Size = new System.Drawing.Size(75, 90);
             this.btnOLA.TabIndex = 0;
             this.btnOLA.Text = "OLA, SOFT";
             this.btnOLA.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -82,10 +80,9 @@
             // 
             this.button2.Image = global::LiveResults.Client.Properties.Resources.iof_logohead1;
             this.button2.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.button2.Location = new System.Drawing.Point(168, 6);
-            this.button2.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button2.Location = new System.Drawing.Point(84, 3);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(150, 173);
+            this.button2.Size = new System.Drawing.Size(75, 90);
             this.button2.TabIndex = 2;
             this.button2.Text = "IOF XML (SportSoftware OE/OS, MeOs,..)";
             this.button2.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -98,10 +95,9 @@
             // 
             this.button3.Image = global::LiveResults.Client.Properties.Resources.ssftiming;
             this.button3.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.button3.Location = new System.Drawing.Point(330, 6);
-            this.button3.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button3.Location = new System.Drawing.Point(165, 3);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(150, 173);
+            this.button3.Size = new System.Drawing.Size(75, 90);
             this.button3.TabIndex = 4;
             this.button3.Text = "SSF Timing (beta)";
             this.button3.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -114,10 +110,9 @@
             // 
             this.button4.Image = global::LiveResults.Client.Properties.Resources.OEImg;
             this.button4.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.button4.Location = new System.Drawing.Point(492, 6);
-            this.button4.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button4.Location = new System.Drawing.Point(246, 3);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(150, 173);
+            this.button4.Size = new System.Drawing.Size(75, 90);
             this.button4.TabIndex = 5;
             this.button4.Text = "OE/OS CSV (old format)";
             this.button4.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -128,10 +123,9 @@
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(6, 191);
-            this.button1.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button1.Location = new System.Drawing.Point(3, 99);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(150, 173);
+            this.button1.Size = new System.Drawing.Size(75, 90);
             this.button1.TabIndex = 3;
             this.button1.Text = "RaCom Files";
             this.button1.UseVisualStyleBackColor = true;
@@ -141,10 +135,9 @@
             // 
             // button5
             // 
-            this.button5.Location = new System.Drawing.Point(168, 191);
-            this.button5.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button5.Location = new System.Drawing.Point(84, 99);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(150, 173);
+            this.button5.Size = new System.Drawing.Size(75, 90);
             this.button5.TabIndex = 6;
             this.button5.Text = "Meos";
             this.button5.UseVisualStyleBackColor = true;
@@ -155,10 +148,9 @@
             // 
             this.button7.Image = global::LiveResults.Client.Properties.Resources.brikkesys;
             this.button7.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.button7.Location = new System.Drawing.Point(330, 191);
-            this.button7.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button7.Location = new System.Drawing.Point(165, 99);
             this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(150, 173);
+            this.button7.Size = new System.Drawing.Size(75, 90);
             this.button7.TabIndex = 8;
             this.button7.Text = "Brikkesys";
             this.button7.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -171,10 +163,9 @@
             // 
             this.button6.Image = global::LiveResults.Client.Properties.Resources.emitE;
             this.button6.ImageAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.button6.Location = new System.Drawing.Point(492, 191);
-            this.button6.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
+            this.button6.Location = new System.Drawing.Point(246, 99);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(150, 173);
+            this.button6.Size = new System.Drawing.Size(75, 90);
             this.button6.TabIndex = 7;
             this.button6.Text = "eTiming";
             this.button6.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
@@ -186,10 +177,9 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(26, 25);
-            this.label1.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.label1.Location = new System.Drawing.Point(13, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(270, 25);
+            this.label1.Size = new System.Drawing.Size(135, 13);
             this.label1.TabIndex = 1;
             this.label1.Text = "Create new Live Broadcast";
             // 
@@ -199,27 +189,25 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblInfo.Location = new System.Drawing.Point(32, 462);
-            this.lblInfo.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.lblInfo.Location = new System.Drawing.Point(16, 240);
             this.lblInfo.Name = "lblInfo";
-            this.lblInfo.Size = new System.Drawing.Size(664, 150);
+            this.lblInfo.Size = new System.Drawing.Size(332, 78);
             this.lblInfo.TabIndex = 2;
             // 
             // FrmNewCompetition
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(720, 629);
+            this.ClientSize = new System.Drawing.Size(360, 327);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Controls.Add(this.lblInfo);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
-            this.Margin = new System.Windows.Forms.Padding(6, 6, 6, 6);
             this.Name = "FrmNewCompetition";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.Text = "Version 2024-10-30 | Create New Competition";
+            this.Text = "Version 2025-02-20 | Create New Competition";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmNewCompetition_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.FrmNewCompetition_KeyPress);
             this.flowLayoutPanel1.ResumeLayout(false);
