@@ -7,6 +7,7 @@ $lang = "no";
 if (isset($_GET['lang']) && $_GET['lang'] != "")
   $lang = $_GET['lang'];
 include_once("templates/emmalang_$lang.php");
+$emma = isset($_GET['emma']);
 
 header('Content-Type: text/html; charset=' . $CHARSET);
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
@@ -45,33 +46,42 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <!-- MAIN DIV -->
   <div style="font-size: 20px; font-weight: bold; height: 50px; background-color: #555555; padding-left: 5px; 
   vertical-align: middle; line-height:45px; color: white; width: 100%">
-    <img src="images/LiveRes.png" height="40px" style="vertical-align: middle" />&nbsp; LiveRes online resultater
+    <?php if ($emma) { ?>
+      <img src="images/svenskorientering.png" height="40px" style="vertical-align: middle" />&nbsp; Liveresults from Emma server (liveresultat.orientering.se)
+    <?php } else { ?>
+      <img src="images/LiveRes.png" height="40px" style="vertical-align: middle" />&nbsp; LiveRes online resultater
+    <?php } ?>
+
   </div>
 
   <div class="maindiv" style="padding-left: 5px;">
     <br>
-    <a href='indexEmma.php'>Results from liveresultat.orientering.se</a><br>
+    <?php if ($emma) { ?>
+      <a href='index.php'>Results from LiveRes</a><br>
+    <?php } else { ?>
+      <a href='index.php?emma'>Results from liveresultat.orientering.se</a><br>
+    <?php } ?>
     <br>
     <b>Choose language</b><br>
-    <a href=index.php?lang=no style='text-decoration: none'><img src='images/no.png?a' alt='Norsk'></a>&nbsp;
-    <a href=index.php?lang=sv style='text-decoration: none'><img src='images/se.png?a' alt='Svenska'></a>&nbsp;
-    <a href=index.php?lang=en style='text-decoration: none'><img src='images/en.png?a' alt='English'></a>&nbsp;
-    <a href=index.php?lang=fi style='text-decoration: none'><img src='images/fi.png?a' alt='Suomeksi'></a>&nbsp;
-    <a href=index.php?lang=ru style='text-decoration: none'><img src='images/ru.png?a' alt='Русский'></a>&nbsp;
-    <a href=index.php?lang=cz style='text-decoration: none'><img src='images/cz.png?a' alt='Česky'></a>&nbsp;
-    <a href=index.php?lang=de style='text-decoration: none'><img src='images/de.png?a' alt='Deutsch'></a>&nbsp;
-    <a href=index.php?lang=bg style='text-decoration: none'><img src='images/bg.png?a' alt='български'></a>&nbsp;
-    <a href=index.php?lang=fr style='text-decoration: none'><img src='images/fr.png?a' alt='Français'></a>&nbsp;
-    <a href=index.php?lang=it style='text-decoration: none'><img src='images/it.png?a' alt='Italiano'></a>&nbsp;
-    <a href=index.php?lang=hu style='text-decoration: none'><img src='images/hu.png?a' alt='Magyar'></a>&nbsp;
-    <a href=index.php?lang=es style='text-decoration: none'><img src='images/es.png?a' alt='Español'></a>&nbsp;
-    <a href=index.php?lang=pl style='text-decoration: none'><img src='images/pl.png?a' alt='Polska'></a>&nbsp;
-    <a href=index.php?lang=pt style='text-decoration: none'><img src='images/pt.png?a' alt='Português'></a>
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=no style='text-decoration: none'><img src='images/no.png?a' alt='Norsk'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=sv style='text-decoration: none'><img src='images/se.png?a' alt='Svenska'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=en style='text-decoration: none'><img src='images/en.png?a' alt='English'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=fi style='text-decoration: none'><img src='images/fi.png?a' alt='Suomeksi'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=ru style='text-decoration: none'><img src='images/ru.png?a' alt='Русский'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=cz style='text-decoration: none'><img src='images/cz.png?a' alt='Česky'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=de style='text-decoration: none'><img src='images/de.png?a' alt='Deutsch'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=bg style='text-decoration: none'><img src='images/bg.png?a' alt='български'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=fr style='text-decoration: none'><img src='images/fr.png?a' alt='Français'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=it style='text-decoration: none'><img src='images/it.png?a' alt='Italiano'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=hu style='text-decoration: none'><img src='images/hu.png?a' alt='Magyar'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=es style='text-decoration: none'><img src='images/es.png?a' alt='Español'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=pl style='text-decoration: none'><img src='images/pl.png?a' alt='Polska'></a>&nbsp;
+    <a href=index.php?<?= ($emma ? "emma&" : "") ?>lang=pt style='text-decoration: none'><img src='images/pt.png?a' alt='Português'></a>
     <br>
 
     <table style="border: none; border-collapse: collapse; width: 100%; padding: 0;" id="tblLiveComps">
       <td></td>
-      <td colspan=5>
+      <td colspan=<?= ($emma ? 3 : 5) ?>>
         <h1 class="categoriesheader">LIVE TODAY!</h1>
       </td>
       <tr>
@@ -79,19 +89,22 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         <th></th>
         <th style="text-align: left;"><?= $_DATE ?></th>
         <th style="text-align: left;"><?= $_EVENTNAME ?></th>
-        <th style="text-align: left;"><?= $_SPORT ?></th>
+        <?= ($emma ? "" : "<th style=\"text-align: left;\">" . $_SPORT . "</th>") ?>
         <th style="text-align: left;"><?= $_ORGANIZER ?></th>
-        <th style="text-align: left;">Livesenter</th>
+        <?= ($emma ? "" : "<th style=\"text-align: left;\">Livesenter</th>") ?>
       </tr>
 
       <?php
-      if ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
+      if ($emma)
+        $url = "https://liveresultat.orientering.se/api.php?method=getcompetitions";
+      else if ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
         $url = "http://localhost/api/api.php?method=getcompetitions";
       else
         $url = "https://api.liveres.live/api.php?method=getcompetitions";
       $isMobile = preg_match("/(android|avantgo|blackberry|bolt|boost|cricket|docomo|fone|hiptop|mini|mobi|palm|phone|pie|tablet|up\.browser|up\.link|webos|wos)/i", $_SERVER["HTTP_USER_AGENT"]);
       $json = file_get_contents($url);
       $json = preg_replace('/[[:cntrl:]]/', '', $json);
+      $json = str_replace('"O"', 'O', $json);
       $data = json_decode($json, true);
       $comps = $data["competitions"];
       $today = date("Y-m-d");
@@ -103,7 +116,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           $compName = $comp["name"];
           $compName = substr($compName, 0, ($isMobile ? 30 : 60));
           $isActive = false;
-          if ($comp["lastactive"] != "")
+          if (!$emma && $comp["lastactive"] != "")
             $isActive = (time() - strtotime($comp["lastactive"])) < 120;
       ?>
           <tr id="row<?= $comp["id"] ?>" style="font-weight:bold;">
@@ -113,11 +126,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <?php } ?>
             </td>
             <td><?= date("Y-m-d", strtotime($comp['date'])) ?></td>
-            <td><a onmouseover="colorRow('row<?= $comp["id"] ?>')" onmouseout="resetRow('row<?= $comp["id"] ?>')" href="followfull.php?comp=<?= $comp['id'] ?>&amp;lang=<?= $lang ?>"><?= $compName ?></a></td>
-            <td style="font-weight:normal"><?= $comp["sport"] ?></td>
+            <td><a onmouseover="colorRow('row<?= $comp["id"] ?>')" onmouseout="resetRow('row<?= $comp["id"] ?>')"
+                href="followfull.php?<?= ($emma ? "emma&" : "") ?>comp=<?= $comp['id'] ?>&amp;lang=<?= $lang ?>"><?= $compName ?></a></td>
+            <?= ($emma ? "" : "<td style=\"font-weight:normal\">" . $comp["sport"] . "</td>") ?>
             <td style="font-weight:normal"><?= $comp["organizer"] ?></td>
-            <?php if (strlen($comp['livecenterurl']) > 0) { ?>
-              <td><a onmouseover="colorRow('row<?= $comp["id"] ?>')" onmouseout="resetRow('row<?= $comp["id"] ?>')" href="<?= $comp['livecenterurl'] ?>">Livesenter</a></td>
+            <?php if (!$emma && strlen($comp['livecenterurl']) > 0) { ?>
+              <td><a onmouseover="colorRow('row<?= $comp["id"] ?>')" onmouseout="resetRow('row<?= $comp["id"] ?>')"
+                  href="<?= $comp['livecenterurl'] ?>">Livesenter</a></td>
             <?php } else { ?>
               <td></td>
             <?php } ?>
@@ -131,16 +146,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       </tr>
       <tr>
         <td></td>
-        <td colspan=5>
+        <td colspan=<?= ($emma ? 3 : 5) ?>>
           <h1 class="categoriesheader"><?= $_CHOOSECMP ?></h1>
         </td>
       <tr>
         <th></th>
         <th style="text-align: left;"><?= $_DATE ?></th>
         <th style="text-align: left;"><?= $_EVENTNAME ?></th>
-        <th style="text-align: left;"><?= $_SPORT ?></th>
+        <?= ($emma ? "" : "<th style=\"text-align: left;\">" . $_SPORT . "</th>") ?>
         <th style="text-align: left;"><?= $_ORGANIZER ?></th>
-        <th style="text-align: left;">Livesenter</th>
+        <?= ($emma ? "" : "<th style=\"text-align: left;\">Livesenter</th>") ?>
       </tr>
 
       <?php
@@ -157,33 +172,35 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       ?>
           <tr>
             <td></td>
-            <td colspan=5>
+            <td colspan=<?= ($emma ? 3 : 5) ?>>
               <h1 class="categoriesheader"><?= $year ?></h1>
             </td>
           </tr>
         <?php
         }
         $isActive = false;
-        if ($comp["lastactive"] != "")
+        if (!$emma && $comp["lastactive"] != "")
           $isActive = (time() - strtotime($comp["lastactive"])) < 120;
         if ($date < $today && !$firstAfterToday) {
           $firstAfterToday = true;
-        ?><tr id="row<?= $comp["id"] ?>" style="border-top: 2px solid gray;"><?php
-                                                                            } else {
-                                                                              ?>
-          <tr id="row<?= $comp["id"] ?>"><?php
-                                                                            } ?>
+        ?>
+          <tr id="row<?= $comp["id"] ?>" style="border-top: 2px solid gray;">
+          <?php } else { ?>
+          <tr id="row<?= $comp["id"] ?>">
+          <?php } ?>
           <td>
             <?php if ($isActive) { ?>
               <span class="pulsing">◉</span>
             <?php } ?>
           </td>
           <td><?= date("Y-m-d", strtotime($comp['date'])) ?></td>
-          <td><a onmouseover="colorRow('row<?= $comp["id"] ?>')" onmouseout="resetRow('row<?= $comp["id"] ?>')" href="followfull.php?comp=<?= $comp["id"] ?>&amp;lang=<?= $lang ?>"><?= $compName ?></a></td>
-          <td><?= $comp["sport"] ?></td>
+          <td><a onmouseover="colorRow('row<?= $comp["id"] ?>')" onmouseout="resetRow('row<?= $comp["id"] ?>')"
+              href="followfull.php?<?= ($emma ? "emma&" : "") ?>comp=<?= $comp["id"] ?>&amp;lang=<?= $lang ?>"><?= $compName ?></a></td>
+          <?= ($emma ? "" : "<td>" .  $comp["sport"] . "</td>") ?>
           <td><?= $comp["organizer"] ?></td>
-          <?php if (strlen($comp['livecenterurl']) > 0) { ?>
-            <td><a onmouseover="colorRow('row<?= $comp["id"] ?>')" onmouseout="resetRow('row<?= $comp["id"] ?>')" href="<?= $comp['livecenterurl'] ?>">Livesenter</a></td>
+          <?php if (!$emma && strlen($comp['livecenterurl']) > 0) { ?>
+            <td><a onmouseover="colorRow('row<?= $comp["id"] ?>')" onmouseout="resetRow('row<?= $comp["id"] ?>')"
+                href="<?= $comp['livecenterurl'] ?>">Livesenter</a></td>
           <?php } else { ?>
             <td></td>
           <?php } ?>

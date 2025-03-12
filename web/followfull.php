@@ -34,7 +34,7 @@ if ($isEmmaComp) {
   $qualLimits = "";
   $qualClasses = "";
   $infoText = "";
-  $indexRef = "indexEmma.php?lang=" . $lang;
+  $indexRef = "index.php?emma&lang=" . $lang;
   $CHARSET = 'utf-8';
 } else {
   include_once("templates/classEmma.class.php");
