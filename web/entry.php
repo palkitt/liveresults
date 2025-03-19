@@ -48,7 +48,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					eventOffline = !data.active;
+					eventOffline = false; //!data.active;
 					if (eventOffline) {
 						$('#inactiveinfo').html('Løpet er ikke online! Kontakt løpskontor eller prøv igjen senere.');
 						$('#clubSelect').prop('disabled', true);
@@ -197,8 +197,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			var className = $('#classSelect').val();
 			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
 			var rent = (ecardEntry ? $('#rent').prop('checked') : 0);
-			var firstName = $('#firstname').val();
-			var lastName = $('#lastname').val();
+			var firstName = sanitizeInput($('#firstname').val());
+			var lastName = sanitizeInput($('#lastname').val());
+			var comment = sanitizeInput($('#comment').val());
 
 			$('#clubSelect').prop('disabled', true);
 			$('#classSelect').prop('disabled', true);
@@ -217,7 +218,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				ecardNumber: ecardNumber,
 				club: club,
 				className: className,
-				rent: rent
+				rent: rent,
+				comment: comment
 			};
 
 			var jsonData = JSON.stringify(data);
@@ -296,6 +298,18 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				}
 			});
 		}
+
+		function sanitizeInput(input) {
+			// Replace problematic characters with safe alternatives
+			return input.replace(/[\\]/g, '') // Remove backslashes
+				.replace(/[\"]/g, '') // Remove double quotes
+				.replace(/[\/]/g, '') // Remove forward slashes
+				.replace(/[\b]/g, '') // Remove backspace
+				.replace(/[\f]/g, '') // Remove form feed
+				.replace(/[\n]/g, '') // Remove new line
+				.replace(/[\r]/g, '') // Remove carriage return
+				.replace(/[\t]/g, ''); // Remove tab
+		}
 	</script>
 </head>
 
@@ -341,6 +355,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 			<h2>Etternavn</h2>
 			<input id="lastname" type="text" style="width:95%">
+
+			<h2>Eventuell kommentar til arrangør</h2>
+			<input id="comment" type="text" style="width:95%">
 
 			<br><br>
 			<button id="submit" type="submit" onclick="submit();">Send in</button>
