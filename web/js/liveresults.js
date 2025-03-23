@@ -1734,6 +1734,7 @@ var LiveResults;
         this.lastRadioPassingsUpdateHash = data.hash;
         data.runners.forEach(function (runner) {
           runner.show = 'true';
+          runner.timeToStart = 0;
         });
         this.radioData = data.runners;
         this.radioData.sort(this.startSorter);
@@ -1828,6 +1829,17 @@ var LiveResults;
                 return data;
               }
             });
+            if (!openStart) {
+              columns.push({
+                title: "Diff", className: "dt-right", orderable: false, targets: [col++], data: "timeToStart",
+                render: function (data, type, row) {
+                  timeToStartStr = "<span style=\"color:" + (data < 0 ? "black" : "red") + "\">";
+                  timeToStartStr += (data < 0 ? "-" : "+") + _this.formatTime(Math.abs(data), 0, false);
+                  timeToStartStr += "<\span>";
+                  return timeToStartStr;
+                }
+              });
+            }
 
             var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
             columns.push({
@@ -1938,6 +1950,7 @@ var LiveResults;
             else { // Timed start
               var startTimeSeconds = data[i].starttime / 100;
               var timeToStart = startTimeSeconds - time;
+              data[i].timeToStart = -timeToStart * 100;
 
               if (timeToStart == 0)
                 startBeep = 2;
