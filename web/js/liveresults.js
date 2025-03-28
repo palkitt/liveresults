@@ -1504,7 +1504,10 @@ var LiveResults;
       // Modify data-table
       if (this.radioData != null) {
         var dt = new Date();
-        var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
+        var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
+        var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
+        var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
+        var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours() + 60 * timeZoneDiff;
         $.each(this.radioData, function (idx, passing) {
           if (_this.currentTable != null && (passing.status == 1 || _this.messageBibs.indexOf(parseInt(passing.dbid)) > -1)) {
             var row = _this.currentTable.row(idx).node();
@@ -1896,8 +1899,11 @@ var LiveResults;
         try {
           var _this = this;
           var dt = new Date();
+          var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
+          var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
+          var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
+          var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours() + 60 * timeZoneDiff;
           this.updateStartClock(dt);
-          var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours();
 
           var callTime = parseInt($('#callTime')[0].value) * 60;
           var postTime = parseInt($('#postTime')[0].value) * 60;

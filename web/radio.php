@@ -122,6 +122,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
       res.compName = "<?= $currentComp->CompName() ?>";
       res.compDate = "<?= $currentComp->CompDate() ?>";
+      res.eventTimeZoneDiff = <?= $currentComp->TimeZoneDiff() ?>;
 
       function updateClock() {
         var time = document.getElementById("time");
