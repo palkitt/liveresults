@@ -1904,13 +1904,12 @@ var LiveResults;
           var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
           var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours() + 60 * timeZoneDiff;
           this.updateStartClock(dt);
-
+          var preTime = parseInt($('#preTime')[0].value) * 60;
           var callTime = parseInt($('#callTime')[0].value) * 60;
           var postTime = parseInt($('#postTime')[0].value) * 60;
           var minBib = parseInt($('#minBib')[0].value);
           var maxBib = parseInt($('#maxBib')[0].value);
 
-          var preTime = 60;
           var firstUnknown = true;
           var firstOpen = true;
           var firstInCallTime = true;
@@ -2022,11 +2021,11 @@ var LiveResults;
       timeID.innerHTML = HTMLstringCur;
 
       var callTime = document.getElementById("callTime").value;
-      var preTimeID = document.getElementById("pretime");
-      if (preTimeID != null) {
+      var callClockID = document.getElementById("callClock");
+      if (callClockID != null) {
         var preTime = new Date(currTime.valueOf() + callTime * 60 * 1000);
         var HTMLstringPre = preTime.toLocaleTimeString('en-GB');
-        preTimeID.innerHTML = HTMLstringPre;
+        callClockID.innerHTML = HTMLstringPre;
       }
     }
 

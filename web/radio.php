@@ -56,6 +56,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     var res = null;
     var Resources = null;
     var runnerStatus = null;
+    var preTime = 1;
     var callTime = 3;
     var postTime = 5;
     var minBib = null;
@@ -66,7 +67,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         minBib = null;
       if (maxBib == "")
         maxBib = null;
-      var url = "radio.php?comp=<?= $_GET['comp'] ?>&code=0&calltime=" + callTime + "&posttime=" + postTime + "&minbib=" + minBib + "&maxbib=" + maxBib;
+      var url = "radio.php?comp=<?= $_GET['comp'] ?>&code=0&calltime=" + callTime + "&posttime=" + postTime +
+        "&pretime=" + preTime + "&minbib=" + minBib + "&maxbib=" + maxBib;
       if (open)
         url += "&openstart";
       window.location = url;
@@ -112,6 +114,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         echo 'callTime = ', $_GET['calltime'], ';';
       if (isset($_GET['posttime']))
         echo 'postTime = ', $_GET['posttime'], ';';
+      if (isset($_GET['pretime']))
+        echo 'preTime = ', $_GET['pretime'], ';';
       if (isset($_GET['minbib']))
         echo 'minBib = ', $_GET['minbib'], ';';
       if (isset($_GET['maxbib']))
@@ -145,6 +149,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       if (<?= $_GET['code'] ?> == 0) {
         document.getElementById("callTime").value = callTime;
         document.getElementById("postTime").value = postTime;
+        document.getElementById("preTime").value = preTime;
         if (minBib != null)
           document.getElementById("minBib").value = minBib;
         if (maxBib != null)
@@ -161,6 +166,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       });
       $('#postTime').on('keyup', function() {
         postTime = document.getElementById("postTime").value;
+      });
+      $('#preTime').on('keyup', function() {
+        preTime = document.getElementById("preTime").value;
       });
       $('#minBib').on('keyup', function() {
         minBib = document.getElementById("minBib").value;
@@ -184,6 +192,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           <table style="border:none; background-color:#555556; color:#FFF; padding:10px; margin-top:3px; width:100%;">
             <?php if ($_GET['code'] == 0) { ?>
               <tr>
+                <td style="text-align: left"><b>Startregistrering</b></td>
+                <td style="text-align: right">Før <input type="text" id="preTime" style="width: 40px;"></td>
+                <td style="text-align: right">Båser <input type="text" id="callTime" style="width: 40px;"></td>
+                <td style="text-align: right">Etter <input type="text" id="postTime" style="width: 40px;"></td>
+                <td style="text-align: right" width="10%"><span id="callClock" style="font-style:italic; color:lightgray">00:00:00</span></td>
+              </tr>
+              <tr>
                 <td style="text-align: left"><span id="liveIndicator">◉</span>
                   <span style="cursor:pointer; color:#FFF;" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
                   <?php if (isset($_GET['openstart'])) { ?>
@@ -192,14 +207,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                     <b>Tidsstart</b>&nbsp;&nbsp;<a href="javascript:switchOpenTimed(1)">Fri→</a>
                   <?php } ?>
                 </td>
-                <td style="text-align: right">Før ⏲ <input type="text" id="callTime" style="width: 30px;"></td>
-                <td style="text-align: right">Min № <input type="text" id="minBib" style="width: 30px;"></td>
-                <td style="text-align: right" width="10%"><span id="pretime" style="font-style:italic; color:lightgray">00:00:00</span></td>
-              </tr>
-              <tr>
-                <td style="text-align: left"><input type="text" id="filterText" placeholder="filter..." style="width: 90px;"></td>
-                <td style="text-align: right">Etter ⏲ <input type="text" id="postTime" style="width: 30px;"></td>
-                <td style="text-align: right">Max № <input type="text" id="maxBib" style="width: 30px;"></td>
+                <td style="text-align: right">Filter <input type="text" id="filterText" placeholder="filter..." style="width: 40px;"></td>
+                <td style="text-align: right">Min № <input type="text" id="minBib" style="width: 40px;"></td>
+                <td style="text-align: right">Max № <input type="text" id="maxBib" style="width: 40px;"></td>
                 <td style="text-align: right" width="10%"><span id="time">00:00:00</span></td>
               </tr>
             <?php } else { ?>
