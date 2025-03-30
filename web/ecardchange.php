@@ -210,10 +210,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function submit() {
-			if (!verifyEcard()) {
-				alert('Brikkenummeret er ikke gyldig. Prøv på nytt.');
-				return;
-			}
+			sendt = true;
 			var bib = $('#bib').text();
 			var ecardNumber = $('#ecardnumber').val();
 			$('#submit').hide();
@@ -226,7 +223,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				url: url + "messageapi.php?method=sendmessage",
 				data: "comp=" + comp + "&dbid=" + -ecardNumber + "&ecardchange=1&message=startnummer: " + bib,
 				success: function(data) {
-					sendt = true;
 					lookForEntry(bib);
 				},
 				error: function(data) {

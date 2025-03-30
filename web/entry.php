@@ -193,6 +193,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function submit() {
+			sendt = true;
 			var club = $('#clubSelect').val();
 			var className = $('#classSelect').val();
 			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
@@ -229,7 +230,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					url: url + "messageapi.php?method=sendmessage",
 					data: "comp=" + comp + "&dbid=" + reservedID + "&newentry=1&message=" + jsonData,
 					success: function(data) {
-						sendt = true;
 						lookForEntry(reservedID);
 					},
 					error: function(data) {
