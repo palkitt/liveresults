@@ -48,7 +48,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					eventOffline = false; //!data.active;
+					eventOffline = !data.active;
 					if (eventOffline) {
 						$('#inactiveinfo').html('Løpet er ikke online! Kontakt løpskontor eller prøv igjen senere.');
 						$('#clubSelect').prop('disabled', true);
@@ -168,7 +168,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				$('#submit').hide();
 			} else {
 				var ecard = $('#ecardnumber').val();
-				$('#ecardverification').html('Brikke ' + ecard + ' er OK.');
+				var emiTag = (ecard < 10000 || ecard > 1000000);
+				$('#ecardverification').html('Brikke ' + ecard + ' er OK (' + (emiTag ? 'emiTag' : 'EKT/O-brikke') + ').');
 				$('#ecardlastuse').html('<small>...</small>');
 				$('#firstname').prop('disabled', false);
 				$('#lastname').prop('disabled', false);

@@ -99,7 +99,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					$('#oldecard').html(ecardString(runners[index]));
 					runnerOK = true;
 				}
-				if (runnerOK && ecardOK)
+				if (runnerOK && ecardOK && !sendt)
 					$('#submit').show();
 				else
 					$('#submit').hide();
@@ -180,10 +180,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			} else if (ecards.includes(ecardNumber)) {
 				ecardOK = false;
 				$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
+				// Future: Ask if the user wants to exchange the ecard in the database
 			} else {
 				ecardOK = true;
 				var ecard = $('#ecardnumber').val();
-				$('#ecardverification').html('Brikke ' + ecard + ' er OK.');
+				var emiTag = (ecard < 10000 || ecard > 1000000);
+				$('#ecardverification').html('Brikke ' + ecard + ' er OK (' + (emiTag ? 'emiTag' : 'EKT/O-brikke') + ').');
 				$('#ecardlastuse').html('<small>...</small>');
 				$('#firstname').prop('disabled', false);
 				$('#lastname').prop('disabled', false);
@@ -215,7 +217,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			var ecardNumber = $('#ecardnumber').val();
 			$('#submit').hide();
 			$('#cancel').hide();
-
 			$('#searchInput').prop('disabled', true);
 			$('#personSelect').prop('disabled', true);
 			$('#ecardnumber').prop('disabled', true);
@@ -239,6 +240,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		function lookForEntry(bib, last_hash = "", no = 1) {
 			if (eventOffline) {
 				$('#entrydata').html('Melding om brikkebytte er sendt. Når løpet kommer online blir byttet gjort.');
+				$('#cancel').html('Ny endring');
+				$('#cancel').show();
 			} else {
 				var ecardNumber = $('#ecardnumber').val();
 				$.ajax({
