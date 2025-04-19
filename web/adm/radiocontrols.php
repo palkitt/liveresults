@@ -132,7 +132,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     }
 
     updateMarkers = function() {
-      var table = this.currentTable.api();
+      var table = this.currentTable;
       table.rows().every(function(rowIdx, tableLoop, rowLoop) {
         var data = this.data();
         data.controls.forEach(function(control, controlIdx) {
@@ -146,9 +146,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
     getPosition = function(reference) {
       const cell = $(reference).closest('td')[0];
+      if (!cell) {
+        return {};
+      }
       const table = $('#radiocontrols').DataTable();
       const row = table.row(cell.parentNode);
       const col = table.column(cell);
+      if (row.index() === undefined || col.index() === undefined) {
+        return {};
+      }
+
       return {
         row: row.index(),
         col: col.index()
@@ -203,11 +210,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
         if (this.currentTable != null && !changedNumControls) // Existing datatable
         {
-          this.currentTable.fnClearTable();
-          this.currentTable.fnAddData(classes, true);
+          var table = this.currentTable;
+          table.clear();
+          table.rows.add(classes).draw();
         } else {
           if (this.currentTable != null) {
-            this.currentTable.api().destroy();
+            this.currentTable.destroy();
             $('#radiocontrols').html('');
           }
 
@@ -215,28 +223,27 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           var col = 0;
 
           columns.push({
-            "sTitle": "Class",
-            "sClass": "left",
-            "bSortable": true,
-            "aTargets": [col++],
-            "mDataProp": "className",
-            "render": function(data, type, row) {
+            title: "Class",
+            className: "left",
+            orderable: true,
+            targets: [col++],
+            data: "className",
+            render: function(data, type, row) {
               return "<b>" + data + "</b>";
             }
           });
-
 
           for (let i in codes) {
             const controlCode = codes[i] % 1000;
             const title = `Control: ${controlCode}<br>Code: ${codes[i]}`;
 
             columns.push({
-              "sTitle": title,
-              "sClass": "right",
-              "bSortable": true,
-              "aTargets": [col++],
-              "mDataProp": "controls",
-              "render": function(data, type, row) {
+              title: title,
+              className: "right",
+              orderable: true,
+              targets: [col++],
+              data: "controls",
+              render: function(data, type, row, meta) {
                 if (data[i].name) {
                   let del = "<span class=\"selectControl\" onclick=\"deleteControl(" + data[i].code + ",'" + row.className + "', this)\"><small> ❌</small></span>";
                   let modify = "<span class=\"selectControl\" onclick=\"modifyControl(" + data[i].code + ",'" + row.className + "','" + data[i].name + "'," + data[i].order + ",[" +
@@ -244,7 +251,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   let link = modify + data[i].name + " <small>|" + data[i].order + "|</small></span>" + del;
                   return link;
                 } else {
-                  _this = this;
                   const id = "id" + Math.random().toString(16).slice(2);
                   const link = `<input type="text" id=${id} style="width: 70px;">`;
                   return link;
@@ -264,13 +270,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             `<span class=\"selectControl\" style=\"color: green;\" onclick="addControlForAllClasses(${idcode}, ${idorder}, ${idname})">&#10004;</span>`;
 
           columns.push({
-            "sTitle": addNewTitle,
-            "sClass": "right",
-            "bSortable": true,
-            "aTargets": [col++],
-            "mDataProp": "",
-            "render": function(data, type, row) {
-
+            title: addNewTitle,
+            className: "right",
+            orderable: true,
+            targets: [col++],
+            data: null,
+            render: function(data, type, row) {
               const idcode = "id" + Math.random().toString(16).slice(2);
               const idname = "id" + Math.random().toString(16).slice(2);
               var link = `C<input type="text" id=${idcode} style="width: 30px;">` +
@@ -280,20 +285,19 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             }
           });
 
-          this.currentTable = $('#radiocontrols').dataTable({
-            "fixedHeader": true,
-            "bPaginate": false,
-            "bLengthChange": false,
-            "bFilter": true,
-            "dom": 'lrtip',
-            "bSort": false,
-            "bInfo": false,
-            "bAutoWidth": false,
-            "aaData": classes,
-            "aaSorting": [],
-            "aoColumnDefs": columns,
-            "bDestroy": true,
-            "orderCellsTop": true
+          this.currentTable = $('#radiocontrols').DataTable({
+            fixedHeader: true,
+            paging: false,
+            lengthChange: false,
+            dom: 'lrtip',
+            ordering: false,
+            info: false,
+            autoWidth: false,
+            data: classes,
+            order: [],
+            columns: columns,
+            destroy: true,
+            orderCellsTop: true
           });
 
           $('#radiocontrols').on('blur', 'input', function() {
@@ -301,7 +305,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             const position = getPosition(this);
             if (position.row == undefined || position.col > codes.length || name == '')
               return;
-            var data = _this.currentTable.fnGetData();
+            var data = _this.currentTable.data().toArray();
             var className = data[position.row].className;
             var code = codes[position.col - 1];
             addControl(className, code, name);
@@ -311,7 +315,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         updateMarkers();
 
         if (cellData != null) {
-          let cell = this.currentTable.api().cell(cellData.row, cellData.col).node();
+          let cell = this.currentTable.cell(cellData.row, cellData.col).node();
           let inputID = $(cell).find('input').attr('id');
           let controlStr = cellData.name + " |" + cellData.order + "|";
           $('#' + inputID).val(controlStr).focus();
