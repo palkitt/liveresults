@@ -243,7 +243,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               orderable: true,
               targets: [col++],
               data: "controls",
-              render: function(data, type, row, meta) {
+              render: function(data, type, row) {
                 if (data[i].name) {
                   let del = "<span class=\"selectControl\" onclick=\"deleteControl(" + data[i].code + ",'" + row.className + "', this)\"><small> ❌</small></span>";
                   let modify = "<span class=\"selectControl\" onclick=\"modifyControl(" + data[i].code + ",'" + row.className + "','" + data[i].name + "'," + data[i].order + ",[" +

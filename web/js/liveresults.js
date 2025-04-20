@@ -35,7 +35,7 @@ var LiveResults;
       this.updateInterval = (EmmaServer ? 15000 : (this.local ? 2000 : 5000));
       this.lastChanged = 0;
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
-      this.clubUpdateInterval = 60000;
+      this.clubUpdateInterval = 20000;
       this.classUpdateInterval = 60000;
       this.inactiveTimeout = 30 * 60;
       this.inactiveTimer = 0;
@@ -73,6 +73,7 @@ var LiveResults;
       this.curClassNumSplits = false;
       this.curClassIsUnranked = false;
       this.curClassHasBibs = false;
+      this.curClubSplits = null;
       this.highlightID = null;
       this.lastClubHash = "";
       this.currentTable = null;
@@ -2260,7 +2261,6 @@ var LiveResults;
       return shortClub;
     };
 
-
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
       var table = this.currentTable;
@@ -2604,7 +2604,7 @@ var LiveResults;
       }
     };
 
-    AjaxViewer.prototype.animateTable = function (oldData, newData, animTime, predRank = false) {
+    AjaxViewer.prototype.animateTable = function (oldData, newData, animTime, predRank = false, clubTable = false) {
       // Animate an update to date table
       // Based on jQuery Animated Table Sorter 0.2.2 (02/25/2013)
       // http://www.matanhershberg.com/plugins/jquery-animated-table-sorter/
@@ -2631,7 +2631,7 @@ var LiveResults;
           }
           else {
             prevInd[oldID] = (isResTab ? oldData[i].virtual_position : i);
-            prevProg[oldID] = (isResTab ? oldData[i].progress : 100);
+            prevProg[oldID] = (isResTab && !clubTable ? oldData[i].progress : 100);
           }
         }
 
@@ -2654,12 +2654,20 @@ var LiveResults;
         if (Object.keys(lastInd).length == 0) { // No modifications
           if (predRank)
             this.startPredictedTimeTimer();
+          else if (clubTable)
+            this.updateClubTimes();
           return;
         }
 
         var order = this.currentTable.order();
         var numCol = this.currentTable.settings().columns()[0].length;
-        if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
+        if (clubTable) {
+          if (order[0][0] != 1) { // Not sorted on position
+            this.updateClubTimes();
+            return;
+          }
+        }
+        else if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
           if (predRank)
             this.startPredictedTimeTimer();
           return;
@@ -2754,7 +2762,7 @@ var LiveResults;
               });
           });
         }
-        setTimeout(function () { _this.endAnimateTable(table, predRank) }, _this.animTime + 100);
+        setTimeout(function () { _this.endAnimateTable(table, predRank, clubTable) }, _this.animTime + 100);
       }
       catch (e) {
         this.animating = false;
@@ -2767,7 +2775,7 @@ var LiveResults;
     };
 
     // Reset settings after animation is completed
-    AjaxViewer.prototype.endAnimateTable = function (table, predRank) {
+    AjaxViewer.prototype.endAnimateTable = function (table, predRank, clubTable) {
       $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
       $(table).find('tr').each(function () {
         $(this).css('position', '');
@@ -2780,6 +2788,8 @@ var LiveResults;
       }
       if (predRank)
         this.startPredictedTimeTimer();
+      else if (clubTable)
+        this.updateClubTimes();
     };
 
     //Check for update in clubresults
@@ -2821,7 +2831,9 @@ var LiveResults;
         lastUpdate.setTime(expTime - this.clubUpdateInterval + 1000);
         $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
       }
+      var table = this.currentTable;
       if (data.status == "OK" && this.currentTable != null) {
+        clearTimeout(this.updatePredictedTimeTimer);
         var numberOfRunners = data.results.length;
         $('#numberOfRunners').html(numberOfRunners);
         var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
@@ -2838,15 +2850,28 @@ var LiveResults;
               res.placeSortable = 0;
           });
         }
-        this.currentTable.clear();
-        this.currentTable.rows.add(data.results).draw();
+        var oldData = $.extend(true, [], this.currentTable.data().toArray());
+        table.clear();
+        table.rows.add(data.results).draw();
+        this.updateClubOrder(); // Update position in table
+        this.updateClubTimes(false); // Insert times and highlights only
         $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
         window.scrollTo(scrollX, scrollY)
+        this.animateTable(oldData, data.results, this.animTime, false, true);
         this.lastClubHash = data.hash;
       }
-      if (_this.isCompToday())
+      if (_this.isCompToday()) {
         this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
+      }
     };
+
+    AjaxViewer.prototype.updateClubOrder = function () {
+      const table = this.currentTable;
+      table.rows({ order: 'applied' }).every(function (rowIdx, tableLoop, rowLoop) {
+        rowData = this.data();
+        rowData.virtual_position = rowLoop;
+      });
+    }
 
     AjaxViewer.prototype.chooseClass = function (className) {
       if (className.length == 0)
@@ -4067,6 +4092,7 @@ var LiveResults;
     AjaxViewer.prototype.viewClubResults = function (clubName) {
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
+      clearTimeout(this.updatePredictedTimeTimer);
       if (this.animating) {
         setTimeout(function () { _this.viewClubResults(clubName); }, 500);
         return;
@@ -4131,11 +4157,16 @@ var LiveResults;
             if (res.place == "F")
               res.placeSortable = 0;
           });
+
           var numberOfRunners = data.results.length;
           $('#numberOfRunners').html(numberOfRunners);
+          this.curClubSplits = (data.splits != undefined && data.splits.length > 0 ? data.splits : null);
+
           var columns = Array();
           var col = 0;
-          columns.push({ title: "#", className: "dt-right", orderData: [1], targets: [col++], data: "place" });
+          columns.push({
+            title: "#", className: "dt-right", orderData: [1], targets: [col++], data: "place"
+          });
           columns.push({
             title: "placeSortable", visible: false, data: "placeSortable", targets: [col++], render: function (data, type, row) {
               if (type == "sort")
@@ -4167,7 +4198,7 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "&#8470;", className: "dt-right", targets: [col++], data: (_this.curClassHasBibs ? "bib" : null),
+            title: "&#8470;", className: "dt-right", orderData: [col + 1], targets: [col++], data: (_this.EmmaServer ? null : "bib"),
             render: function (data, type, row) {
               if (type === 'display') {
                 if (row.bib < 0) // Relay
@@ -4182,12 +4213,13 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "bibSortable", visible: false, data: (_this.curClassHasBibs ? "bib" : null), targets: [col++], render: function (data, type, row) {
+            title: "bibSortable", visible: false, data: (_this.EmmaServer ? null : "bib"), targets: [col++],
+            render: function (data, type, row) {
               return Math.abs(data);
             }
           });
           columns.push({
-            title: this.resources["_START"], className: "dt-right", type: "numeric", orderData: [col], targets: [col], "bUseRendered": false, data: "start",
+            title: this.resources["_START"], className: "dt-right", type: "numeric", orderData: [col + 1], targets: [col++], data: "start",
             render: function (data, type, row) {
               if (row.start == "") {
                 return "";
@@ -4197,23 +4229,110 @@ var LiveResults;
               }
             }
           });
-          col++;
           columns.push({
-            title: this.resources["_CONTROLFINISH"], className: "dt-right", type: "numeric", orderData: [col + 1, col, 0], targets: [col], "bUseRendered": false, data: "result",
+            title: "startSortable", visible: false, data: "start", targets: [col++], "bUseRendered": false, data: "start",
             render: function (data, type, row) {
+              return data;
+            }
+          });
+
+          $.each(this.curClubSplits, function (key, value) {
+            var code = value.code % 1000;
+            var numPass = Math.floor(value.code / 1000);
+            var splitName = code + (numPass > 1 ? "<small> (" + numPass + ")</small>" : "");
+            columns.push({
+              title: splitName,
+              className: "dt-right timePlaceWidth",
+              type: "numeric",
+              targets: [col++],
+              data: "splits." + value.code,
+              render: function (data, type, row) {
+                var NA = (row.splits == undefined || row.splits[value.code] == undefined || row.splits[value.code] == "");
+                if (type == "sort") {
+                  if (NA)
+                    return 999999;
+                  else if (row.splits[value.code] == -1)
+                    return 999998;
+                  else
+                    return row.splits[value.code];
+                }
+                if (NA)
+                  return '<div style="background-color: #AAAAAA;">&nbsp;</div>';
+                if (isNaN(parseInt(data)))
+                  return data;
+                var time = row.splits[value.code];
+                if (time == -1)
+                  return "";
+                var place = row.splits[value.code + "_place"];
+                var txt = "";
+                var placeTxt = "";
+                if (place == 1)
+                  placeTxt += "<span class=\"bestplace\"> ";
+                else
+                  placeTxt += "<span class=\"place\"> ";
+                if (place < 10)
+                  placeTxt += "&numsp;"
+                placeTxt += "&#10072;" + (place > 0 ? place : "-") + "&#10072;</span>";
+
+                if (place == 1) {
+                  txt += "<span class=\"besttime\">";
+                  txt += _this.formatTime(time, 0, _this.showTenthOfSecond);
+                  txt += placeTxt;
+                  txt += "</span>";
+                }
+                else {
+                  txt += "<span><div class=\"";
+                  txt += "tooltip\">+" + _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond)
+                    + placeTxt + "<span class=\"tooltiptext\">"
+                    + _this.formatTime(time, 0, _this.showTenthOfSecond) + "</span></div>";
+                }
+                return txt;
+              }
+            });
+          });
+
+          columns.push({
+            title: this.resources["_CONTROLFINISH"], className: "dt-right timePlaceWidth",
+            type: "numeric", orderData: [col + 1, col, 0], targets: [col], "bUseRendered": false, data: "result", defaultContent: "undefined",
+            render: function (data, type, row) {
+              if (isNaN(parseInt(data)))
+                return data;
+              if (type == "sort")
+                return parseInt(data);
               if (row.place == "-" || row.place == "" || row.place == "F") {
                 return _this.formatTime(row.result, row.status);
               }
-              else {
-                return _this.formatTime(row.result, row.status);
-              }
+              var place = row.place;
+              var placeTxt = "";
+              if (place == 1)
+                placeTxt += "<span class=\"bestplace\"> ";
+              else
+                placeTxt += "<span class=\"place\"> ";
+              if (place < 10)
+                placeTxt += "&numsp;"
+              placeTxt += "&#10072;" + (place > 0 ? place : "-") + "&#10072;</span>";
+
+              txt = "";
+              if (place == 1)
+                txt += "<span class=\"besttime\">";
+              else
+                txt += "<span>";
+              txt += _this.formatTime(row.result, 0, _this.showTenthOfSecond);
+              txt += placeTxt;
+              txt += "</span>";
+              return txt;
             }
           });
+
           col++;
-          columns.push({ title: "Status", visible: false, targets: [col++], type: "numeric", data: "status" });
+          columns.push({
+            title: "Status", visible: false, targets: [col++], type: "numeric", data: "status"
+          });
           columns.push({
             title: "Diff", className: "dt-right", orderable: true, targets: [col++], data: "timeplus",
             render: function (data, type, row) {
+              if (isNaN(parseInt(data)))
+                return data;
               if (type === 'display') {
                 if (row.status == 0)
                   return "<span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status) + "</span>";
@@ -4257,7 +4376,7 @@ var LiveResults;
               bottomEnd: null
             },
             data: data.results,
-            order: [[1, "asc"], [5, 'asc']],
+            order: [[1, 'asc'], [5, 'asc']],
             columnDefs: columns,
             destroy: true,
             preDrawCallback: function (settings) {
@@ -4269,9 +4388,151 @@ var LiveResults;
           this.lastClubHash = data.hash;
         }
       }
-      if (_this.isCompToday())
+      this.updateClubOrder(); // Update position in table
+      if (_this.isCompToday()) {
         this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
+        this.updateClubTimes();
+      }
     };
+
+    AjaxViewer.prototype.updateClubTimes = function (startTimer = true) {
+      if (this.currentTable == null || this.curClubName == null || !this.isCompToday())
+        return;
+      try {
+        _this = this;
+        var dt = new Date();
+        var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
+        var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
+        var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
+        var time = 100 * Math.round((dt.getSeconds() + (60 * dt.getMinutes()) + (60 * 60 * dt.getHours())) - (this.serverTimeDiff / 1000) + (timeZoneDiff * 60));
+        var timeServer = (dt - this.serverTimeDiff) / 1000;
+        var table = this.currentTable;
+        var data = table.data().toArray();
+        var offset = 8;
+
+        var numSplits = (this.curClubSplits == null ? 0 : this.curClubSplits.length);
+        var colFinish = offset + numSplits;
+
+        // *** Write running times and highlight new results ***
+        for (var i = 0; i < data.length; i++) {
+          var row = table.row(i).node();
+
+          // Highlight finish
+          if (this.EmmaServer && $(row).hasClass('new_result')) {
+            $(row).addClass('red_row');
+          }
+          else {
+            var changed = parseInt(data[i].changed);
+            var highlight = (changed > 0 ? timeServer - data[i].changed < this.highTime : false);
+
+            if (numSplits == 0) { // No splits, highlight row
+              if (highlight) {
+                if (!$(row).hasClass('red_row')) {
+                  $(row).addClass('red_row');
+                }
+              }
+              else if ($(row).hasClass('red_row')) {
+                $(row).removeClass('red_row');
+              }
+            }
+            else { // Highlight finish and diff
+              if (highlight && (data[i].highlight == undefined || data[i].highlight == false)) {
+                data[i].highlight = true;
+                $(table.cell(i, colFinish).node()).addClass('red_cell');
+                $(table.cell(i, colFinish + 2).node()).addClass('red_cell');
+              }
+              else if (!highlight && data[i].highlight == true) {
+                data[i].highlight = false;
+                $(table.cell(i, colFinish).node()).removeClass('red_cell');
+                $(table.cell(i, colFinish + 2).node()).removeClass('red_cell');
+              }
+            }
+          }
+
+          // Highlight split times
+          for (var sp = 0; sp < numSplits; sp++) {
+            var changed = parseInt(data[i].splits[this.curClubSplits[sp].code + "_changed"]);
+            var highlight = (changed > 0 ? timeServer - changed < this.highTime : false);
+
+            if (highlight && (data[i].splits[this.curClubSplits[sp].code + "_highlight"] == undefined ||
+              data[i].splits[this.curClubSplits[sp].code + "_highlight"] == false)) {
+              data[i].splits[this.curClubSplits[sp].code + "_highlight"] = true;
+              $(table.cell(i, offset + sp).node()).addClass('red_cell');
+            }
+            else if (!highlight && data[i].splits[this.curClubSplits[sp].code + "_highlight"] == true) {
+              data[i].splits[this.curClubSplits[sp].code + "_highlight"] = false;
+              $(table.cell(i, offset + sp).node()).removeClass('red_cell');
+            }
+          }
+
+          // Show elapsed times and differences to best time
+          if ((data[i].status == 10 || data[i].status == 9) && data[i].start != "" && data[i].start > 0) {
+            var elapsedTime = time - data[i].start;
+            if (elapsedTime < -18 * 3600 * 100) // Time passed midnight (between 00:00 and 06:00)
+              elapsedTime += 24 * 3600 * 100;
+            if (elapsedTime >= 0) {
+
+              table.cell(i, 0).data("<span class=\"pulsing\">◉</span>");
+              var elapsedTimeStr = "<i>" + this.formatTime(elapsedTime, 0, false) + "</i>";
+              elapsedTimeStr += " <span class=\"hideplace\">&numsp;<i>&#10072;..&#10072;</i></span>";
+              table.cell(i, colFinish).data(elapsedTimeStr);
+
+              // Find next split to reach (largest order) 
+              runnerSplits = [];
+              for (let j = 0; j < this.curClubSplits.length; j++) {
+                const clubSplit = this.curClubSplits[j];
+                if (data[i].splits[clubSplit.code] == undefined)
+                  continue;
+                const splitStruct = {
+                  clubSplitsIdx: j,
+                  order: data[i].splits[clubSplit.code + "_order"],
+                  passed: data[i].splits[clubSplit.code] > 0,
+                };
+                runnerSplits.push(splitStruct);
+              }
+              var nextSplit = this.curClubSplits.length; // Default to finish
+              if (runnerSplits.length > 0) {
+                runnerSplits.sort(function (a, b) { return a.order - b.order; });
+                for (let j = runnerSplits.length - 1; j >= 0; j--) {
+                  if (runnerSplits[j].passed)
+                    break;
+                  nextSplit = runnerSplits[j].clubSplitsIdx;
+                }
+              }
+
+              // Insert predicted time to next split
+              if (nextSplit == this.curClubSplits.length) // Finish
+              {
+                if (data[i].bestTime == undefined) // Get best time from timeplus 
+                  data[i].bestTime = Math.abs(data[i].timeplus);
+                if (data[i].bestTime > 0) {
+                  var timeDiff = elapsedTime - data[i].bestTime;
+                  var timeDiffStr = "<i>" + (timeDiff < 0 ? "-" : "+") + this.formatTime(timeDiff, 0, false) + "</i>";
+                  table.cell(i, colFinish + 2).data(timeDiffStr);
+                }
+              }
+              else {
+                var splitCode = this.curClubSplits[nextSplit].code;
+                var bestTime = data[i].splits[splitCode + "_besttime"];
+                var timeStr = "<i>";;
+                if (bestTime > 0) {
+                  var timeDiff = elapsedTime - bestTime;
+                  timeStr += (timeDiff < 0 ? "-" : "+") + this.formatTime(timeDiff, 0, false) + "</i>";
+                }
+                else {
+                  timeStr += this.formatTime(elapsedTime, 0, false) + "</i>";
+                }
+                timeStr += " <span class=\"hideplace\">&numsp;<i>&#10072;..&#10072;</i></span>";
+                table.cell(i, offset + nextSplit).data(timeStr);
+              }
+            }
+          }
+        }
+      }
+      catch (e) { }
+      if (startTimer)
+        this.updatePredictedTimeTimer = setTimeout(function () { _this.updateClubTimes(); }, 1000);
+    }
 
     AjaxViewer.prototype.viewRelayResults = function (className) {
       var _this = this;
@@ -4471,14 +4732,19 @@ var LiveResults;
     };
 
     AjaxViewer.prototype.resetSorting = function () {
-      var idxCol = 1;
-      this.currentTable.columns().every(function (idx) {
-        var column = this;
-        if (column.header().textContent == "VP") {
-          idxCol = idx;
-        }
-      });
-      this.currentTable.order([idxCol, 'asc']).draw();
+      if (this.curClubName != null) {
+        this.currentTable.order([1, 'asc'], [5, 'asc']).draw();
+      }
+      else {
+        var idxCol = 1;
+        this.currentTable.columns().every(function (idx) {
+          var column = this;
+          if (column.header().textContent == "VP") {
+            idxCol = idx;
+          }
+        });
+        this.currentTable.order([idxCol, 'asc']).draw();
+      }
       var link = "";
       if (this.curSplitView != null)
         link = "<a href=\"javascript:LiveResults.Instance.chooseClass('" + this.curSplitView[0].replace('\'', '\\\'') + "')\">&#5130; Resultater</a>";

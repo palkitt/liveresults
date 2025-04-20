@@ -715,6 +715,35 @@ class Emma
 		return $ret;
 	}
 
+	function getSplitControlsForClub($club)
+	{
+		$ret = array();
+		$q = "SELECT DISTINCT splitcontrols.code, splitcontrols.name, splitcontrols.classname, splitcontrols.corder,";
+		$q .= " (SELECT MIN(results.time) FROM results";
+		$q .= " JOIN runners ON results.dbid = runners.dbid AND results.tavid = runners.tavid";
+		$q .= " WHERE results.control = splitcontrols.code";
+		$q .= " AND results.time > 0";
+		$q .= " AND runners.tavid = splitcontrols.tavid";
+		$q .= " AND runners.class = splitcontrols.classname";
+		$q .= " AND runners.dbid IN (";
+		$q .= "     SELECT dbid FROM results WHERE control = 1000 AND status IN (0, 9, 10)";
+		$q .= "     AND tavid = splitcontrols.tavid";
+		$q .= " )) AS besttime";
+		$q .= " FROM splitcontrols JOIN runners ON splitcontrols.tavid = runners.tavid AND splitcontrols.classname = runners.class";
+		$q .= " WHERE splitcontrols.tavid = " . $this->m_CompId;
+		$q .= " AND runners.club = '" . mysqli_real_escape_string($this->m_Conn, $club) . "'";
+		$q .= " AND splitcontrols.code > 1000 AND splitcontrols.code < 10999";
+		$q .= " ORDER BY splitcontrols.classname, splitcontrols.corder";
+
+		if ($result = mysqli_query($this->m_Conn, $q)) {
+			while ($tmp = mysqli_fetch_array($result))
+				$ret[] = $tmp;
+			mysqli_free_result($result);
+		} else
+			echo (mysqli_error($this->m_Conn));
+		return $ret;
+	}
+
 
 	function getSplitControlsForClass($className)
 	{
@@ -927,42 +956,62 @@ class Emma
 		return $ret;
 	}
 
-	function getClubResults($compId, $club)
+	function getClubResults($club)
 	{
 		$ret = array();
-		$q = "SELECT runners.Name, runners.Bib, runners.Club, results.Time, runners.Class, runners.Length, results.Status, results.Changed, results.DbID, results.Control ";
-		$q .= ", (select count(*)+1 from results sr, runners sru where sr.tavid=sru.tavid and sr.dbid=sru.dbid and sr.tavid=results.TavId and sru.class = runners.class and sr.status = 0 and sr.time < results.time and sr.Control=1000) as place ";
-		$q .= ", results.Time - (select min(time) from results sr, runners sru where sr.tavid=sru.tavid and sr.dbid=sru.dbid and sr.tavid=results.TavId and sru.class = runners.class and sr.status = 0 and sr.Control=1000) as timeplus ";
-		$q .= "From runners,results where ";
-		$q .= "results.DbID = runners.DbId AND results.TavId = " . $this->m_CompId . " AND runners.TavId = " . $this->m_CompId . " and runners.Club = '" . mysqli_real_escape_string($this->m_Conn, $club) . "' and (results.Control=1000 or results.Control=100) ORDER BY runners.Class, runners.Name";
+		$q = "SELECT runners.dbid, runners.name, runners.bib, runners.club, runners.class, runners.length,";
+		$q .= " results.time, results.status, results.changed, results.dbid, results.control,";
+		// Place on split in class
+		$q .= " (SELECT COUNT(*) + 1 FROM results sre";
+		$q .= " JOIN runners sru ON sre.tavid = sru.tavid AND sre.dbid = sru.dbid";
+		$q .= " WHERE sre.tavid = results.tavid AND sru.class = runners.class AND sre.control = results.control";
+		$q .= " AND sre.time < results.time AND sre.time > 0 AND sre.dbid IN";
+		$q .= " (SELECT dbid FROM results WHERE tavid = sre.tavid AND control = 1000";
+		$q .= " AND status IN (0, 9, 10)) ) AS place, ";
+		// Time plus on split in class
+		$q .= " (results.time - (SELECT MIN(sre.time) FROM results sre";
+		$q .= " JOIN runners sru ON sre.tavid = sru.tavid AND sre.dbid = sru.dbid";
+		$q .= " WHERE sre.tavid = results.tavid AND sru.class = runners.class AND sre.control = results.control";
+		$q .= " AND sre.time > 0 AND sre.dbid IN";
+		$q .= " (SELECT dbid FROM results WHERE tavid = sre.tavid AND control = 1000";
+		$q .= " AND status IN (0, 9, 10)) )) AS timeplus";
+
+		$q .= " FROM runners, results WHERE";
+		$q .= " results.dbid = runners.dbid AND results.tavid = " . $this->m_CompId . " AND runners.tavid = " . $this->m_CompId;
+		$q .= " AND runners.club = '" . mysqli_real_escape_string($this->m_Conn, $club) . "'";
+		$q .= " ORDER BY runners.class, runners.name";
 
 		if ($result = mysqli_query($this->m_Conn, $q)) {
 			while ($row = mysqli_fetch_array($result)) {
-				$dbId = $row['DbID'];
+				$dbId = $row['dbid'];
 				if (!isset($ret[$dbId])) {
 					$ret[$dbId] = array();
 					$ret[$dbId]["DbId"] = $dbId;
-					$ret[$dbId]["Name"] = $row['Name'];
-					$ret[$dbId]["Bib"] = $row['Bib'];
-					$ret[$dbId]["Club"] = $row['Club'];
-					$ret[$dbId]["Class"] = $row['Class'];
-					$ret[$dbId]["Length"] = $row['Length'];
+					$ret[$dbId]["Name"] = $row['name'];
+					$ret[$dbId]["Bib"] = $row['bib'];
+					$ret[$dbId]["Club"] = $row['club'];
+					$ret[$dbId]["Class"] = $row['class'];
+					$ret[$dbId]["Length"] = $row['length'];
 					$ret[$dbId]["Time"] = "";
 					$ret[$dbId]["TimePlus"] = "";
 					$ret[$dbId]["Status"] = "9";
 					$ret[$dbId]["Changed"] = "";
 					$ret[$dbId]["Place"]  = "";
 				}
-
-				$split = $row['Control'];
+				$split = $row['control'];
 				if ($split == 1000) {
-					$ret[$dbId]["Time"] = $row['Time'];
-					$ret[$dbId]["Status"] = $row['Status'];
-					$ret[$dbId]["Changed"] = $row['Changed'];
+					$ret[$dbId]["Time"] = $row['time'];
+					$ret[$dbId]["Status"] = $row['status'];
+					$ret[$dbId]["Changed"] = $row['changed'];
 					$ret[$dbId]["Place"] = $row['place'];
 					$ret[$dbId]["TimePlus"] = $row['timeplus'];
 				} elseif ($split == 100) {
-					$ret[$dbId]["start"] = $row['Time'];
+					$ret[$dbId]["start"] = $row['time'];
+				} else {
+					$ret[$dbId][$split . "_time"] = $row['time'];
+					$ret[$dbId][$split . "_changed"] = $row['changed'];
+					$ret[$dbId][$split . "_place"] = $row['place'];
+					$ret[$dbId][$split . "_timeplus"] = $row['timeplus'];
 				}
 			}
 			mysqli_free_result($result);

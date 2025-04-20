@@ -16,10 +16,12 @@ if (isset($_GET['lang']))
 $hightime = 60;
 if (!isset($_GET['method']))
 	$_GET['method'] = null;
-if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
+if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist')
 	$refreshTime = 120;
-else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults' || $_GET['method'] == 'getrelayresults')
+else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclasscoursesplits' || $_GET['method'] == 'getrelayresults')
 	$refreshTime = 60;
+else if ($_GET['method'] == 'getclubresults')
+	$refreshTime = 20;
 else if ($_GET['method'] == 'getsplitcontrols')
 	$refreshTime = 0;
 else if ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
@@ -188,14 +190,26 @@ if ($_GET['method'] == 'getcompetitions') {
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
 	$club = $_GET['club'];
-	$results = $currentComp->getClubResults($_GET['comp'], $club);
-	$ret = "";
+	$results = $currentComp->getClubResults($club);
 	$unformattedTimes = false;
-	$first = true;
-
 	if (isset($_GET['unformattedTimes']) && $_GET['unformattedTimes'] == "true")
 		$unformattedTimes = true;
 
+	// Get and sort the splits for the club
+	$splits = $currentComp->getSplitControlsForClub($club);
+	$clubSplitsByProgress = clubSplitsOrder($splits);
+
+	$first = true;
+	$clubSplits = "";
+	foreach ($clubSplitsByProgress as $code => $averageProgress) {
+		if (!$first)
+			$clubSplits .= ",";
+		$clubSplits .= "{ \"code\": " . $code . ", \"order\": " . round($averageProgress) . "}";
+		$first = false;
+	}
+
+	$first = true;
+	$ret = "";
 	foreach ((array)$results as $res) {
 		$time = $res['Time'];
 		$status = $res['Status'];
@@ -211,37 +225,56 @@ if ($_GET['method'] == 'getcompetitions') {
 			$cp = "F";
 		elseif ($status != 0 || $time < 0)
 			$cp = "-";
-
 		$timeplus = $res['TimePlus'];
-		$age = time() - strtotime($res['Changed']);
-		$modified = (($age < $hightime && $status != 9) ? 1 : 0);
 
 		if (!$unformattedTimes) {
 			$time = formatTime($res['Time'], $res['Status'], $RunnerStatus);
 			$timeplus = "+" . formatTime($timeplus, $res['Status'], $RunnerStatus);
 		}
 
+		$class = $res['Class'];
+		$firstSplit = true;
+		$splitJSON = "{";
+		foreach ((array)$splits as $split) {
+			if ($split['classname'] != $class)
+				continue;
+			if (!$firstSplit)
+				$splitJSON .= ",";
+			$firstSplit = false;
+			if (isset($res[$split['code'] . '_time'])) {
+				$place = (in_array($res['Status'], [0, 9, 10]) ? $res[$split['code'] . '_place'] : -1);
+				$splitJSON .= "\"" . $split['code'] . "\": " . $res[$split['code'] . '_time'];
+				$splitJSON .= ",\"" . $split['code'] . "_place\": $place ";
+				$splitJSON .= ",\"" . $split['code'] . "_timeplus\": " . $res[$split['code'] . '_timeplus'];
+				$splitJSON .= ",\"" . $split['code'] . "_changed\": " . strtotime($res[$split['code'] . '_changed']);
+			} else {
+				$splitJSON .= "\"" . $split['code'] . "\": -1";
+				$splitJSON .= ",\"" . $split['code'] . "_besttime\": " . ($split['besttime'] == null ? -1 : $split['besttime']);
+			}
+			$splitJSON .= ",\"" . $split['code'] . "_order\": " . $split['corder'];
+		}
+		$splitJSON .= "}";
+
 		if (!$first)
 			$ret .= ",$br";
-		$ret .= "{\"place\": \"$cp\", \"name\": \"" . $res['Name'] . "\", \"bib\": \"" . $res['Bib'] . "\", \"club\": \"" . $res['Club'] . "\",\"class\": \"" . $res['Class'] . "\", \"pace\": \"" . $pace . "\", \"result\": \"" . $time . "\",\"status\" : " . $status . ", \"timeplus\": \"$timeplus\"";
-
+		$ret .= "{\"place\": \"$cp\", \"name\": \"" . $res['Name'] . "\", \"bib\": \"" . $res['Bib'] . "\", \"club\": \"" . $res['Club'] . "\"";
+		$ret .= ",\"dbid\": \"" . $res['DbId'] . "\",\"class\": \"" . $class . "\", \"pace\": \"" . $pace . "\", \"result\": \"" . $time . "\",\"status\" : " . $status;
+		$ret .= ", \"timeplus\": \"$timeplus\", \"changed\": " . strtotime($res['Changed']);
 		if (isset($res["start"]))
 			$ret .= ",$br \"start\": " . $res["start"];
 		else
 			$ret .= ",$br \"start\": \"\"";
-
-		if ($modified)
-			$ret .= ",$br \"DT_RowClass\": \"red_row\"";
+		$ret .= ",$br \"splits\": " . $splitJSON;
 		$ret .= "$br}";
-
 		$first = false;
 	}
 
-	$hash = MD5($ret);
+	$hash = MD5($ret . $clubSplits);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash) {
-		echo ("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+		echo ("{\"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 	} else {
-		echo ("{ \"status\": \"OK\",$br \"clubName\": \"" . $club . "\", $br\"results\": [$br$ret$br]");
+		echo ("{\"status\": \"OK\",$br \"clubName\": \"" . $club . "\", \"splits\": [$clubSplits]");
+		echo (",$br \"results\": [$br$ret$br]");
 		echo (",$br \"hash\": \"" . $hash . "\", \"rt\": $RT}");
 	}
 } elseif ($_GET['method'] == 'getsplitcontrols') {
@@ -1110,6 +1143,41 @@ function courseSplitResults($class, $course)
 	$res[0] = $ret;
 	$res[1] = $splitJSON;
 	return $res;
+}
+
+// Function to extract unique club splits and set order as average progress
+function clubSplitsOrder($splits)
+{
+	$groupedByClass = [];
+	foreach ($splits as $split) {
+		$groupedByClass[$split['classname']][] = $split;
+	}
+	$progressByCode = [];
+	foreach ($groupedByClass as $classname => $classSplits) {
+		usort($classSplits, function ($a, $b) {
+			return $a['corder'] - $b['corder'];
+		});
+
+		$minOrder = $classSplits[0]['corder'];
+		$maxOrder = $classSplits[count($classSplits) - 1]['corder'];
+
+		foreach ($classSplits as $split) {
+			if ($minOrder === $maxOrder) {
+				$progress = 100;
+			} else {
+				$progress = (($split['corder'] - $minOrder) / ($maxOrder - $minOrder)) * 100;
+			}
+			$progressByCode[$split['code']][] = $progress;
+		}
+	}
+	$averageProgressByCode = [];
+	foreach ($progressByCode as $code => $progressValues) {
+		$averageProgressByCode[$code] = array_sum($progressValues) / count($progressValues);
+	}
+	uasort($averageProgressByCode, function ($a, $b) {
+		return $a <=> $b;
+	});
+	return $averageProgressByCode;
 }
 
 function insertHeader($refreshTime, $update = true)
