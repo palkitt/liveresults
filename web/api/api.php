@@ -197,19 +197,10 @@ if ($_GET['method'] == 'getcompetitions') {
 
 	// Get and sort the splits for the club
 	$splits = $currentComp->getSplitControlsForClub($club);
-	$clubSplitsByProgress = clubSplitsOrder($splits);
-
-	$first = true;
-	$clubSplits = "";
-	foreach ($clubSplitsByProgress as $code => $averageProgress) {
-		if (!$first)
-			$clubSplits .= ",";
-		$clubSplits .= "{ \"code\": " . $code . ", \"order\": " . round($averageProgress) . "}";
-		$first = false;
-	}
 
 	$first = true;
 	$ret = "";
+	$maxSplits = 0;
 	foreach ((array)$results as $res) {
 		$time = $res['Time'];
 		$status = $res['Status'];
@@ -234,26 +225,31 @@ if ($_GET['method'] == 'getcompetitions') {
 
 		$class = $res['Class'];
 		$firstSplit = true;
-		$splitJSON = "{";
+		$splitJSON = "";
+		$numSplits = 0;
 		foreach ((array)$splits as $split) {
 			if ($split['classname'] != $class)
 				continue;
+			$numSplits++;
 			if (!$firstSplit)
 				$splitJSON .= ",";
 			$firstSplit = false;
+			$splitJSON .= "{";
 			if (isset($res[$split['code'] . '_time'])) {
 				$place = (in_array($res['Status'], [0, 9, 10]) ? $res[$split['code'] . '_place'] : -1);
-				$splitJSON .= "\"" . $split['code'] . "\": " . $res[$split['code'] . '_time'];
-				$splitJSON .= ",\"" . $split['code'] . "_place\": $place ";
-				$splitJSON .= ",\"" . $split['code'] . "_timeplus\": " . $res[$split['code'] . '_timeplus'];
-				$splitJSON .= ",\"" . $split['code'] . "_changed\": " . strtotime($res[$split['code'] . '_changed']);
+				$splitJSON .= "\"time\": " . $res[$split['code'] . '_time'];
+				$splitJSON .= ",\"place\": $place ";
+				$splitJSON .= ",\"timeplus\": " . $res[$split['code'] . '_timeplus'];
+				$splitJSON .= ",\"changed\": " . strtotime($res[$split['code'] . '_changed']);
 			} else {
-				$splitJSON .= "\"" . $split['code'] . "\": -1";
-				$splitJSON .= ",\"" . $split['code'] . "_besttime\": " . ($split['besttime'] == null ? -1 : $split['besttime']);
+				$splitJSON .= "\"time\": -1";
+				$splitJSON .= ",\"besttime\": " . ($split['besttime'] == null ? -1 : $split['besttime']);
 			}
-			$splitJSON .= ",\"" . $split['code'] . "_order\": " . $split['corder'];
+			$splitJSON .= ",\"order\": " . $split['corder'];
+			$splitJSON .= "}";
 		}
-		$splitJSON .= "}";
+		if ($numSplits > $maxSplits)
+			$maxSplits = $numSplits;
 
 		if (!$first)
 			$ret .= ",$br";
@@ -264,16 +260,16 @@ if ($_GET['method'] == 'getcompetitions') {
 			$ret .= ",$br \"start\": " . $res["start"];
 		else
 			$ret .= ",$br \"start\": \"\"";
-		$ret .= ",$br \"splits\": " . $splitJSON;
+		$ret .= ",$br \"splits\": [" . $splitJSON . "]";
 		$ret .= "$br}";
 		$first = false;
 	}
 
-	$hash = MD5($ret . $clubSplits);
+	$hash = MD5($ret);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash) {
 		echo ("{\"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 	} else {
-		echo ("{\"status\": \"OK\",$br \"clubName\": \"" . $club . "\", \"splits\": [$clubSplits]");
+		echo ("{\"status\": \"OK\",$br \"clubName\": \"" . $club . "\", \"numSplits\": $maxSplits");
 		echo (",$br \"results\": [$br$ret$br]");
 		echo (",$br \"hash\": \"" . $hash . "\", \"rt\": $RT}");
 	}
@@ -1145,40 +1141,6 @@ function courseSplitResults($class, $course)
 	return $res;
 }
 
-// Function to extract unique club splits and set order as average progress
-function clubSplitsOrder($splits)
-{
-	$groupedByClass = [];
-	foreach ($splits as $split) {
-		$groupedByClass[$split['classname']][] = $split;
-	}
-	$progressByCode = [];
-	foreach ($groupedByClass as $classname => $classSplits) {
-		usort($classSplits, function ($a, $b) {
-			return $a['corder'] - $b['corder'];
-		});
-
-		$minOrder = $classSplits[0]['corder'];
-		$maxOrder = $classSplits[count($classSplits) - 1]['corder'];
-
-		foreach ($classSplits as $split) {
-			if ($minOrder === $maxOrder) {
-				$progress = 100;
-			} else {
-				$progress = (($split['corder'] - $minOrder) / ($maxOrder - $minOrder)) * 100;
-			}
-			$progressByCode[$split['code']][] = $progress;
-		}
-	}
-	$averageProgressByCode = [];
-	foreach ($progressByCode as $code => $progressValues) {
-		$averageProgressByCode[$code] = array_sum($progressValues) / count($progressValues);
-	}
-	uasort($averageProgressByCode, function ($a, $b) {
-		return $a <=> $b;
-	});
-	return $averageProgressByCode;
-}
 
 function insertHeader($refreshTime, $update = true)
 {

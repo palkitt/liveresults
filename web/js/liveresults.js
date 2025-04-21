@@ -4160,7 +4160,7 @@ var LiveResults;
 
           var numberOfRunners = data.results.length;
           $('#numberOfRunners').html(numberOfRunners);
-          this.curClubSplits = (data.splits != undefined && data.splits.length > 0 ? data.splits : null);
+          this.curClubSplits = (data.numSplits == undefined ? 0 : data.numSplits);
 
           var columns = Array();
           var col = 0;
@@ -4236,34 +4236,33 @@ var LiveResults;
             }
           });
 
-          $.each(this.curClubSplits, function (key, value) {
-            var code = value.code % 1000;
-            var numPass = Math.floor(value.code / 1000);
-            var splitName = code + (numPass > 1 ? "<small> (" + numPass + ")</small>" : "");
+          for (var i = 0; i < this.curClubSplits; i++) {
+            var splitName = "M" + (i + 1);
             columns.push({
               title: splitName,
               className: "dt-right timePlaceWidth",
               type: "numeric",
               targets: [col++],
-              data: "splits." + value.code,
-              render: function (data, type, row) {
-                var NA = (row.splits == undefined || row.splits[value.code] == undefined || row.splits[value.code] == "");
+              data: "result", // using dummy variable to be replaced in the render function
+              render: function (data, type, row, meta) {
+                if (data != "" && isNaN(parseInt(data)))
+                  return data;
+                var idx = meta.col - 8;
+                time = (row.splits[idx] == undefined ? null : row.splits[idx].time);
+                var NA = (time == null || time == "");
                 if (type == "sort") {
                   if (NA)
                     return 999999;
-                  else if (row.splits[value.code] == -1)
+                  else if (time == -1)
                     return 999998;
                   else
-                    return row.splits[value.code];
+                    return time;
                 }
                 if (NA)
-                  return '<div style="background-color: #AAAAAA;">&nbsp;</div>';
-                if (isNaN(parseInt(data)))
-                  return data;
-                var time = row.splits[value.code];
+                  return '<div style="background-color: #CCCCCC;">&nbsp;</div>';
                 if (time == -1)
                   return "";
-                var place = row.splits[value.code + "_place"];
+                var place = row.splits[idx].place;
                 var txt = "";
                 var placeTxt = "";
                 if (place == 1)
@@ -4282,14 +4281,14 @@ var LiveResults;
                 }
                 else {
                   txt += "<span><div class=\"";
-                  txt += "tooltip\">+" + _this.formatTime(row.splits[value.code + "_timeplus"], 0, _this.showTenthOfSecond)
+                  txt += "tooltip\">+" + _this.formatTime(row.splits[idx].timeplus, 0, _this.showTenthOfSecond)
                     + placeTxt + "<span class=\"tooltiptext\">"
                     + _this.formatTime(time, 0, _this.showTenthOfSecond) + "</span></div>";
                 }
                 return txt;
               }
             });
-          });
+          };
 
           columns.push({
             title: this.resources["_CONTROLFINISH"], className: "dt-right timePlaceWidth",
@@ -4409,9 +4408,7 @@ var LiveResults;
         var table = this.currentTable;
         var data = table.data().toArray();
         var offset = 8;
-
-        var numSplits = (this.curClubSplits == null ? 0 : this.curClubSplits.length);
-        var colFinish = offset + numSplits;
+        var colFinish = offset + this.curClubSplits;
 
         // *** Write running times and highlight new results ***
         for (var i = 0; i < data.length; i++) {
@@ -4425,7 +4422,7 @@ var LiveResults;
             var changed = parseInt(data[i].changed);
             var highlight = (changed > 0 ? timeServer - data[i].changed < this.highTime : false);
 
-            if (numSplits == 0) { // No splits, highlight row
+            if (this.curClubSplits == 0) { // No splits, highlight row
               if (highlight) {
                 if (!$(row).hasClass('red_row')) {
                   $(row).addClass('red_row');
@@ -4450,17 +4447,18 @@ var LiveResults;
           }
 
           // Highlight split times
-          for (var sp = 0; sp < numSplits; sp++) {
-            var changed = parseInt(data[i].splits[this.curClubSplits[sp].code + "_changed"]);
+          for (var sp = 0; sp < this.curClubSplits; sp++) {
+            if (data[i].splits[sp] == undefined)
+              continue;
+            var changed = parseInt(data[i].splits[sp].changed);
             var highlight = (changed > 0 ? timeServer - changed < this.highTime : false);
 
-            if (highlight && (data[i].splits[this.curClubSplits[sp].code + "_highlight"] == undefined ||
-              data[i].splits[this.curClubSplits[sp].code + "_highlight"] == false)) {
-              data[i].splits[this.curClubSplits[sp].code + "_highlight"] = true;
+            if (highlight && (data[i].splits[sp].highlight == undefined || data[i].splits[sp].highlight == false)) {
+              data[i].splits[sp].highlight = true;
               $(table.cell(i, offset + sp).node()).addClass('red_cell');
             }
-            else if (!highlight && data[i].splits[this.curClubSplits[sp].code + "_highlight"] == true) {
-              data[i].splits[this.curClubSplits[sp].code + "_highlight"] = false;
+            else if (!highlight && data[i].splits[sp].highlight == true) {
+              data[i].splits[sp].highlight = false;
               $(table.cell(i, offset + sp).node()).removeClass('red_cell');
             }
           }
@@ -4477,47 +4475,32 @@ var LiveResults;
               elapsedTimeStr += " <span class=\"hideplace\">&numsp;<i>&#10072;..&#10072;</i></span>";
               table.cell(i, colFinish).data(elapsedTimeStr);
 
-              // Find next split to reach (largest order) 
-              runnerSplits = [];
-              for (let j = 0; j < this.curClubSplits.length; j++) {
-                const clubSplit = this.curClubSplits[j];
-                if (data[i].splits[clubSplit.code] == undefined)
-                  continue;
-                const splitStruct = {
-                  clubSplitsIdx: j,
-                  order: data[i].splits[clubSplit.code + "_order"],
-                  passed: data[i].splits[clubSplit.code] > 0,
-                };
-                runnerSplits.push(splitStruct);
-              }
-              var nextSplit = this.curClubSplits.length; // Default to finish
-              if (runnerSplits.length > 0) {
-                runnerSplits.sort(function (a, b) { return a.order - b.order; });
-                for (let j = runnerSplits.length - 1; j >= 0; j--) {
-                  if (runnerSplits[j].passed)
-                    break;
-                  nextSplit = runnerSplits[j].clubSplitsIdx;
-                }
+              // Find next split to reach (largest order)              
+              var nextSplit = this.curClubSplits; // Default to finish
+              for (let j = this.curClubSplits - 1; j >= 0; j--) {
+                if (data[i].splits[j] != undefined && data[i].splits[j].time > 0)
+                  break;
+                if (data[i].splits[j] != undefined)
+                  nextSplit = j;
               }
 
               // Insert predicted time to next split
-              if (nextSplit == this.curClubSplits.length) // Finish
+              if (nextSplit == this.curClubSplits) // Finish
               {
                 if (data[i].bestTime == undefined) // Get best time from timeplus 
                   data[i].bestTime = Math.abs(data[i].timeplus);
                 if (data[i].bestTime > 0) {
                   var timeDiff = elapsedTime - data[i].bestTime;
-                  var timeDiffStr = "<i>" + (timeDiff < 0 ? "-" : "+") + this.formatTime(timeDiff, 0, false) + "</i>";
+                  var timeDiffStr = "<i>" + (timeDiff < 0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
                   table.cell(i, colFinish + 2).data(timeDiffStr);
                 }
               }
               else {
-                var splitCode = this.curClubSplits[nextSplit].code;
-                var bestTime = data[i].splits[splitCode + "_besttime"];
+                var bestTime = data[i].splits[nextSplit].besttime;
                 var timeStr = "<i>";;
                 if (bestTime > 0) {
                   var timeDiff = elapsedTime - bestTime;
-                  timeStr += (timeDiff < 0 ? "-" : "+") + this.formatTime(timeDiff, 0, false) + "</i>";
+                  timeStr += (timeDiff < 0 ? "-" : "+") + this.formatTime(Math.abs(timeDiff), 0, false) + "</i>";
                 }
                 else {
                   timeStr += this.formatTime(elapsedTime, 0, false) + "</i>";
