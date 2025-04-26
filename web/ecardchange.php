@@ -177,9 +177,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
 				ecardOK = false;
 				$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
+				$('#ecardImage').hide();
 			} else if (ecards.includes(ecardNumber)) {
 				ecardOK = false;
 				$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
+				$('#ecardImage').hide();
 				// Future: Ask if the user wants to exchange the ecard in the database
 			} else {
 				ecardOK = true;
@@ -189,6 +191,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				$('#ecardlastuse').html('<small>...</small>');
 				$('#firstname').prop('disabled', false);
 				$('#lastname').prop('disabled', false);
+				var imageSrc = emiTag ? 'images/emiTag.png' : 'images/EKT.png';
+				$('#ecardImage').attr('src', imageSrc).show();
 
 				fetch(url + "messageapi.php?method=getnamefromecard&comp=" + comp + "&ecard=" + ecard)
 					.then(response => response.json())
@@ -337,6 +341,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<br>
 			<div id="ecardverification">...</div>
 			<div id="ecardlastuse"><small>...</small></div>
+			<div id="ecardImageContainer">
+				<img id="ecardImage" src="" alt="Ecard Type" style="display: none; width: 200px; height: auto;">
+			</div>
 
 			<br><br>
 			<button id="submit" type="submit" onclick="submit();">Send in</button>

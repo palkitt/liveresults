@@ -111,7 +111,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							} else
 								reservedID = data.reservedID;
 						});
-					$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
 					if (ecardEntry) {
 						$('#ecardnumber').prop('disabled', false);
 						$('#rent').prop('disabled', false);
@@ -163,9 +162,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
 				$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
 				$('#submit').hide();
+				$('#ecardImage').hide();
 			} else if (ecards.includes(ecardNumber)) {
 				$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
 				$('#submit').hide();
+				$('#ecardImage').hide();
 			} else {
 				var ecard = $('#ecardnumber').val();
 				var emiTag = (ecard < 10000 || ecard > 1000000);
@@ -173,6 +174,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				$('#ecardlastuse').html('<small>...</small>');
 				$('#firstname').prop('disabled', false);
 				$('#lastname').prop('disabled', false);
+				var imageSrc = emiTag ? 'images/emiTag.png' : 'images/EKT.png';
+				$('#ecardImage').attr('src', imageSrc).show();
 				ecardFieldActive = false;
 
 				fetch(url + "messageapi.php?method=getnamefromecard&comp=" + comp + "&ecard=" + ecard)
@@ -337,8 +340,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<h2>Velg klasse</h2>
 			<select id="classSelect" style="width:95%"></select>
 			<br>
-			<div id="classverification">...</div>
-
 			<?php if (!$currentComp->NoEcardEntry()) { ?>
 				<h2>Brikkenummer</h2>
 				<input id="ecardnumber" type="number" style="width:70%" inputmode="numeric">
@@ -348,6 +349,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				<br>
 				<div id="ecardverification">...</div>
 				<div id="ecardlastuse"><small>...</small></div>
+				<div id="ecardImageContainer">
+					<img id="ecardImage" src="" alt="Ecard Type" style="display: none; width: 200px; height: auto;">
+				</div>
 
 			<?php } ?>
 
