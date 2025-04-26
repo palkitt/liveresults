@@ -4263,24 +4263,16 @@ var LiveResults;
                 if (time == -1)
                   return "";
                 var place = row.splits[idx].place;
-                var txt = "";
-                var placeTxt = "";
-                if (place == 1)
-                  placeTxt += "<span class=\"bestplace\"> ";
-                else
-                  placeTxt += "<span class=\"place\"> ";
+                var placeTxt = "<span class=\"place\"> ";
                 if (place < 10)
                   placeTxt += "&numsp;"
                 placeTxt += "&#10072;" + (place > 0 ? place : "-") + "&#10072;</span>";
-
+                var txt = "";
                 if (place == 1) {
-                  txt += "<span class=\"besttime\">";
-                  txt += _this.formatTime(time, 0, _this.showTenthOfSecond);
-                  txt += placeTxt;
-                  txt += "</span>";
+                  txt += _this.formatTime(time, 0, _this.showTenthOfSecond) + placeTxt;
                 }
                 else {
-                  txt += "<span><div class=\"";
+                  txt += "<div class=\"";
                   txt += "tooltip\">+" + _this.formatTime(row.splits[idx].timeplus, 0, _this.showTenthOfSecond)
                     + placeTxt + "<span class=\"tooltiptext\">"
                     + _this.formatTime(time, 0, _this.showTenthOfSecond) + "</span></div>";
@@ -4302,23 +4294,11 @@ var LiveResults;
                 return _this.formatTime(row.result, row.status);
               }
               var place = row.place;
-              var placeTxt = "";
-              if (place == 1)
-                placeTxt += "<span class=\"bestplace\"> ";
-              else
-                placeTxt += "<span class=\"place\"> ";
+              var placeTxt = "<span class=\"place\"> ";
               if (place < 10)
                 placeTxt += "&numsp;"
               placeTxt += "&#10072;" + (place > 0 ? place : "-") + "&#10072;</span>";
-
-              txt = "";
-              if (place == 1)
-                txt += "<span class=\"besttime\">";
-              else
-                txt += "<span>";
-              txt += _this.formatTime(row.result, 0, _this.showTenthOfSecond);
-              txt += placeTxt;
-              txt += "</span>";
+              txt = _this.formatTime(row.result, 0, _this.showTenthOfSecond) + placeTxt;
               return txt;
             }
           });
@@ -4375,7 +4355,7 @@ var LiveResults;
               bottomEnd: null
             },
             data: data.results,
-            order: [[1, 'asc'], [5, 'asc']],
+            order: [[1, 'asc'], [7, 'asc']],
             columnDefs: columns,
             destroy: true,
             preDrawCallback: function (settings) {
@@ -4716,7 +4696,7 @@ var LiveResults;
 
     AjaxViewer.prototype.resetSorting = function () {
       if (this.curClubName != null) {
-        this.currentTable.order([1, 'asc'], [5, 'asc']).draw();
+        this.currentTable.order([1, 'asc'], [7, 'asc']).draw();
       }
       else {
         var idxCol = 1;
