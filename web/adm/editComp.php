@@ -197,7 +197,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 
                     <tr>
                       <td><b>Multi day stage no</b></td>
-                      <td>&nbsp;<input type="number" name="multidaystage" style="width: 120px;"" value=" <?= $comp['multidaystage'] ?>" /></td>
+                      <td>&nbsp;<input type="number" name="multidaystage" style="width: 120px;" value="<?= $comp['multidaystage'] ?>" /></td>
                       <td>Use 0 for single day competition and day number for multiday competitions</td>
                     </tr>
 
