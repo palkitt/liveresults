@@ -339,19 +339,21 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<h2>Nytt brikkenummer</h2>
 			<input id="ecardnumber" type="number" style="width:95%" inputmode="numeric">
 			<br>
-			<div id="ecardverification">...</div>
-			<div id="ecardlastuse"><small>...</small></div>
-			<div id="ecardImageContainer">
-				<img id="ecardImage" src="" alt="Ecard Type" style="display: none; width: 200px; height: auto;">
+			<div style="display: flex; align-items: left; width: 95%">
+				<div id="ecardImageContainer">&nbsp;
+					<img id="ecardImage" src="" style="display: inline-block; width: auto; height: 3em;">
+				</div>
+				&nbsp;
+				<div>
+					<div id="ecardverification">...</div>
+					<div id="ecardlastuse"><small>...</small></div>
+				</div>
 			</div>
-
 			<br><br>
 			<button id="submit" type="submit" onclick="submit();">Send in</button>
 			<button id="cancel" type="button" onclick="cancel();">Avbryt</button>
-
 			<br><br>
 			<div id="entrydata">...</div>
-
 		</div>
 	<?php }
 	?>
