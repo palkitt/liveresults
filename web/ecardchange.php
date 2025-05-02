@@ -216,14 +216,18 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function submit() {
-			sendt = true;
-			var bib = $('#bib').text();
+			var bib = parseInt($('#bib').text());
+			if (isNaN(bib)) {
+				alert('Velg deltager!');
+				return;
+			}
 			var ecardNumber = $('#ecardnumber').val();
 			$('#submit').hide();
 			$('#cancel').hide();
 			$('#searchInput').prop('disabled', true);
 			$('#personSelect').prop('disabled', true);
 			$('#ecardnumber').prop('disabled', true);
+			sendt = true;
 			$.ajax({
 				url: url + "messageapi.php?method=sendmessage",
 				data: "comp=" + comp + "&dbid=" + -ecardNumber + "&ecardchange=1&message=startnummer: " + bib,
