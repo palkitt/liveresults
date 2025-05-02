@@ -39,19 +39,19 @@ namespace LiveResults.Client
         public event MergeCourseNamesDelegate OnMergeCourseNames;
         public event MergeVacantsDelegate OnMergeVacants;
         public event DeleteVacantIDDelegate OnDeleteVacantID;
-        private bool m_updateEcardTimes;
-        private bool m_updateRadioControls;
+        private readonly bool m_updateEcardTimes;
+        private readonly bool m_updateRadioControls;
+        private readonly int m_sleepTime;
+        private readonly double m_minPaceTime;
+        private readonly bool m_lapTimes;
+        private readonly bool m_MSSQL;
+        private readonly bool m_ecardAsBackup;
+        private readonly bool m_EventorID;
+        private readonly int m_IdOffset;
+        private readonly bool m_updateMessage;
+        private readonly int m_compID;
+        private readonly int m_OsOffset;
         private bool m_continue;
-        private int m_sleepTime;
-        private double m_minPaceTime;
-        private bool m_lapTimes;
-        private bool m_MSSQL;
-        private bool m_ecardAsBackup;
-        private bool m_EventorID;
-        private int m_IdOffset;
-        private bool m_updateMessage;
-        private int m_compID;
-        private int m_OsOffset;
 
         public ETimingParser(IDbConnection conn, int sleepTime, bool UpdateRadioControls = true, double minPaceTime = 0,
             bool MSSQL = false, bool ecardAsBackup = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0,
