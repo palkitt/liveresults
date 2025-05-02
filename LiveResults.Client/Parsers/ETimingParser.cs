@@ -153,6 +153,7 @@ namespace LiveResults.Client
         public struct RadioStruct
         {
             public int Code;
+            public int Count;
             public string Description;
             public int RadioType;
             public string TimingPoint;
@@ -552,7 +553,7 @@ namespace LiveResults.Client
                 {
                     while (reader.Read())
                     {
-                        int course = 0, code = 0, radioCode = 0, radiotype = -1, leg = 0, order = 0, distance = 0;
+                        int course = 0, code = 0, radioCode = 0, radiotype = -1, leg = 0, order = 0, distance = 0, count = 0;
                         bool live = false;
                         if (reader["live"] != null && reader["live"] != DBNull.Value)
                             live = Convert.ToBoolean(reader["live"].ToString());
@@ -571,14 +572,18 @@ namespace LiveResults.Client
                         if (reader["code"] != null && reader["code"] != DBNull.Value)
                             radioCode = Convert.ToInt32(reader["code"].ToString());
 
-                        // Take away last to digits if code 1000+ and convert radioCode to Liveres standard
+                        // Take away last to digits if code 1000+ and convert radioCode to LiveRes standard
                         if (radioCode > 1000)
                         {
                             code = radioCode / 100;
-                            radioCode = code + 1000 * (radioCode % 100);
+                            count = radioCode % 100; // Last two digits of code is the counter
+                            radioCode = code + 1000 * count;
                         }
                         else
+                        {
                             code = radioCode;
+                            count = 1;
+                        }
 
                         if (reader["radiocourceno"] != null && reader["radiocourceno"] != DBNull.Value)
                             course = Convert.ToInt32(reader["radiocourceno"].ToString());
@@ -627,6 +632,7 @@ namespace LiveResults.Client
                         var radioControl = new RadioStruct
                         {
                             Code = code,
+                            Count = count,
                             Description = description,
                             RadioType = radiotype,
                             TimingPoint = timingpoint,
@@ -646,7 +652,6 @@ namespace LiveResults.Client
                 cmd.CommandText = @"SELECT code, cource, class, purmin, timingtype, cheaseing FROM class";
                 using (IDataReader reader = cmd.ExecuteReader())
                 {
-                    int leg = 0;
                     while (reader.Read())
                     {
                         int course = 0, numLegs = 0, timingType = 0, sign = 1;
@@ -740,7 +745,6 @@ namespace LiveResults.Client
 
                         if (RadioPosts.ContainsKey(course))
                         {   // Add radio controls to course
-                            Dictionary<int, int> radioCnt = new Dictionary<int, int>();
                             foreach (var radioControl in RadioPosts[course])
                             {
                                 if (radioControl.TimingPoint == "ST") // Skip if radiocontrol is start
@@ -766,22 +770,13 @@ namespace LiveResults.Client
 
                                 if (Code < 999 && Code != 90 && radioControl.TimingPoint != "VK") // Not 90, not 999 and not exchange)
                                 {
-                                    if (leg != radioControl.Leg) // Reset if change of leg
-                                    {
-                                        leg = radioControl.Leg;
-                                        radioCnt.Clear();
-                                    }
-                                    if (!radioCnt.ContainsKey(Code))
-                                        radioCnt.Add(Code, 0);
-                                    radioCnt[Code]++;
-
                                     // Add codes for ordinary classes 
                                     // sign = -1 for unranked classes
                                     intermediates.Add(new RadioControl
                                     {
                                         ClassName = classN,
                                         ControlName = radioControl.Description,
-                                        Code = sign * (Code + radioCnt[Code] * 1000),
+                                        Code = sign * (Code + radioControl.Count * 1000),
                                         Order = nStep * radioControl.Order,
                                         Distance = radioControl.Distance
                                     });
@@ -793,7 +788,7 @@ namespace LiveResults.Client
                                         {
                                             ClassName = classN,
                                             ControlName = radioControl.Description + "PassTime",
-                                            Code = Code + radioCnt[Code] * 1000 + 100000,
+                                            Code = sign* (Code + radioControl.Count * 1000 + 100000),
                                             Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
                                         });
                                     }
@@ -803,7 +798,6 @@ namespace LiveResults.Client
                     }
                     reader.Close();
                 }
-
 
                 var dlgMergeRadio = OnMergeRadioControls;
                 if (dlgMergeRadio != null)
@@ -1244,7 +1238,7 @@ namespace LiveResults.Client
                             {
                                 var passLegTimeStruct = new ResultStruct
                                 {
-                                    ControlCode = iSplitcode + 100000,
+                                    ControlCode = iSplitcode + sign * 100000,
                                     Time = passLegTime
                                 };
                                 SplitTimes.Add(passLegTimeStruct);
