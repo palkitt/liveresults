@@ -1022,6 +1022,12 @@ namespace LiveResults.Client
                             bool TeamOK = true;
                             for (int legs = 1; legs <= leg; legs++)
                             {
+                                if (!(RelayTeams[teambib].TeamMembers).ContainsKey(legs))
+                                {
+                                    if (legs == leg - 1)
+                                        FireLogMsg("eTiming Parser. Error with runner. Check team: " + teambib + ", leg: " + legs);
+                                    continue;
+                                }
                                 if (RelayTeams[teambib].TeamMembers[legs].LegTime > 0)
                                 {
                                     // Add 100 hours to indicate restart
@@ -1064,14 +1070,14 @@ namespace LiveResults.Client
                                             TeamStatus = "B";
                                         break;
                                 }
-
                             }
                             RelayTeams[teambib].TeamStatus = TeamStatus;
 
                             if (intime > 0)
                                 time = Math.Max(intime - RelayTeams[teambib].StartTime, TeamTime);
 
-                            if (leg > 1 && RelayTeams[teambib].TeamMembers[leg - 1].TotalTime > 0)
+                            if (leg > 1 && (RelayTeams[teambib].TeamMembers).ContainsKey(leg - 1)
+                                && RelayTeams[teambib].TeamMembers[leg - 1].TotalTime > 0)
                             {
                                 TeamTimePre = RelayTeams[teambib].TeamMembers[leg - 1].TotalTime +
                                  (RelayTeams[teambib].TeamMembers[leg].Restart ? 100 * 3600 * 100 : 0);
