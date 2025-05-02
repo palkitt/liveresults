@@ -24,6 +24,7 @@ if (isset($_POST['btnSave'])) {
     (isset($_POST['showtimesinsprint']) ? 1 : null),
     (isset($_POST['showcourseresults']) ? 1 : null),
     (isset($_POST['noecardentry']) ? 1 : null),
+    (isset($_POST['allownewclub']) ? 1 : null),
     $_POST['livecenterurl'],
     $_POST['sport']
   );
@@ -135,31 +136,43 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 
                   <table>
                     <tr>
-                      <td><b>Competition ID</b></td>
+                      <td colspan=3>
+                        <h2>Main competition data</h2>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>Competition ID</td>
                       <td>&nbsp;<input type="text" name="id" style="width: 120px;" disabled="true" value="<?= $comp['tavid'] ?>" /></td>
                     </tr>
 
                     <tr>
-                      <td><b>Competition name</b></td>
+                      <td>Competition name</td>
                       <td>&nbsp;<input type="text" name="name" style="width: 120px;" value="<?= $comp['compName'] ?>" /></td>
                     </tr>
 
                     <tr>
-                      <td><b>Organizer</b></td>
+                      <td>Organizer</td>
                       <td>&nbsp;<input type="text" name="org" style="width: 120px;" value="<?= $comp['organizer'] ?>" /></td>
                       <td>Note: Must match organizer in eTiming</td>
                     </tr>
 
                     <tr>
-                      <td><b>Date</b></td>
+                      <td>Date</td>
                       <td>&nbsp;<input type="text" name="date" style="width: 120px;" value="<?= date("Y-m-d", strtotime($comp['compDate'])) ?>" /></td>
                       <td>Format: yyyy-mm-dd. Must match date in eTiming</td>
                     </tr>
 
                     <tr>
-                      <td><b>Sport</b></td>
+                      <td>Time zone diff</td>
+                      <td>&nbsp;<input type="number" name="timediff" style="width: 120px;" value="<?= $comp['timediff'] ?>" /></td>
+                      <td>1 for Finland, 0 for Norway, -1 for GBR</td>
+                    </tr>
+
+                    <tr>
+                      <td>Sport</td>
                       <td>
-                        &nbsp;<select name="sport" style="width: 127px;">
+                        &nbsp;<select name="sport" style="width: 120px;">
                           <option value="">Ikke valgt</option>
                           <option value="Langrenn" <?php if ($comp['sport'] == 'Langrenn') echo 'selected'; ?>>Langrenn</option>
                           <option value="Orientering" <?php if ($comp['sport'] == 'Orientering') echo 'selected'; ?>>Orientering</option>
@@ -172,108 +185,124 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                     </tr>
 
                     <tr>
-                      <td><b>Time zone diff</b></td>
-                      <td>&nbsp;<input type="number" name="timediff" style="width: 120px;" value="<?= $comp['timediff'] ?>" /></td>
-                      <td>1 for Finland, 0 for Norway, -1 for GBR</td>
-                    </tr>
-
-                    <tr>
-                      <td><b>Highlight time</b></td>
-                      <td>&nbsp;<input type="number" name="hightime" style="width: 120px;" value="<?= $comp['hightime'] ?>" /></td>
-                      <td>Duration of highlughting new times in seconds</td>
-                    </tr>
-
-                    <tr>
-                      <td><b>Qual. classes</b></td>
-                      <td>&nbsp;<input type="text" name="qualclasses" style="width: 120px;" value="<?= $qualclasses ?>" /></td>
-                      <td>Format: "D21-", "H21-", "D70". If not given -> same limit for all classes</td>
-                    </tr>
-
-                    <tr>
-                      <td><b>Qual. limits</b></td>
-                      <td>&nbsp;<input type="text" name="quallimits" style="width: 120px;" value="<?= $comp['quallimits'] ?>" /></td>
-                      <td>Format: 3, 4, 5, 6 (Last value used for all other classes)</td>
-                    </tr>
-
-                    <tr>
-                      <td><b>Multi day stage no</b></td>
-                      <td>&nbsp;<input type="number" name="multidaystage" style="width: 120px;" value="<?= $comp['multidaystage'] ?>" /></td>
-                      <td>Use 0 for single day competition and day number for multiday competitions</td>
-                    </tr>
-
-                    <tr>
-                      <td><b>Multi day parent</b></td>
-                      <td>&nbsp;<input type="number" name="multidayparent" style="width: 120px;" value="<?= $comp['multidayparent'] ?>" /></td>
-                      <td>Use 0 for single day competition and Competition ID for first in multiday series</td>
-                    </tr>
-
-                    <tr>
-                      <td><b>Live center URL</b></td>
+                      <td>Live center URL</td>
                       <td>&nbsp;<input type="text" name="livecenterurl" style="width: 120px;" value="<?= $comp['livecenterurl'] ?>" /></td>
                       <td>URL to competition live center</td>
                     </tr>
 
                     <tr>
-                      <td><b>Public</td>
+                      <td colspan=3>
+                        <h2>Apperance</h2>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>Public</td>
                       <td><input type="checkbox" name="public" <?= $comp['public'] == 1 ? "checked" : "" ?> /></td>
                       <td>List competion on liveres.live main page</td>
                     </tr>
 
                     <tr>
-                      <td><b>Show ecard split times</td>
+                      <td>Show ecard split times</td>
                       <td><input type="checkbox" name="showecardtimes" <?= $comp['showecardtimes'] == 1 ? "checked" : "" ?> /></td>
                       <td>Turn on ecard split times (strekktider)</td>
                     </tr>
 
                     <tr>
-                      <td><b>Show course results</td>
+                      <td>Show course results</td>
                       <td><input type="checkbox" name="showcourseresults" <?= $comp['showcourseresults'] == 1 ? "checked" : "" ?> /></td>
                       <td>Display listing of all courses with links to results</td>
                     </tr>
 
                     <tr>
-                      <td><b>Tenths of seconds</b></td>
+                      <td>Show tenths of seconds</b></td>
                       <td><input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?> /></td>
                       <td>Display times with tenths of seconds</td>
                     </tr>
 
                     <tr>
-                      <td><b>Initial dynamic ranking</td>
+                      <td>Show times in sprint heats</td>
+                      <td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?> /></td>
+                      <td>Show times in addition to places in sprint heats</td>
+                    </tr>
+                    <tr>
+                      <td>Use dynamic ranking from start</td>
                       <td><input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?> /></td>
                       <td>Use smart sort also for runners before passing first radio control</td>
                     </tr>
 
                     <tr>
-                      <td><b>Show times in sprint heats</td>
-                      <td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?> /></td>
-                      <td>Show times in addition to places in sprint heats</td>
+                      <td>Highlight duration</td>
+                      <td>&nbsp;<input type="number" name="hightime" style="width: 120px;" value="<?= $comp['hightime'] ?>" /></td>
+                      <td>Duration of highlighting new times [seconds]</td>
                     </tr>
 
                     <tr>
-                      <td><b>Remove ecard in online entry</td>
-                      <td><input type="checkbox" name="noecardentry" <?= $comp['noecardentry'] == 1 ? "checked" : "" ?> /></td>
-                      <td>Do not show ecard input box (for races without ecards)</td>
+                      <td>Qualification classes</td>
+                      <td>&nbsp;<input type="text" name="qualclasses" style="width: 120px;" value="<?= $qualclasses ?>" /></td>
+                      <td>Format: "D21-", "H21-", "D70". If not given -> same limit for all classes</td>
                     </tr>
 
                     <tr>
-                      <td><b>Show info text</td>
+                      <td>Qualification limits</td>
+                      <td>&nbsp;<input type="text" name="quallimits" style="width: 120px;" value="<?= $comp['quallimits'] ?>" /></td>
+                      <td>Format: 3, 4, 5, 6 (Last value used for all other classes)</td>
+                    </tr>
+
+                    <tr>
+                      <td>Show scrolling info text</td>
                       <td><input type="checkbox" name="showinfo" <?= $comp['showinfo'] == 1 ? "checked" : "" ?> /></td>
                       <td>Display info text (below)</td>
                     </tr>
 
                     <tr valign="top">
-                      <td><b>Info text</td>
-                      <td>&nbsp;<textarea name="infotext" style="width:122px; height:50px;"><?= $comp['infotext'] ?></textarea></td>
+                      <td>Info text</td>
+                      <td>&nbsp;<textarea name="infotext" style="width:120px; height:auto;"><?= $comp['infotext'] ?></textarea></td>
                       <td>Text to be scrolled on top of page</td>
                     </tr>
 
+                    <tr>
+                      <td colspan=3>
+                        <h2>Online entry</h2>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>Remove ecard in online entry</td>
+                      <td><input type="checkbox" name="noecardentry" <?= $comp['noecardentry'] == 1 ? "checked" : "" ?> /></td>
+                      <td>Do not show ecard input box (for races without ecards)</td>
+                    </tr>
+
+                    <tr>
+                      <td>Allow new club in online entry</td>
+                      <td><input type="checkbox" name="allownewclub" <?= $comp['allownewclub'] == 1 ? "checked" : "" ?> /></td>
+                      <td>Allow user to create a new club when entering online</td>
+                    </tr>
+
+                    <tr>
+                      <td colspan=3>
+                        <h2>Multi-day competions</h2>
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <td>Multi-day stage no</td>
+                      <td>&nbsp;<input type="number" name="multidaystage" style="width: 120px;" value="<?= $comp['multidaystage'] ?>" /></td>
+                      <td>Day number for multi-day competitions. Use 0 for single-day competition</td>
+                    </tr>
+
+                    <tr>
+                      <td>Multi-day parent ID</td>
+                      <td>&nbsp;<input type="number" name="multidayparent" style="width: 120px;" value="<?= $comp['multidayparent'] ?>" /></td>
+                      <td>Competition ID for the first competition in the multi-day series. 0 for single-day competition</td>
+                    </tr>
                   </table>
 
                   <input type="submit" name="btnSave" value="Save" />
                 </form>
                 <br />
                 <hr />
-                <h1 class="categoriesheader">Quick links</h1>
+                <h1 class="categoriesheader">Links and QR codes</h1>
                 <table>
                   <tr>
                     <td>

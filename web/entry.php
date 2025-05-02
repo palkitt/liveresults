@@ -43,12 +43,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var reservedID = 0;
 		var ecardFieldActive = false;
 		var ecardEntry = <?= $currentComp->NoEcardEntry() ? "false" : "true" ?>;
+		var allowNewClub = <?= $currentComp->AllowNewClub() ? "true" : "false" ?>;
 
 		$(document).ready(function() {
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
 				.then(response => response.json())
 				.then(data => {
-					eventOffline = !data.active;
+					eventOffline = false; //!data.active;
 					if (eventOffline) {
 						$('#inactiveinfo').html('Løpet er ikke online! Kontakt løpskontor eller prøv igjen senere.');
 						$('#clubSelect').prop('disabled', true);
@@ -56,6 +57,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					}
 					let clubSelect = $('#clubSelect');
 					clubSelect.append($('<option>').text('--- Velg klubb ---').val(''));
+					if (allowNewClub) {
+						clubSelect.append($('<option>').text('--- Opprett ny klubb ---').val('newclub'));
+						$('#clubverification').hide();
+					}
 					var noClubOption = false;
 					data.clubs.forEach(club => {
 						clubSelect.append($('<option>').text(club.name));
@@ -84,19 +89,23 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				});
 
 			$('#clubSelect').change(function() {
-				if ($(this).val() === '')
+				if ($(this).val() === '') {
+					$('#submit').hide();
 					alert('Velg en klubb før du går videre.');
-				else {
-					var club = $('#clubSelect').val();
-					$('#clubverification').html(club + ' er valgt klubb');
+				} else if ($(this).val() == 'newclub') {
+					$('#newclubregistration').show();
+					$('#classSelect').prop('disabled', false);
+				} else {
+					$('#newclubregistration').hide();
 					$('#classSelect').prop('disabled', false);
 				}
 			});
 
 			$('#classSelect').change(function() {
-				if ($(this).val() === '')
+				if ($(this).val() === '') {
+					$('#submit').hide();
 					alert('Velg en klasse før du går videre.');
-				else {
+				} else {
 					var reservedOK = false
 					var className = $('#classSelect').val();
 					var classNameURI = encodeURIComponent(className);
@@ -145,6 +154,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			}
 			$('#firstname').prop('disabled', true);
 			$('#lastname').prop('disabled', true);
+			$('#newclubregistration').hide();
 			$('#submit').hide();
 		});
 
@@ -197,16 +207,33 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function submit() {
-			sendt = true;
 			var club = $('#clubSelect').val();
+			if (club == 'newclub') {
+				club = sanitizeInput($('#newclubname').val());
+				if (club == "") {
+					alert('Oppgi klubb.');
+					return;
+				}
+			}
 			var className = $('#classSelect').val();
-			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
-			var rent = (ecardEntry ? $('#rent').prop('checked') : 0);
+			if (className == "") {
+				alert('Velg klasse.');
+				return;
+			}
 			var firstName = sanitizeInput($('#firstname').val());
 			var lastName = sanitizeInput($('#lastname').val());
+			if (firstname == "" && lastName == "") {
+				alert('Oppgi navn.');
+				return;
+			}
+			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
+			var rent = (ecardEntry ? $('#rent').prop('checked') : 0);
 			var comment = sanitizeInput($('#comment').val());
 
+			sendt = true;
+
 			$('#clubSelect').prop('disabled', true);
+			$('#newclubname').prop('disabled', true);
 			$('#classSelect').prop('disabled', true);
 			if (ecardEntry) {
 				$('#ecardnumber').prop('disabled', true);
@@ -334,7 +361,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 			<h2>Velg klubb</h2>
 			<select id="clubSelect" style="width:95%;"></select>
-			<br>
+			<div id="newclubregistration">
+				<h3><b>Navn på ny klubb</b></h3>
+				<input id="newclubname" type="text" style="width:95%">
+			</div>
 			<div id="clubverification">Kontakt løpskontor om din klubb ikke er i lista.</div>
 
 			<h2>Velg klasse</h2>
@@ -342,17 +372,21 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<br>
 			<?php if (!$currentComp->NoEcardEntry()) { ?>
 				<h2>Brikkenummer</h2>
-				<input id="ecardnumber" type="number" style="width:70%" inputmode="numeric">
-				<div style="text-align: right; display: inline-block; width: 25%;">&nbsp;
+				<input id="ecardnumber" type="number" style="width:60%" inputmode="numeric">
+				<div style="text-align: right; display: inline-block; width: 35%;">&nbsp;
 					<input id="rent" type="checkbox" value="no">&nbsp;Leiebrikke
 				</div>
 				<br>
-				<div id="ecardverification">...</div>
-				<div id="ecardlastuse"><small>...</small></div>
-				<div id="ecardImageContainer">
-					<img id="ecardImage" src="" alt="Ecard Type" style="display: none; width: 200px; height: auto;">
+				<div style="display: flex; align-items: left; width: 95%">
+					<div id="ecardImageContainer">&nbsp;
+						<img id="ecardImage" src="" style="display: inline-block; width: auto; height: 3em;">
+					</div>
+					&nbsp;
+					<div>
+						<div id="ecardverification">...</div>
+						<div id="ecardlastuse"><small>...</small></div>
+					</div>
 				</div>
-
 			<?php } ?>
 
 			<h2>Fornavn</h2>

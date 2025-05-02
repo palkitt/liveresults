@@ -1906,14 +1906,31 @@ namespace LiveResults.Client
                                 // Vacant runner ID found
                                 cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'", club);
                                 var clubCode = cmd.ExecuteScalar();
+                                bool clubOK = false;
+                                var update = 0;
                                 if (clubCode != null && clubCode != DBNull.Value)
                                     clubCode = clubCode.ToString();
-                                string ecardstring = (ecard == 0 ? "null" : ecard.ToString());
-
-                                cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',ecardfee={4}, status='I' WHERE id={5}",
-                                                      firstName, lastName, ecardstring, clubCode, rent, dbidOut);
-                                var update = cmd.ExecuteNonQuery();
-                                if (update != 1)
+                                else // club not found, make a new one
+                                {
+                                    string query = (m_MSSQL ? "CAST(ISNULL(MAX(TRY_CAST(code AS INT)), 0) + 1 AS VARCHAR)" :
+                                    "CSTR(IIF(MAX(VAL(code)) IS NULL, 0, MAX(VAL(code))) + 1)");
+                                    cmd.CommandText = string.Format(@"INSERT INTO team (code, name) SELECT {0}, '{1}' FROM team", query, club);
+                                    update = cmd.ExecuteNonQuery();
+                                    if (update == 1)
+                                    {
+                                        cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'", club);
+                                        clubCode = cmd.ExecuteScalar();
+                                    }
+                                }
+                                if (clubCode != null && clubCode != DBNull.Value)
+                                {
+                                    clubOK = true;
+                                    string ecardstring = (ecard == 0 ? "null" : ecard.ToString());
+                                    cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',ecardfee={4}, status='I' WHERE id={5}",
+                                                          firstName, lastName, ecardstring, clubCode, rent, dbidOut);
+                                    update = cmd.ExecuteNonQuery();
+                                }
+                                if (!clubOK || update != 1)
                                 {
                                     failedThis = true;
                                     if (failedLast)

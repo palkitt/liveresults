@@ -124,3 +124,6 @@ alter table messages add column newentry tinyint(1) DEFAULT NULL;
 
 -- addition 2024-10-19
 alter table login add column noecardentry tinyint(1) DEFAULT NULL;
+
+-- addition 2025-05-01
+alter table login add column allownewclub tinyint(1) DEFAULT NULL;
