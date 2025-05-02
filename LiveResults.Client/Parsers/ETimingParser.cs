@@ -74,30 +74,24 @@ namespace LiveResults.Client
 
         private void FireOnResult(Result newResult)
         {
-            if (OnResult != null)
-                OnResult(newResult);
+            OnResult?.Invoke(newResult);
         }
         private void FireLogMsg(string msg)
         {
-            if (OnLogMessage != null)
-                OnLogMessage(msg);
+            OnLogMessage?.Invoke(msg);
         }
         private void FireOnDeleteID(int runnerID)
         {
-            if (OnDeleteID != null)
-                OnDeleteID(runnerID);
+            OnDeleteID?.Invoke(runnerID);
         }
         private void FireOnDeleteVacantID(int runnerID)
         {
-            if (OnDeleteVacantID != null)
-                OnDeleteVacantID(runnerID);
+            OnDeleteVacantID?.Invoke(runnerID);
         }
         private void FireOnDeleteUnusedID(List<int> usedIds, bool first = false)
         {
-            if (OnDeleteUnusedID != null)
-                OnDeleteUnusedID(usedIds, first);
+            OnDeleteUnusedID?.Invoke(usedIds, first);
         }
-
 
         Thread m_monitorThread;
 
@@ -300,8 +294,7 @@ namespace LiveResults.Client
                 }
                 finally
                 {
-                    if (m_connection != null)
-                        m_connection.Close();
+                    m_connection?.Close();
                     FireLogMsg("eTiming Monitor thread stopped");
                 }
             }
@@ -1524,7 +1517,7 @@ namespace LiveResults.Client
                             if (code < -999)
                                 continue;
                             if (code > 1000)
-                                code = code / 100; // Take away last to digits if code 1000+
+                                code /= 100; // Take away last to digits if code 1000+
                         }
 
                         var res = new SplitRawStruct
@@ -1996,10 +1989,9 @@ namespace LiveResults.Client
 
         private void SendLiveActive(string apiServer, WebClient client)
         {
-            string apiResponse = "";
             try
             {
-                apiResponse = client.DownloadString(apiServer + "api.php?method=setlastactive&comp=" + m_compID);
+                string apiResponse = client.DownloadString(apiServer + "api.php?method=setlastactive&comp=" + m_compID);
                 FireLogMsg("Client live active sent to web server");
             }
             catch (Exception ee)
@@ -2055,8 +2047,7 @@ namespace LiveResults.Client
 
         private void FireOnRadioControl()
         {
-            if (OnRadioControl != null)
-                OnRadioControl(null, 0, null, 0);
+            OnRadioControl?.Invoke(null, 0, null, 0);
         }
     }
 }
