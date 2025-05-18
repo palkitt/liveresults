@@ -983,3 +983,31 @@ table.dataTable thead>tr>td.dt-ordering-asc,
 table.dataTable thead>tr>td.dt-ordering-desc {
   color: var(--livered);
 }
+
+/*---  Mofification of DataTables Button ---*/
+div.dt-button-collection {
+  background-color: var(--bkdark);
+  font-size: 1.3em;
+  line-height: 1.4em;
+  width: 8em;
+}
+
+div.dt-buttons>.dt-button {
+  border: none;
+  background-color: black;
+  font-size: 1.3em;
+  cursor: pointer;
+  display: inline-block;
+  color: white;
+  width: 1.5em;
+  height: 1.5em;
+  border-radius: 0.3em;
+  padding: 0;
+  margin-right: auto;
+  margin-bottom: 0;
+  line-height: normal;
+}
+
+div.dt-buttons>.dt-button:hover {
+  background: gray;
+}

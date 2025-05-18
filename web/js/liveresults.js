@@ -2556,6 +2556,8 @@ var LiveResults;
             var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
             var scrollX = window.scrollX;
             var scrollY = window.scrollY;
+            var oldColumnVisibility = table.columns().visible().toArray();
+            var oldClassSplitOK = this.curClassSplitsOK;
 
             this.curClassNumberOfRunners = newData.results.length;
             $('#numberOfRunners').html(this.curClassNumberOfRunners);
@@ -2571,12 +2573,21 @@ var LiveResults;
             table.clear();
             table.rows.add(newData.results).draw();
 
+            // Restore the visibility state after reloading data
+            oldColumnVisibility.forEach((isVisible, index) => {
+              table.column(index).visible(isVisible);
+            });
+
             // Hide columns if split is BAD
             if (this.curClassSplits != null && this.curClassSplits.length > 0) {
               var offset = 3 + (this.curClassHasBibs ? 1 : 0) + ((this.curClassIsUnranked || (this.compactView && !this.curClassLapTimes)) ? 1 : 0);
               for (var sp = 0; sp < this.curClassNumSplits; sp++) {
                 colNum = offset + 2 * sp;
-                table.column(colNum).visible(this.curClassSplitsOK[sp]);
+                if (this.curClassSplitsOK[sp] == false) // Hide column if split is or has become BAD
+                  table.column(colNum).visible(false);
+                else if (oldClassSplitOK[sp] == false) // Show column if split has become OK
+                  table.column(colNum).visible(true);
+                // Else keep the column as it is
               }
             }
 
@@ -2662,12 +2673,12 @@ var LiveResults;
         var order = this.currentTable.order();
         var numCol = this.currentTable.settings().columns()[0].length;
         if (clubTable) {
-          if (order[0][0] != 1) { // Not sorted on position
+          if (order.length > 0 && order[0][0] != 1) { // Not sorted on position
             this.updateClubTimes();
             return;
           }
         }
-        else if (isResTab && order[0][0] != numCol - 1) { // Not sorted on virtual position
+        else if (isResTab && order.length > 0 && order[0][0] != numCol - 1) { // Not sorted on virtual position
           if (predRank)
             this.startPredictedTimeTimer();
           return;
@@ -2836,6 +2847,7 @@ var LiveResults;
         clearTimeout(this.updatePredictedTimeTimer);
         var numberOfRunners = data.results.length;
         $('#numberOfRunners').html(numberOfRunners);
+        var oldColumnVisibility = table.columns().visible().toArray();
         var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
         var scrollX = window.scrollX;
         var scrollY = window.scrollY;
@@ -2853,6 +2865,10 @@ var LiveResults;
         var oldData = $.extend(true, [], this.currentTable.data().toArray());
         table.clear();
         table.rows.add(data.results).draw();
+        // Restore the visibility state after reloading data
+        oldColumnVisibility.forEach((isVisible, index) => {
+          table.column(index).visible(isVisible);
+        });
         this.updateClubOrder(); // Update position in table
         this.updateClubTimes(false); // Insert times and highlights only
         $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
@@ -3175,6 +3191,7 @@ var LiveResults;
           var isSprintHeat = (data.className.includes('| Kvart') || data.className.includes('| Semi') || data.className.includes('| Finale'));
 
           columns.push({
+            name: "place",
             title: "#",
             className: "dt-right",
             orderable: false,
@@ -3189,6 +3206,7 @@ var LiveResults;
           if (isRelayClass) {
             if (!haveSplitControls || !fullView)
               columns.push({
+                name: "club",
                 title: this.resources["_CLUB"],
                 className: "dt-left",
                 orderable: false,
@@ -3206,6 +3224,7 @@ var LiveResults;
                 }
               });
             columns.push({
+              name: "name",
               title: (haveSplitControls && fullView) ? this.resources["_CLUB"] + " / " + this.resources["_NAME"] : this.resources["_NAME"],
               className: "dt-left",
               orderable: false,
@@ -3231,6 +3250,7 @@ var LiveResults;
           {
             if (!(haveSplitControls || _this.isMultiDayEvent) || _this.curClassIsUnranked || (!fullView && !_this.curClassLapTimes))
               columns.push({
+                name: "name2",
                 title: this.resources["_NAME"],
                 className: "dt-left",
                 orderable: false,
@@ -3246,6 +3266,7 @@ var LiveResults;
               });
 
             columns.push({
+              name: "club2",
               title: ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes)) ? this.resources["_NAME"] + " / " + this.resources["_CLUB"] : this.resources["_CLUB"],
               className: "dt-left",
               orderable: false,
@@ -3273,7 +3294,11 @@ var LiveResults;
 
           if (this.curClassIsCourse) {
             columns.push({
-              title: this.resources["_CLASS"], className: "dt-left", targets: [col++], data: "class",
+              name: "class",
+              title: this.resources["_CLASS"],
+              className: "dt-left",
+              targets: [col++],
+              data: "class",
               render: function (data, type, row) {
                 var classRaw = row["class"];
                 var classDisplay = _this.shortClassName(classRaw);
@@ -3286,6 +3311,7 @@ var LiveResults;
 
           if (_this.curClassHasBibs) {
             columns.push({
+              name: "bib",
               title: "&#8470",
               className: "dt-right",
               orderable: !_this.fixedTable,
@@ -3308,6 +3334,7 @@ var LiveResults;
           }
 
           columns.push({
+            name: "start",
             title: this.resources["_START"],
             className: "dt-right",
             orderable: !_this.fixedTable,
@@ -3363,6 +3390,7 @@ var LiveResults;
                   splitName = splitName.replace("Mellomtid", "M.tid");
 
                 columns.push({
+                  name: "splits." + value.code,
                   title: splitName,
                   visible: _this.curClassSplitsOK[refSp],
                   className: "dt-right timePlaceWidth",
@@ -3474,7 +3502,9 @@ var LiveResults;
                 });
                 col++;
                 columns.push({
+                  name: "splits." + value.code + "_status",
                   title: value.name + "_Status",
+                  className: "noVis",
                   visible: false,
                   targets: [col++],
                   type: "numeric",
@@ -3485,6 +3515,7 @@ var LiveResults;
           }
 
           columns.push({
+            name: "finish",
             title: this.resources["_CONTROLFINISH"],
             className: "dt-right timePlaceWidth",
             type: "numeric",
@@ -3553,7 +3584,9 @@ var LiveResults;
 
           col++;
           columns.push({
+            name: "status",
             title: "Status",
+            className: "noVis",
             visible: false,
             targets: [col++],
             type: "numeric",
@@ -3562,10 +3595,12 @@ var LiveResults;
 
           if (!(haveSplitControls || _this.isMultiDayEvent) || !fullView || _this.curClassLapTimes) {
             columns.push({
-              title: "",
+              name: "diff",
+              title: "Diff",
               visible: (!isSprintHeat || _this.showTimesInSprint) && (!_this.curClassIsUnranked || _this.fixedTable),
               className: "dt-right timeWidth",
-              orderable: false,
+              orderable: true,
+              orderData: [col - 1, col - 2, 0],
               targets: [col++],
               data: "timeplus",
               width: (this.fixedTable ? "10%" : null),
@@ -3573,7 +3608,7 @@ var LiveResults;
                 if (isNaN(parseInt(data)))
                   return data;
                 var res = "";
-                if (row.status == 0 && row.timeplus > 0) {
+                if (row.status == 0) {
                   res += "<span class=\"plustime\">+";
                   res += _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
                 }
@@ -3584,6 +3619,7 @@ var LiveResults;
           else
             if (_this.curClassIsRelay && fullView) {
               columns.push({
+                name: "total",
                 title: "Total<br/><span class=\"legtime\"><span class=\"legicon\">&#8635; </span>Etp</span>",
                 className: "dt-right",
                 orderable: false,
@@ -3595,11 +3631,11 @@ var LiveResults;
                   var res = "";
                   if (row.status == 0) {
                     res += "<span>";
-                    if (row.place > 1)
-                      res += "+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond);
+                    if (row.place > 0)
+                      res += "+" + _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond);
                     res += "</span><br/>";
-                    if (row.splits["999_place"] > 1)
-                      res += "<span class=\"legtime\">+" + _this.formatTime(row.splits["999_timeplus"], 0, _this.showTenthOfSecond) + "</span>";
+                    if (row.splits["999_place"] > 0)
+                      res += "<span class=\"legtime\">+" + _this.formatTime(Math.max(0, row.splits["999_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
                   }
                   return res;
                 }
@@ -3608,6 +3644,7 @@ var LiveResults;
 
           if (this.isMultiDayEvent && !courseResults) {
             columns.push({
+              name: "total2",
               title: this.resources["_TOTAL"],
               className: "dt-right timePlaceWidth",
               type: "numeric",
@@ -3651,10 +3688,20 @@ var LiveResults;
             });
 
             col++;
-            columns.push({ title: "TotalStatus", visible: false, targets: [col++], type: "numeric", data: "totalstatus" });
+            columns.push({
+              name: "totalstatus",
+              title: "TotalStatus",
+              visible: false,
+              className: "noVis",
+              targets: [col++],
+              type: "numeric",
+              data: "totalstatus"
+            });
+
             if (!fullView) {
               columns.push({
-                title: "",
+                name: "totaldiff",
+                title: "Diff",
                 orderable: false,
                 targets: [col++],
                 data: "totalplus",
@@ -3677,14 +3724,20 @@ var LiveResults;
             }
           }
           columns.push({
+            name: "VP",
             title: "VP",
             visible: false,
+            className: "noVis",
             targets: [col++],
             data: "virtual_position"
           });
           $('#' + this.resultsDiv).height(0);
 
           this.currentTable = $('#' + this.resultsDiv).DataTable({
+            stateSave: true,
+            stateSaveParams: function (settings, data) {
+              delete data.order;
+            },
             fixedHeader: true,
             fixedColumns: { leftColumns: 2 },
             scrollX: true,
@@ -3701,10 +3754,25 @@ var LiveResults;
             destroy: true,
             preDrawCallback: function (settings) {
               var api = new $.fn.dataTable.Api(settings);
-              if (api.order()[0][0] !== col - 1)
+              if (api.order()[0] != undefined && api.order()[0][0] !== col - 1)
                 $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
             },
           });
+
+          new DataTable.Buttons(this.currentTable, {
+            name: 'commands',
+            buttons: [
+              {
+                extend: 'colvis',
+                text: '',
+                dropIcon: false,
+                className: 'fa-solid fa-columns',
+                columns: ':not(.noVis)'
+              }
+            ]
+          });
+          $('#colSelector').html('');
+          this.currentTable.buttons(0, null).containers().appendTo($('#colSelector'));
 
           // Scroll to initial view 
           if (data.results[0].progress != undefined) {
@@ -4165,10 +4233,21 @@ var LiveResults;
           var columns = Array();
           var col = 0;
           columns.push({
-            title: "#", className: "dt-right", orderData: [1], targets: [col++], data: "place"
+            name: "place",
+            title: "#",
+            className: "dt-right",
+            orderData: [1],
+            targets: [col++],
+            data: "place"
           });
           columns.push({
-            title: "placeSortable", visible: false, data: "placeSortable", targets: [col++], render: function (data, type, row) {
+            name: "placesortable",
+            title: "placeSortable",
+            className: "noVis",
+            visible: false,
+            data: "placeSortable",
+            targets: [col++],
+            render: function (data, type, row) {
               if (type == "sort")
                 return row.placeSortable;
               else
@@ -4176,7 +4255,11 @@ var LiveResults;
             }
           });
           columns.push({
-            title: this.resources["_NAME"], className: "dt-left", targets: [col++], data: "name",
+            name: "name",
+            title: this.resources["_NAME"],
+            className: "dt-left",
+            targets: [col++],
+            data: "name",
             render: function (data, type, row) {
               if (type === 'display') {
                 if (data.length > _this.maxNameLength)
@@ -4189,7 +4272,11 @@ var LiveResults;
             }
           });
           columns.push({
-            title: this.resources["_CLASS"], className: "dt-left", targets: [col++], data: "class",
+            name: "class",
+            title: this.resources["_CLASS"],
+            className: "dt-left",
+            targets: [col++],
+            data: "class",
             render: function (data, type, row) {
               var param = row["class"];
               if (param && param.length > 0)
@@ -4198,7 +4285,12 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "&#8470;", className: "dt-right", orderData: [col + 1], targets: [col++], data: (_this.EmmaServer ? null : "bib"),
+            name: "bib",
+            title: "&#8470;",
+            className: "dt-right",
+            orderData: [col + 1],
+            targets: [col++],
+            data: (_this.EmmaServer ? null : "bib"),
             render: function (data, type, row) {
               if (type === 'display') {
                 if (row.bib < 0) // Relay
@@ -4213,13 +4305,24 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "bibSortable", visible: false, data: (_this.EmmaServer ? null : "bib"), targets: [col++],
+            name: "bibsortable",
+            title: "bibSortable",
+            className: "noVis",
+            visible: false,
+            data: (_this.EmmaServer ? null : "bib"),
+            targets: [col++],
             render: function (data, type, row) {
               return Math.abs(data);
             }
           });
           columns.push({
-            title: this.resources["_START"], className: "dt-right", type: "numeric", orderData: [col + 1], targets: [col++], data: "start",
+            name: "start",
+            title: this.resources["_START"],
+            className: "dt-right",
+            type: "numeric",
+            orderData: [col + 1],
+            targets: [col++],
+            data: "start",
             render: function (data, type, row) {
               if (row.start == "") {
                 return "";
@@ -4230,15 +4333,27 @@ var LiveResults;
             }
           });
           columns.push({
-            title: "startSortable", visible: false, data: "start", targets: [col++], "bUseRendered": false, data: "start",
+            name: "startsortable",
+            title: "startSortable",
+            className: "noVis",
+            visible: false,
+            data: "start",
+            targets: [col++],
+            data: "start",
             render: function (data, type, row) {
-              return data;
+              if (data < 0) // Open start
+                return 99999999;
+              else if (data == "")
+                return 0;
+              else
+                return data;
             }
           });
 
           for (var i = 0; i < this.curClubSplits; i++) {
             var splitName = "M" + (i + 1);
             columns.push({
+              name: splitName,
               title: splitName,
               className: "dt-right timePlaceWidth",
               type: "numeric",
@@ -4283,8 +4398,14 @@ var LiveResults;
           };
 
           columns.push({
-            title: this.resources["_CONTROLFINISH"], className: "dt-right timePlaceWidth",
-            type: "numeric", orderData: [col + 1, col, 0], targets: [col], "bUseRendered": false, data: "result", defaultContent: "undefined",
+            name: "finish",
+            title: this.resources["_CONTROLFINISH"],
+            className: "dt-right timePlaceWidth",
+            type: "numeric",
+            orderData: [col + 1, col, 0],
+            targets: [col],
+            data: "result",
+            defaultContent: "undefined",
             render: function (data, type, row) {
               if (isNaN(parseInt(data)))
                 return data;
@@ -4305,10 +4426,21 @@ var LiveResults;
 
           col++;
           columns.push({
-            title: "Status", visible: false, targets: [col++], type: "numeric", data: "status"
+            name: "status",
+            title: "Status",
+            className: "noVis",
+            visible: false,
+            targets: [col++],
+            type: "numeric",
+            data: "status"
           });
           columns.push({
-            title: "Diff", className: "dt-right", orderable: true, targets: [col++], data: "timeplus",
+            name: "diff",
+            title: "Diff",
+            className: "dt-right",
+            orderable: true,
+            targets: [col++],
+            data: "timeplus",
             render: function (data, type, row) {
               if (isNaN(parseInt(data)))
                 return data;
@@ -4328,7 +4460,12 @@ var LiveResults;
           });
           if (hasPace) {
             columns.push({
-              title: "m/km", className: "dt-right", orderable: true, targets: [col++], data: "pace",
+              name: "pace",
+              title: "m/km",
+              className: "dt-right",
+              orderable: true,
+              targets: [col++],
+              data: "pace",
               render: function (data, type, row) {
                 if (row.status == 0 && data > 0) {
                   if (type === 'display')
@@ -4344,6 +4481,10 @@ var LiveResults;
             });
           }
           this.currentTable = $('#' + this.resultsDiv).DataTable({
+            stateSave: true,
+            stateSaveParams: function (settings, data) {
+              delete data.order;
+            },
             fixedHeader: true,
             fixedColumns: { leftColumns: 2 },
             scrollX: true,
@@ -4355,15 +4496,30 @@ var LiveResults;
               bottomEnd: null
             },
             data: data.results,
-            order: [[1, 'asc'], [7, 'asc']],
+            order: [[1, 'asc'], [7, 'asc'], [5, 'asc']],
             columnDefs: columns,
             destroy: true,
             preDrawCallback: function (settings) {
               var api = new $.fn.dataTable.Api(settings);
-              if (api.order()[0][0] !== 1)
+              if (api.order()[0] != undefined && api.order()[0][0] !== 1)
                 $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
             }
           });
+
+          new DataTable.Buttons(this.currentTable, {
+            name: 'commands',
+            buttons: [
+              {
+                extend: 'colvis',
+                text: '',
+                dropIcon: false,
+                className: 'fa-solid fa-columns',
+                columns: ':not(.noVis)'
+              }
+            ]
+          });
+          $('#colSelector').html('');
+          this.currentTable.buttons(0, null).containers().appendTo($('#colSelector'));
           this.lastClubHash = data.hash;
         }
       }
@@ -4400,7 +4556,8 @@ var LiveResults;
           }
           else {
             var changed = parseInt(data[i].changed);
-            var highlight = (changed > 0 ? timeServer - data[i].changed < this.highTime : false);
+            var noStartStatus = (data[i].status != 9 && data[i].status != 10);
+            var highlight = (noStartStatus && changed > 0 && (timeServer - data[i].changed < this.highTime));
 
             if (this.curClubSplits == 0) { // No splits, highlight row
               if (highlight) {
@@ -4547,7 +4704,7 @@ var LiveResults;
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
           $('#' + this.resultsControlsDiv).show();
         }
-        if (data.legs != null & data.relayresults != null) {
+        if (data.legs != null && data.relayresults != null) {
           var legs = data.legs;
           var numberOfTeams = data.relayresults[0].results.length;
           var numberOfRunners = legs * numberOfTeams;
@@ -4696,7 +4853,7 @@ var LiveResults;
 
     AjaxViewer.prototype.resetSorting = function () {
       if (this.curClubName != null) {
-        this.currentTable.order([1, 'asc'], [7, 'asc']).draw();
+        this.currentTable.order([1, 'asc'], [7, 'asc'], [5, 'asc']).draw();
       }
       else {
         var idxCol = 1;
@@ -5206,7 +5363,7 @@ var LiveResults;
               destroy: true,
               preDrawCallback: function (settings) {
                 var api = new $.fn.dataTable.Api(settings);
-                if (api.order()[0][0] !== 1)
+                if (api.order()[0] != undefined && api.order()[0][0] !== 1)
                   $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
               }
             });

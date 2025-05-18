@@ -487,6 +487,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
               <tr>
                 <td align="left">
+                  <span id="colSelector" style="display: inline-block;"></span>
                   <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span class="fa-solid fa-arrows-up-down"></span></button>
                   <button class="navbtn" onclick="changeFontSize(2)"><span class="fa-solid fa-plus"></span></button>
                   <button class="navbtn" onclick="changeFontSize(-2)"><span class="fa-solid fa-minus"></span></button>
