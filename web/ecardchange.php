@@ -111,7 +111,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 				var filteredRunners = runners.filter(function(runner) {
 					if (!isNaN(searchNum))
-						return (runner.bib === searchNum || runner.ecard1 === searchNum || runner.ecard2 === searchNum);
+						return (Math.abs(runner.bib) === searchNum || (-runner.bib / 100 | 0) === searchNum || runner.ecard1 === searchNum || runner.ecard2 === searchNum);
 					else
 						return runner.name.toLowerCase().includes(searchQuery);
 				});
@@ -150,7 +150,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			if (header)
 				personSelect.append($('<option>').text('--- Velg løper ---').val(''));
 			runners.forEach(function(runner) {
-				personSelect.append($('<option>').text('(' + runner.bib + ') ' +
+				var bibFormat = runner.bib < 0 ? (-runner.bib / 100 | 0) + "-" + (-runner.bib % 100) : runner.bib;
+				personSelect.append($('<option>').text('(' + bibFormat + ') ' +
 					runner.familyName + ', ' + runner.givenName + ': ' + ecardString(runner)
 				).val(runner.bib));
 			});
@@ -263,11 +264,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 								hash = data.hash;
 								for (var i = 0; i < data.runners.length; i++) {
 									// Check if the bib and ecard number in the database matches the one we just registered
-									if (data.runners[i].bib == bib && (data.runners[i].ecard1 == ecardNumber || data.runners[i].ecard2 == ecardNumber)) {
+									if (Math.abs(data.runners[i].bib) == Math.abs(bib) && (data.runners[i].ecard1 == ecardNumber || data.runners[i].ecard2 == ecardNumber)) {
 										found = true;
+										var bibRaw = data.runners[i].bib;
+										var bibFormat = bibRaw < 0 ? (-bibRaw / 100 | 0) + "-" + (-bibRaw % 100) : bibRaw;
 										$('#entrydata').html('<b>Ditt brikkebytte er registrert som følger:</b><br>' +
 											'<table>' +
-											'<tr><td>Startnummer:</td><td>' + data.runners[i].bib + '</td></tr>' +
+											'<tr><td>Startnummer:</td><td>' + bibFormat + '</td></tr>' +
 											'<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>' +
 											'<tr><td>Brikkenummer:</td><td>' + ecardString(data.runners[i]) + '</td></tr>' +
 											'</table>');
