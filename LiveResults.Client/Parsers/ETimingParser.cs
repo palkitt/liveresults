@@ -1910,10 +1910,10 @@ namespace LiveResults.Client
                                 var update = 0;
                                 if (clubCode != null && clubCode != DBNull.Value)
                                     clubCode = clubCode.ToString();
-                                else // club not found, make a new one
+                                else // club not found, make a new negeative one
                                 {
-                                    string query = (m_MSSQL ? "CAST(ISNULL(MAX(TRY_CAST(code AS INT)), 0) + 1 AS VARCHAR)" :
-                                    "CSTR(IIF(MAX(VAL(code)) IS NULL, 0, MAX(VAL(code))) + 1)");
+                                    string query = (m_MSSQL ? "CAST(ISNULL(MIN(TRY_CAST(code AS INT)), 0) - 1 AS VARCHAR)" :
+                                    "CSTR(IIF(MIN(VAL(code)) IS NULL, 0, MIN(VAL(code))) - 1)");
                                     cmd.CommandText = string.Format(@"INSERT INTO team (code, name) SELECT {0}, '{1}' FROM team", query, club);
                                     update = cmd.ExecuteNonQuery();
                                     if (update == 1)
