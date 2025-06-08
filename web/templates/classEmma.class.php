@@ -775,15 +775,49 @@ class Emma
 	function getLastPassings($num)
 	{
 		$ret = array();
-		$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, results.Time, results.Status, results.Changed, 
-			results.Control, splitcontrols.name as pname From results inner join runners on results.DbId = runners.DbId 
-			left join splitcontrols on (splitcontrols.code = results.Control and splitcontrols.tavid=" . $this->m_CompId . " 
-			and runners.class = splitcontrols.classname) where results.TavId =" . $this->m_CompId . " 
-			AND runners.TavId = results.TavId and results.Status <> -1 AND results.Time <> -1 AND results.Status <> 9 
-			and results.Status <> 10  and results.Status <> 6 and results.control <> 100 and (results.control = 1000 or splitcontrols.tavid is not null)
-			AND results.control <> 999 AND results.control <> -999 AND results.control <> 0 AND results.control < 100000
-			AND runners.class NOT LIKE '%-All' 
-			ORDER BY results.changed desc, runners.name, results.control limit 3";
+		$q = "SELECT 
+				runners.Name, 
+				runners.bib, 
+				runners.class, 
+				runners.Club, 
+				results.Time, 
+				results.Status, 
+				results.Changed, 
+				results.Control,
+				(
+					SELECT COUNT(*) + 1 
+					FROM results sre
+					JOIN runners sru ON sre.tavid = sru.tavid AND sre.dbid = sru.dbid
+					WHERE 
+					sre.tavid = results.tavid
+					AND sru.class = runners.class
+					AND sre.control = results.control
+					AND sre.time < results.time
+					AND sre.time > 0
+					AND sre.dbid IN (
+						SELECT dbid FROM results WHERE tavid = sre.tavid AND control = 1000 AND status IN (0, 9, 10)
+					)
+				) AS place,
+				splitcontrols.name as pname
+				FROM 
+				results
+				INNER JOIN runners ON results.dbid = runners.dbid AND results.tavid = runners.tavid
+				LEFT JOIN splitcontrols 
+					ON splitcontrols.code = results.Control 
+					AND splitcontrols.tavid = results.tavid
+					AND runners.class = splitcontrols.classname
+				WHERE
+				results.tavid = {$this->m_CompId}
+				AND results.Time > 0
+				AND results.Status NOT IN (-1, 6, 9, 10)
+				AND results.Control <> 100
+				AND (results.Control = 1000 OR splitcontrols.tavid IS NOT NULL)
+				AND results.Control NOT IN (999, 0, -999)
+				AND results.Control < 100000
+				AND runners.class NOT LIKE '%-All'
+				ORDER BY 
+				results.changed DESC, runners.name, results.Control
+				LIMIT {$num}";
 
 		if ($result = mysqli_query($this->m_Conn, $q)) {
 			while ($row = mysqli_fetch_array($result)) {

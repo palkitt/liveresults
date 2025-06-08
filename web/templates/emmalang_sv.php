@@ -61,3 +61,5 @@ $_DATE = "Datum";
 
 //new Freidig
 $_FREESTART = "fri start";
+$_NEWSTATUS = "fick ny status:";
+$_LASTPASSWITHSTATUS = "med status";

@@ -64,3 +64,4 @@ $_SPORT = "Idrett";
 //new Freidig
 $_FREESTART = "fristart";
 $_NEWSTATUS = "fikk ny status:";
+$_LASTPASSWITHSTATUS = "med status";

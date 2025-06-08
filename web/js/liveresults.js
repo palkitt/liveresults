@@ -1409,10 +1409,14 @@ var LiveResults;
           var str = "";
           $.each(data.passings, function (key, value) {
             var runnerName = (value.runnerName.length > _this.maxNameLength ? _this.nameShort(value.runnerName) : value.runnerName);
-            var cl = value["class"];
             var status = value["status"];
+            var place = value["place"];
+            var code = value["control"];
+            var cl = value["class"];
+
             if (cl && cl.length > 0)
               cl = cl.replace('\'', '\\\'');
+
             var bibStr = "";
             if (_this.speakerView) {
               var bib = value["bib"];
@@ -1423,11 +1427,15 @@ var LiveResults;
                 bibFormat = bib;
               bibStr = " (<a href=\"javascript:LiveResults.Instance.searchBib(" + bib + ")\">" + bibFormat + "</a>) ";
             }
+
+            var placeStr = (code > 0 && place > 0 && status == 0 ? " (" + place + ")" : "");
+
             str += value.passtime + ": " + bibStr + runnerName
               + " (<a href=\"javascript:LiveResults.Instance.chooseClass('" + cl + "')\">" + value["class"] + "</a>) "
-              + (value.control == 1000 && status > 0 && status < 7 ? _this.resources["_NEWSTATUS"] :
-                (value.control == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"])
-                + " " + _this.resources["_LASTPASSWITHTIME"]) + " " + value["time"] + "<br/>";
+              + (code == 1000 && status > 0 && status < 7 ? _this.resources["_NEWSTATUS"] :
+                (code == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"])
+                + " " + (status == 13 ? _this.resources["_LASTPASSWITHSTATUS"] : _this.resources["_LASTPASSWITHTIME"])) + " "
+              + value["time"] + placeStr + "<br/>";
           });
           $("#" + this.lastPassingsDiv).html(str);
           this.lastPassingsUpdateHash = data.hash;

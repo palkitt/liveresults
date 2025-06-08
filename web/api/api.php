@@ -107,7 +107,7 @@ if ($_GET['method'] == 'getcompetitions') {
 } elseif ($_GET['method'] == 'getlastpassings') {
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
-	$lastPassings = $currentComp->getLastPassings(5);
+	$lastPassings = $currentComp->getLastPassings(3);
 	$first = true;
 	$ret = "";
 	foreach ((array)$lastPassings as $pass) {
@@ -120,6 +120,7 @@ if ($_GET['method'] == 'getcompetitions') {
 					\"control\": " . $pass['Control'] . ",
 					\"controlName\" : \"" . $pass['pname'] . "\",
 					\"status\" : " . $pass['Status'] . ", 
+					\"place\": " . $pass['place'] . ",
 					\"time\": \"" . formatTime($pass['Time'], $pass['Status'], $RunnerStatus) . "\" }";
 		$first = false;
 	}
