@@ -42,9 +42,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var vacants = [];
 		var reservedID = 0;
 		var ecardFieldActive = false;
-		var ecardOK = false;
 		var ecardEntry = <?= $currentComp->NoEcardEntry() ? "false" : "true" ?>;
 		var allowNewClub = <?= $currentComp->AllowNewClub() ? "true" : "false" ?>;
+		var ecardOK = !ecardEntry; // Initially set to true if ecard entry is not required
 
 		$(document).ready(function() {
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
@@ -234,7 +234,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				return;
 			}
 			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
-			if (ecardNumber == "" || ecardNumber < 0) {
+			if (ecardEntry && (ecardNumber == "" || ecardNumber < 0)) {
 				alert('Oppgi brikkenummer.');
 				return;
 			}
