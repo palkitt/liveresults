@@ -42,6 +42,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var vacants = [];
 		var reservedID = 0;
 		var ecardFieldActive = false;
+		var ecardOK = false;
 		var ecardEntry = <?= $currentComp->NoEcardEntry() ? "false" : "true" ?>;
 		var allowNewClub = <?= $currentComp->AllowNewClub() ? "true" : "false" ?>;
 
@@ -141,10 +142,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			$('#firstname, #lastname').on('input', function() {
 				var firstName = $('#firstname').val();
 				var lastName = $('#lastname').val();
-				if (firstName.trim() !== '' && lastName.trim() !== '' && !sendt)
+				if (firstName.trim() !== '' && lastName.trim() !== '' && !sendt && ecardOK) {
 					$('#submit').show();
-				else
+				} else {
 					$('#submit').hide();
+					if (!ecardOK)
+						alert('Oppgi gyldig brikkenummer.');
+				}
 			});
 
 			$('#classSelect').prop('disabled', true);
@@ -173,10 +177,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
 				$('#submit').hide();
 				$('#ecardImage').hide();
+				ecardOK = false;
 			} else if (ecards.includes(ecardNumber)) {
 				$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
 				$('#submit').hide();
 				$('#ecardImage').hide();
+				ecardOK = false;
 			} else {
 				var ecard = $('#ecardnumber').val();
 				var emiTag = (ecard < 10000 || ecard > 1000000);
@@ -187,6 +193,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				var imageSrc = emiTag ? 'images/emiTag.png' : 'images/EKT.png';
 				$('#ecardImage').attr('src', imageSrc).show();
 				ecardFieldActive = false;
+				ecardOK = true;
 
 				fetch(url + "messageapi.php?method=getnamefromecard&comp=" + comp + "&ecard=" + ecard)
 					.then(response => response.json())
@@ -227,6 +234,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				return;
 			}
 			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
+			if (ecardNumber == "" || ecardNumber < 0) {
+				alert('Oppgi brikkenummer.');
+				return;
+			}
 			var rent = (ecardEntry ? $('#rent').prop('checked') : 0);
 			var comment = sanitizeInput($('#comment').val());
 
