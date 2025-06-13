@@ -3746,7 +3746,10 @@ var LiveResults;
             stateSaveParams: function (settings, data) {
               delete data.order;
             },
-            fixedHeader: true,
+            fixedHeader: {
+              header: true,
+              headerOffset: _this.fixedTable ? 20 : 0
+            },
             fixedColumns: { leftColumns: 2 },
             scrollX: true,
             paging: false,
