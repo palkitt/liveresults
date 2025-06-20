@@ -2936,7 +2936,7 @@ var LiveResults;
         callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (includeTotal ? "&includetotal=true" : "");
         if (className.indexOf("course::") != 0 && this.LiveloxID > 0) {
           let LiveloxLink = 'https://www.livelox.com/Viewer?eventId=' + this.LiveloxID + '&className=' + encodeURIComponent(className);
-          $('#divLivelox').html('<a href="' + LiveloxLink + '">Livelox <img src="images/livelox32x32.png" height="10px"></a>');
+          $('#divLivelox').html('<a href="' + LiveloxLink + '">Livelox <img src="images/livelox32x32.png" style="height:1em;"></a>');
         }
       }
       $.ajax({
