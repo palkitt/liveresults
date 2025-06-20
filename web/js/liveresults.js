@@ -9,6 +9,7 @@ var LiveResults;
       var _this = this;
       this.local = true;
       this.competitionId = competitionId;
+      this.LiveloxID = 0;
       this.language = language;
       this.classesDiv = classesDiv;
       this.lastPassingsDiv = lastPassingsDiv;
@@ -2913,8 +2914,8 @@ var LiveResults;
 
       // Remove dropdown class list
       $('#classColumnContent').removeClass('open').addClass('closed');
-
       $('#divResults').html('');
+      $('#divLivelox').html('');
       this.curClassName = className;
       this.curClubName = null;
       this.curSplitView = null;
@@ -2930,9 +2931,13 @@ var LiveResults;
         callStr = "&method=getplainresults&unformattedTimes=true&classmask=" + className.replace("plainresultsclass_", "");
       else if (className == "startlist")
         callStr = "&method=getstartlist";
-      else {
+      else { // Normal class
         var includeTotal = (this.isMultiDayEvent && className.indexOf("course::") != 0);
         callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (includeTotal ? "&includetotal=true" : "");
+        if (className.indexOf("course::") != 0 && this.LiveloxID > 0) {
+          let LiveloxLink = 'https://www.livelox.com/Viewer?eventId=' + this.LiveloxID + '&className=' + encodeURIComponent(className);
+          $('#divLivelox').html('<a href="' + LiveloxLink + '">Livelox <img src="images/livelox32x32.png" height="10px"></a>');
+        }
       }
       $.ajax({
         url: this.apiURL,
@@ -4184,6 +4189,7 @@ var LiveResults;
         catch (e) { }
       }
       $('#divResults').html('');
+      $('#divLivelox').html('');
       $('#' + this.txtResetSorting).html('');
       this.curClubName = clubName;
       this.curClassName = null;
@@ -4677,6 +4683,7 @@ var LiveResults;
       }
       $('#classColumnContent').removeClass('open').addClass('closed');
       $('#divResults').html('');
+      $('#divLivelox').html('');
       $('#' + this.txtResetSorting).html('');
       this.curClubName = null;
       this.curClassName = null;

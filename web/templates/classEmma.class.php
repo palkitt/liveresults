@@ -12,6 +12,7 @@ class Emma
 	var $m_RankedStartList;
 	var $m_TimeDiff = 0;
 	var $m_HighTime = 60;
+	var $m_LiveloxID = 0;
 	var $m_IsMultiDayEvent = false;
 	var $m_UseMassStartSort = false;
 	var $m_ShowTenthOfSeconds = false;
@@ -148,8 +149,8 @@ class Emma
 		if ($id < 10000)
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
-		hightime,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,showtimesinsprint,livecenterurl,sport)
-		values($id,'" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','$name','$org','$date',1,0,0,0,1,$hightime,'',
+		hightime,liveloxid,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,showtimesinsprint,livecenterurl,sport)
+		values($id,'" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','$name','$org','$date',1,0,0,0,1,$hightime,0,'',
 		'',0,0,0,'',$showecardtimes,0,'','$sport')") or die(mysqli_error($conn));
 		return $id;
 	}
@@ -218,6 +219,7 @@ class Emma
 		$fullviewdefault,
 		$rankedstartlist,
 		$hightime,
+		$liveloxid,
 		$quallimits,
 		$qualclasses,
 		$multidaystage,
@@ -233,8 +235,17 @@ class Emma
 		$sport
 	) {
 		$conn = self::openConnection();
-		$sql = "update login set compName = '$name', organizer='$org', compDate ='$date',timediff=$timediff, hightime=$hightime
-			, quallimits='$quallimits', qualclasses='$qualclasses', multidaystage='$multidaystage', multidayparent='$multidayparent', sport='$sport'
+		$sql = "update login set compName = '$name'
+			, organizer='$org'
+			, compDate ='$date'
+			, timediff=$timediff
+			, hightime=$hightime
+			, liveloxid=$liveloxid
+			, quallimits='$quallimits'
+			, qualclasses='$qualclasses'
+			, multidaystage='$multidaystage'
+			, multidayparent='$multidayparent'
+			, sport='$sport'
 			, public=" . (!isset($public) ? "0" : "1") . "
 			, massstartsort=" . (!isset($massstartsort) ? "0" : "1") . "
 			, tenthofseconds=" . (!isset($tenthofseconds) ? "0" : "1") . "
@@ -246,7 +257,8 @@ class Emma
 			, showcourseresults=" . (!isset($showcourseresults) ? "0" : "1") . "
 			, noecardentry=" . (!isset($noecardentry) ? "0" : "1") . "
 			, allownewclub=" . (!isset($allownewclub) ? "0" : "1") . "
-			, infotext='$infotext',livecenterurl='$livecenterurl' WHERE tavid=$id";
+			, infotext='$infotext'
+			, livecenterurl='$livecenterurl' WHERE tavid=$id";
 		$ret = mysqli_query($conn, $sql) or die(mysqli_error($conn));
 		return $ret;
 	}
@@ -266,7 +278,7 @@ class Emma
 	{
 		$conn = self::openConnection();
 		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, 
-				fullviewdefault, rankedstartlist, hightime, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, 
+				fullviewdefault, rankedstartlist, hightime, liveloxid, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, 
 				multidayparent, showinfo, infotext, showecardtimes, showtimesinsprint, noecardentry, allownewclub, livecenterurl, showcourseresults, sport 
 				from login WHERE tavid=$compid");
 		$ret = null;
@@ -436,6 +448,7 @@ class Emma
 			$this->m_CompDate = date("Y-m-d", strtotime($tmp["compDate"]));
 			$this->m_TimeDiff = $tmp["timediff"] * 3600;
 			$this->m_HighTime = $tmp["hightime"];
+			$this->m_LiveloxID = $tmp["liveloxid"];
 			$this->m_UseMassStartSort = $tmp["massstartsort"];
 			$this->m_ShowTenthOfSeconds = $tmp["tenthofseconds"];
 			$this->m_ShowFullView = $tmp["fullviewdefault"];
@@ -519,6 +532,11 @@ class Emma
 	function HighTime()
 	{
 		return $this->m_HighTime;
+	}
+
+	function LiveloxID()
+	{
+		return $this->m_LiveloxID;
 	}
 
 	function MassStartSorting()

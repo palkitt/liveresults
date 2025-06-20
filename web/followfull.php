@@ -34,6 +34,7 @@ if ($isEmmaComp) {
   $qualLimits = "";
   $qualClasses = "";
   $infoText = "";
+  $liveloxid = 0;
   $indexRef = "index.php?emma&lang=" . $lang;
   $CHARSET = 'utf-8';
 } else {
@@ -54,6 +55,7 @@ if ($isEmmaComp) {
   $qualLimits = $currentComp->QualLimits();
   $qualClasses = $currentComp->QualClasses();
   $infoText = $currentComp->InfoText();
+  $liveloxid = $currentComp->LiveloxId();
   $indexRef = "index.php?lang=" . $lang;
 }
 $image = "";
@@ -244,6 +246,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
       // Initialize info text
       $("#divInfoText").html("<?= $infoText ?>");
+
+      // Set Livelox ID
+      res.LiveloxID = "<?= $liveloxid ?>";
 
       var locked = undefined;
       if (typeof(Storage) !== "undefined")
@@ -528,7 +533,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   </button>
                 </div>
               </td>
-              <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
+              <td align="right"><span id="divLivelox" class="splitChooser"></span> &nbsp;<span id="txtResetSorting" class="splitChooser"></span></td>
             </tr>
           </table>
           <div class="container">

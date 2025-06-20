@@ -14,6 +14,7 @@ if (isset($_POST['btnSave'])) {
     0,
     (isset($_POST['rankedstartlist']) ? 1 : null),
     $_POST['hightime'],
+    $_POST['liveloxid'],
     $_POST['quallimits'],
     $_POST['qualclasses'],
     $_POST['multidaystage'],
@@ -188,6 +189,12 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                       <td>Live center URL</td>
                       <td>&nbsp;<input type="text" name="livecenterurl" style="width: 120px;" value="<?= $comp['livecenterurl'] ?>" /></td>
                       <td>URL to competition live center</td>
+                    </tr>
+
+                    <tr>
+                      <td>Livelox ID</td>
+                      <td>&nbsp;<input type="number" name="liveloxid" style="width: 120px;" value="<?= $comp['liveloxid'] ?>" /></td>
+                      <td>Links to Livelox will be made based on class names when ID > 0</td>
                     </tr>
 
                     <tr>
