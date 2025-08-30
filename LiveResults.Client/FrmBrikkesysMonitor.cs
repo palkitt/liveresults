@@ -221,10 +221,6 @@ namespace LiveResults.Client
 
             this.Close();
         }
-        private void FrmBrikkesysMonitor_Load(object sender, EventArgs e)
-        {
-
-        }
         private void FrmBrikkesysMonitor_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (btnStartSTop.Text == "Stop")
