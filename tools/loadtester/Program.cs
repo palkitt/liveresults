@@ -129,17 +129,13 @@ namespace loadtester
             WebClient wc = new WebClient();
             wc.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
             string lastHash = "";
-            //string klass = r.Next(0, 1) == 0 ? "W21+Elite" : "H20+E";
             string klass = r.Next(0, 1) == 0 ? "D18+E" : "H18+E";
             JavaScriptSerializer seri = new JavaScriptSerializer();
             while (m_continue)
             {
-                //string url = "http://localhost/live/api.php?comp=10262&method=getclassresults&unformattedTimes=true&class=" + klass + "&last_hash=" + lastHash;
-                //string url = "http://ec2-46-137-133-46.eu-west-1.compute.amazonaws.com/api.php?comp=10276&method=getclassresults&unformattedTimes=true&class=" +  klass + "&last_hash=" + lastHash;
                 string url = "http://ec2-46-137-12-7.eu-west-1.compute.amazonaws.com/api.php?comp=10276&method=getclassresults&unformattedTimes=true&class=" + klass + "&last_hash=" + lastHash;
             
                 DateTime start = DateTime.Now;
-                //string resp = wc.DownloadString(url);
                 WebRequest wq = HttpWebRequest.Create(url);
                 string resp = new StreamReader(wq.GetResponse().GetResponseStream()).ReadToEnd();
                 DateTime end = DateTime.Now;
