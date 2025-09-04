@@ -8,44 +8,40 @@
   --bkdark: #555555;
 }
 
+body,
+body.iframed,
+td,
+textarea,
+select,
+input,
+table,
+button {
+  font-family: arial, helvetica, verdana, geneva, sans-serif;
+  font-size: 1em;
+}
 
 body {
-  background-color: #ffffff;
+  background: #FFF;
   margin: 0;
   font-size: 75%;
-  font-family: arial, helvetica, verdana, geneva, sans-serif;
   -webkit-text-size-adjust: none;
 }
 
-/* html documents within iframes */
 body.iframed {
-  margin-left: 0px;
-  margin-right: 0px;
   font-size: 80%;
-  font-family: arial, helvetica, verdana, geneva, sans-serif;
 }
 
 button {
-  font-size: 0.8em;
-  padding-top: 0px;
-  padding-bottom: 0px
-}
-
-table {
-  font-size: 1em;
+  font-size: .8em;
+  padding: 0;
 }
 
 td {
-  font-family: arial, helvetica, verdana, geneva, sans-serif;
-  font-size: 1em;
   line-height: 1.4em;
   white-space: nowrap;
 }
 
-.wrapok {
-  white-space: normal;
-}
-
+.wrapok,
 th {
   white-space: normal;
 }
@@ -54,15 +50,11 @@ th {
   padding: 0 5px 0 0;
 }
 
-a:link {
-  font-size: 1em;
-  color: var(--livered);
-  text-decoration: none
-}
-
+a:link,
 a:visited {
   font-size: 1em;
   color: var(--livered);
+  text-decoration: none;
 }
 
 a:hover {
@@ -72,44 +64,26 @@ a:hover {
 
 textarea {
   font-size: 1.1em;
-  font-family: arial, helvetica, verdana, geneva, sans-serif;
-}
-
-select {
-  font-size: 1em;
-}
-
-input {
-  font-size: 1em;
 }
 
 input,
 select,
 textarea {
-  -ms-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
 
-h1 {
+h1,
+h3 {
   font-size: 1em;
   font-weight: normal;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
 
 h2 {
   font-size: 1.3em;
   font-weight: bold;
-  margin-bottom: 0px;
+  margin-bottom: 0;
 }
-
-h3 {
-  font-size: 1em;
-  font-weight: normal;
-  margin-bottom: 0px;
-}
-
 
 .firstnonqualifier>td {
   border-top: 3px solid gray !important;
@@ -120,7 +94,7 @@ h3 {
 }
 
 .pre_post_start>td {
-  background-color: #DFDFDF !important;
+  background: #DFDFDF !important;
   box-shadow: none !important;
 }
 
@@ -128,262 +102,215 @@ h3 {
   text-decoration: line-through;
 }
 
-/* Submenu classes */
-/*td.submenu{background: #3A5C9C; border-left:1px solid #ABC9EF; border-right:1px solid #ABC9EF;}*/
 td.submenu {
-  background: #555556;
+  background: #555;
 }
 
 td.submenu table tr td {
-  color: #DDDDDD;
-  padding: 3px 9px 3px 9px;
+  color: #DDD;
+  padding: 3px 9px;
   font-weight: bold;
 }
 
-td.submenu table tr td a:link,
-td.submenu table tr td a:visited {
+td.submenu a:link,
+td.submenu a:visited {
   color: #FFF;
   text-decoration: none;
 }
 
-td.submenu table tr td a:hover {
-  text-decoration: underline;
+td.submenu a:hover {
   color: var(--livered);
+  text-decoration: underline;
 }
 
 td.searchmenu {
   padding-left: 5px;
 }
 
-
-/* Red row marking */
-tr.red_row>td {
-  color: white;
-  background-color: var(--livered) !important;
-  box-shadow: none !important;
-}
-
-tr.red_row a {
-  color: white;
-}
-
-tr.red_row td.sorting_2 {
-  background-color: #F9B7A4 !important;
-}
-
-tr.red_row td.sorting_1 {
-  background-color: #F9B7A4 !important;
-}
-
-tr.red_row .plustime {
-  color: white;
-}
-
-tr.red_row .besttime {
-  color: white;
-}
-
-tr.red_row .legtime {
-  color: white;
-}
-
-tr.red_row .estimate {
-  color: white;
-}
-
-tr.red_row .place {
-  color: white;
-}
-
-tr.red_row .bestplace {
-  color: white;
-}
-
-tr.red_row td i {
-  color: white;
-}
-
-tr.red_row .bib {
-  color: white;
-}
-
-tr.red_row .club {
-  color: white;
-}
-
-tr.red_row .relayclub {
-  color: white;
-}
-
-/* Red cell for singel cell marking of new result */
-.red_cell {
-  color: white;
-  background-color: var(--livered) !important;
-  box-shadow: none !important;
-}
-
-.red_cell .plustime {
-  color: white;
-}
-
-.red_cell .legtime {
-  color: white;
-}
-
-.red_cell .besttime {
-  color: white;
-  text-decoration-color: white;
-}
-
-.red_cell .place {
-  color: white;
-}
-
-.red_cell .bestplace {
-  color: white;
-}
-
-.red_cell i {
-  color: white;
-}
-
-.red_cell_sqr {
-  color: white;
-  background-color: var(--livered) !important;
-  box-shadow: none !important;
-}
-
-.red_cell_sqr .plustime {
-  color: white;
-}
-
-.red_cell_sqr .legtime {
-  color: white;
-}
-
-.red_cell_sqr .besttime {
-  color: white;
-  text-decoration-color: white;
-}
-
-.red_cell_sqr .place {
-  color: white;
-}
-
-.red_cell_sqr .bestplace {
-  color: white;
-}
-
-.red_cell_sqr i {
-  color: white;
-}
-
-/* New first nonqualifier */
+/* Red / highlight rows */
+tr.red_row>td,
 tr.new_fnq>td {
-  color: white;
-  background-color: var(--livered) !important;
+  color: #ffffff;
+  background: var(--livered) !important;
+  box-shadow: none !important;
+}
+
+tr.red_row a,
+tr.new_fnq a {
+  color: #FFF;
+}
+
+tr.red_row td.sorting_1,
+tr.red_row td.sorting_2,
+tr.new_fnq td.sorting_1,
+tr.new_fnq td.sorting_2 {
+  background: #F9B7A4 !important;
+}
+
+tr.new_fnq>td {
   border-top: 3px solid grey !important;
 }
 
-tr.new_fnq a {
-  color: white;
+/* Text inside red/new rows */
+tr.red_row .plustime,
+tr.red_row .besttime,
+tr.red_row .legtime,
+tr.red_row .estimate,
+tr.red_row .place,
+tr.red_row .bestplace,
+tr.red_row td i,
+tr.red_row .bib,
+tr.red_row .club,
+tr.red_row .relayclub,
+tr.new_fnq .plustime,
+tr.new_fnq .besttime,
+tr.new_fnq .legtime,
+tr.new_fnq .estimate,
+tr.new_fnq .place,
+tr.new_fnq .bestplace,
+tr.new_fnq td i,
+tr.new_fnq .bib,
+tr.new_fnq .club,
+tr.new_fnq .relayclub {
+  color: #FFF;
 }
 
-tr.new_fnq td.sorting_2 {
-  background-color: #F9B7A4 !important;
+/* Red cells */
+.red_cell,
+.red_cell_sqr {
+  color: #FFF;
+  background: var(--livered) !important;
+  box-shadow: none !important;
 }
 
-tr.new_fnq td.sorting_1 {
-  background-color: #F9B7A4 !important;
+.red_cell .plustime,
+.red_cell .legtime,
+.red_cell .besttime,
+.red_cell .place,
+.red_cell .bestplace,
+.red_cell i,
+.red_cell_sqr .plustime,
+.red_cell_sqr .legtime,
+.red_cell_sqr .besttime,
+.red_cell_sqr .place,
+.red_cell_sqr .bestplace,
+.red_cell_sqr i {
+  color: #FFF;
 }
 
-tr.new_fnq td:last-child {
-  border-top-right-radius: 0px;
+.red_cell .besttime,
+.red_cell_sqr .besttime {
+  text-decoration-color: #FFF;
 }
 
-tr.new_fnq .plustime {
-  color: white;
-}
-
-tr.new_fnq .bib {
-  color: white;
-}
-
-tr.new_fnq .place {
-  color: white;
-}
-
-tr.new_fnq .bestplace {
-  color: white;
-}
-
-tr.new_fnq .club {
-  color: white;
-}
-
-/* Green row for OK at start */
-tr.green_row>td {
-  color: black;
-  background-color: #00FF00 !important;
+/* Green rows */
+tr.green_row>td,
+tr.green_row_new>td,
+tr.green_row_firststarter>td {
+  color: #000;
+  background: #0F0 !important;
 }
 
 tr.green_row_new>td {
-  color: black;
-  background-color: #00FF00 !important;
   border-top: 2px solid grey !important;
 }
 
 tr.green_row_firststarter>td {
-  color: black;
-  background-color: #00FF00 !important;
-  border-top: 5px solid black;
+  border-top: 5px solid black !important;
 }
 
-/* Yellow row for inside calltime at start, not OK at finish, highlight for speaker */
-tr.yellow_row>td {
-  color: black;
-  background-color: #FFFF00 !important;
+/* Yellow rows */
+tr.yellow_row>td,
+tr.yellow_row_new>td,
+tr.yellow_row_fnq>td {
+  color: #000;
+  background: #FF0 !important;
   box-shadow: none !important;
 }
 
 tr.yellow_row_new>td {
-  color: black;
-  background-color: #FFFF00 !important;
   border-top: 2px solid grey !important;
-  box-shadow: none !important;
 }
 
-/* Yellow row highlight for speaker, first non qualifyer */
 tr.yellow_row_fnq>td {
-  color: black;
-  background-color: #FFFF00 !important;
   border-top: 3px solid grey !important;
-  box-shadow: none !important;
 }
 
-/* Yellow and green cells for messages */
+tr.yellow_row .plustime,
+tr.yellow_row .besttime,
+tr.yellow_row .legtime,
+tr.yellow_row .estimate,
+tr.yellow_row .place,
+tr.yellow_row .bestplace,
+tr.yellow_row td i,
+tr.yellow_row .bib,
+tr.yellow_row .club,
+tr.yellow_row .relayclub,
+tr.yellow_row_fnq .plustime,
+tr.yellow_row_fnq .besttime,
+tr.yellow_row_fnq .legtime,
+tr.yellow_row_fnq .estimate,
+tr.yellow_row_fnq .place,
+tr.yellow_row_fnq .bestplace,
+tr.yellow_row_fnq td i,
+tr.yellow_row_fnq .bib,
+tr.yellow_row_fnq .club,
+tr.yellow_row_fnq .relayclub {
+  color: #000
+}
+
+.yellow_row .besttime,
+.yellow_row_fnq .besttime {
+  text-decoration-color: red;
+}
+
+/* Standalone colored cells */
 .yellow_cell {
-  color: black;
-  background-color: #FFFF00 !important;
+  color: #000;
+  background: #FF0 !important;
   box-shadow: none !important;
 }
 
 .green_cell {
-  color: black;
-  background-color: #00FF00 !important;
+  color: #000;
+  background: #0F0 !important;
   box-shadow: none !important;
 }
 
+/* Pulsing / live indicators */
+@keyframes blinker {
 
-/* Pulsing dot for live runner */
+  0%,
+  100% {
+    opacity: 0
+  }
+
+  50% {
+    opacity: 1
+  }
+}
+
+@keyframes blinkerCom {
+
+  0%,
+  100% {
+    color: #51FF00;
+    opacity: 0
+  }
+
+  50% {
+    color: #51FF00;
+    opacity: 1
+  }
+}
+
 .pulsing {
   animation: blinker 1s ease-in-out infinite;
   color: var(--livered);
 }
 
 .pulsingLive {
-  animation: blinkerCom 1s ease-in-out;
-  animation-iteration-count: 30;
+  animation: blinkerCom 1s ease-in-out 30;
   color: gray;
 }
 
@@ -396,208 +323,102 @@ tr.yellow_row_fnq>td {
   color: gray;
 }
 
-@keyframes blinker {
-  0% {
-    opacity: 0;
-  }
-
-  50% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-  }
-}
-
-@keyframes blinkerCom {
-  0% {
-    color: #51ff00;
-    opacity: 0;
-  }
-
-  50% {
-    color: #51ff00;
-    opacity: 1;
-  }
-
-  100% {
-    color: #51ff00;
-    opacity: 0;
-  }
-}
-
+/* Timing / place formatting */
 .besttime {
-  color: black;
+  color: #000;
   text-decoration: underline;
   text-decoration-thickness: 2px;
   text-decoration-color: red;
 }
 
-.bestplace {
+.bestplace,
+.place,
+.plustime,
+.legtime,
+.bib,
+.estimate,
+.estimatebest {
   color: dimgrey;
 }
 
-.time1 {
-  color: red;
-}
-
+.time1,
 .place1 {
   color: red;
 }
 
-.time23 {
-  color: blue;
-}
-
+.time23,
 .place23 {
   color: blue;
 }
 
-.place {
-  color: dimgrey;
+.bib {
+  font-style: normal;
+}
+
+.estimate,
+.estimatebest {
+  font-style: italic;
+}
+
+.estimatebest {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-decoration-color: red;
+}
+
+.gained,
+.lost {
+  color: #000;
+}
+
+.legicon {
+  font-size: .6em;
+  vertical-align: .3em;
+}
+
+a.club,
+a.relayclub {
+  color: var(--livered);
+}
+
+td i {
+  color: var(--livered);
+  font-style: normal;
+}
+
+.timeWidth,
+.timePlaceWidth {
+  min-width: 3em;
 }
 
 .hideplace {
   opacity: 0;
 }
 
-.plustime {
-  color: dimgrey;
-}
-
-.legtime {
-  color: dimgrey;
-}
-
-.bib {
-  color: grey;
-  font-style: normal;
-}
-
-.estimate {
-  color: grey;
-  font-style: italic;
-}
-
-.estimatebest {
-  color: gray;
-  font-style: italic;
-  text-decoration: underline;
-  text-decoration-thickness: 2px;
-  text-decoration-color: red;
-}
-
-.gained {
-  color: black;
-}
-
-.lost {
-  color: black;
-}
-
-.legicon {
-  font-size: 0.6em;
-  vertical-align: 0.3em;
-}
-
-a.club {
-  color: var(--livered);
-}
-
-a.relayclub {
-  color: var(--livered);
-}
-
-/*predicted times  td i { color: rgb(170, 0, 170); font-style: normal;} */
-td i {
-  color: var(--livered);
-  font-style: normal;
-}
-
-/* min width of colums with times */
-.timeWidth {
-  min-width: 3em;
-}
-
-.timePlaceWidth {
-  min-width: 3em;
-}
-
-#langchooser {
-  vertical-align: middle;
-  line-height: 21px;
-}
-
-#langchooser img {
-  border: 1px solid #AAAAAA;
-  vertical-align: middle;
-  height: 10px
-}
-
-#divClasses {
-  white-space: nowrap;
-}
-
+/* Scrolling info text */
 #divInfoText {
-  /* animation properties */
-  -moz-transform: translateX(100%);
-  -webkit-transform: translateX(100%);
   transform: translateX(100%);
-
-  -moz-animation: scroll-animation 20s linear infinite;
-  -webkit-animation: scroll-animation 20s linear infinite;
   animation: scroll-animation 20s linear infinite;
-}
-
-/* for Firefox */
-@-moz-keyframes scroll-animation {
-  from {
-    -moz-transform: translateX(100%);
-  }
-
-  to {
-    -moz-transform: translateX(-100%);
-  }
-}
-
-/* for Chrome */
-@-webkit-keyframes scroll-animation {
-  from {
-    -webkit-transform: translateX(100%);
-  }
-
-  to {
-    -webkit-transform: translateX(-100%);
-  }
 }
 
 @keyframes scroll-animation {
   from {
-    -moz-transform: translateX(100%);
-    -webkit-transform: translateX(100%);
     transform: translateX(100%);
   }
 
   to {
-    -moz-transform: translateX(-100%);
-    -webkit-transform: translateX(-100%);
     transform: translateX(-100%);
   }
 }
 
-/*-------------------------*/
-/*--- SITE WIDE CLASSES ---*/
-/*-------------------------*/
-
-/* Container for entire conent area */
+/* Utility classes */
 .maindiv {
   width: 100%;
   display: block;
 }
 
 .small {
-  font-size: 0.8em;
+  font-size: .8em;
 }
 
 .large {
@@ -621,28 +442,22 @@ td i {
 }
 
 .grey {
-  color: #666666;
+  color: #666;
 }
 
-/*-------------------------------*/
-/*--- HEADER & FOOTER CLASSES ---*/
-/*-------------------------------*/
-
-/* Main menu tabs */
+/* Menu */
 .mttop {
   display: block;
-  background: #FFF;
-  height: 1px;
   background: #ABC9EF;
-  margin: 0px 1px 0px 1px;
+  height: 1px;
+  margin: 0 1px;
 }
 
 td.menuchosen,
 td.menu {
-  padding: 2px 9px 4px 9px;
-  color: #FFFFFF;
+  padding: 2px 9px 4px;
+  color: #FFF;
   font-weight: bold;
-  font-size: 1em;
   border-left: 1px solid #ABC9EF;
   border-right: 1px solid #0B5280;
 }
@@ -659,17 +474,15 @@ td.menu a:link,
 td.menu a:visited,
 td.menuchosen a:link,
 td.menuchosen a:visited {
-  color: #FFFFFF;
+  color: #FFF;
   text-decoration: none;
 }
 
 td.menuchosen a:hover {
-  text-decoration: none;
   color: #C0D6FF;
 }
 
-
-/* Category tree (used on spash and tree pages as well) */
+/* Categories */
 .categories {
   background: #F4F8FD;
   border: 1px solid #ABC9EF;
@@ -681,11 +494,7 @@ td.menuchosen a:hover {
   font-weight: bold;
 }
 
-
-/*-------------------------------*/
-/*---       Tooltip           ---*/
-/*-------------------------------*/
-
+/* Tooltip */
 .tooltip {
   position: relative;
   display: inline-block;
@@ -693,60 +502,60 @@ td.menuchosen a:hover {
 
 .tooltip .tooltiptext {
   visibility: hidden;
-  background-color: var(--bkdark);
-  color: white;
+  background: var(--bkdark);
+  color: #FFF;
   text-align: center;
   border-radius: 5px;
-  padding: 0.1em 0.5em;
+  padding: .1em .5em;
   position: absolute;
-  bottom: 0px;
+  bottom: 0;
   right: 5em;
 }
 
 .tooltip .tooltiptext::after {
-  content: " ";
+  content: "";
   position: absolute;
-  bottom: +0.4em;
-  right: -0.7em;
-  border-width: 0.4em;
-  border-style: solid;
-  border-color: transparent transparent transparent var(--bkdark);
+  bottom: .4em;
+  right: -.7em;
+  border: .4em solid transparent;
+  border-left-color: var(--bkdark);
 }
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
-  opacity: 0.9;
+  opacity: .9;
+}
+
+/* Split chooser / menu */
+.noUnderline a,
+.splitChooser a {
+  text-decoration: none;
+  color: #FFF;
 }
 
 .noUnderline a {
-  text-decoration: none;
-  color: white;
   font-size: 1.3em;
 }
 
-.splitChooser a {
-  text-decoration: none;
-  color: white;
-}
-
-/* Animated menu icon */
 .menuicon {
   display: inline-block;
   cursor: pointer;
 }
 
-/*-------------------------------*/
-/*---  DropDown for splits    ---*/
-/*-------------------------------*/
-.dropbtn {
-  background-color: var(--bkdark);
-  opacity: 0.9;
-  color: white;
-  text-align: right;
-  padding: 0px 0px;
+.dropbtn,
+.dropbtnClass {
+  background: var(--bkdark);
+  color: #FFF;
+  font-size: 1.3em;
+  padding: 0;
   border: none;
   cursor: pointer;
-  font-size: 1em
+}
+
+.dropbtn {
+  font-size: 1em;
+  opacity: .9;
+  text-align: right;
 }
 
 .dropdown {
@@ -758,97 +567,66 @@ td.menuchosen a:hover {
   right: 4px;
   display: none;
   position: absolute;
-  background-color: var(--bkdark);
-  color: white;
+  background: var(--bkdark);
+  color: #FFF;
   overflow: hidden;
   z-index: 1;
 }
 
 .dropdown-content a {
-  color: white;
-  padding: 5px 5px;
-  text-decoration: none;
+  color: #FFF;
+  padding: 5px;
   display: block;
+  text-decoration: none;
 }
 
 .show {
   display: block;
 }
 
-/*----------------------------------*/
-/*---  Background for bad splits ---*/
-/*----------------------------------*/
-
+/* Split miss */
 .splitMiss {
-  background-color: #ffcccc !important;
+  background: #FFCCCC !important;
 }
 
-/*-------------------------------*/
-/*---  Buttons for navigation ---*/
-/*-------------------------------*/
-
-.navbtn {
+/* Buttons */
+.navbtn,
+div.dt-buttons>.dt-button {
   border: none;
-  background-color: black;
+  background: #000;
   font-size: 1.3em;
   cursor: pointer;
   display: inline-block;
-  color: white;
+  color: #FFF;
   width: 1.5em;
   height: 1.5em;
-  border-radius: 0.3em;
+  border-radius: .3em;
   padding: 0;
   text-align: center;
+  line-height: normal;
 }
 
-.navbtn:hover {
+.navbtn:hover,
+div.dt-buttons>.dt-button:hover {
   background: gray;
 }
 
-/* Radicontrol editior */
+/* Misc */
 .selectControl {
   cursor: pointer;
 }
 
-/* Number of runners table */
 .numrunners {
-  border-spacing: 10px 0px;
+  border-spacing: 10px 0;
   text-align: left;
 }
 
 .numrunners td {
-  font-size: 0.7em;
+  font-size: .7em;
   color: gray;
 }
 
-/*-----------------------------------*/
-/*---  Class and results columns  ---*/
-/*-----------------------------------*/
-
-.dropbtnClass {
-  font-size: 1.3em;
-  background-color: var(--bkdark);
-  color: white;
-  text-align: left;
-  padding: 0px;
-  border: none;
-  cursor: pointer;
-}
-
-.lock {
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  color: white;
-  font-size: 1em;
-  cursor: pointer;
-  z-index: 102;
-}
-
-.lockunpinned {
-  color: lightgrey;
-}
-
+/* Class/results layout */
 .container {
   display: flex;
 }
@@ -865,8 +643,8 @@ td.menuchosen a:hover {
 }
 
 .class-column.unpinned {
-  max-width: 0px !important;
-  min-width: 0px !important;
+  max-width: 0 !important;
+  min-width: 0 !important;
 }
 
 .class-column-content {
@@ -874,20 +652,18 @@ td.menuchosen a:hover {
   position: relative;
   top: 3px;
   left: 0;
-  color: white;
-  background-color: var(--bkdark);
-  text-decoration: none;
+  color: #FFF;
+  background: var(--bkdark);
   overflow-y: scroll;
   overflow-x: hidden;
   z-index: 101;
   padding: 3px 3px 3px 10px;
-  height: auto !important;
   min-width: 8em;
   max-width: 8em;
 }
 
 .class-column-content a {
-  color: white;
+  color: #FFF;
 }
 
 .class-column-content::-webkit-scrollbar {
@@ -896,9 +672,30 @@ td.menuchosen a:hover {
 }
 
 .class-column-content.unpinned {
-  opacity: 0.9;
-  box-shadow: 4px 8px 16px 0px rgba(0, 0, 0, 0.3);
-  height: auto;
+  opacity: .9;
+  box-shadow: 4px 8px 16px rgba(0, 0, 0, .3);
+}
+
+.class-column-content.unpinned.closed {
+  display: none;
+}
+
+.class-column-content.unpinned.open {
+  display: block;
+}
+
+.lock {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  color: #FFF;
+  font-size: 1em;
+  cursor: pointer;
+  z-index: 102;
+}
+
+.lockunpinned {
+  color: lightgrey;
 }
 
 .result-column {
@@ -908,15 +705,6 @@ td.menuchosen a:hover {
   width: calc(100vw - 15em);
   box-sizing: border-box;
   overflow-x: hidden;
-}
-
-.class-column-content.unpinned.closed {
-  display: none;
-  padding: 0;
-}
-
-.class-column-content.unpinned.open {
-  display: block;
 }
 
 /*-----------------------------------*/
