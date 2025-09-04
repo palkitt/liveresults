@@ -99,6 +99,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                             <a href="/adm/runners.php?compid=<?= $comp["tavid"] ?>">Runner list and edit</a>
                             <a href="/startlist.php?comp=<?= $comp["tavid"] ?>">Startlist</a>
                             <a href="/adm/radiocontrols.php?comp=<?= $comp["tavid"] ?>">Radio control editor</a>
+                            <a href="/adm/ecardcopy.php?comp=<?= $comp["tavid"] ?>">Copy ecard numbers</a>
                             <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=-2">Remaining runners</a>
                           </div>
                         </div>

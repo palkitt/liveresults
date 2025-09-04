@@ -1677,4 +1677,48 @@ class Emma
 			die(mysqli_error($this->m_Conn));
 		return $ret;
 	}
+	function getEcardDiff($oldComp)
+	{
+		$ret = array();
+		$q = "SELECT
+                n.name, 
+                n.club,
+				n.bib,
+				n.class,
+                o.ecard1      AS old_ecard1,
+                o.ecard2      AS old_ecard2,
+                n.ecard1      AS new_ecard1,
+                n.ecard2      AS new_ecard2
+                FROM runners n
+                JOIN runners o
+                ON o.tavid = " . $oldComp . "
+                AND n.tavid = " . $this->m_CompId . "
+                AND o.name = n.name
+                AND o.club = n.club
+                WHERE
+				n.bib <> 0
+				AND (
+                ( o.ecard1 IS NOT NULL
+				  AND ((o.ecard1 > 0 )
+                   AND (n.ecard1 IS NULL OR o.ecard1 <> n.ecard1)
+                   AND (n.ecard2 IS NULL OR o.ecard1 <> n.ecard2) 
+				      ) 
+				)
+				OR 
+				( o.ecard2 IS NOT NULL
+				 AND ((o.ecard2 > 0 )
+                  AND (n.ecard1 IS NULL OR o.ecard2 <> n.ecard1)
+                  AND (n.ecard2 IS NULL OR o.ecard2 <> n.ecard2) 
+				      ) 
+	             ))
+				ORDER BY n.bib;";
+
+		if ($result = mysqli_query($this->m_Conn, $q)) {
+			while ($row = mysqli_fetch_array($result))
+				$ret[] = $row;
+			mysqli_free_result($result);
+		} else
+			die(mysqli_error($this->m_Conn));
+		return $ret;
+	}
 }

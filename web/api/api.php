@@ -578,6 +578,36 @@ if ($_GET['method'] == 'getcompetitions') {
 		echo ("{\"status\": \"OK\", \"lastchanged\": [$ret]");
 		echo (", \"hash\": \"" . $hash . "\", \"rt\": $RT, \"active\": $isActive}");
 	}
+} elseif (isset($_GET['method']) && $_GET['method'] == 'getecarddiff') {
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime, false);
+	if (!isset($_GET['oldcomp'])) {
+		$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+		header($protocol . ' ' . 400 . ' Bad Request');
+		echo ("{\"status\": \"Error\", \"message\": \"oldcomp not set\"}");
+		return;
+	}
+	$compDate = $currentComp->CompDate();
+	$compName = $currentComp->CompName();
+	$oldComp = new Emma($_GET['oldcomp']);
+	$oldCompDate = $oldComp->CompDate();
+	$oldCompName = $oldComp->CompName();
+	$ecardDiff = $currentComp->getEcardDiff($_GET['oldcomp']);
+	$first = true;
+	$ret = "";
+	foreach ((array)$ecardDiff as $diff) {
+		if (!$first)
+			$ret .= ",$br";
+		$ret .= "{\"name\": \"" . $diff['name'] . "\", \"club\": \"" . $diff['club'] . "\"";
+		$ret .= ", \"bib\": " . $diff['bib'] . ", \"class\": \"" . $diff['class'] . "\"";
+		$ret .= ", \"old1\": " . $diff['old_ecard1'] . ", \"old2\": " . $diff['old_ecard2'];
+		$ret .= ", \"new1\": " . $diff['new_ecard1'] . ", \"new2\": " . $diff['new_ecard2'] . "}";
+		$first = false;
+	}
+	echo ("{ \"status\": \"OK\", ");
+	echo ("\"comp\": { \"id\": " . $_GET['comp'] . ", \"name\": \"" . $compName . "\", \"date\": \"" . $compDate . "\"}, ");
+	echo ("\"oldcomp\": { \"id\": " . $_GET['oldcomp'] . ", \"name\": \"" . $oldCompName . "\", \"date\": \"" . $oldCompDate . "\"}, ");
+	echo ("\"ecards\": [$ret] }");
 } else {
 	insertHeader($refreshTime, false);
 	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
