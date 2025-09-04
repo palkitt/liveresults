@@ -611,7 +611,7 @@ function classesSorted($currentComp, $classMask = null)
 			stripos($sortKey, 'gjest') !== false || stripos($sortKey, 'dir') !== false || stripos($sortKey, 'utv') !== false
 		)
 			$sortKey = 'z' . $sortKey;
-		if (preg_match("/(-e| e|\d+e|elite|wre)(\s*\d*)$/", $sortKey))
+		if (preg_match("/(-e| e|\d+e|elite|wre|nm)(\s*\d*)$/", $sortKey))
 			$sortKey = "A" . $sortKey;
 
 		$sortKey = preg_replace('/(^|[^\d])(\d)($|[^\d])/', '$1 00 $2 $3', $sortKey);       // Add 00 ahead of single digits
