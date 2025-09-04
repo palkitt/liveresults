@@ -826,7 +826,7 @@ class Emma
 					AND runners.class = splitcontrols.classname
 				WHERE
 				results.tavid = {$this->m_CompId}
-				AND results.Time > 0
+				AND results.Time <> -1
 				AND results.Status NOT IN (-1, 6, 9, 10)
 				AND results.Control <> 100
 				AND (results.Control = 1000 OR splitcontrols.tavid IS NOT NULL)
