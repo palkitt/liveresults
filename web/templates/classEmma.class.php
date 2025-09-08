@@ -338,6 +338,27 @@ class Emma
 		return ($ret1 && $ret2);
 	}
 
+	public static function GetRunnerResults($compid, $dbid)
+	{
+		$conn = self::openConnection();
+		$q = "SELECT * FROM results WHERE tavid=$compid AND dbid=$dbid ";
+		$q .= "AND control <> 100 AND control <> 1000 ORDER BY time asc";
+		$result = mysqli_query($conn, $q);
+		$ret = array();
+		while ($tmp = mysqli_fetch_array($result))
+			$ret[] = $tmp;
+		mysqli_free_result($result);
+		return $ret;
+	}
+
+	public static function DelRunnerResults($compid, $dbid, $control)
+	{
+		$conn = self::openConnection();
+		$q = "DELETE FROM results WHERE tavid=$compid AND dbid=$dbid AND control=$control";
+		$ret = mysqli_query($conn, $q);
+		return $ret;
+	}
+
 	public static function SendMessage($compid, $dbid, $changed, $message, $dns, $ecardchange, $completed, $newentry)
 	{
 		$conn = self::openConnection();

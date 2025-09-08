@@ -1,7 +1,18 @@
 <?php
 include_once("../templates/classEmma.class.php");
 
-$runner = Emma::GetRunnerData($_GET['compid'], $_GET['dbid']);
+function formatTime($time)
+{
+  if ($time < 0)
+    return $time;
+  $hours = floor($time / 360000);
+  $minutes = floor(($time - $hours * 360000) / 6000);
+  $seconds = floor(($time - $hours * 360000 - $minutes * 6000) / 100);
+  if ($hours > 0)
+    return $hours . ":" . str_pad("" . $minutes, 2, "0", STR_PAD_LEFT) . ":" . str_pad("" . $seconds, 2, "0", STR_PAD_LEFT);
+  else
+    return $minutes . ":" . str_pad("" . $seconds, 2, "0", STR_PAD_LEFT);
+}
 
 if (isset($_POST['btnSave'])) {
   if ($_POST['pin'] == "0000") {
@@ -24,7 +35,6 @@ if (isset($_POST['btnSave'])) {
     echo ('<b>&nbsp;Invalid PIN code</b>');
 }
 if (isset($_POST['btnDelete'])) {
-
   $ret = Emma::DelRunner($_GET['compid'], $_GET['dbid']);
   $message = $ret ? 'Delete successful' : 'Delete failed';
   echo "<script type='text/javascript'>
@@ -32,8 +42,15 @@ if (isset($_POST['btnDelete'])) {
           window.location.href = 'runners.php?compid={$_GET['compid']}';
         </script>";
   exit;
+} else if (isset($_GET['what']) && $_GET['what'] == "delrtimes") {
+  $ret = Emma::DelRunnerResult($_GET['compid'], $_GET['dbid'], $_GET['code']);
+  $message = $ret ? 'Delete successful' : 'Delete failed';
+  echo "<script type='text/javascript'>
+          alert('$message');
+          window.location.href = 'editRunner.php?compid={$_GET['compid']}&dbid={$_GET['dbid']}';
+        </script>";
+  exit;
 }
-
 include_once("../templates/emmalang_no.php");
 $lang = "no";
 if (isset($_GET['lang']) && $_GET['lang'] != "")
@@ -41,9 +58,10 @@ if (isset($_GET['lang']) && $_GET['lang'] != "")
 include_once("../templates/emmalang_$lang.php");
 header('Content-Type: text/html; charset=' . $CHARSET);
 
+$runner = Emma::GetRunnerData($_GET['compid'], $_GET['dbid']);
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-
 <html>
 
 <head>
@@ -57,6 +75,11 @@ header('Content-Type: text/html; charset=' . $CHARSET);
   <script language="javascript">
     function confirmDelete() {
       return confirm('Are you sure you want to DELETE the following runner?\n(<?= $runner['bib'] ?>) <?= $runner['name'] ?>');
+    }
+
+    function confirmDeleteTime(msg, url) {
+      if (confirm(msg))
+        window.location = "editRunner.php" + url;
     }
   </script>
 
@@ -143,7 +166,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 
                     <tr>
                       <td><b>Time</b></td>
-                      <td><input type="text" name="time" size="20" value="<?= $runner['time'] ?>" /> centi seconds, 100 cs = 1 s</td>
+                      <td><input type="text" name="time" size="20" value="<?= $runner['time'] ?>" /> <?= formatTime($runner['time']) ?></td>
                     </tr>
 
                     <tr>
@@ -167,6 +190,36 @@ header('Content-Type: text/html; charset=' . $CHARSET);
               </td>
             </tr>
           </table>
+        </td>
+      </tr>
+      <tr>
+        <td class="searchmenu" colspan="2" style="padding: 5px;">
+          <h1 class="categoriesheader">Radio control times</h1>
+        </td>
+      </tr>
+      <tr>
+        <table border="0">
+          <tr>
+            <td><b>Code</td>
+            <td style="text-align:right"><b>Time</b></td>
+            <td></td>
+          </tr>
+          <?php
+          $rtimes = Emma::GetRunnerResults($_GET['compid'], $runner['dbid']);
+          for ($i = 0; $i < sizeof($rtimes); $i++) {
+            $rowtxt = "<tr><td>" . $rtimes[$i]["control"] . "</td>";
+            $rowtxt .= "<td style='text-align:right'>" . formatTime($rtimes[$i]["time"]) . "</td>";
+            $rowtxt .= "<td><a href='javascript:confirmDeleteTime(\"Do you want to delete radio time: ";
+            $rowtxt .= $rtimes[$i]["control"] . "?\",\"?compid=";
+            $rowtxt .= $_GET['compid'] . "&what=delrtimes&dbid=" . $runner['dbid'] . "&code=";
+            $rowtxt .= $rtimes[$i]['control'] . "\");'>Delete</a></td></tr>";
+            echo ($rowtxt);
+          }
+          ?>
+        </table>
+      </tr>
+    </table>
+
   </div>
 </body>
 
