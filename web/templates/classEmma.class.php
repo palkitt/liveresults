@@ -1715,23 +1715,25 @@ class Emma
                 ON o.tavid = " . $oldComp . "
                 AND n.tavid = " . $this->m_CompId . "
                 AND o.name = n.name
-                AND o.club = n.club
+                AND left(o.club, 3) = left(n.club, 3)
                 WHERE
 				n.bib <> 0
 				AND (
-                ( o.ecard1 IS NOT NULL
-				  AND ((o.ecard1 > 0 )
-                   AND (n.ecard1 IS NULL OR o.ecard1 <> n.ecard1)
-                   AND (n.ecard2 IS NULL OR o.ecard1 <> n.ecard2) 
-				      ) 
+                ( o.ecard1 > 0
+				  AND (SELECT COUNT(*) FROM runners nx
+                       WHERE nx.tavid = " . $this->m_CompId . "
+                       AND (nx.ecard1 = o.ecard1 OR nx.ecard2 = o.ecard1)) = 0
+                  AND (n.ecard1 IS NULL OR o.ecard1 <> n.ecard1)
+                  AND (n.ecard2 IS NULL OR o.ecard1 <> n.ecard2) 
 				)
 				OR 
-				( o.ecard2 IS NOT NULL
-				 AND ((o.ecard2 > 0 )
+				( o.ecard2 > 0
+				  AND (SELECT COUNT(*) FROM runners nx
+                       WHERE nx.tavid = " . $this->m_CompId . "
+                       AND (nx.ecard1 = o.ecard2 OR nx.ecard2 = o.ecard2)) = 0
                   AND (n.ecard1 IS NULL OR o.ecard2 <> n.ecard1)
                   AND (n.ecard2 IS NULL OR o.ecard2 <> n.ecard2) 
-				      ) 
-	             ))
+	         ))
 				ORDER BY n.bib;";
 
 		if ($result = mysqli_query($this->m_Conn, $q)) {
