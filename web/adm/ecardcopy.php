@@ -93,7 +93,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       let columns = [{
           title: "St.nr",
           data: "bib",
-          className: "dt-right"
+          className: "dt-right",
+          render: d => (d < 0) ? (-d / 100 | 0) + "-" + (-d % 100) : d
         },
         {
           title: "Navn",
@@ -154,6 +155,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     }
 
     function sendMessage(bib, ecard, idx, no) {
+      bib = Math.abs(bib); // Relay bibs are negative, but messages need positive
       fetch(`../api/messageapi.php?method=sendmessage&ecardchange=1&comp=${compID}&dbid=-${ecard}&message=startnummer:${bib}`)
         .then(() => {
           const r = currentTable.row(idx);
