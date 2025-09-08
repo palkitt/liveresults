@@ -351,7 +351,7 @@ class Emma
 		return $ret;
 	}
 
-	public static function DelRunnerResults($compid, $dbid, $control)
+	public static function DelRunnerResult($compid, $dbid, $control)
 	{
 		$conn = self::openConnection();
 		$q = "DELETE FROM results WHERE tavid=$compid AND dbid=$dbid AND control=$control";
