@@ -43,7 +43,7 @@ namespace LiveResults.Client
 
         readonly List<FormatItem> m_supportedFormats = new List<FormatItem>();
         private int m_compid = -1;
-        public OEForm(bool showCSVFormats=true)
+        public OEForm(bool showCSVFormats = true)
         {
             InitializeComponent();
             Text = Text + @", " + Encoding.Default.EncodingName + @"," + Encoding.Default.CodePage;
@@ -66,7 +66,7 @@ namespace LiveResults.Client
             cmbFormat.SelectedIndex = 0;
 
             string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EmmaClient");
-            
+
 
             string file = Path.Combine(path, "oesetts.xml");
             if (File.Exists(file))
@@ -149,13 +149,13 @@ namespace LiveResults.Client
             Logit("Got servers from obasen...");
             Application.DoEvents();
 
-        
-           
+
+
 
             var format = cmbFormat.SelectedItem as FormatItem;
 
             bool useInternalIDAllocation = false;
-            if ( format.Format == Format.Oecsv || format.Format == Format.Oecsvteam || format.Format == Format.Oscsv)
+            if (format.Format == Format.Oecsv || format.Format == Format.Oecsvteam || format.Format == Format.Oscsv)
             {
                 if (!string.IsNullOrEmpty(txtZeroTime.Text))
                 {
@@ -163,7 +163,7 @@ namespace LiveResults.Client
                     var m = rex.Match(txtZeroTime.Text);
                     if (m.Success)
                     {
-                        m_parsedZeroTime = int.Parse(m.Groups[1].Value)*360000 + int.Parse(m.Groups[2].Value)*6000 + int.Parse(m.Groups[3].Value)*100;
+                        m_parsedZeroTime = int.Parse(m.Groups[1].Value) * 360000 + int.Parse(m.Groups[2].Value) * 6000 + int.Parse(m.Groups[3].Value) * 100;
                     }
                     else
                     {
@@ -279,16 +279,22 @@ namespace LiveResults.Client
                 try
                 {
                     RadioControl[] radioControls;
-                    var runners = IofXmlParser.ParseFile(fullFilename, Logit,new IofXmlParser.IDCalculator(m_compid).CalculateID,chkAutoCreateRadioControls.Checked, out radioControls);
+                    CourseName[] courseNames;
+                    CourseControl[] courseControls;
+                    var runners = IofXmlParser.ParseFile(fullFilename, Logit, new IofXmlParser.IDCalculator(m_compid).CalculateID, chkAutoCreateRadioControls.Checked,
+                        out radioControls, out courseNames, out courseControls);
                     processed = true;
 
                     foreach (EmmaMysqlClient c in m_clients)
                     {
-                        if (radioControls != null)
-                        {
-                            c.MergeRadioControls(radioControls);
-                        }
                         c.UpdateCurrentResultsFromNewSet(runners);
+
+                        if (radioControls != null)
+                            c.MergeRadioControls(radioControls);
+                        if (courseNames != null)
+                            c.MergeCourseNames(courseNames, true);
+                        if (courseControls != null)
+                            c.MergeCourseControls(courseControls, true);
                     }
                 }
                 catch (Exception ee)
@@ -364,7 +370,7 @@ namespace LiveResults.Client
                     {
                         return;
                     }
-                    
+
                     sr = new StreamReader(fullFilename, Encoding.Default);
                     sr.Close();
 
@@ -465,7 +471,7 @@ namespace LiveResults.Client
         public class Settings
         {
             public string Location { get; set; }
-            public int  CompID { get; set; }
+            public int CompID { get; set; }
             public string extension { get; set; }
             public string Format { get; set; }
             public string ZeroTime { get; set; }

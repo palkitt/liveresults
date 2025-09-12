@@ -11,15 +11,19 @@ namespace LiveResults.Client.Parsers
 {
     public class IofXmlParser
     {
-        public static Runner[] ParseFile(string filename, LogMessageDelegate logit, GetIdDelegate getIdFunc, bool readRadioControls, out RadioControl[] radioControls)
+        public static Runner[] ParseFile(string filename, LogMessageDelegate logit, GetIdDelegate getIdFunc, bool readRadioControls,
+            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
         {
-            return ParseFile(filename, logit, true, getIdFunc, readRadioControls, out radioControls);
+            return ParseFile(filename, logit, true, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
         }
 
-        public static Runner[] ParseFile(string filename, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls, out RadioControl[] radioControls)
+        public static Runner[] ParseFile(string filename, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls,
+            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
         {
             byte[] fileContents;
             radioControls = null;
+            courseNames = null;
+            courseControls = null;
             if (!File.Exists(filename))
             {
                 return null;
@@ -30,11 +34,12 @@ namespace LiveResults.Client.Parsers
             if (deleteFile)
                 File.Delete(filename);
 
-            return ParseXmlData(fileContents, logit, deleteFile, getIdFunc, readRadioControls, out radioControls);
+            return ParseXmlData(fileContents, logit, deleteFile, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
 
         }
 
-        public static Runner[] ParseXmlData(byte[] xml, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls, out RadioControl[] radioControls)
+        public static Runner[] ParseXmlData(byte[] xml, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls,
+            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
         {
             Runner[] runners;
 
@@ -53,11 +58,13 @@ namespace LiveResults.Client.Parsers
             //Detect IOF-XML version..
             if (xmlDoc.DocumentElement.Attributes["iofVersion"] != null && xmlDoc.DocumentElement.Attributes["iofVersion"].Value != null && xmlDoc.DocumentElement.Attributes["iofVersion"].Value.StartsWith("3."))
             {
-                runners = IofXmlV3Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc, readRadioControls, out radioControls);
+                runners = IofXmlV3Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
             }
             else
             {
                 radioControls = null;
+                courseNames = null;
+                courseControls = null;
                 //Fallback to 2.0
                 runners = IOFXmlV2Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc);
             }

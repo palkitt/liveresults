@@ -31,7 +31,7 @@ namespace LiveResults.Client
 
         private void button2_MouseEnter(object sender, EventArgs e)
         {
-            lblInfo.Text = "Export liveresults by generic IOF-XML v2 and v3 (SportSoftware 2010, MeOS, Helga, AutoDownload,...)";
+            lblInfo.Text = "Export liveresults by generic IOF-XML v2 and v3 (Time4O, SportSoftware 2010, MeOS, Helga, AutoDownload,...)";
         }
 
         private void button3_MouseEnter(object sender, EventArgs e)

@@ -284,6 +284,11 @@ namespace LiveResults.Model
             return m_ecardTimes != EcardTimes;
         }
 
+        public bool HasCourseChanged(int course)
+        {
+            return m_course != course;
+        }
+
         public void ResetUpdatedSplits()
         {
             foreach (SplitTime t in m_splitTimes.Values)
@@ -421,7 +426,16 @@ namespace LiveResults.Model
                 RunnerUpdated = true;
             }
         }
-        
+
+        public void SetCourse(int course)
+        {
+            if (HasCourseChanged(course))
+            {
+                m_course = course;
+                RunnerUpdated = true;
+            }
+        }
+
         public void SetResult(int time, int status)
         {
             if (HasResultChanged(time,status))
