@@ -36,6 +36,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     runnerStatus[12] = "<?= $_STATUSMOVEDUP ?>";
     runnerStatus[13] = "<?= $_STATUSFINISHED ?>";
 
+    $(document).ready(function() {
+      $('#searchField').on('keypress', function(e) {
+        if (e.which === 13) { // 13 is the keycode for Enter
+          searchname();
+        }
+      });
+    });
+
     updateTable = function(data) {
       if (this.currentTable != null) {
         this.currentTable.destroy();
@@ -117,7 +125,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
     searchname = function() {
       var searchtext = $("#searchField").val();
-      $races = "10952, 10686, 10624, 10418, 10347, 10207, 10161, 10076, 10054, 10051, 10012, 10052";
+      $races = "11055, 10952, 10686, 10624, 10418, 10347, 10207, 10161, 10076, 10054, 10051, 10012, 10052";
       if (searchtext.length > 0) {
         $.ajax({
           url: "/api/api.php",

@@ -1,15 +1,10 @@
 <?php
 date_default_timezone_set("Europe/Oslo");
 $lang = "no";
-$first = 1;
-$last = 999;
 
 if (isset($_GET['lang']))
 	$lang = $_GET['lang'];
-if (isset($_GET['first']))
-	$first = $_GET['first'];
-if (isset($_GET['last']))
-	$last = $_GET['last'];
+
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
@@ -147,7 +142,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 							var divH = document.createElement('table');
 							document.body.appendChild(divH);
-							divH.style = "margin-top: 20px; margin-left: 10px; margin-right: 10px; font-size: 20px";
+							let style = "margin-top: 20px; padding-left: 10px; font-size: 20px;";
+							style += "width: 100%; position: sticky; top: 0; z-index:1000; background: white;";
+							divH.style = style;
 							divH.id = resultsHeader;
 
 							var divR = document.createElement('table');
@@ -159,11 +156,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 								"txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "", false, "", true);
 							res[j].highTime = 0;
 							res[j].noSplits = true;
-							res[j].chooseClass(className);
-
 							res[j].compDate = "<?= $currentComp->CompDate(); ?>";
 							res[j].eventTimeZoneDiff = <?= $currentComp->TimeZoneDiff(); ?>;
-							res[j].updateInterval = 6000;
 
 							<?php if ($currentComp->MassStartSorting()) { ?>
 								res[j].curClassIsMassStart = true;
@@ -174,17 +168,20 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							<?php } ?>
 
 							<?php if ($currentComp->HighTime()) { ?>
-								res[j].highTime = <?= $currentComp->HighTime(); ?> <?php } ?>
+								res[j].highTime = <?= $currentComp->HighTime(); ?>
+							<?php } ?>
 
-								// Set ranked startlist
-								<?php if ($currentComp->RankedStartlist() > -1) { ?>
-									res[j].rankedStartlist = <?= $currentComp->RankedStartlist(); ?> <?php } ?>
+							<?php if ($currentComp->RankedStartlist() > -1) { ?>
+								res[j].rankedStartlist = <?= $currentComp->RankedStartlist(); ?>
+							<?php } ?>
 
-									// Qualification limits and classes (last limit is default)
-									res[j].qualLimits = [<?= $currentComp->QualLimits(); ?>];
-									res[j].qualClasses = [<?= $currentComp->QualClasses(); ?>];
+							res[j].chooseClass(className);
 
-									j++;
+							// Qualification limits and classes (last limit is default)
+							res[j].qualLimits = [<?= $currentComp->QualLimits(); ?>];
+							res[j].qualClasses = [<?= $currentComp->QualClasses(); ?>];
+
+							j++;
 						}
 					});
 				}
@@ -192,18 +189,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			return;
 		};
 
-
-		function scrollDown(element, document) {
-			element.animate({
-				scrollTop: document.height()
-			}, 20000, scrollUp(element, document));
-		};
-
-		function scrollUp(element, document) {
-			element.animate({
-				scrollTop: -document.height()
-			}, 5000);
-		};
 
 		$(document).ready(function() {
 			first = <?= (isset($_GET['first']) ? $_GET['first'] : 1) ?>;
@@ -244,9 +229,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			}
 		}
 
-
-		var delayTime = 25;
 		var stepSize = 1;
+		var speed = <?= (isset($_GET['speed']) ? $_GET['speed'] : 5) ?>;
+		var delayTime = 25 * (5 / speed);
 
 		function pageScroll() {
 			var currentY = window.scrollY;

@@ -136,7 +136,7 @@ namespace LiveResults.Client
                 else
                     client.UpdateRunnerInfo(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null, newResult.Course, newResult.Length, newResult.EcardTimes);
 
-                if (newResult.StartTime > 0 || newResult.StartTime == -1 || newResult.StartTime == -999)
+                if (newResult.StartTime >= 0 || newResult.StartTime == -1 || newResult.StartTime == -999)
                     client.SetRunnerStartTime(newResult.ID, newResult.StartTime);
 
                 if (newResult.Time != -2)

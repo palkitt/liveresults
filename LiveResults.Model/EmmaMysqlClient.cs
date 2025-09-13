@@ -1040,11 +1040,11 @@ namespace LiveResults.Model
 
                                 if (item is CourseName)
                                 {
-                                    var r = item as CourseName;
+                                    var c = item as CourseName;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
-                                    cmd.Parameters.AddWithValue("?name", r.Name);
+                                    cmd.Parameters.AddWithValue("?courseno", c.CourseNo);
+                                    cmd.Parameters.AddWithValue("?name", c.Name);
                                     cmd.CommandText = "REPLACE INTO coursedata(tavid,courseno,name) VALUES (?compid,?courseno,?name)";
 
                                     try
@@ -1053,20 +1053,20 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.Add(c);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not add course name: " + r.CourseNo + "-" + r.Name +" to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not add course name: " + c.CourseNo + "-" + c.Name +" to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update add course name: " + r.CourseNo + "-" + r.Name);
+                                    FireLogMsg("Server update add course name: " + c.CourseNo + "-" + c.Name);
                                 }
                                 else if (item is DelCourseName)
                                 {
-                                    var dr = item as DelCourseName;
-                                    var r = dr.ToDelete;
+                                    var dc = item as DelCourseName;
+                                    var c = dc.ToDelete;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
+                                    cmd.Parameters.AddWithValue("?courseno", c.CourseNo);
                                     cmd.CommandText = "delete from coursedata where tavid= ?compid and courseno = ?courseno";
 
                                     try
@@ -1075,21 +1075,21 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.Add(dc);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not delete course name: " + r.CourseNo + "-" + r.Name + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not delete course name: " + c.CourseNo + "-" + c.Name + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete course name: " + r.CourseNo + "-" + r.Name);
+                                    FireLogMsg("Server update delete course name: " + c.CourseNo + "-" + c.Name);
                                 }
                                 if (item is CourseControl)
                                 {
-                                    var r = item as CourseControl;
+                                    var c = item as CourseControl;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
-                                    cmd.Parameters.AddWithValue("?corder", r.Order);
-                                    cmd.Parameters.AddWithValue("?code", r.Code);
+                                    cmd.Parameters.AddWithValue("?courseno", c.CourseNo);
+                                    cmd.Parameters.AddWithValue("?corder", c.Order);
+                                    cmd.Parameters.AddWithValue("?code", c.Code);
                                     cmd.CommandText = "REPLACE INTO courses(tavid,courseno,corder,code) VALUES (?compid,?courseno,?corder,?code)";
 
                                     try
@@ -1098,22 +1098,22 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.Add(c);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not add course control " + r.Order + "." + r.Code + " in course no" + r.CourseNo + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not add course control " + c.Order + "." + c.Code + " in course no" + c.CourseNo + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update add: Course control " + r.Order + "." + r.Code + " in course no " + r.CourseNo);
+                                    FireLogMsg("Server update add: Course control " + c.Order + "." + c.Code + " in course no " + c.CourseNo);
                                 }
                                 else if (item is DelCourseControl)
                                 {
-                                    var dr = item as DelCourseControl;
-                                    var r = dr.ToDelete;
+                                    var dc = item as DelCourseControl;
+                                    var c = dc.ToDelete;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?courseno", r.CourseNo);
-                                    cmd.Parameters.AddWithValue("?corder", r.Order);
-                                    cmd.Parameters.AddWithValue("?code", r.Code);
+                                    cmd.Parameters.AddWithValue("?courseno", c.CourseNo);
+                                    cmd.Parameters.AddWithValue("?corder", c.Order);
+                                    cmd.Parameters.AddWithValue("?code", c.Code);
                                     cmd.CommandText = "delete from courses where tavid= ?compid and courseno = ?courseno and corder = ?corder and code = ?code";
 
                                     try
@@ -1122,12 +1122,12 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.Add(dc);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not delete course control " + r.Order + "." + r.Code + " in course no" + r.CourseNo + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not delete course control " + c.Order + "." + c.Code + " in course no" + c.CourseNo + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete: Course control " + r.Order + "." + r.Code + " in course no " + r.CourseNo);
+                                    FireLogMsg("Server update delete: Course control " + c.Order + "." + c.Code + " in course no " + c.CourseNo);
                                 }
                                 if (item is RadioControl)
                                 {
@@ -1146,7 +1146,6 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        //Move failing runner last
                                         m_itemsToUpdate.Add(r);
                                         m_itemsToUpdate.RemoveAt(0);
                                         throw new ApplicationException("Could not add radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
@@ -1172,8 +1171,7 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        //Move failing radio control
-                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.Add(dr);
                                         m_itemsToUpdate.RemoveAt(0);
                                         throw new ApplicationException("Could not delete radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code + " to server due to: " + ee.Message, ee);
                                     }
@@ -1198,7 +1196,6 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        //Move failing item last
                                         m_itemsToUpdate.Add(dr);
                                         m_itemsToUpdate.RemoveAt(0);
                                         throw new ApplicationException("Could not delete runner " + r + " on server due to: " + ee.Message, ee);
@@ -1369,13 +1366,13 @@ namespace LiveResults.Model
                                 }
                                 else if (item is VacantRunner)
                                 {
-                                    var r = item as VacantRunner;
+                                    var v = item as VacantRunner;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?dbid", r.dbid);
-                                    cmd.Parameters.AddWithValue("?bib", r.bib);
-                                    cmd.Parameters.AddWithValue("?classid", r.classid);
-                                    cmd.Parameters.AddWithValue("?classname", r.classname);
+                                    cmd.Parameters.AddWithValue("?dbid", v.dbid);
+                                    cmd.Parameters.AddWithValue("?bib", v.bib);
+                                    cmd.Parameters.AddWithValue("?classid", v.classid);
+                                    cmd.Parameters.AddWithValue("?classname", v.classname);
                                     cmd.CommandText = "REPLACE INTO vacants(tavid,dbid,bib,classid,class) VALUES (?compid,?dbid,?bib,?classid,?classname)";
 
                                     try
@@ -1384,20 +1381,20 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.Add(v);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not add vacant dbid: " + r.dbid + " in class: " + r.classname + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not add vacant dbid: " + v.dbid + " in class: " + v.classname + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update add: Vacant dbid " + r.dbid + " in class " + r.classname);
+                                    FireLogMsg("Server update add: Vacant dbid " + v.dbid + " in class " + v.classname);
                                 }
                                 else if (item is DelVacantRunner)
                                 {
-                                    var dr = item as DelVacantRunner;
-                                    var r = dr.ToDelete;
+                                    var dv = item as DelVacantRunner;
+                                    var v = dv.ToDelete;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?dbid", r.dbid);
+                                    cmd.Parameters.AddWithValue("?dbid", v.dbid);
                                     cmd.CommandText = "delete from vacants where tavid=?compid and dbid=?dbid";
 
                                     try
@@ -1406,12 +1403,12 @@ namespace LiveResults.Model
                                     }
                                     catch (Exception ee)
                                     {
-                                        m_itemsToUpdate.Add(r);
+                                        m_itemsToUpdate.Add(dv);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not delete vacant dbid: " + r.dbid + " in class: " + r.classname + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not delete vacant dbid: " + v.dbid + " in class: " + v.classname + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete: Vacant dbid " + r.dbid + " in class " + r.classname);
+                                    FireLogMsg("Server update delete: Vacant dbid " + v.dbid + " in class " + v.classname);
                                 }
                                 m_itemsToUpdate.RemoveAt(0);
                             }
