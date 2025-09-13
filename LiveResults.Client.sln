@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveResults.Client", "LiveResults.Client\LiveResults.Client.csproj", "{8738FAFC-E55D-40F8-ACF4-C70DF5DB9B0A}"
 EndProject
@@ -197,6 +197,9 @@ Global
 		{3D301984-98EF-45C8-A0A0-781E18D3B3AD} = {A0323DA7-D3AF-4CB1-B37B-AFCAF9278516}
 		{74A7CDE3-9723-46AC-9778-371B12392E46} = {A0323DA7-D3AF-4CB1-B37B-AFCAF9278516}
 		{505B00D3-748C-4B8E-9356-6C0D5FD861BA} = {A0323DA7-D3AF-4CB1-B37B-AFCAF9278516}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3B7A0D16-FD27-4576-90CE-D8E3C2A00AB6}
 	EndGlobalSection
 	GlobalSection(TestCaseManagementSettings) = postSolution
 		CategoryFile = LiveResults.Client.vsmdi

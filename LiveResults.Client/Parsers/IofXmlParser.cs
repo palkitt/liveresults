@@ -6,11 +6,25 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Net.Http;
 
 namespace LiveResults.Client.Parsers
 {
     public class IofXmlParser
     {
+        private static readonly HttpClient s_http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+
+        private static bool IsHttpUrl(string s) =>
+            s != null && (s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                          s.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+
+        private static byte[] DownloadBytes(string url, LogMessageDelegate logit)
+        {
+            try { return s_http.GetByteArrayAsync(url).GetAwaiter().GetResult(); }
+            catch (Exception ex) { logit?.Invoke("Download failed: " + ex.Message); return null; }
+        }
+
+
         public static Runner[] ParseFile(string filename, LogMessageDelegate logit, GetIdDelegate getIdFunc, bool readRadioControls,
             out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
         {
@@ -24,15 +38,22 @@ namespace LiveResults.Client.Parsers
             radioControls = null;
             courseNames = null;
             courseControls = null;
-            if (!File.Exists(filename))
+
+            if (IsHttpUrl(filename))
             {
-                return null;
+                fileContents = DownloadBytes(filename, logit);
+                if (fileContents == null) return null;
             }
-
-            fileContents = File.ReadAllBytes(filename);
-
-            if (deleteFile)
-                File.Delete(filename);
+            else
+            {
+                if (!File.Exists(filename))
+                {
+                    logit?.Invoke("File not found: " + filename);
+                    return null;
+                }
+                fileContents = File.ReadAllBytes(filename);
+                if (deleteFile) File.Delete(filename);
+            }
 
             return ParseXmlData(fileContents, logit, deleteFile, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
 

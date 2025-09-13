@@ -43,6 +43,11 @@ namespace LiveResults.Client
 
         readonly List<FormatItem> m_supportedFormats = new List<FormatItem>();
         private int m_compid = -1;
+        private int m_refresh = 15;
+        private string m_URL = "";
+        private string m_organizer = "";
+        private volatile bool _stopUrlLoader = false;
+
         public OEForm(bool showCSVFormats = true)
         {
             InitializeComponent();
@@ -83,7 +88,10 @@ namespace LiveResults.Client
                         txtZeroTime.Text = s.ZeroTime;
                         txtExtension.Text = s.extension;
                         txtCompID.Text = s.CompID.ToString(CultureInfo.InvariantCulture);
+                        txtOrganizer.Text = s.Organizer;
                         chkAutoCreateRadioControls.Checked = s.AutoCreateRadioControls;
+                        txtRefresh.Text = s.Refresh.ToString();
+                        txtURL.Text = s.URL;
                         for (int i = 0; i < m_supportedFormats.Count; i++)
                         {
                             if (m_supportedFormats[i].Name == s.Format)
@@ -127,11 +135,6 @@ namespace LiveResults.Client
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (!Directory.Exists(txtOEDirectory.Text))
-            {
-                MessageBox.Show(this, @"Please select an existing OE Export directory", @"Start OE Monitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
 
             if (string.IsNullOrEmpty(txtCompID.Text))
             {
@@ -139,7 +142,16 @@ namespace LiveResults.Client
                 return;
             }
 
+            if (string.IsNullOrWhiteSpace(txtURL.Text) && !Directory.Exists(txtOEDirectory.Text))
+            {
+                MessageBox.Show(this, @"Please enter URL or select an existing OE Export directory", @"Start OE Monitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             m_compid = Convert.ToInt32(txtCompID.Text);
+            m_refresh = Convert.ToInt32(txtRefresh.Text);
+            m_URL = txtURL.Text;
+            m_organizer = txtOrganizer.Text;
             m_parsedZeroTime = 0;
             listBox1.Items.Clear();
             m_clients.Clear();
@@ -149,14 +161,12 @@ namespace LiveResults.Client
             Logit("Got servers from obasen...");
             Application.DoEvents();
 
-
-
-
             var format = cmbFormat.SelectedItem as FormatItem;
 
-            bool useInternalIDAllocation = false;
+            bool useInternalIDAllocation = true;
             if (format.Format == Format.Oecsv || format.Format == Format.Oecsvteam || format.Format == Format.Oscsv)
             {
+                useInternalIDAllocation = false;
                 if (!string.IsNullOrEmpty(txtZeroTime.Text))
                 {
                     var rex = new Regex(@"(\d\d?):(\d\d):(\d\d)");
@@ -186,30 +196,70 @@ namespace LiveResults.Client
                 fsWatcherOS.EnableRaisingEvents = true;
 
             }
-            else if (format.Format == Format.Iofxml)
+            else if (format.Format == Format.Iofxml && Directory.Exists(txtOEDirectory.Text))
             {
                 fileSystemWatcher1.Path = txtOEDirectory.Text;
                 fileSystemWatcher1.Filter = txtExtension.Text;
                 fileSystemWatcher1.NotifyFilter = NotifyFilters.LastWrite;
                 fileSystemWatcher1.IncludeSubdirectories = false;
                 fileSystemWatcher1.EnableRaisingEvents = true;
-                useInternalIDAllocation = true;
             }
 
+            bool organizerOK = false;
             foreach (EmmaMysqlClient.EmmaServer server in servers)
             {
                 var client = new EmmaMysqlClient(server.Host, 3306, server.User, server.Pw, server.DB, m_compid, useInternalIDAllocation);
-
                 client.OnLogMessage += client_OnLogMessage;
                 client.Start();
-                m_clients.Add(client);
+                if (!String.Equals(client.organizer, m_organizer))
+                {
+                    Logit("Server:\t" + client.organizer);
+                    Logit("Entered:\t" + m_organizer);
+                    Logit("Organizer mismatch. Parser aborts!");
+                    client.Stop();
+                }
+                else
+                {
+                    m_clients.Add(client);
+                    organizerOK = true;
+                }
             }
+
 #if _CASPARCG_
             casparForm = new LiveResults.CasparClient.CasparControlFrm();
             casparForm.Show();
             casparForm.SetEmmaClient(m_clients[0]);
 #endif
-            timer1_Tick(null, null);
+
+            if (organizerOK)
+            {
+                timer1_Tick(null, null);
+
+                // Loop and read URL
+                _stopUrlLoader = false;
+                if (!string.IsNullOrEmpty(m_URL))
+                {
+                    ThreadPool.QueueUserWorkItem(delegate
+                    {
+                        while (!_stopUrlLoader)
+                        {
+                            try
+                            {
+                                URL_loader(m_URL);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logit("Error reading URL: " + ex.Message);
+                            }
+                            for (int i = 0; i < m_refresh; i++)
+                            {
+                                Thread.Sleep(1000);
+                            }
+                        }
+                    });
+                }
+            }
+
         }
 
         void m_OSParser_OnResult(Result newResult)
@@ -272,7 +322,8 @@ namespace LiveResults.Client
         {
             string filename = e.Name;
             string fullFilename = e.FullPath;
-            Logit(filename + " changed..");
+            if (!File.Exists(fullFilename))
+                return;
             bool processed = false;
             for (int i = 0; i < 10; i++)
             {
@@ -283,7 +334,7 @@ namespace LiveResults.Client
                     CourseControl[] courseControls;
                     var runners = IofXmlParser.ParseFile(fullFilename, Logit, new IofXmlParser.IDCalculator(m_compid).CalculateID, chkAutoCreateRadioControls.Checked,
                         out radioControls, out courseNames, out courseControls);
-                    processed = true;
+
 
                     foreach (EmmaMysqlClient c in m_clients)
                     {
@@ -295,6 +346,11 @@ namespace LiveResults.Client
                             c.MergeCourseNames(courseNames, true);
                         if (courseControls != null)
                             c.MergeCourseControls(courseControls, true);
+                    }
+                    if (runners != null)
+                    {
+                        Logit("Successful reading results from file. Runners in XML: " + runners.Length);
+                        processed = true;
                     }
                 }
                 catch (Exception ee)
@@ -314,6 +370,36 @@ namespace LiveResults.Client
             if (!processed)
             {
                 Logit("Could not open " + filename + " for processing");
+            }
+        }
+
+        void URL_loader(string URL)
+        {
+            try
+            {
+                RadioControl[] radioControls;
+                CourseName[] courseNames;
+                CourseControl[] courseControls;
+                var runners = IofXmlParser.ParseFile(URL, Logit, new IofXmlParser.IDCalculator(m_compid).CalculateID, chkAutoCreateRadioControls.Checked,
+                    out radioControls, out courseNames, out courseControls);
+
+                foreach (EmmaMysqlClient c in m_clients)
+                {
+                    c.UpdateCurrentResultsFromNewSet(runners);
+
+                    if (radioControls != null)
+                        c.MergeRadioControls(radioControls);
+                    if (courseNames != null)
+                        c.MergeCourseNames(courseNames, true);
+                    if (courseControls != null)
+                        c.MergeCourseControls(courseControls, true);
+                }
+                if (runners != null)
+                    Logit("Successful reading results from URL. Runners in XML: " + runners.Length);
+            }
+            catch (Exception ee)
+            {
+                Logit(ee.Message);
             }
         }
 
@@ -353,6 +439,8 @@ namespace LiveResults.Client
             }
             fileSystemWatcher1.EnableRaisingEvents = false;
             fsWatcherOS.EnableRaisingEvents = false;
+            _stopUrlLoader = true;
+            Logit("Upload stopped");
         }
 
         private void fsWatcherOS_Changed(object sender, FileSystemEventArgs e)
@@ -448,8 +536,10 @@ namespace LiveResults.Client
                     extension = txtExtension.Text,
                     Format = (cmbFormat.SelectedItem as FormatItem).Name,
                     ZeroTime = txtZeroTime.Text,
-                    AutoCreateRadioControls = chkAutoCreateRadioControls.Checked
-
+                    AutoCreateRadioControls = chkAutoCreateRadioControls.Checked,
+                    Refresh = int.Parse(txtRefresh.Text),
+                    URL = txtURL.Text,
+                    Organizer = txtOrganizer.Text
                 };
 
                 string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EmmaClient");
@@ -476,6 +566,9 @@ namespace LiveResults.Client
             public string Format { get; set; }
             public string ZeroTime { get; set; }
             public bool AutoCreateRadioControls { get; set; }
+            public int Refresh { get; set; }
+            public string URL { get; set; }
+            public string Organizer { get; set; }
         }
 
         private void button4_Click(object sender, EventArgs e)
