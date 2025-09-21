@@ -8,6 +8,19 @@ include_once("../templates/emmalang_$lang.php");
 
 header('Content-Type: text/html; charset=' . $CHARSET);
 
+function formatTime($time)
+{
+  if ($time < 0)
+    return $time;
+  $hours = floor($time / 360000);
+  $minutes = floor(($time - $hours * 360000) / 6000);
+  $seconds = floor(($time - $hours * 360000 - $minutes * 6000) / 100);
+  if ($hours > 0)
+    return $hours . ":" . str_pad("" . $minutes, 2, "0", STR_PAD_LEFT) . ":" . str_pad("" . $seconds, 2, "0", STR_PAD_LEFT);
+  else
+    return $minutes . ":" . str_pad("" . $seconds, 2, "0", STR_PAD_LEFT);
+}
+
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -68,28 +81,26 @@ header('Content-Type: text/html; charset=' . $CHARSET);
         <td>
           <table border="0" cellpadding="1" cellspacing="2" width="100%">
             <tr>
-              <td><b>Bib</b></td>
+              <td style="text-align:right"><b>Bib</b></td>
               <td><b>Name</b></td>
               <td><b>Club</b></td>
               <td><b>Class</b></td>
-              <td><b>Time</b></td>
-              <td><b>Status</b></td>
-              <td><b>Checked</b></td>
+              <td style="text-align:right"><b>Time</b></td>
+              <td style="text-align:right"><b>Status</b></td>
+              <td style="text-align:right"><b>Checked</b></td>
             </tr>
-
             <?php
-
             $runners = Emma::GetAllRunnerData($_GET['compid'], 0);
             foreach ($runners as $runner) {
             ?>
               <tr>
-                <td><?= $runner["bib"] ?></td>
+                <td style="text-align:right"><?= $runner["bib"] ?></td>
                 <td><a href="./editRunner.php?compid=<?= $runner["tavid"] ?>&dbid=<?= $runner["dbid"] ?>"><?= $runner["name"] ?></a></td>
                 <td><?= $runner["club"] ?></td>
                 <td><?= $runner["class"] ?></td>
-                <td><?= $runner["time"] ?></td>
-                <td><?= $runner["status"] ?></td>
-                <td><?= $runner["ecardchecked"] ?></td>
+                <td style="text-align:right"><?= formatTime($runner["time"]) ?></td>
+                <td style="text-align:right"><?= $runner["status"] ?></td>
+                <td style="text-align:right"><?= ($runner["ecardchecked"] == 1 ? "&#9989;" : "&#11036;") ?></td>
               </tr>
             <?php
             }

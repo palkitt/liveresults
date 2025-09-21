@@ -39,19 +39,19 @@ namespace LiveResults.Client
         public event MergeCourseNamesDelegate OnMergeCourseNames;
         public event MergeVacantsDelegate OnMergeVacants;
         public event DeleteVacantIDDelegate OnDeleteVacantID;
-        private bool m_updateEcardTimes;
-        private bool m_updateRadioControls;
+        private readonly bool m_updateEcardTimes;
+        private readonly bool m_updateRadioControls;
+        private readonly int m_sleepTime;
+        private readonly double m_minPaceTime;
+        private readonly bool m_lapTimes;
+        private readonly bool m_MSSQL;
+        private readonly bool m_ecardAsBackup;
+        private readonly bool m_EventorID;
+        private readonly int m_IdOffset;
+        private readonly bool m_updateMessage;
+        private readonly int m_compID;
+        private readonly int m_OsOffset;
         private bool m_continue;
-        private int m_sleepTime;
-        private double m_minPaceTime;
-        private bool m_lapTimes;
-        private bool m_MSSQL;
-        private bool m_ecardAsBackup;
-        private bool m_EventorID;
-        private int m_IdOffset;
-        private bool m_updateMessage;
-        private int m_compID;
-        private int m_OsOffset;
 
         public ETimingParser(IDbConnection conn, int sleepTime, bool UpdateRadioControls = true, double minPaceTime = 0,
             bool MSSQL = false, bool ecardAsBackup = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0,
@@ -74,30 +74,24 @@ namespace LiveResults.Client
 
         private void FireOnResult(Result newResult)
         {
-            if (OnResult != null)
-                OnResult(newResult);
+            OnResult?.Invoke(newResult);
         }
         private void FireLogMsg(string msg)
         {
-            if (OnLogMessage != null)
-                OnLogMessage(msg);
+            OnLogMessage?.Invoke(msg);
         }
         private void FireOnDeleteID(int runnerID)
         {
-            if (OnDeleteID != null)
-                OnDeleteID(runnerID);
+            OnDeleteID?.Invoke(runnerID);
         }
         private void FireOnDeleteVacantID(int runnerID)
         {
-            if (OnDeleteVacantID != null)
-                OnDeleteVacantID(runnerID);
+            OnDeleteVacantID?.Invoke(runnerID);
         }
         private void FireOnDeleteUnusedID(List<int> usedIds, bool first = false)
         {
-            if (OnDeleteUnusedID != null)
-                OnDeleteUnusedID(usedIds, first);
+            OnDeleteUnusedID?.Invoke(usedIds, first);
         }
-
 
         Thread m_monitorThread;
 
@@ -159,6 +153,7 @@ namespace LiveResults.Client
         public struct RadioStruct
         {
             public int Code;
+            public int Count;
             public string Description;
             public int RadioType;
             public string TimingPoint;
@@ -300,8 +295,7 @@ namespace LiveResults.Client
                 }
                 finally
                 {
-                    if (m_connection != null)
-                        m_connection.Close();
+                    m_connection?.Close();
                     FireLogMsg("eTiming Monitor thread stopped");
                 }
             }
@@ -468,6 +462,7 @@ namespace LiveResults.Client
             }
         }
 
+        // Update list of vacant runners
         private void setVacants()
         {
             try
@@ -477,8 +472,20 @@ namespace LiveResults.Client
                 {
                     List<VacantRunner> vacantRunner = new List<VacantRunner>();
                     IDbCommand cmd = m_connection.CreateCommand();
-                    cmd.CommandText = string.Format(@"SELECT N.id, N.kid, N.startno, N.class, C.class as cclass FROM name N, Class C WHERE N.class=C.code AND N.status = 'V'");
-
+                    // Check if vacants are before or behind ordinary starters
+                    // max(vacant) < min(ordinary) => all before, use last startno
+                    // else after or inbetween => use first startno
+                    // Change sign so that smallest startno is first
+                    cmd.CommandText = @"
+                        SELECT 
+                            N.id, N.kid, N.class, C.class as classname,
+                            IIF((SELECT MAX(N2.startno) FROM name N2 WHERE N2.class = N.class AND N2.status = 'V') <
+                                (SELECT MIN(N2.startno) FROM name N2 WHERE N2.class = N.class AND N2.status <> 'V'),
+                                -N.startno, N.startno) AS startno                      
+                        FROM 
+                            name N INNER JOIN class C ON N.class = C.code 
+                        WHERE
+                            N.status = 'V'";
                     using (IDataReader reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
@@ -490,7 +497,7 @@ namespace LiveResults.Client
                                 parseOK = Int32.TryParse(reader["kid"].ToString(), out EventorID);
                             string bibread = (reader["startno"].ToString()).Trim();
                             int bib = string.IsNullOrEmpty(bibread) ? 0 : Convert.ToInt32(bibread);
-                            string classname = reader["cclass"] as string;
+                            string classname = reader["classname"] as string;
                             string classid = reader["class"] as string;
 
                             int runnerID = 0;
@@ -546,7 +553,7 @@ namespace LiveResults.Client
                 {
                     while (reader.Read())
                     {
-                        int course = 0, code = 0, radioCode = 0, radiotype = -1, leg = 0, order = 0, distance = 0;
+                        int course = 0, code = 0, radioCode = 0, radiotype = -1, leg = 0, order = 0, distance = 0, count = 0;
                         bool live = false;
                         if (reader["live"] != null && reader["live"] != DBNull.Value)
                             live = Convert.ToBoolean(reader["live"].ToString());
@@ -565,14 +572,18 @@ namespace LiveResults.Client
                         if (reader["code"] != null && reader["code"] != DBNull.Value)
                             radioCode = Convert.ToInt32(reader["code"].ToString());
 
-                        // Take away last to digits if code 1000+ and convert radioCode to Liveres standard
+                        // Take away last to digits if code 1000+ and convert radioCode to LiveRes standard
                         if (radioCode > 1000)
                         {
                             code = radioCode / 100;
-                            radioCode = code + 1000 * (radioCode % 100);
+                            count = radioCode % 100; // Last two digits of code is the counter
+                            radioCode = code + 1000 * count;
                         }
                         else
+                        {
                             code = radioCode;
+                            count = 1;
+                        }
 
                         if (reader["radiocourceno"] != null && reader["radiocourceno"] != DBNull.Value)
                             course = Convert.ToInt32(reader["radiocourceno"].ToString());
@@ -621,6 +632,7 @@ namespace LiveResults.Client
                         var radioControl = new RadioStruct
                         {
                             Code = code,
+                            Count = count,
                             Description = description,
                             RadioType = radiotype,
                             TimingPoint = timingpoint,
@@ -640,7 +652,6 @@ namespace LiveResults.Client
                 cmd.CommandText = @"SELECT code, cource, class, purmin, timingtype, cheaseing FROM class";
                 using (IDataReader reader = cmd.ExecuteReader())
                 {
-                    int leg = 0;
                     while (reader.Read())
                     {
                         int course = 0, numLegs = 0, timingType = 0, sign = 1;
@@ -734,7 +745,6 @@ namespace LiveResults.Client
 
                         if (RadioPosts.ContainsKey(course))
                         {   // Add radio controls to course
-                            Dictionary<int, int> radioCnt = new Dictionary<int, int>();
                             foreach (var radioControl in RadioPosts[course])
                             {
                                 if (radioControl.TimingPoint == "ST") // Skip if radiocontrol is start
@@ -760,22 +770,13 @@ namespace LiveResults.Client
 
                                 if (Code < 999 && Code != 90 && radioControl.TimingPoint != "VK") // Not 90, not 999 and not exchange)
                                 {
-                                    if (leg != radioControl.Leg) // Reset if change of leg
-                                    {
-                                        leg = radioControl.Leg;
-                                        radioCnt.Clear();
-                                    }
-                                    if (!radioCnt.ContainsKey(Code))
-                                        radioCnt.Add(Code, 0);
-                                    radioCnt[Code]++;
-
                                     // Add codes for ordinary classes 
                                     // sign = -1 for unranked classes
                                     intermediates.Add(new RadioControl
                                     {
                                         ClassName = classN,
                                         ControlName = radioControl.Description,
-                                        Code = sign * (Code + radioCnt[Code] * 1000),
+                                        Code = sign * (Code + radioControl.Count * 1000),
                                         Order = nStep * radioControl.Order,
                                         Distance = radioControl.Distance
                                     });
@@ -787,7 +788,7 @@ namespace LiveResults.Client
                                         {
                                             ClassName = classN,
                                             ControlName = radioControl.Description + "PassTime",
-                                            Code = Code + radioCnt[Code] * 1000 + 100000,
+                                            Code = sign* (Code + radioControl.Count * 1000 + 100000),
                                             Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
                                         });
                                     }
@@ -797,7 +798,6 @@ namespace LiveResults.Client
                     }
                     reader.Close();
                 }
-
 
                 var dlgMergeRadio = OnMergeRadioControls;
                 if (dlgMergeRadio != null)
@@ -1022,6 +1022,12 @@ namespace LiveResults.Client
                             bool TeamOK = true;
                             for (int legs = 1; legs <= leg; legs++)
                             {
+                                if (!(RelayTeams[teambib].TeamMembers).ContainsKey(legs))
+                                {
+                                    if (legs == leg - 1)
+                                        FireLogMsg("eTiming Parser. Error with runner. Check team: " + teambib + ", leg: " + legs);
+                                    continue;
+                                }
                                 if (RelayTeams[teambib].TeamMembers[legs].LegTime > 0)
                                 {
                                     // Add 100 hours to indicate restart
@@ -1064,14 +1070,14 @@ namespace LiveResults.Client
                                             TeamStatus = "B";
                                         break;
                                 }
-
                             }
                             RelayTeams[teambib].TeamStatus = TeamStatus;
 
                             if (intime > 0)
                                 time = Math.Max(intime - RelayTeams[teambib].StartTime, TeamTime);
 
-                            if (leg > 1 && RelayTeams[teambib].TeamMembers[leg - 1].TotalTime > 0)
+                            if (leg > 1 && (RelayTeams[teambib].TeamMembers).ContainsKey(leg - 1)
+                                && RelayTeams[teambib].TeamMembers[leg - 1].TotalTime > 0)
                             {
                                 TeamTimePre = RelayTeams[teambib].TeamMembers[leg - 1].TotalTime +
                                  (RelayTeams[teambib].TeamMembers[leg].Restart ? 100 * 3600 * 100 : 0);
@@ -1137,7 +1143,7 @@ namespace LiveResults.Client
                                 splits.AddRange(splitList[ecard]);
                                 splitList.Remove(ecard);
                             }
-                        }                      
+                        }
                         splits = splits.OrderBy(s => s.passTime).ToList();
 
                         var lsplitCodes = new List<int>();
@@ -1238,7 +1244,7 @@ namespace LiveResults.Client
                             {
                                 var passLegTimeStruct = new ResultStruct
                                 {
-                                    ControlCode = iSplitcode + 100000,
+                                    ControlCode = iSplitcode + sign * 100000,
                                     Time = passLegTime
                                 };
                                 SplitTimes.Add(passLegTimeStruct);
@@ -1249,7 +1255,7 @@ namespace LiveResults.Client
                         }
 
                         // Add lap time for last lap
-                        if (time > 0 && m_lapTimes && !isRelay && lastSplitTime > 0) 
+                        if (time > 0 && m_lapTimes && !isRelay && lastSplitTime > 0)
                         {
                             var LegTime = new ResultStruct
                             {
@@ -1292,7 +1298,7 @@ namespace LiveResults.Client
                             {
                                 if (ecardTimesList.ContainsKey(ecard))
                                     ecardTimes.AddRange(ecardTimesList[ecard]);
-                            }                            
+                            }
                             ecardTimes = ecardTimes.OrderBy(s => s.time).ToList();
 
                             int controlNo = 0, timeNo = 0, timeNoLast = -1, numControls = 0;
@@ -1454,14 +1460,14 @@ namespace LiveResults.Client
             int rstatus = 10; //  Default: Entered
             switch (status)
             {
-                case "A":  rstatus = 0;  break; // OK
-                case "N":  rstatus = 1;  time = -3; break; // DNS
-                case "B":  rstatus = 2;  time = -3; break; // DNF
-                case "D":  rstatus = 3;  time = -3; break; // DSQ / MP
-                case "NC": rstatus = 6;  time = -3; break; // Not classified
-                case "S":  rstatus = 9;  time = -3; break; // Started
-                case "I":  rstatus = 10; time = -3; break; // Entered
-                case "F":  rstatus = 13; break; // Finished (Fullført). For not ranked classes
+                case "A": rstatus = 0; break; // OK
+                case "N": rstatus = 1; time = -3; break; // DNS
+                case "B": rstatus = 2; time = -3; break; // DNF
+                case "D": rstatus = 3; time = -3; break; // DSQ / MP
+                case "NC": rstatus = 6; time = -3; break; // Not classified
+                case "S": rstatus = 9; time = -3; break; // Started
+                case "I": rstatus = 10; time = -3; break; // Entered
+                case "F": rstatus = 13; break; // Finished (Fullført). For not ranked classes
             }
             return rstatus;
         }
@@ -1511,7 +1517,7 @@ namespace LiveResults.Client
                             if (code < -999)
                                 continue;
                             if (code > 1000)
-                                code = code / 100; // Take away last to digits if code 1000+
+                                code /= 100; // Take away last to digits if code 1000+
                         }
 
                         var res = new SplitRawStruct
@@ -1900,14 +1906,31 @@ namespace LiveResults.Client
                                 // Vacant runner ID found
                                 cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'", club);
                                 var clubCode = cmd.ExecuteScalar();
+                                bool clubOK = false;
+                                var update = 0;
                                 if (clubCode != null && clubCode != DBNull.Value)
                                     clubCode = clubCode.ToString();
-                                string ecardstring = (ecard == 0 ? "null" : ecard.ToString());
-
-                                cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',ecardfee={4}, status='I' WHERE id={5}",
-                                                      firstName, lastName, ecardstring, clubCode, rent, dbidOut);
-                                var update = cmd.ExecuteNonQuery();
-                                if (update != 1)
+                                else // club not found, make a new negeative one
+                                {
+                                    string query = (m_MSSQL ? "CAST(ISNULL(MIN(TRY_CAST(code AS INT)), 0) - 1 AS VARCHAR)" :
+                                    "CSTR(IIF(MIN(VAL(code)) IS NULL, 0, MIN(VAL(code))) - 1)");
+                                    cmd.CommandText = string.Format(@"INSERT INTO team (code, name) SELECT {0}, '{1}' FROM team", query, club);
+                                    update = cmd.ExecuteNonQuery();
+                                    if (update == 1)
+                                    {
+                                        cmd.CommandText = string.Format(@"SELECT code FROM team WHERE name='{0}'", club);
+                                        clubCode = cmd.ExecuteScalar();
+                                    }
+                                }
+                                if (clubCode != null && clubCode != DBNull.Value)
+                                {
+                                    clubOK = true;
+                                    string ecardstring = (ecard == 0 ? "null" : ecard.ToString());
+                                    cmd.CommandText = string.Format(@"UPDATE name SET name='{0}',ename='{1}',ecard={2},team='{3}',ecardfee={4}, status='I' WHERE id={5}",
+                                                          firstName, lastName, ecardstring, clubCode, rent, dbidOut);
+                                    update = cmd.ExecuteNonQuery();
+                                }
+                                if (!clubOK || update != 1)
                                 {
                                     failedThis = true;
                                     if (failedLast)
@@ -1983,10 +2006,9 @@ namespace LiveResults.Client
 
         private void SendLiveActive(string apiServer, WebClient client)
         {
-            string apiResponse = "";
             try
             {
-                apiResponse = client.DownloadString(apiServer + "api.php?method=setlastactive&comp=" + m_compID);
+                string apiResponse = client.DownloadString(apiServer + "api.php?method=setlastactive&comp=" + m_compID);
                 FireLogMsg("Client live active sent to web server");
             }
             catch (Exception ee)
@@ -2042,8 +2064,7 @@ namespace LiveResults.Client
 
         private void FireOnRadioControl()
         {
-            if (OnRadioControl != null)
-                OnRadioControl(null, 0, null, 0);
+            OnRadioControl?.Invoke(null, 0, null, 0);
         }
     }
 }

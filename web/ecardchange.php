@@ -99,7 +99,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					$('#oldecard').html(ecardString(runners[index]));
 					runnerOK = true;
 				}
-				if (runnerOK && ecardOK)
+				if (runnerOK && ecardOK && !sendt)
 					$('#submit').show();
 				else
 					$('#submit').hide();
@@ -111,7 +111,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 				var filteredRunners = runners.filter(function(runner) {
 					if (!isNaN(searchNum))
-						return (runner.bib === searchNum || runner.ecard1 === searchNum || runner.ecard2 === searchNum);
+						return (Math.abs(runner.bib) === searchNum || (-runner.bib / 100 | 0) === searchNum || runner.ecard1 === searchNum || runner.ecard2 === searchNum);
 					else
 						return runner.name.toLowerCase().includes(searchQuery);
 				});
@@ -150,7 +150,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			if (header)
 				personSelect.append($('<option>').text('--- Velg løper ---').val(''));
 			runners.forEach(function(runner) {
-				personSelect.append($('<option>').text('(' + runner.bib + ') ' +
+				var bibFormat = runner.bib < 0 ? (-runner.bib / 100 | 0) + "-" + (-runner.bib % 100) : runner.bib;
+				personSelect.append($('<option>').text('(' + bibFormat + ') ' +
 					runner.familyName + ', ' + runner.givenName + ': ' + ecardString(runner)
 				).val(runner.bib));
 			});
@@ -177,16 +178,22 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
 				ecardOK = false;
 				$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
+				$('#ecardImage').hide();
 			} else if (ecards.includes(ecardNumber)) {
 				ecardOK = false;
 				$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
+				$('#ecardImage').hide();
+				// Future: Ask if the user wants to exchange the ecard in the database
 			} else {
 				ecardOK = true;
 				var ecard = $('#ecardnumber').val();
-				$('#ecardverification').html('Brikke ' + ecard + ' er OK.');
+				var emiTag = (ecard < 10000 || ecard > 1000000);
+				$('#ecardverification').html('Brikke ' + ecard + ' er OK (' + (emiTag ? 'emiTag' : 'EKT/O-brikke') + ').');
 				$('#ecardlastuse').html('<small>...</small>');
 				$('#firstname').prop('disabled', false);
 				$('#lastname').prop('disabled', false);
+				var imageSrc = emiTag ? 'images/emiTag.png' : 'images/EKT.png';
+				$('#ecardImage').attr('src', imageSrc).show();
 
 				fetch(url + "messageapi.php?method=getnamefromecard&comp=" + comp + "&ecard=" + ecard)
 					.then(response => response.json())
@@ -210,23 +217,22 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		}
 
 		function submit() {
-			if (!verifyEcard()) {
-				alert('Brikkenummeret er ikke gyldig. Prøv på nytt.');
+			var bib = parseInt($('#bib').text());
+			if (isNaN(bib)) {
+				alert('Velg deltager!');
 				return;
 			}
-			var bib = $('#bib').text();
 			var ecardNumber = $('#ecardnumber').val();
 			$('#submit').hide();
 			$('#cancel').hide();
-
 			$('#searchInput').prop('disabled', true);
 			$('#personSelect').prop('disabled', true);
 			$('#ecardnumber').prop('disabled', true);
+			sendt = true;
 			$.ajax({
 				url: url + "messageapi.php?method=sendmessage",
 				data: "comp=" + comp + "&dbid=" + -ecardNumber + "&ecardchange=1&message=startnummer: " + bib,
 				success: function(data) {
-					sendt = true;
 					lookForEntry(bib);
 				},
 				error: function(data) {
@@ -243,6 +249,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		function lookForEntry(bib, last_hash = "", no = 1) {
 			if (eventOffline) {
 				$('#entrydata').html('Melding om brikkebytte er sendt. Når løpet kommer online blir byttet gjort.');
+				$('#cancel').html('Ny endring');
+				$('#cancel').show();
 			} else {
 				var ecardNumber = $('#ecardnumber').val();
 				$.ajax({
@@ -256,11 +264,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 								hash = data.hash;
 								for (var i = 0; i < data.runners.length; i++) {
 									// Check if the bib and ecard number in the database matches the one we just registered
-									if (data.runners[i].bib == bib && (data.runners[i].ecard1 == ecardNumber || data.runners[i].ecard2 == ecardNumber)) {
+									if (Math.abs(data.runners[i].bib) == Math.abs(bib) && (data.runners[i].ecard1 == ecardNumber || data.runners[i].ecard2 == ecardNumber)) {
 										found = true;
+										var bibRaw = data.runners[i].bib;
+										var bibFormat = bibRaw < 0 ? (-bibRaw / 100 | 0) + "-" + (-bibRaw % 100) : bibRaw;
 										$('#entrydata').html('<b>Ditt brikkebytte er registrert som følger:</b><br>' +
 											'<table>' +
-											'<tr><td>Startnummer:</td><td>' + data.runners[i].bib + '</td></tr>' +
+											'<tr><td>Startnummer:</td><td>' + bibFormat + '</td></tr>' +
 											'<tr><td>Navn:</td><td>' + data.runners[i].name + '</td></tr>' +
 											'<tr><td>Brikkenummer:</td><td>' + ecardString(data.runners[i]) + '</td></tr>' +
 											'</table>');
@@ -336,16 +346,21 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<h2>Nytt brikkenummer</h2>
 			<input id="ecardnumber" type="number" style="width:95%" inputmode="numeric">
 			<br>
-			<div id="ecardverification">...</div>
-			<div id="ecardlastuse"><small>...</small></div>
-
+			<div style="display: flex; align-items: left; width: 95%">
+				<div id="ecardImageContainer">&nbsp;
+					<img id="ecardImage" src="" style="display: inline-block; width: auto; height: 3em;">
+				</div>
+				&nbsp;
+				<div>
+					<div id="ecardverification">...</div>
+					<div id="ecardlastuse"><small>...</small></div>
+				</div>
+			</div>
 			<br><br>
 			<button id="submit" type="submit" onclick="submit();">Send in</button>
 			<button id="cancel" type="button" onclick="cancel();">Avbryt</button>
-
 			<br><br>
 			<div id="entrydata">...</div>
-
 		</div>
 	<?php }
 	?>

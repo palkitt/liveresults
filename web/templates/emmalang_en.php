@@ -120,3 +120,4 @@ $_SPORT = "Sport";
 //new Freidig
 $_FREESTART = "open start";
 $_NEWSTATUS = "got new status:";
+$_LASTPASSWITHSTATUS = "with status";

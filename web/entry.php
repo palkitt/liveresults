@@ -9,6 +9,7 @@ include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
 include_once("templates/classEmma.class.php");
 header('Content-Type: text/html; charset=' . $CHARSET);
+header('Cache-Control: no-store');
 
 $currentComp = new Emma($_GET['comp']);
 
@@ -43,6 +44,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var reservedID = 0;
 		var ecardFieldActive = false;
 		var ecardEntry = <?= $currentComp->NoEcardEntry() ? "false" : "true" ?>;
+		var allowNewClub = <?= $currentComp->AllowNewClub() ? "true" : "false" ?>;
+		var ecardOK = !ecardEntry; // Initially set to true if ecard entry is not required
 
 		$(document).ready(function() {
 			fetch(url + "messageapi.php?method=getentrydata&comp=" + comp)
@@ -56,6 +59,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					}
 					let clubSelect = $('#clubSelect');
 					clubSelect.append($('<option>').text('--- Velg klubb ---').val(''));
+					if (allowNewClub) {
+						clubSelect.append($('<option>').text('--- Opprett ny klubb ---').val('newclub'));
+						$('#clubverification').hide();
+					}
 					var noClubOption = false;
 					data.clubs.forEach(club => {
 						clubSelect.append($('<option>').text(club.name));
@@ -84,19 +91,23 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				});
 
 			$('#clubSelect').change(function() {
-				if ($(this).val() === '')
+				if ($(this).val() === '') {
+					$('#submit').hide();
 					alert('Velg en klubb før du går videre.');
-				else {
-					var club = $('#clubSelect').val();
-					$('#clubverification').html(club + ' er valgt klubb');
+				} else if ($(this).val() == 'newclub') {
+					$('#newclubregistration').show();
+					$('#classSelect').prop('disabled', false);
+				} else {
+					$('#newclubregistration').hide();
 					$('#classSelect').prop('disabled', false);
 				}
 			});
 
 			$('#classSelect').change(function() {
-				if ($(this).val() === '')
+				if ($(this).val() === '') {
+					$('#submit').hide();
 					alert('Velg en klasse før du går videre.');
-				else {
+				} else {
 					var reservedOK = false
 					var className = $('#classSelect').val();
 					var classNameURI = encodeURIComponent(className);
@@ -111,7 +122,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							} else
 								reservedID = data.reservedID;
 						});
-					$('#classverification').html('En plass i klasse ' + className + ' er reservert i 5 minutter.');
 					if (ecardEntry) {
 						$('#ecardnumber').prop('disabled', false);
 						$('#rent').prop('disabled', false);
@@ -133,10 +143,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			$('#firstname, #lastname').on('input', function() {
 				var firstName = $('#firstname').val();
 				var lastName = $('#lastname').val();
-				if (firstName.trim() !== '' && lastName.trim() !== '' && !sendt)
+				if (firstName.trim() !== '' && lastName.trim() !== '' && !sendt && ecardOK) {
 					$('#submit').show();
-				else
+				} else {
 					$('#submit').hide();
+					if (!ecardOK)
+						alert('Oppgi gyldig brikkenummer.');
+				}
 			});
 
 			$('#classSelect').prop('disabled', true);
@@ -146,6 +159,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			}
 			$('#firstname').prop('disabled', true);
 			$('#lastname').prop('disabled', true);
+			$('#newclubregistration').hide();
 			$('#submit').hide();
 		});
 
@@ -163,16 +177,24 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
 				$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
 				$('#submit').hide();
+				$('#ecardImage').hide();
+				ecardOK = false;
 			} else if (ecards.includes(ecardNumber)) {
 				$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
 				$('#submit').hide();
+				$('#ecardImage').hide();
+				ecardOK = false;
 			} else {
 				var ecard = $('#ecardnumber').val();
-				$('#ecardverification').html('Brikke ' + ecard + ' er OK.');
+				var emiTag = (ecard < 10000 || ecard > 1000000);
+				$('#ecardverification').html('Brikke ' + ecard + ' er OK (' + (emiTag ? 'emiTag' : 'EKT/O-brikke') + ').');
 				$('#ecardlastuse').html('<small>...</small>');
 				$('#firstname').prop('disabled', false);
 				$('#lastname').prop('disabled', false);
+				var imageSrc = emiTag ? 'images/emiTag.png' : 'images/EKT.png';
+				$('#ecardImage').attr('src', imageSrc).show();
 				ecardFieldActive = false;
+				ecardOK = true;
 
 				fetch(url + "messageapi.php?method=getnamefromecard&comp=" + comp + "&ecard=" + ecard)
 					.then(response => response.json())
@@ -194,13 +216,36 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 		function submit() {
 			var club = $('#clubSelect').val();
+			if (club == 'newclub') {
+				club = sanitizeInput($('#newclubname').val());
+				if (club == "") {
+					alert('Oppgi klubb.');
+					return;
+				}
+			}
 			var className = $('#classSelect').val();
+			if (className == "") {
+				alert('Velg klasse.');
+				return;
+			}
+			var firstName = sanitizeInput($('#firstname').val());
+			var lastName = sanitizeInput($('#lastname').val());
+			if (firstname == "" && lastName == "") {
+				alert('Oppgi navn.');
+				return;
+			}
 			var ecardNumber = (ecardEntry ? $('#ecardnumber').val() : 0);
+			if (ecardEntry && (ecardNumber == "" || ecardNumber < 0)) {
+				alert('Oppgi brikkenummer.');
+				return;
+			}
 			var rent = (ecardEntry ? $('#rent').prop('checked') : 0);
-			var firstName = $('#firstname').val();
-			var lastName = $('#lastname').val();
+			var comment = sanitizeInput($('#comment').val());
+
+			sendt = true;
 
 			$('#clubSelect').prop('disabled', true);
+			$('#newclubname').prop('disabled', true);
 			$('#classSelect').prop('disabled', true);
 			if (ecardEntry) {
 				$('#ecardnumber').prop('disabled', true);
@@ -217,7 +262,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				ecardNumber: ecardNumber,
 				club: club,
 				className: className,
-				rent: rent
+				rent: rent,
+				comment: comment
 			};
 
 			var jsonData = JSON.stringify(data);
@@ -227,7 +273,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 					url: url + "messageapi.php?method=sendmessage",
 					data: "comp=" + comp + "&dbid=" + reservedID + "&newentry=1&message=" + jsonData,
 					success: function(data) {
-						sendt = true;
 						lookForEntry(reservedID);
 					},
 					error: function(data) {
@@ -266,7 +311,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 										'<tr><td>Klubb:</td><td>' + data.runners[i].club + '</td></tr>' +
 										'<tr><td>Klasse:</td><td>' + data.runners[i].class + '</td></tr>' +
 										'<tr><td>Brikkenummer:</td><td>' + (data.runners[i].ecard1 > 0 ? data.runners[i].ecard1 : " - ") + '</td></tr>' +
-										'<tr><td>Startnummer:</td><td>' + (data.runners[i].bib > 0 ? data.runners[i].bib : " - ") + '</td></tr>' +
+										'<tr><td>Startnummer:</td><td>' + (data.runners[i].bib == 0 ? " - " : Math.abs(data.runners[i].bib)) + '</td></tr>' +
 										'<tr><td>Starttid:</td><td>' + data.runners[i].start + '</td></tr>' +
 										'</table>');
 
@@ -296,6 +341,18 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				}
 			});
 		}
+
+		function sanitizeInput(input) {
+			// Replace problematic characters with safe alternatives
+			return input.replace(/[\\]/g, '') // Remove backslashes
+				.replace(/[\"]/g, '') // Remove double quotes
+				.replace(/[\/]/g, '') // Remove forward slashes
+				.replace(/[\b]/g, '') // Remove backspace
+				.replace(/[\f]/g, '') // Remove form feed
+				.replace(/[\n]/g, '') // Remove new line
+				.replace(/[\r]/g, '') // Remove carriage return
+				.replace(/[\t]/g, ''); // Remove tab
+		}
 	</script>
 </head>
 
@@ -316,24 +373,32 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 			<h2>Velg klubb</h2>
 			<select id="clubSelect" style="width:95%;"></select>
-			<br>
+			<div id="newclubregistration">
+				<h3><b>Navn på ny klubb</b></h3>
+				<input id="newclubname" type="text" style="width:95%">
+			</div>
 			<div id="clubverification">Kontakt løpskontor om din klubb ikke er i lista.</div>
 
 			<h2>Velg klasse</h2>
 			<select id="classSelect" style="width:95%"></select>
 			<br>
-			<div id="classverification">...</div>
-
 			<?php if (!$currentComp->NoEcardEntry()) { ?>
 				<h2>Brikkenummer</h2>
-				<input id="ecardnumber" type="number" style="width:70%" inputmode="numeric">
-				<div style="text-align: right; display: inline-block; width: 25%;">&nbsp;
+				<input id="ecardnumber" type="number" style="width:60%" inputmode="numeric">
+				<div style="text-align: right; display: inline-block; width: 35%;">&nbsp;
 					<input id="rent" type="checkbox" value="no">&nbsp;Leiebrikke
 				</div>
 				<br>
-				<div id="ecardverification">...</div>
-				<div id="ecardlastuse"><small>...</small></div>
-
+				<div style="display: flex; align-items: left; width: 95%">
+					<div id="ecardImageContainer">&nbsp;
+						<img id="ecardImage" src="" style="display: inline-block; width: auto; height: 3em;">
+					</div>
+					&nbsp;
+					<div>
+						<div id="ecardverification">...</div>
+						<div id="ecardlastuse"><small>...</small></div>
+					</div>
+				</div>
 			<?php } ?>
 
 			<h2>Fornavn</h2>
@@ -341,6 +406,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 			<h2>Etternavn</h2>
 			<input id="lastname" type="text" style="width:95%">
+
+			<h2>Eventuell kommentar til arrangør</h2>
+			<input id="comment" type="text" style="width:95%">
 
 			<br><br>
 			<button id="submit" type="submit" onclick="submit();">Send in</button>

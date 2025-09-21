@@ -16,10 +16,12 @@ if (isset($_GET['lang']))
 $hightime = 60;
 if (!isset($_GET['method']))
 	$_GET['method'] = null;
-if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist' || $_GET['method'] == 'getclasscoursesplits')
+if ($_GET['method'] == 'getplainresults' || $_GET['method'] == 'getstartlist')
 	$refreshTime = 120;
-else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclubresults' || $_GET['method'] == 'getrelayresults')
+else if ($_GET['method'] == 'getclasses' || $_GET['method'] == 'getclasscoursesplits' || $_GET['method'] == 'getrelayresults')
 	$refreshTime = 60;
+else if ($_GET['method'] == 'getclubresults')
+	$refreshTime = 20;
 else if ($_GET['method'] == 'getsplitcontrols')
 	$refreshTime = 0;
 else if ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
@@ -105,7 +107,7 @@ if ($_GET['method'] == 'getcompetitions') {
 } elseif ($_GET['method'] == 'getlastpassings') {
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
-	$lastPassings = $currentComp->getLastPassings(5);
+	$lastPassings = $currentComp->getLastPassings(3);
 	$first = true;
 	$ret = "";
 	foreach ((array)$lastPassings as $pass) {
@@ -118,6 +120,7 @@ if ($_GET['method'] == 'getcompetitions') {
 					\"control\": " . $pass['Control'] . ",
 					\"controlName\" : \"" . $pass['pname'] . "\",
 					\"status\" : " . $pass['Status'] . ", 
+					\"place\": " . $pass['place'] . ",
 					\"time\": \"" . formatTime($pass['Time'], $pass['Status'], $RunnerStatus) . "\" }";
 		$first = false;
 	}
@@ -188,14 +191,17 @@ if ($_GET['method'] == 'getcompetitions') {
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
 	$club = $_GET['club'];
-	$results = $currentComp->getClubResults($_GET['comp'], $club);
-	$ret = "";
+	$results = $currentComp->getClubResults($club);
 	$unformattedTimes = false;
-	$first = true;
-
 	if (isset($_GET['unformattedTimes']) && $_GET['unformattedTimes'] == "true")
 		$unformattedTimes = true;
 
+	// Get and sort the splits for the club
+	$splits = $currentComp->getSplitControlsForClub($club);
+
+	$first = true;
+	$ret = "";
+	$maxSplits = 0;
 	foreach ((array)$results as $res) {
 		$time = $res['Time'];
 		$status = $res['Status'];
@@ -211,37 +217,61 @@ if ($_GET['method'] == 'getcompetitions') {
 			$cp = "F";
 		elseif ($status != 0 || $time < 0)
 			$cp = "-";
-
 		$timeplus = $res['TimePlus'];
-		$age = time() - strtotime($res['Changed']);
-		$modified = (($age < $hightime && $status != 9) ? 1 : 0);
 
 		if (!$unformattedTimes) {
 			$time = formatTime($res['Time'], $res['Status'], $RunnerStatus);
 			$timeplus = "+" . formatTime($timeplus, $res['Status'], $RunnerStatus);
 		}
 
+		$class = $res['Class'];
+		$firstSplit = true;
+		$splitJSON = "";
+		$numSplits = 0;
+		foreach ((array)$splits as $split) {
+			if ($split['classname'] != $class)
+				continue;
+			$numSplits++;
+			if (!$firstSplit)
+				$splitJSON .= ",";
+			$firstSplit = false;
+			$splitJSON .= "{";
+			if (isset($res[$split['code'] . '_time'])) {
+				$place = (in_array($res['Status'], [0, 9, 10]) ? $res[$split['code'] . '_place'] : -1);
+				$splitJSON .= "\"time\": " . $res[$split['code'] . '_time'];
+				$splitJSON .= ",\"place\": $place ";
+				$splitJSON .= ",\"timeplus\": " . $res[$split['code'] . '_timeplus'];
+				$splitJSON .= ",\"changed\": " . strtotime($res[$split['code'] . '_changed']);
+			} else {
+				$splitJSON .= "\"time\": -1";
+				$splitJSON .= ",\"besttime\": " . ($split['besttime'] == null ? -1 : $split['besttime']);
+			}
+			$splitJSON .= ",\"order\": " . $split['corder'];
+			$splitJSON .= "}";
+		}
+		if ($numSplits > $maxSplits)
+			$maxSplits = $numSplits;
+
 		if (!$first)
 			$ret .= ",$br";
-		$ret .= "{\"place\": \"$cp\", \"name\": \"" . $res['Name'] . "\", \"bib\": \"" . $res['Bib'] . "\", \"club\": \"" . $res['Club'] . "\",\"class\": \"" . $res['Class'] . "\", \"pace\": \"" . $pace . "\", \"result\": \"" . $time . "\",\"status\" : " . $status . ", \"timeplus\": \"$timeplus\"";
-
+		$ret .= "{\"place\": \"$cp\", \"name\": \"" . $res['Name'] . "\", \"bib\": \"" . $res['Bib'] . "\", \"club\": \"" . $res['Club'] . "\"";
+		$ret .= ",\"dbid\": \"" . $res['DbId'] . "\",\"class\": \"" . $class . "\", \"pace\": \"" . $pace . "\", \"result\": \"" . $time . "\",\"status\" : " . $status;
+		$ret .= ", \"timeplus\": \"$timeplus\", \"changed\": " . strtotime($res['Changed']);
 		if (isset($res["start"]))
 			$ret .= ",$br \"start\": " . $res["start"];
 		else
 			$ret .= ",$br \"start\": \"\"";
-
-		if ($modified)
-			$ret .= ",$br \"DT_RowClass\": \"red_row\"";
+		$ret .= ",$br \"splits\": [" . $splitJSON . "]";
 		$ret .= "$br}";
-
 		$first = false;
 	}
 
 	$hash = MD5($ret);
 	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash) {
-		echo ("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+		echo ("{\"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 	} else {
-		echo ("{ \"status\": \"OK\",$br \"clubName\": \"" . $club . "\", $br\"results\": [$br$ret$br]");
+		echo ("{\"status\": \"OK\",$br \"clubName\": \"" . $club . "\", \"numSplits\": $maxSplits");
+		echo (",$br \"results\": [$br$ret$br]");
 		echo (",$br \"hash\": \"" . $hash . "\", \"rt\": $RT}");
 	}
 } elseif ($_GET['method'] == 'getsplitcontrols') {
@@ -548,6 +578,36 @@ if ($_GET['method'] == 'getcompetitions') {
 		echo ("{\"status\": \"OK\", \"lastchanged\": [$ret]");
 		echo (", \"hash\": \"" . $hash . "\", \"rt\": $RT, \"active\": $isActive}");
 	}
+} elseif (isset($_GET['method']) && $_GET['method'] == 'getecarddiff') {
+	$currentComp = new Emma($_GET['comp']);
+	$RT = insertHeader($refreshTime, false);
+	if (!isset($_GET['oldcomp'])) {
+		$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
+		header($protocol . ' ' . 400 . ' Bad Request');
+		echo ("{\"status\": \"Error\", \"message\": \"oldcomp not set\"}");
+		return;
+	}
+	$compDate = $currentComp->CompDate();
+	$compName = $currentComp->CompName();
+	$oldComp = new Emma($_GET['oldcomp']);
+	$oldCompDate = $oldComp->CompDate();
+	$oldCompName = $oldComp->CompName();
+	$ecardDiff = $currentComp->getEcardDiff($_GET['oldcomp']);
+	$first = true;
+	$ret = "";
+	foreach ((array)$ecardDiff as $diff) {
+		if (!$first)
+			$ret .= ",$br";
+		$ret .= "{\"name\": \"" . $diff['name'] . "\", \"club\": \"" . $diff['club'] . "\"";
+		$ret .= ", \"bib\": " . $diff['bib'] . ", \"class\": \"" . $diff['class'] . "\"";
+		$ret .= ", \"old1\": " . $diff['old_ecard1'] . ", \"old2\": " . $diff['old_ecard2'];
+		$ret .= ", \"new1\": " . $diff['new_ecard1'] . ", \"new2\": " . $diff['new_ecard2'] . "}";
+		$first = false;
+	}
+	echo ("{ \"status\": \"OK\", ");
+	echo ("\"comp\": { \"id\": " . $_GET['comp'] . ", \"name\": \"" . $compName . "\", \"date\": \"" . $compDate . "\"}, ");
+	echo ("\"oldcomp\": { \"id\": " . $_GET['oldcomp'] . ", \"name\": \"" . $oldCompName . "\", \"date\": \"" . $oldCompDate . "\"}, ");
+	echo ("\"ecards\": [$ret] }");
 } else {
 	insertHeader($refreshTime, false);
 	$protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
@@ -581,7 +641,7 @@ function classesSorted($currentComp, $classMask = null)
 			stripos($sortKey, 'gjest') !== false || stripos($sortKey, 'dir') !== false || stripos($sortKey, 'utv') !== false
 		)
 			$sortKey = 'z' . $sortKey;
-		if (preg_match("/(-e| e|\d+e|elite|wre)(\s*\d*)$/", $sortKey))
+		if (preg_match("/(-e| e|\d+e|elite|wre|nm)(\s*\d*)$/", $sortKey))
 			$sortKey = "A" . $sortKey;
 
 		$sortKey = preg_replace('/(^|[^\d])(\d)($|[^\d])/', '$1 00 $2 $3', $sortKey);       // Add 00 ahead of single digits
@@ -1111,6 +1171,7 @@ function courseSplitResults($class, $course)
 	$res[1] = $splitJSON;
 	return $res;
 }
+
 
 function insertHeader($refreshTime, $update = true)
 {

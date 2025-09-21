@@ -28,7 +28,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<meta name="theme-color" content="#555556">
 
 	<link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
-	<link rel="stylesheet" href="css/datatables.min.css">
 	<link rel="stylesheet" href="css/style-liveres.css?a">
 
 	<script src="<?= $DataTablesURL ?>datatables.min.js"></script>

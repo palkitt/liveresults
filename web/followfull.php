@@ -34,7 +34,8 @@ if ($isEmmaComp) {
   $qualLimits = "";
   $qualClasses = "";
   $infoText = "";
-  $indexRef = "indexEmma.php?lang=" . $lang;
+  $liveloxid = 0;
+  $indexRef = "index.php?emma&lang=" . $lang;
   $CHARSET = 'utf-8';
 } else {
   include_once("templates/classEmma.class.php");
@@ -54,6 +55,7 @@ if ($isEmmaComp) {
   $qualLimits = $currentComp->QualLimits();
   $qualClasses = $currentComp->QualClasses();
   $infoText = $currentComp->InfoText();
+  $liveloxid = $currentComp->LiveloxId();
   $indexRef = "index.php?lang=" . $lang;
 }
 $image = "";
@@ -83,9 +85,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#555555">
-  <!-- link rel="stylesheet" href="css/datatables.min.css">
-  <link rel="stylesheet" href="css/font-awesome/6.6.0/css/all.min.css">
-  <script src="js/datatables.min.js"></script -->
+  <!-- link rel="stylesheet" href="css/font-awesome/6.6.0/css/all.min.css" -->
   <link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link rel="stylesheet" href="css/style-liveres.css?a">
@@ -144,7 +144,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       _TOTAL: "<?= $_TOTAL ?>",
       _CLASS: "<?= $_CLASS ?>",
       _FREESTART: "<?= $_FREESTART ?>",
-      _NEWSTATUS: "<?= $_NEWSTATUS ?>"
+      _NEWSTATUS: "<?= $_NEWSTATUS ?>",
+      _LASTPASSWITHSTATUS: "<?= $_LASTPASSWITHSTATUS ?>"
     };
 
     var runnerStatus = Array();
@@ -243,6 +244,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
       // Initialize info text
       $("#divInfoText").html("<?= $infoText ?>");
+
+      // Set Livelox ID
+      res.LiveloxID = "<?= $liveloxid ?>";
 
       var locked = undefined;
       if (typeof(Storage) !== "undefined")
@@ -395,6 +399,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   else if (in_array($compNo, array("10532", "10533", "10534", "10535"))) $image = "images/HL2023.png";
                   else if (in_array($compNo, array("10606")))  $image = "images/Blodslitet.jpg";
                   else if (in_array($compNo, array("10836", "10837", "10838")))  $image = "images/HL_logo_200.png";
+                  else if (in_array($compNo, array("11140", "11141", "11142", "11143")))  $image = "images/nmuka25.jpg";
                   else switch (strtolower($organizer)) {
                     case "larvik ok":
                       $image = "images/larvikok.png";
@@ -487,6 +492,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
               <tr>
                 <td align="left">
+                  <span id="colSelector" style="display: inline-block;"></span>
                   <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span class="fa-solid fa-arrows-up-down"></span></button>
                   <button class="navbtn" onclick="changeFontSize(2)"><span class="fa-solid fa-plus"></span></button>
                   <button class="navbtn" onclick="changeFontSize(-2)"><span class="fa-solid fa-minus"></span></button>
@@ -526,7 +532,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   </button>
                 </div>
               </td>
-              <td align="right"><span id="txtResetSorting" class="splitChooser"></span></td>
+              <td align="right"><span id="divLivelox" class="splitChooser"></span> &nbsp;<span id="txtResetSorting" class="splitChooser"></span></td>
             </tr>
           </table>
           <div class="container">

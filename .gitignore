@@ -177,22 +177,15 @@ testfiles/iof_xml_notcompeting.xml
 */.vs
 .vs/*
 .vscode/*
-testfiles/oe_speaker_result_0.1sec.xml
-web/js/liveresults – Kopi.js
-web/js/jquery.dataTables.min.js_old
-web/templates/SwitchFreidigLocal.txt
-web/followfull_kopi.php
-web/js/ToDelete/liveresults – Kopi.js
-web/js/ToDelete/LiveResults.ts
-web/js/ToDelete/liveresults.grid.js
-web/js/ToDelete/jquery-3.3.1.min.js
+
+
 web/.vscode/launch.json
 .vs/LiveResults.Client/v15/Server/sqlite3/db.lock
 .vs/LiveResults.Client/v15/Server/sqlite3/storage.ide
 .vs/LiveResults.Client/v15/Server/sqlite3/storage.ide-shm
 .vs/LiveResults.Client/v15/Server/sqlite3/storage.ide-wal
 
-#osticket
 web/osticket/
 web/bootstrap/
 web/templates/config_server.php
+web/css/font-awesome/6.6.0/

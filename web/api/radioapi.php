@@ -35,7 +35,6 @@ if ($_GET['method'] == 'getradiopassings') {
 	$RT = insertHeader($refreshTime);
 	$isActive = $currentComp->IsCompActive();
 	$code = $_GET['code'];
-	$calltime = $_GET['calltime'];
 	$maxNum = 100;
 
 	if (isset($_GET['last_hash']))
@@ -53,7 +52,7 @@ if ($_GET['method'] == 'getradiopassings') {
 	else
 		$maxBib = "99999999";
 
-	$lastPassings = $currentComp->getRadioPassings($code, $calltime, $lastUpdate, $maxNum, $minBib, $maxBib);
+	$lastPassings = $currentComp->getRadioPassings($code, $lastUpdate, $maxNum);
 
 	$first = true;
 	$num = 0;
