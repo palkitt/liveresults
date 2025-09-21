@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Globalization;
 using System.IO;
+using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using LiveResults.Client.Parsers;
@@ -47,6 +50,9 @@ namespace LiveResults.Client
         private string m_URL = "";
         private string m_organizer = "";
         private volatile bool _stopUrlLoader = false;
+        private Task _urlLoaderTask; // Task to track the running thread
+        private readonly object _taskLock = new object(); // Lock to ensure thread safety
+
 
         public OEForm(bool showCSVFormats = true)
         {
@@ -90,6 +96,7 @@ namespace LiveResults.Client
                         txtCompID.Text = s.CompID.ToString(CultureInfo.InvariantCulture);
                         txtOrganizer.Text = s.Organizer;
                         chkAutoCreateRadioControls.Checked = s.AutoCreateRadioControls;
+                        chkDeleteUnused.Checked = s.DeleteUnused;
                         txtRefresh.Text = s.Refresh.ToString();
                         txtURL.Text = s.URL;
                         for (int i = 0; i < m_supportedFormats.Count; i++)
@@ -97,7 +104,6 @@ namespace LiveResults.Client
                             if (m_supportedFormats[i].Name == s.Format)
                                 cmbFormat.SelectedIndex = i;
                         }
-
                     }
                 }
                 catch
@@ -135,6 +141,7 @@ namespace LiveResults.Client
 
         private void button2_Click(object sender, EventArgs e)
         {
+            button2.Enabled = false;
 
             if (string.IsNullOrEmpty(txtCompID.Text))
             {
@@ -147,6 +154,11 @@ namespace LiveResults.Client
                 MessageBox.Show(this, @"Please enter URL or select an existing OE Export directory", @"Start OE Monitor", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+            string apiServer = ConfigurationManager.AppSettings["apiServer"];
+            WebClient webClient = new WebClient();
+            ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072; //TLS 1.2
+            int maxActiveTimer = 60; // Time between setting new live active signal
+            int activeTimer = maxActiveTimer;
 
             m_compid = Convert.ToInt32(txtCompID.Text);
             m_refresh = Convert.ToInt32(txtRefresh.Text);
@@ -154,11 +166,13 @@ namespace LiveResults.Client
             m_organizer = txtOrganizer.Text;
             m_parsedZeroTime = 0;
             listBox1.Items.Clear();
+            button3.Enabled = false;
             m_clients.Clear();
+
             Logit("Reading servers from config (eventually resolving online)");
             Application.DoEvents();
             EmmaMysqlClient.EmmaServer[] servers = EmmaMysqlClient.GetServersFromConfig();
-            Logit("Got servers from obasen...");
+            Logit("Got servers from config...");
             Application.DoEvents();
 
             var format = cmbFormat.SelectedItem as FormatItem;
@@ -203,6 +217,7 @@ namespace LiveResults.Client
                 fileSystemWatcher1.NotifyFilter = NotifyFilters.LastWrite;
                 fileSystemWatcher1.IncludeSubdirectories = false;
                 fileSystemWatcher1.EnableRaisingEvents = true;
+                button3.Enabled = true;
             }
 
             bool organizerOK = false;
@@ -234,32 +249,26 @@ namespace LiveResults.Client
             if (organizerOK)
             {
                 timer1_Tick(null, null);
-
-                // Loop and read URL
-                _stopUrlLoader = false;
                 if (!string.IsNullOrEmpty(m_URL))
                 {
-                    ThreadPool.QueueUserWorkItem(delegate
-                    {
-                        while (!_stopUrlLoader)
-                        {
-                            try
-                            {
-                                URL_loader(m_URL);
-                            }
-                            catch (Exception ex)
-                            {
-                                Logit("Error reading URL: " + ex.Message);
-                            }
-                            for (int i = 0; i < m_refresh; i++)
-                            {
-                                Thread.Sleep(1000);
-                            }
-                        }
-                    });
+                    StartUrlLoader(apiServer, webClient);
                 }
             }
 
+        }
+
+        private void SendLiveActive(string apiServer, WebClient client)
+        {
+            string apiResponse = "";
+            try
+            {
+                apiResponse = client.DownloadString(apiServer + "api.php?method=setlastactive&comp=" + m_compid);
+                Logit("Client live active sent to web server");
+            }
+            catch (Exception ee)
+            {
+                Logit("Bad network or config file? Error when sending active signal: " + ee.Message);
+            }
         }
 
         void m_OSParser_OnResult(Result newResult)
@@ -335,11 +344,13 @@ namespace LiveResults.Client
                     var runners = IofXmlParser.ParseFile(fullFilename, Logit, new IofXmlParser.IDCalculator(m_compid).CalculateID, chkAutoCreateRadioControls.Checked,
                         out radioControls, out courseNames, out courseControls);
 
-
                     foreach (EmmaMysqlClient c in m_clients)
                     {
-                        c.UpdateCurrentResultsFromNewSet(runners);
+                        List<int> usedID = new List<int>();
 
+                        c.UpdateCurrentResultsFromNewSet(runners, out usedID);
+                        if (chkDeleteUnused.Checked && usedID.Count > 0)
+                            c.DeleteUnusedRunners(usedID);
                         if (radioControls != null)
                             c.MergeRadioControls(radioControls);
                         if (courseNames != null)
@@ -385,8 +396,11 @@ namespace LiveResults.Client
 
                 foreach (EmmaMysqlClient c in m_clients)
                 {
-                    c.UpdateCurrentResultsFromNewSet(runners);
+                    List<int> usedID = new List<int>();
 
+                    c.UpdateCurrentResultsFromNewSet(runners, out usedID);
+                    if (chkDeleteUnused.Checked && usedID.Count > 0)
+                        c.DeleteUnusedRunners(usedID);
                     if (radioControls != null)
                         c.MergeRadioControls(radioControls);
                     if (courseNames != null)
@@ -403,6 +417,51 @@ namespace LiveResults.Client
             }
         }
 
+        private void StartUrlLoader(string apiServer, WebClient webClient)
+        {
+            lock (_taskLock) // Ensure thread safety
+            {
+                if (_urlLoaderTask != null && !_urlLoaderTask.IsCompleted)
+                {
+                    Logit("URL loader is running.");
+                    return; // Exit if the task is already running
+                }
+                _stopUrlLoader = false; // Reset the stop flag
+
+                _urlLoaderTask = Task.Run(() =>
+                {
+                    int activeTimer = 0;
+                    int maxActiveTimer = 60;
+
+                    while (!_stopUrlLoader)
+                    {
+                        try
+                        {
+                            URL_loader(m_URL);
+
+                            activeTimer += m_refresh;
+                            if (activeTimer >= maxActiveTimer)
+                            {
+                                SendLiveActive(apiServer, webClient);
+                                activeTimer = 0;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Logit("Error reading URL: " + ex.Message);
+                        }
+
+                        button3.Enabled = true;
+                        for (int i = 0; i < m_refresh; i++)
+                        {
+                            if (_stopUrlLoader) break;
+                            Thread.Sleep(1000);
+                        }
+                    }
+                });
+            }
+        }
+
         void Logit(string msg)
         {
             if (!listBox1.IsDisposed)
@@ -414,7 +473,6 @@ namespace LiveResults.Client
         private void timer1_Tick(object sender, EventArgs e)
         {
             listBox2.BeginUpdate();
-
             listBox2.Items.Clear();
             if (m_clients != null)
             {
@@ -428,6 +486,8 @@ namespace LiveResults.Client
 
         private void button3_Click(object sender, EventArgs e)
         {
+            button3.Enabled = false;
+            _stopUrlLoader = true;
             if (m_clients != null)
             {
                 foreach (EmmaMysqlClient c in m_clients)
@@ -439,7 +499,15 @@ namespace LiveResults.Client
             }
             fileSystemWatcher1.EnableRaisingEvents = false;
             fsWatcherOS.EnableRaisingEvents = false;
-            _stopUrlLoader = true;
+            lock (_taskLock)
+            {
+                if (_urlLoaderTask != null)
+                {
+                    _urlLoaderTask.Wait(2000); // Wait for the task to complete
+                    _urlLoaderTask = null; // Reset the task
+                }
+            }
+            button2.Enabled = true;
             Logit("Upload stopped");
         }
 
@@ -500,7 +568,6 @@ namespace LiveResults.Client
             }
         }
 
-
         private void cmbFormat_SelectedIndexChanged(object sender, EventArgs e)
         {
             lblFormatInfo.Text = "";
@@ -537,6 +604,7 @@ namespace LiveResults.Client
                     Format = (cmbFormat.SelectedItem as FormatItem).Name,
                     ZeroTime = txtZeroTime.Text,
                     AutoCreateRadioControls = chkAutoCreateRadioControls.Checked,
+                    DeleteUnused = chkDeleteUnused.Checked,
                     Refresh = int.Parse(txtRefresh.Text),
                     URL = txtURL.Text,
                     Organizer = txtOrganizer.Text
@@ -566,6 +634,7 @@ namespace LiveResults.Client
             public string Format { get; set; }
             public string ZeroTime { get; set; }
             public bool AutoCreateRadioControls { get; set; }
+            public bool DeleteUnused { get; set; }
             public int Refresh { get; set; }
             public string URL { get; set; }
             public string Organizer { get; set; }

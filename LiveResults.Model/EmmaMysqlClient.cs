@@ -322,7 +322,7 @@ namespace LiveResults.Model
                 {
                     int courseNo = Convert.ToInt32(reader["courseno"]);
                     string name = reader["name"] as string;
-                    m_courseNames.Add(courseNo, 
+                    m_courseNames.Add(courseNo,
                         new CourseName()
                         {
                             CourseNo = courseNo,
@@ -342,8 +342,8 @@ namespace LiveResults.Model
                     string classname = reader["class"] as string;
 
                     m_vacantRunners.Add(dbid,
-                        new VacantRunner() 
-                        { 
+                        new VacantRunner()
+                        {
                             dbid = dbid,
                             bib = bib,
                             classid = classid,
@@ -590,13 +590,13 @@ namespace LiveResults.Model
             }
         }
 
-  
+
         public bool IsRunnerAdded(int runnerID)
         {
             return m_runners.ContainsKey(runnerID);
         }
 
-   
+
         public void SetRunnerResult(int runnerID, int time, int status)
         {
             if (!IsRunnerAdded(runnerID))
@@ -661,7 +661,8 @@ namespace LiveResults.Model
                 {
                     if (!controlCodes.Contains(splitTime.Control))
                     {
-                        m_itemsToUpdate.Add(new DelSplitTime() {
+                        m_itemsToUpdate.Add(new DelSplitTime()
+                        {
                             RunnerID = runnerID,
                             ControlCode = splitTime.Control
                         });
@@ -788,7 +789,7 @@ namespace LiveResults.Model
                     RadioControl[] existingRadios = m_classRadioControls[kvp.Key];
                     foreach (RadioControl newControl in newControls)
                     {
-                        bool radioControlExist = existingRadios.Any(item => 
+                        bool radioControlExist = existingRadios.Any(item =>
                             item.Order == newControl.Order &&
                             item.Code == newControl.Code &&
                             item.ControlName == newControl.ControlName);
@@ -907,8 +908,10 @@ namespace LiveResults.Model
             }
         }
 
-        public void UpdateCurrentResultsFromNewSet(Runner[] runners)
+        public void UpdateCurrentResultsFromNewSet(Runner[] runners, out List<int> usedID)
         {
+            usedID = new List<int>();
+
             if (runners == null)
                 return;
 
@@ -935,8 +938,8 @@ namespace LiveResults.Model
                         foreach (var existingRunner in existingClass)
                         {
 
-                            if (string.Compare(existingRunner.Name,runner.Name, StringComparison.InvariantCultureIgnoreCase) == 0 &&
-                                string.Compare(existingRunner.Club,runner.Club, StringComparison.InvariantCultureIgnoreCase) == 0)
+                            if (string.Compare(existingRunner.Name, runner.Name, StringComparison.InvariantCultureIgnoreCase) == 0 &&
+                                string.Compare(existingRunner.Club, runner.Club, StringComparison.InvariantCultureIgnoreCase) == 0)
                             {
                                 instNum++;
                                 if (instNum == findInstance)
@@ -949,16 +952,17 @@ namespace LiveResults.Model
                         if (currentRunner != null)
                         {
                             runner.ID = currentRunner.ID;
-                            UpdateRunnerInfo(runner.ID, runner.Name, runner.Club, runner.Class,  runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.Length, runner.EcardTimes);
+                            UpdateRunnerInfo(runner.ID, runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.Length, runner.EcardTimes);
                         }
                         else
                         {
                             //New runner
                             runner.ID = m_nextInternalId++;
-                            var newRunner = new Runner(runner.ID, runner.Name, runner.Club, runner.Class,  runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.Length, runner.EcardTimes);
+                            var newRunner = new Runner(runner.ID, runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.Length, runner.EcardTimes);
                             AddRunner(newRunner);
                         }
                         UpdateRunnerTimes(runner);
+                        usedID.Add(runner.ID);
                     }
                 }
                 else
@@ -967,14 +971,15 @@ namespace LiveResults.Model
                     foreach (var runner in classGroup)
                     {
                         runner.ID = m_nextInternalId++;
-                        var newRunner = new Runner(runner.ID,runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.Length, runner.EcardTimes);
+                        var newRunner = new Runner(runner.ID, runner.Name, runner.Club, runner.Class, runner.Ecard1, runner.Ecard2, runner.Bib, runner.SourceId, runner.Course, runner.Length, runner.EcardTimes);
                         AddRunner(newRunner);
                         UpdateRunnerTimes(runner);
+                        usedID.Add(runner.ID);
                     }
                 }
             }
         }
-              
+
 
         public void DeleteUnusedRunners(List<int> usedIds)
         {
@@ -996,14 +1001,17 @@ namespace LiveResults.Model
 
             SetRunnerResult(runner.ID, runner.Time, runner.Status);
 
+            var controlCodes = new List<int>();
             var spl = runner.SplitTimes;
             if (spl != null)
             {
                 foreach (var s in spl)
                 {
                     SetRunnerSplit(runner.ID, s.Control, s.Time);
+                    controlCodes.Add(s.Control);
                 }
             }
+            DeleteUnusedSplits(runner.ID, controlCodes);
         }
 
         public void Stop()
@@ -1055,7 +1063,7 @@ namespace LiveResults.Model
                                     {
                                         m_itemsToUpdate.Add(r);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not add course name: " + r.CourseNo + "-" + r.Name +" to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not add course name: " + r.CourseNo + "-" + r.Name + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
                                     FireLogMsg("Server update add course name: " + r.CourseNo + "-" + r.Name);
@@ -1204,7 +1212,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete runner " + r + " on server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete: Runner ID " + r );
+                                    FireLogMsg("Server update delete: Runner ID " + r);
                                 }
                                 else if (item is DelSplitTime)
                                 {
@@ -1228,7 +1236,7 @@ namespace LiveResults.Model
                                         throw new ApplicationException("Could not delete split from runner " + r + " on server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete: Split " + control + " for runner ID " + r );
+                                    FireLogMsg("Server update delete: Split " + control + " for runner ID " + r);
                                 }
                                 else if (item is Runner)
                                 {
@@ -1250,7 +1258,7 @@ namespace LiveResults.Model
 
                                         cmd.CommandText = "INSERT INTO runners (tavid,name,club,class,course,length,brick,dbid,ecard1,ecard2,bib,ecardtimes,ecardchecked) " +
                                             "VALUES (?compid,?name,?club,?class,?course,?length,0,?id,?ecard1,?ecard2,?bib,?ecardtimes,0) " +
-                                            "ON DUPLICATE KEY UPDATE name=?name,club=?club,class=?class,course=?course,length=?length,"+
+                                            "ON DUPLICATE KEY UPDATE name=?name,club=?club,class=?class,course=?course,length=?length," +
                                             "ecard1=?ecard1,ecard2=?ecard2,bib=?bib,ecardtimes=?ecardtimes,ecardchecked=ecardchecked";
 
                                         try
@@ -1464,36 +1472,37 @@ namespace LiveResults.Model
             string returnStr = "";
             switch (status)
             {
-                case 1: returnStr  = "DNS"; break;
-                case 2: returnStr  = "DNF"; break;
-                case 3: returnStr  = "MP"; break;
-                case 4: returnStr  = "DSQ"; break;
-                case 5: returnStr  = "OT"; break;
-                case 6: returnStr  = "NC"; break;
-                case 9: returnStr  = "STARTED"; break;
+                case 1: returnStr = "DNS"; break;
+                case 2: returnStr = "DNF"; break;
+                case 3: returnStr = "MP"; break;
+                case 4: returnStr = "DSQ"; break;
+                case 5: returnStr = "OT"; break;
+                case 6: returnStr = "NC"; break;
+                case 9: returnStr = "STARTED"; break;
                 case 10: returnStr = "ENTERED"; break;
                 case 11: returnStr = "WO"; break;
                 case 12: returnStr = "MOVEDUP"; break;
                 case 13: returnStr = "FINISHED"; break;
                 default:
-                {
-                    TimeSpan t = TimeSpan.FromSeconds((double)time / 100);
-                    if (clock)
                     {
-                        if (time == -999)
-                            returnStr = "OPEN START";
+                        TimeSpan t = TimeSpan.FromSeconds((double)time / 100);
+                        if (clock)
+                        {
+                            if (time == -999)
+                                returnStr = "OPEN START";
+                            else
+                                returnStr = string.Format("{0:D2}:{1:D2}:{2:D2}", t.Hours, t.Minutes, t.Seconds);
+                        }
                         else
-                            returnStr = string.Format("{0:D2}:{1:D2}:{2:D2}", t.Hours, t.Minutes, t.Seconds);
+                        {
+                            if (t.Hours > 0)
+                                returnStr = string.Format("{0:D1}:", t.Hours);
+                            returnStr += string.Format("{0:D2}:{1:D2}", t.Minutes, t.Seconds);
+                            if (t.Milliseconds > 0)
+                                returnStr += string.Format(".{0:D1}", t.Milliseconds / 100);
+                        }
                     }
-                    else
-                    {
-                        if (t.Hours > 0)
-                             returnStr = string.Format("{0:D1}:", t.Hours);
-                         returnStr += string.Format("{0:D2}:{1:D2}", t.Minutes, t.Seconds);
-                         if (t.Milliseconds > 0)
-                             returnStr += string.Format(".{0:D1}", t.Milliseconds / 100);
-                     }
-                } break;
+                    break;
             }
             return returnStr;
         }

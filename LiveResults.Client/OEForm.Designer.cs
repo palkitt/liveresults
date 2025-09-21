@@ -30,6 +30,10 @@
         {
             this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.txtRefresh = new System.Windows.Forms.TextBox();
+            this.txtRefreshTitle = new System.Windows.Forms.Label();
+            this.txtURL = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
             this.txtZeroTime = new System.Windows.Forms.TextBox();
             this.lblZeroTime = new System.Windows.Forms.Label();
             this.lblFormatInfo = new System.Windows.Forms.Label();
@@ -51,15 +55,11 @@
             this.button3 = new System.Windows.Forms.Button();
             this.fsWatcherOS = new System.IO.FileSystemWatcher();
             this.label4 = new System.Windows.Forms.Label();
-            this.chkUploadStarttimes = new System.Windows.Forms.CheckBox();
             this.button4 = new System.Windows.Forms.Button();
             this.chkAutoCreateRadioControls = new System.Windows.Forms.CheckBox();
-            this.txtURL = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.txtRefreshTitle = new System.Windows.Forms.Label();
-            this.txtRefresh = new System.Windows.Forms.TextBox();
             this.txtOrganizer = new System.Windows.Forms.TextBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.chkDeleteUnused = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fileSystemWatcher1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fsWatcherOS)).BeginInit();
@@ -89,6 +89,43 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Settings";
+            // 
+            // txtRefresh
+            // 
+            this.txtRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtRefresh.Location = new System.Drawing.Point(250, 150);
+            this.txtRefresh.Name = "txtRefresh";
+            this.txtRefresh.Size = new System.Drawing.Size(55, 20);
+            this.txtRefresh.TabIndex = 17;
+            this.txtRefresh.Text = "15";
+            // 
+            // txtRefreshTitle
+            // 
+            this.txtRefreshTitle.AutoSize = true;
+            this.txtRefreshTitle.Location = new System.Drawing.Point(247, 136);
+            this.txtRefreshTitle.Name = "txtRefreshTitle";
+            this.txtRefreshTitle.Size = new System.Drawing.Size(58, 13);
+            this.txtRefreshTitle.TabIndex = 16;
+            this.txtRefreshTitle.Text = "Refresh [s]";
+            // 
+            // txtURL
+            // 
+            this.txtURL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtURL.Location = new System.Drawing.Point(10, 149);
+            this.txtURL.Name = "txtURL";
+            this.txtURL.Size = new System.Drawing.Size(229, 20);
+            this.txtURL.TabIndex = 15;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(7, 136);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(80, 13);
+            this.label6.TabIndex = 14;
+            this.label6.Text = "Download URL";
             // 
             // txtZeroTime
             // 
@@ -263,19 +300,6 @@
             this.label4.TabIndex = 9;
             this.label4.Text = "Servers";
             // 
-            // chkUploadStarttimes
-            // 
-            this.chkUploadStarttimes.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkUploadStarttimes.AutoSize = true;
-            this.chkUploadStarttimes.Checked = true;
-            this.chkUploadStarttimes.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkUploadStarttimes.Location = new System.Drawing.Point(332, 107);
-            this.chkUploadStarttimes.Name = "chkUploadStarttimes";
-            this.chkUploadStarttimes.Size = new System.Drawing.Size(107, 17);
-            this.chkUploadStarttimes.TabIndex = 10;
-            this.chkUploadStarttimes.Text = "Upload starttimes";
-            this.chkUploadStarttimes.UseVisualStyleBackColor = true;
-            // 
             // button4
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -293,49 +317,12 @@
             this.chkAutoCreateRadioControls.AutoSize = true;
             this.chkAutoCreateRadioControls.Checked = true;
             this.chkAutoCreateRadioControls.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAutoCreateRadioControls.Location = new System.Drawing.Point(332, 130);
+            this.chkAutoCreateRadioControls.Location = new System.Drawing.Point(332, 117);
             this.chkAutoCreateRadioControls.Name = "chkAutoCreateRadioControls";
             this.chkAutoCreateRadioControls.Size = new System.Drawing.Size(184, 17);
             this.chkAutoCreateRadioControls.TabIndex = 12;
             this.chkAutoCreateRadioControls.Text = "Automatically create radiocontrols";
             this.chkAutoCreateRadioControls.UseVisualStyleBackColor = true;
-            // 
-            // txtURL
-            // 
-            this.txtURL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtURL.Location = new System.Drawing.Point(10, 149);
-            this.txtURL.Name = "txtURL";
-            this.txtURL.Size = new System.Drawing.Size(229, 20);
-            this.txtURL.TabIndex = 15;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(7, 136);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(80, 13);
-            this.label6.TabIndex = 14;
-            this.label6.Text = "Download URL";
-            // 
-            // txtRefreshTitle
-            // 
-            this.txtRefreshTitle.AutoSize = true;
-            this.txtRefreshTitle.Location = new System.Drawing.Point(247, 136);
-            this.txtRefreshTitle.Name = "txtRefreshTitle";
-            this.txtRefreshTitle.Size = new System.Drawing.Size(58, 13);
-            this.txtRefreshTitle.TabIndex = 16;
-            this.txtRefreshTitle.Text = "Refresh [s]";
-            // 
-            // txtRefresh
-            // 
-            this.txtRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtRefresh.Location = new System.Drawing.Point(250, 150);
-            this.txtRefresh.Name = "txtRefresh";
-            this.txtRefresh.Size = new System.Drawing.Size(55, 20);
-            this.txtRefresh.TabIndex = 17;
-            this.txtRefresh.Text = "15";
             // 
             // txtOrganizer
             // 
@@ -353,16 +340,29 @@
             this.label7.TabIndex = 13;
             this.label7.Text = "Organizer";
             // 
+            // chkDeleteUnused
+            // 
+            this.chkDeleteUnused.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkDeleteUnused.AutoSize = true;
+            this.chkDeleteUnused.Checked = true;
+            this.chkDeleteUnused.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkDeleteUnused.Location = new System.Drawing.Point(332, 139);
+            this.chkDeleteUnused.Name = "chkDeleteUnused";
+            this.chkDeleteUnused.Size = new System.Drawing.Size(149, 17);
+            this.chkDeleteUnused.TabIndex = 15;
+            this.chkDeleteUnused.Text = "Delete runners not in XML";
+            this.chkDeleteUnused.UseVisualStyleBackColor = true;
+            // 
             // OEForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(592, 475);
+            this.Controls.Add(this.chkDeleteUnused);
             this.Controls.Add(this.txtOrganizer);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.chkAutoCreateRadioControls);
             this.Controls.Add(this.button4);
-            this.Controls.Add(this.chkUploadStarttimes);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.txtCompID);
@@ -402,7 +402,6 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtExtension;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.CheckBox chkUploadStarttimes;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.ComboBox cmbFormat;
         private System.Windows.Forms.Label lblFormatInfo;
@@ -416,5 +415,6 @@
         private System.Windows.Forms.TextBox txtRefresh;
         private System.Windows.Forms.TextBox txtOrganizer;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.CheckBox chkDeleteUnused;
     }
 }

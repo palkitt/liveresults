@@ -289,6 +289,11 @@ namespace LiveResults.Model
             return m_course != course;
         }
 
+        public bool HasLengthChanged(int length)
+        {
+            return m_length != length;
+        }
+
         public void ResetUpdatedSplits()
         {
             foreach (SplitTime t in m_splitTimes.Values)
@@ -432,6 +437,15 @@ namespace LiveResults.Model
             if (HasCourseChanged(course))
             {
                 m_course = course;
+                RunnerUpdated = true;
+            }
+        }
+
+        public void SetCourseLength(int length)
+        {
+            if (HasLengthChanged(length))
+            {
+                m_length = length;
                 RunnerUpdated = true;
             }
         }

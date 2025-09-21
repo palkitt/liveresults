@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Xml;
-using System.Net.Http;
 
 namespace LiveResults.Client.Parsers
 {
@@ -14,19 +15,67 @@ namespace LiveResults.Client.Parsers
     {
         private static readonly HttpClient s_http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
 
-        private static bool IsHttpUrl(string s) =>
-            s != null && (s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
-                          s.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+        private static bool IsHttpUrl(string s)
+        {
+            return s != null && (s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                s.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
+        }
+
+        private static bool IsZipFile(byte[] fileContents)
+        {
+            // ZIP files start with "PK" (0x50, 0x4B)
+            return fileContents != null && fileContents.Length >= 4
+                   && fileContents[0] == 0x50 && fileContents[1] == 0x4B;
+        }
 
         private static byte[] DownloadBytes(string url, LogMessageDelegate logit)
         {
-            try { return s_http.GetByteArrayAsync(url).GetAwaiter().GetResult(); }
-            catch (Exception ex) { logit?.Invoke("Download failed: " + ex.Message); return null; }
+            try
+            {
+                return s_http.GetByteArrayAsync(url).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                logit?.Invoke("Download failed: " + ex.Message);
+                return null;
+            }
         }
 
+        private static byte[] TryExtractXmlFromZip(byte[] zipBytes, LogMessageDelegate logit)
+        {
+            try
+            {
+                using (var ms = new MemoryStream(zipBytes))
+                using (var zip = new ZipArchive(ms, ZipArchiveMode.Read, leaveOpen: false))
+                {
+                    // Prefer first .xml entry; fall back to first entry if none
+                    var entry = zip.Entries.FirstOrDefault(e =>
+                        e.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+                               ?? zip.Entries.FirstOrDefault();
+
+                    if (entry == null)
+                    {
+                        logit?.Invoke("ZIP has no entries.");
+                        return null;
+                    }
+
+                    using (var es = entry.Open())
+                    using (var outMs = new MemoryStream())
+                    {
+                        es.CopyTo(outMs);
+                        return outMs.ToArray();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logit?.Invoke("Unzip failed: " + ex.Message);
+                return null;
+            }
+        }
 
         public static Runner[] ParseFile(string filename, LogMessageDelegate logit, GetIdDelegate getIdFunc, bool readRadioControls,
-            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
+           out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
         {
             return ParseFile(filename, logit, true, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
         }
@@ -53,6 +102,14 @@ namespace LiveResults.Client.Parsers
                 }
                 fileContents = File.ReadAllBytes(filename);
                 if (deleteFile) File.Delete(filename);
+            }
+
+            // If it's a ZIP, extract the XML inside
+            if (IsZipFile(fileContents))
+            {
+                var xmlBytes = TryExtractXmlFromZip(fileContents, logit);
+                if (xmlBytes == null) return null;
+                fileContents = xmlBytes;
             }
 
             return ParseXmlData(fileContents, logit, deleteFile, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);

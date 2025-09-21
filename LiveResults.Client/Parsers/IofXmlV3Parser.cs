@@ -36,6 +36,11 @@ namespace LiveResults.Client.Parsers
                     continue;
 
                 string className = classNameNode.InnerText;
+                bool openStart = false;
+                XmlNode classStartTypeNode = classNode.SelectSingleNode("iof:Extensions/iof:StartType", nsMgr);
+                if (classStartTypeNode == null)
+                    openStart = (classStartTypeNode.InnerText == "Free");
+
                 /*Relay*/
                 var teamStartNodes = classStartNode.SelectNodes("iof:TeamStart", nsMgr);
                 if (teamStartNodes != null)
@@ -58,20 +63,18 @@ namespace LiveResults.Client.Parsers
                                 if (legNode != null)
                                 {
                                     string leg = legNode.InnerText;
-
-                                    var startTimeNode = teamMemberStartNode.SelectSingleNode("iof:Start/iof:StartTime", nsMgr);
-                                    if (startTimeNode == null)
-                                        continue;
-                                    string starttime = startTimeNode.InnerText;
-
                                     var runner = new Runner(-1, name, teamName, className + "-" + leg, 0, 0, 0);
-
-                                    if (!string.IsNullOrEmpty(starttime))
+                                    int istarttime = 0;
+                                    var startTimeNode = teamMemberStartNode.SelectSingleNode("iof:Start/iof:StartTime", nsMgr);
+                                    if (startTimeNode != null)
                                     {
-                                        int istarttime = ParseTime(starttime);
-                                        runner.SetStartTime(istarttime);
+                                        string starttime = startTimeNode.InnerText;
+                                        if (!string.IsNullOrEmpty(starttime))
+                                        {
+                                            istarttime = ParseTime(starttime);
+                                        }
                                     }
-
+                                    runner.SetStartTime(istarttime);
                                     runners.Add(runner);
                                 }
                             }
@@ -93,20 +96,19 @@ namespace LiveResults.Client.Parsers
 
                         if (!ParsePersonData(personNode, nsMgr, true, out familyname, out givenname, out club, out controlCard, out bib))
                             continue;
-
-                        var startTimeNode = personNode.SelectSingleNode("iof:Start/iof:StartTime", nsMgr);
-                        if (startTimeNode == null)
-                            continue;
-                        string starttime = startTimeNode.InnerText;
-
                         var runner = new Runner(-1, givenname + " " + familyname, club, className, controlCard, 0, bib);
+                        var startTimeNode = personNode.SelectSingleNode("iof:Start/iof:StartTime", nsMgr);
 
                         int istarttime = -999; // Open start
-                        if (!string.IsNullOrEmpty(starttime))
-                            istarttime = ParseTime(starttime);
+                        if (!openStart && startTimeNode != null)
+                        {
+                            string starttime = startTimeNode.InnerText;
+                            if (string.IsNullOrEmpty(starttime))
+                                istarttime = 0;
+                            else
+                                istarttime = ParseTime(starttime);
+                        }
                         runner.SetStartTime(istarttime);
-
-
                         runners.Add(runner);
                     }
                 }
@@ -127,6 +129,25 @@ namespace LiveResults.Client.Parsers
 
                 string className = classNameNode.InnerText;
                 numClass++;
+
+                var resultListMode = classNode.Attributes["resultListMode"]?.Value;
+                if (!string.IsNullOrEmpty(resultListMode))
+                {
+                    if (resultListMode == "Unordered")
+                    {
+                        t_radioControls.Add(new RadioControl
+                        {
+                            Order = 999,
+                            ClassName = className,
+                            Code = -999,
+                            ControlName = "Time"
+                        });
+                    }
+                }
+                int length = 0;
+                XmlNode classLength = classResultNode.SelectSingleNode("iof:Course/iof:Length", nsMgr);
+                if (classLength != null)
+                    length = Convert.ToInt32(double.Parse(classLength.InnerText, CultureInfo.InvariantCulture));
 
                 // Make one course per class
                 courseNameList.Add(new CourseName()
@@ -150,6 +171,11 @@ namespace LiveResults.Client.Parsers
                         }
                     }
                 }
+
+                bool openStart = false;
+                var classStartTypeNode = classNode.SelectSingleNode("iof:Extensions/iof:StartType", nsMgr);
+                if (classStartTypeNode != null)
+                    openStart = (classStartTypeNode.InnerText == "Free");
 
                 int maxLeg = 1;
                 var teamResultNodes = classResultNode.SelectNodes("iof:TeamResult", nsMgr);
@@ -189,21 +215,21 @@ namespace LiveResults.Client.Parsers
                                     var runner = new Runner(-1, name, teamName, className + "-" + leg, controlCard, 0, bib);
 
                                     var competitorStatusNode = teamMemberResult.SelectSingleNode("iof:Result/iof:OverallResult/iof:Status", nsMgr);
-                                    var resultTimeNode = teamMemberResult.SelectSingleNode("iof:Result/iof:OverallResult/iof:Time", nsMgr);
-                                    var startTimeNode = teamMemberResult.SelectSingleNode("iof:Result/iof:StartTime", nsMgr);
-
                                     string status = "notActivated";
                                     if (competitorStatusNode != null)
                                         status = competitorStatusNode.InnerText;
-
                                     if (status.ToLower() == "notcompeting" || status.ToLower() == "cancelled")
-                                    {
-                                        //Does not compete, exclude
                                         continue;
-                                    }
 
+                                    var resultTimeNode = teamMemberResult.SelectSingleNode("iof:Result/iof:OverallResult/iof:Time", nsMgr);
+                                    var startTimeNode = teamMemberResult.SelectSingleNode("iof:Result/iof:StartTime", nsMgr);
+                                    var startTimeSourceNode = teamMemberResult.SelectSingleNode("iof:Result/iof:Extensions/iof:StartTimeSource", nsMgr);
                                     string time;
-                                    ParseResult(runner, resultTimeNode, startTimeNode, status, out time);
+
+                                    bool openStartForRunner = openStart;
+                                    if (startTimeSourceNode != null && startTimeSourceNode.InnerText == "Timing")
+                                        openStartForRunner = false;
+                                    ParseResult(runner, resultTimeNode, startTimeNode, openStartForRunner, resultListMode, status, out time);
 
                                     List<CourseControl> newCourseControlList = null;
                                     XmlNodeList splittimes = teamMemberResult.SelectNodes("iof:Result/iof:SplitTime", nsMgr);
@@ -273,21 +299,20 @@ namespace LiveResults.Client.Parsers
                         var runner = new Runner(-1, givenname + " " + familyname, club, className, controlCard, 0, bib);
 
                         var competitorStatusNode = personNode.SelectSingleNode("iof:Result/iof:Status", nsMgr);
-                        var resultTimeNode = personNode.SelectSingleNode("iof:Result/iof:Time", nsMgr);
-                        var startTimeNode = personNode.SelectSingleNode("iof:Result/iof:StartTime", nsMgr);
                         if (competitorStatusNode == null)
                             continue;
-
                         string status = competitorStatusNode.InnerText;
-
                         if (status.ToLower() == "notcompeting" || status.ToLower() == "cancelled")
-                        {
-                            //Does not compete, exclude
                             continue;
-                        }
-
+                        var resultTimeNode = personNode.SelectSingleNode("iof:Result/iof:Time", nsMgr);
+                        var startTimeNode = personNode.SelectSingleNode("iof:Result/iof:StartTime", nsMgr);
+                        var startTimeSourceNode = personNode.SelectSingleNode("iof:Result/iof:Extensions/iof:StartTimeSource", nsMgr);
                         string time;
-                        ParseResult(runner, resultTimeNode, startTimeNode, status, out time);
+
+                        bool openStartForRunner = openStart;
+                        if (startTimeSourceNode != null && startTimeSourceNode.InnerText == "Timing")
+                            openStartForRunner = false;
+                        ParseResult(runner, resultTimeNode, startTimeNode, openStartForRunner, resultListMode, status, out time);
 
                         int courseNo = numClass;
                         List<CourseControl> newCourseControlList = null;
@@ -295,6 +320,7 @@ namespace LiveResults.Client.Parsers
                         XmlNodeList splittimes = personNode.SelectNodes("iof:Result/iof:SplitTime", nsMgr);
                         ParseSplitTimes(nsMgr, runner, time, splittimes, courseNo, out newCourseControlList);
                         runner.SetCourse(courseNo);
+                        runner.SetCourseLength(length);
                         runners.Add(runner);
 
                         if (newClass && newCourseControlList != null)
@@ -373,29 +399,30 @@ namespace LiveResults.Client.Parsers
             }
         }
 
-        private static void ParseResult(Runner runner, XmlNode resultTimeNode, XmlNode startTimeNode, string status, out string time)
+        private static void ParseResult(Runner runner, XmlNode resultTimeNode, XmlNode startTimeNode, bool openStart, string resultListMode, string status, out string time)
         {
+            // Start time
+            int istarttime = -999; // Open start
+            if (!openStart && startTimeNode != null)
+            {
+                string starttime = startTimeNode.InnerText;
+                if (string.IsNullOrEmpty(starttime))
+                    istarttime = 0;
+                else
+                    istarttime = ParseTime(starttime);
+            }
+            runner.SetStartTime(istarttime);
+
+            // Time
             int itime;
-            int istatus;
             time = "";
             if (resultTimeNode != null)
                 time = resultTimeNode.InnerText;
-
             FixKraemerTimeFormat(ref time);
+            itime = string.IsNullOrEmpty(time) ? -10 : (int)(Convert.ToDouble(time, CultureInfo.InvariantCulture) * 100);
 
-            string starttime = "";
-            if (startTimeNode != null)
-                starttime = startTimeNode.InnerText;
-
-            if (!string.IsNullOrEmpty(starttime))
-            {
-                int istarttime = ParseTime(starttime);
-                runner.SetStartTime(istarttime);
-            }
-
-            itime = string.IsNullOrEmpty(time) ? -10 : (int)(Convert.ToDouble(time, CultureInfo.InvariantCulture) * 100);//ParseTime(time);
-            istatus = 10;
-
+            // Status
+            int istatus = 10;
             switch (status.ToLower())
             {
                 case "missingpunch":
@@ -415,15 +442,33 @@ namespace LiveResults.Client.Parsers
                 case "overtime":
                     istatus = 5;
                     break;
+                case "inactive":
+                    istatus = 10;
+                    itime = -3;
+                    break;
+                case "checked":
+                    istatus = 9;
+                    itime = -3;
+                    break;
                 case "ok":
                     istatus = 0;
                     break;
             }
 
-            if (istatus == 0 && itime < 0) // Completed without time
+            // Modify for unordered resultlist
+            if (resultListMode == "Unordered")
             {
-                istatus = 13;
-                itime = 100;
+                if (itime > 0)
+                    runner.SetSplitTime(-999, itime);
+                itime = runner.ID;
+                if (istatus == 0)
+                    istatus = 13;
+            }
+            else if (resultListMode == "UnorderedNoTimes" || itime < 0)
+            {
+                itime = runner.ID;
+                if (istatus == 0)
+                    istatus = 13;
             }
 
             runner.SetResult(itime, istatus);

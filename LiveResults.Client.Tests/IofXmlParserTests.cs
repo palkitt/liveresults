@@ -15,11 +15,10 @@ namespace LiveResults.Client.Tests
         public void ParseIofV2XmlFile()
         {
             RadioControl[] radioControls;
+            CourseControl[] CourseControls;
             var runners = Parsers.IofXmlParser.ParseFile(TestHelpers.GetPathToTestFile("20130508_200904_emma.xml"),
-                delegate(string msg)
-                {
-                }, false,
-               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls);
+                delegate(string msg) { }, true,
+                new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseName[] courseNames, out CourseControls);
                                                                            
 
             Assert.AreEqual(377, runners.Length);
@@ -38,11 +37,11 @@ namespace LiveResults.Client.Tests
         public void ParseIofXmlFileTenthOfSecond()
         {
             RadioControl[] radioControls;
+            CourseControl[] courseControls;
+
             var runners = Parsers.IofXmlParser.ParseFile(TestHelpers.GetPathToTestFile("oe_speaker_result_0.1sec.xml"),
-                delegate (string msg)
-                {
-                }, false,
-               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls);
+                delegate (string msg) { },true,
+               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseName[] courseNames, out courseControls);
 
 
             Assert.AreEqual(82, runners.Length);
@@ -65,11 +64,12 @@ namespace LiveResults.Client.Tests
         public void TestFinishPunchDetected()
         {
             RadioControl[] radioControls;
+            CourseControl[] courseControls;
             var runners = IofXmlParser.ParseFile(TestHelpers.GetPathToTestFile("splitsResult_Kugler_Johann_in_Finish.xml"),
                 delegate(string msg)
                 {
-                }, false,
-               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls);
+                }, 
+               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseName[] courseNames, out courseControls);
 
 
             var runner = runners.First(x => x.Name == "Johann Kugler");
@@ -82,11 +82,12 @@ namespace LiveResults.Client.Tests
         public void VerifyIofV2XmlFileNotCompetingDoesNotExis()
         {
             RadioControl[] radioControls;
+            CourseControl[] courseControls;
             var runners = Parsers.IofXmlParser.ParseFile(TestHelpers.GetPathToTestFile("iof_xml_notcompeting.xml"),
                 new LogMessageDelegate(delegate(string msg)
                 {
-                }), false,
-               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls);
+                }), 
+               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseName[] courseNames, out courseControls);
 
             Assert.IsNull(runners.FirstOrDefault(x => x.Name == "Stepan Malinovskii"));
         }
