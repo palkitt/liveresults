@@ -84,7 +84,7 @@
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 90);
             this.button2.TabIndex = 2;
-            this.button2.Text = "IOF XML";
+            this.button2.Text = "IOF XML (Time4o, ...)";
             this.button2.TextAlign = System.Drawing.ContentAlignment.BottomCenter;
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
@@ -207,7 +207,7 @@
             this.KeyPreview = true;
             this.Name = "FrmNewCompetition";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
-            this.Text = "Version 2025-09-21 (XML beta)";
+            this.Text = "Version 2025-09-21";
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FrmNewCompetition_KeyDown);
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.FrmNewCompetition_KeyPress);
             this.flowLayoutPanel1.ResumeLayout(false);
