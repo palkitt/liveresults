@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Xml;
 
@@ -11,30 +13,111 @@ namespace LiveResults.Client.Parsers
 {
     public class IofXmlParser
     {
-        public static Runner[] ParseFile(string filename, LogMessageDelegate logit, GetIdDelegate getIdFunc, bool readRadioControls, out RadioControl[] radioControls)
+        private static readonly HttpClient s_http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+
+        private static bool IsHttpUrl(string s)
         {
-            return ParseFile(filename, logit, true, getIdFunc, readRadioControls, out radioControls);
+            return s != null && (s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                                s.StartsWith("https://", StringComparison.OrdinalIgnoreCase));
         }
 
-        public static Runner[] ParseFile(string filename, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls, out RadioControl[] radioControls)
+        private static bool IsZipFile(byte[] fileContents)
+        {
+            // ZIP files start with "PK" (0x50, 0x4B)
+            return fileContents != null && fileContents.Length >= 4
+                   && fileContents[0] == 0x50 && fileContents[1] == 0x4B;
+        }
+
+        private static byte[] DownloadBytes(string url, LogMessageDelegate logit)
+        {
+            try
+            {
+                return s_http.GetByteArrayAsync(url).GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                logit?.Invoke("Download failed: " + ex.Message);
+                return null;
+            }
+        }
+
+        private static byte[] TryExtractXmlFromZip(byte[] zipBytes, LogMessageDelegate logit)
+        {
+            try
+            {
+                using (var ms = new MemoryStream(zipBytes))
+                using (var zip = new ZipArchive(ms, ZipArchiveMode.Read, leaveOpen: false))
+                {
+                    // Prefer first .xml entry; fall back to first entry if none
+                    var entry = zip.Entries.FirstOrDefault(e =>
+                        e.FullName.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+                               ?? zip.Entries.FirstOrDefault();
+
+                    if (entry == null)
+                    {
+                        logit?.Invoke("ZIP has no entries.");
+                        return null;
+                    }
+
+                    using (var es = entry.Open())
+                    using (var outMs = new MemoryStream())
+                    {
+                        es.CopyTo(outMs);
+                        return outMs.ToArray();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logit?.Invoke("Unzip failed: " + ex.Message);
+                return null;
+            }
+        }
+
+        public static Runner[] ParseFile(string filename, LogMessageDelegate logit, GetIdDelegate getIdFunc, bool readRadioControls,
+           out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
+        {
+            return ParseFile(filename, logit, true, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
+        }
+
+        public static Runner[] ParseFile(string filename, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls,
+            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
         {
             byte[] fileContents;
             radioControls = null;
-            if (!File.Exists(filename))
+            courseNames = null;
+            courseControls = null;
+
+            if (IsHttpUrl(filename))
             {
-                return null;
+                fileContents = DownloadBytes(filename, logit);
+                if (fileContents == null) return null;
+            }
+            else
+            {
+                if (!File.Exists(filename))
+                {
+                    logit?.Invoke("File not found: " + filename);
+                    return null;
+                }
+                fileContents = File.ReadAllBytes(filename);
+                if (deleteFile) File.Delete(filename);
             }
 
-            fileContents = File.ReadAllBytes(filename);
+            // If it's a ZIP, extract the XML inside
+            if (IsZipFile(fileContents))
+            {
+                var xmlBytes = TryExtractXmlFromZip(fileContents, logit);
+                if (xmlBytes == null) return null;
+                fileContents = xmlBytes;
+            }
 
-            if (deleteFile)
-                File.Delete(filename);
-
-            return ParseXmlData(fileContents, logit, deleteFile, getIdFunc, readRadioControls, out radioControls);
+            return ParseXmlData(fileContents, logit, deleteFile, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
 
         }
 
-        public static Runner[] ParseXmlData(byte[] xml, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls, out RadioControl[] radioControls)
+        public static Runner[] ParseXmlData(byte[] xml, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls,
+            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
         {
             Runner[] runners;
 
@@ -53,11 +136,13 @@ namespace LiveResults.Client.Parsers
             //Detect IOF-XML version..
             if (xmlDoc.DocumentElement.Attributes["iofVersion"] != null && xmlDoc.DocumentElement.Attributes["iofVersion"].Value != null && xmlDoc.DocumentElement.Attributes["iofVersion"].Value.StartsWith("3."))
             {
-                runners = IofXmlV3Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc, readRadioControls, out radioControls);
+                runners = IofXmlV3Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
             }
             else
             {
                 radioControls = null;
+                courseNames = null;
+                courseControls = null;
                 //Fallback to 2.0
                 runners = IOFXmlV2Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc);
             }
