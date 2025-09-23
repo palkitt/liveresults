@@ -5252,19 +5252,19 @@ var LiveResults;
                 var code = data.splitcontrols[i];
                 var title = "";
                 if (course > 0) {
-                  if (code == 999)
-                    title = (i + 1) + "-" + _this.resources["_CONTROLFINISH"];
-                  else if (i == 0)
+                  if (i == 0)
                     title = "S-1<br/>(" + code + ")";
+                  else if (code == 999)
+                    title = i + "-" + _this.resources["_CONTROLFINISH"];
                   else
                     title = i + "-" + (i + 1) + "<br/>(" + code + ")";
                 }
                 else {
                   var codePre = (i > 0 ? data.splitcontrols[i - 1] : 0);
-                  if (code == 999)
-                    title = codePre + "-" + _this.resources["_CONTROLFINISH"];
-                  else if (i == 0)
+                  if (i == 0)
                     title = "S-" + code;
+                  else if (code == 999)
+                    title = codePre + "-" + _this.resources["_CONTROLFINISH"];
                   else
                     title = codePre + "-" + code;
                 }
@@ -5396,7 +5396,7 @@ var LiveResults;
       var nSplits = splitResults[0].split_time.length;
       const bestFrac = 0.25; // Best time fraction
       const missFrac = 1.2;  // Criteria for miss indication
-      const missMin = 20;   // Minimum number of seconds for a miss indication
+      const missMin = 20;    // Minimum number of seconds for a miss indication
 
       // Calc best times
       var bestTimes = Array(nSplits).fill(-1);
