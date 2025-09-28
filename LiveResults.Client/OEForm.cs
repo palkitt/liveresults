@@ -18,6 +18,13 @@ namespace LiveResults.Client
 {
     public partial class OEForm : Form
     {
+        // Helper to run code on the UI thread
+        private void OnUi(Action a)
+        {
+            if (InvokeRequired) BeginInvoke(a);
+            else a();
+        }
+
         readonly List<EmmaMysqlClient> m_clients;
         OSParser m_osParser;
         OEParser m_oeParser;
@@ -52,7 +59,6 @@ namespace LiveResults.Client
         private volatile bool _stopUrlLoader = false;
         private Task _urlLoaderTask; // Task to track the running thread
         private readonly object _taskLock = new object(); // Lock to ensure thread safety
-
 
         public OEForm(bool showCSVFormats = true)
         {
@@ -451,7 +457,7 @@ namespace LiveResults.Client
                             Logit("Error reading URL: " + ex.Message);
                         }
 
-                        button3.Enabled = true;
+                        OnUi(() => button3.Enabled = true);
                         for (int i = 0; i < m_refresh; i++)
                         {
                             if (_stopUrlLoader) break;

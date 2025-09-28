@@ -88,7 +88,7 @@
             this.groupBox1.Size = new System.Drawing.Size(311, 200);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Settings";
+            this.groupBox1.Text = "Settings (set directory or URL)";
             // 
             // txtRefresh
             // 
@@ -123,9 +123,9 @@
             this.label6.AutoSize = true;
             this.label6.Location = new System.Drawing.Point(7, 136);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(80, 13);
+            this.label6.Size = new System.Drawing.Size(161, 13);
             this.label6.TabIndex = 14;
-            this.label6.Text = "Download URL";
+            this.label6.Text = "Export URL (for XML or ZIP files)";
             // 
             // txtZeroTime
             // 
@@ -174,9 +174,9 @@
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(7, 59);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(268, 13);
+            this.label3.Size = new System.Drawing.Size(210, 13);
             this.label3.TabIndex = 8;
-            this.label3.Text = "Exportfile extension (fileextension to monitor in directory)";
+            this.label3.Text = "Export file extension (to monitor in directory)";
             // 
             // txtExtension
             // 
@@ -211,9 +211,9 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(7, 20);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(77, 13);
+            this.label1.Size = new System.Drawing.Size(80, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Exportdirectory";
+            this.label1.Text = "Export directory";
             // 
             // listBox1
             // 
@@ -303,9 +303,9 @@
             // button4
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button4.Location = new System.Drawing.Point(388, 212);
+            this.button4.Location = new System.Drawing.Point(466, 212);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(192, 33);
+            this.button4.Size = new System.Drawing.Size(114, 33);
             this.button4.TabIndex = 11;
             this.button4.Text = "Copy log to clipboard";
             this.button4.UseVisualStyleBackColor = true;
@@ -317,11 +317,11 @@
             this.chkAutoCreateRadioControls.AutoSize = true;
             this.chkAutoCreateRadioControls.Checked = true;
             this.chkAutoCreateRadioControls.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAutoCreateRadioControls.Location = new System.Drawing.Point(332, 117);
+            this.chkAutoCreateRadioControls.Location = new System.Drawing.Point(330, 117);
             this.chkAutoCreateRadioControls.Name = "chkAutoCreateRadioControls";
-            this.chkAutoCreateRadioControls.Size = new System.Drawing.Size(184, 17);
+            this.chkAutoCreateRadioControls.Size = new System.Drawing.Size(187, 17);
             this.chkAutoCreateRadioControls.TabIndex = 12;
-            this.chkAutoCreateRadioControls.Text = "Automatically create radiocontrols";
+            this.chkAutoCreateRadioControls.Text = "Automatically create radio controls";
             this.chkAutoCreateRadioControls.UseVisualStyleBackColor = true;
             // 
             // txtOrganizer
@@ -346,7 +346,7 @@
             this.chkDeleteUnused.AutoSize = true;
             this.chkDeleteUnused.Checked = true;
             this.chkDeleteUnused.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkDeleteUnused.Location = new System.Drawing.Point(332, 139);
+            this.chkDeleteUnused.Location = new System.Drawing.Point(330, 139);
             this.chkDeleteUnused.Name = "chkDeleteUnused";
             this.chkDeleteUnused.Size = new System.Drawing.Size(149, 17);
             this.chkDeleteUnused.TabIndex = 15;
