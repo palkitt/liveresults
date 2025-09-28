@@ -124,9 +124,11 @@ namespace LiveResults.Client.Parsers
             var xmlDoc = new XmlDocument();
             using (var ms = new MemoryStream(xml))
             {
-                var setts = new XmlReaderSettings();
-                setts.XmlResolver = null;
-                setts.ProhibitDtd = false;
+                var setts = new XmlReaderSettings
+                {
+                    XmlResolver = null,
+                    DtdProcessing = DtdProcessing.Parse
+                };
                 using (XmlReader xr = XmlReader.Create(ms, setts))
                 {
                     xmlDoc.Load(xr);

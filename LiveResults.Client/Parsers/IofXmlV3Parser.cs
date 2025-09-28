@@ -23,7 +23,7 @@ namespace LiveResults.Client.Parsers
             var nsMgr = new XmlNamespaceManager(xmlDoc.NameTable);
             nsMgr.AddNamespace("iof", "http://www.orienteering.org/datastandard/3.0");
             var runners = new List<Runner>();
-            var t_radioControls = readRadioControls ? new List<RadioControl>() : null;
+            var t_radioControls = new List<RadioControl>();
 
             #region parseStartlist
             foreach (XmlNode classStartNode in xmlDoc.GetElementsByTagName("ClassStart"))
@@ -233,7 +233,7 @@ namespace LiveResults.Client.Parsers
 
                                     List<CourseControl> newCourseControlList = null;
                                     XmlNodeList splittimes = teamMemberResult.SelectNodes("iof:Result/iof:SplitTime", nsMgr);
-                                    ParseSplitTimes(nsMgr, runner, time, splittimes, numClass, out newCourseControlList);
+                                    ParseSplitTimes(nsMgr, runner, time, splittimes, numClass, t_radioControls, out newCourseControlList);
 
                                     int legNo = Int32.Parse(leg);
                                     if (legNo > maxLeg)
@@ -318,7 +318,7 @@ namespace LiveResults.Client.Parsers
                         List<CourseControl> newCourseControlList = null;
 
                         XmlNodeList splittimes = personNode.SelectNodes("iof:Result/iof:SplitTime", nsMgr);
-                        ParseSplitTimes(nsMgr, runner, time, splittimes, courseNo, out newCourseControlList);
+                        ParseSplitTimes(nsMgr, runner, time, splittimes, courseNo, t_radioControls, out newCourseControlList);
                         runner.SetCourse(courseNo);
                         runner.SetCourseLength(length);
                         runners.Add(runner);
@@ -397,6 +397,16 @@ namespace LiveResults.Client.Parsers
                     }
                 }
             }
+        }
+
+        private static bool isSplitRadioControl(int code, string className, List<RadioControl> radioControls)
+        {
+            foreach (var rc in radioControls)
+            {
+                if (rc.Code == code && rc.ClassName == className)
+                    return true;
+            }
+            return false;
         }
 
         private static void ParseResult(Runner runner, XmlNode resultTimeNode, XmlNode startTimeNode, bool openStart, string resultListMode, string status, out string time)
@@ -483,16 +493,16 @@ namespace LiveResults.Client.Parsers
             }
         }
 
-        private static void ParseSplitTimes(XmlNamespaceManager nsMgr, Runner runner, string time, XmlNodeList splittimes, int courseNo, out List<CourseControl> courseControls)
+        private static void ParseSplitTimes(XmlNamespaceManager nsMgr, Runner runner, string time, XmlNodeList splitTimes, int courseNo, List<RadioControl> radioControls, out List<CourseControl> courseControls)
         {
             courseControls = new List<CourseControl>();
-            if (splittimes != null)
+            if (splitTimes != null)
             {
                 var lsplitCodes = new List<int>();
                 var lsplitTimes = new List<int>();
                 string splitTimeList = "";
                 int i = 0;
-                foreach (XmlNode splitNode in splittimes)
+                foreach (XmlNode splitNode in splitTimes)
                 {
                     XmlNode splitcode = splitNode.SelectSingleNode("iof:ControlCode", nsMgr);
                     XmlNode splittime = splitNode.SelectSingleNode("iof:Time", nsMgr);
@@ -549,7 +559,8 @@ namespace LiveResults.Client.Parsers
                                     int iSplittime = (int)(Convert.ToDouble(sSplittime, CultureInfo.InvariantCulture) * 100);
                                     lsplitCodes.Add(iSplitcode);
                                     lsplitTimes.Add(iSplittime);
-                                    runner.SetSplitTime(iSplitcode, iSplittime);
+                                    if (isSplitRadioControl(iSplitcode, runner.Class, radioControls))
+                                       runner.SetSplitTime(iSplitcode, iSplittime);
                                     splitTimeList += (iSplittime / 100) + ",";
                                 }
                                 else
