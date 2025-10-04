@@ -13,7 +13,10 @@ jobs:
 
       - name: Set up MS Build
         uses: microsoft/setup-msbuild@v2
-
+      
+      - name: Restore NuGet packages
+        run: nuget restore LiveResults.Client.sln
+       
       - name: Build repo
         run: msbuild LiveResults.Client.sln /p:Configuration=Release
 
