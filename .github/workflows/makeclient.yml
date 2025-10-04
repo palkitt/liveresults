@@ -1,0 +1,29 @@
+name: Build client files
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs on: windows-latest
+
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up MS Build
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build repo
+        run: msbuild LiveResults.Client.sln /p:Configuration=Release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with: 
+          name: build.output
+          path: |
+            **\bin\Release\*.exe
+            **\bin\Release\LiveResuls.Model.dll
+            **\bin\Release\MySql.Data.dll
+            **\bin\Release\Newtonsoft.Json.dll
+            
