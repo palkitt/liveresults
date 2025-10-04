@@ -470,13 +470,12 @@ namespace LiveResults.Client.Parsers
             {
                 if (itime > 0)
                     runner.SetSplitTime(-999, itime);
-                itime = runner.ID;
                 if (istatus == 0)
                     istatus = 13;
             }
-            else if (resultListMode == "UnorderedNoTimes" || itime < 0)
+            else if (resultListMode == "UnorderedNoTimes")
             {
-                itime = runner.ID;
+                itime = -10;
                 if (istatus == 0)
                     istatus = 13;
             }
