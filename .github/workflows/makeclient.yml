@@ -2,15 +2,21 @@ name: Build client files
 
 on: 
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: true
+        default: 'main'
 
 jobs:
   build:
     runs-on: windows-latest
 
     steps:
-      - name: Check out repo
+      - name: Check out selected branch
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.branch }}
           submodules: recursive
 
       - name: Set up MS Build
