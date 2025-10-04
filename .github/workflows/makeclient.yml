@@ -10,6 +10,8 @@ jobs:
     steps:
       - name: Check out repo
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set up MS Build
         uses: microsoft/setup-msbuild@v2
