@@ -29,12 +29,11 @@ namespace LiveResults.Client
         public event DeleteUnusedIDDelegate OnDeleteUnusedID;
         public event DeleteVacantIDDelegate OnDeleteVacantID;
         public event MergeRadioControlsDelegate OnMergeRadioControls;
-        public event MergeCourseControlsDelegate OnMergeCourseControls;
         public event RadioControlDelegate OnRadioControl;
         public event ResultDelegate OnResult;
         public event LogMessageDelegate OnLogMessage;
         public event DeleteIDDelegate OnDeleteID;
-        public event MergeCourseNamesDelegate OnMergeCourseNames;
+        public event MergeCourseDataDelegate OnMergeCourseData;
         public event MergeVacantsDelegate OnMergeVacants;
         private bool m_isRelay = false;
         private bool m_continue;
@@ -737,12 +736,11 @@ namespace LiveResults.Client
             Dictionary<int, CourseInfo> courses = new Dictionary<int, CourseInfo>();
             try
             {
-                var dlgMergeCourseControls = OnMergeCourseControls;
-                var dlgMergeCourseNames = OnMergeCourseNames;
+                var dlgMergeCourseData = OnMergeCourseData;
 
-                if (dlgMergeCourseControls != null && dlgMergeCourseNames != null) // Read courses
+                if (dlgMergeCourseData != null) // Read courses
                 {
-                    List<CourseName> courseNames = new List<CourseName>();
+                    List<CourseData> courseData = new List<CourseData>();
                     List<CourseControl> courseControls = new List<CourseControl>();
                     if (m_connection.State != ConnectionState.Open)
                         m_connection.Open();
@@ -761,15 +759,12 @@ namespace LiveResults.Client
                             string name = reader["name"] as string;
                             if (reader["meter"] != null && reader["meter"] != DBNull.Value)
                                 length = Convert.ToInt32(reader["meter"]);
-                            courseNames.Add(new CourseName()
-                            {
-                                CourseNo = id,
-                                Name = name
-                            });
 
+                            string controlList = "";
                             int[] codes = Array.ConvertAll(codesStr.Split(' '), int.Parse);
                             for (int i = 0; i < codes.Length - 1; i++) // Last control is finish
                             {
+                                controlList += (i > 0 ? "," : "") + codes[i].ToString();
                                 var control = new CourseControl
                                 {
                                     CourseNo = id,
@@ -786,15 +781,20 @@ namespace LiveResults.Client
                                     });
                                 courses[id].courseControls.Add(control);
                             }
+
+                            courseData.Add(new CourseData()
+                            {
+                                CourseNo = id,
+                                Name = name,
+                                Controls = controlList
+                            });
                         }
                         reader.Close();
                     }
                     CourseControl[] courseControlArray = courseControls.ToArray();
+                    CourseData[] courseDataArray = courseData.ToArray();
                     bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
-                    dlgMergeCourseControls(courseControlArray, deleteUnused);
-
-                    CourseName[] courseNameArray = courseNames.ToArray();
-                    dlgMergeCourseNames(courseNameArray, deleteUnused);
+                    dlgMergeCourseData(courseDataArray, deleteUnused);
                 }
             }
             catch (Exception ee)

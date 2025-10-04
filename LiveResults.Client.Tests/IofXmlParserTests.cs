@@ -18,7 +18,7 @@ namespace LiveResults.Client.Tests
             CourseControl[] CourseControls;
             var runners = Parsers.IofXmlParser.ParseFile(TestHelpers.GetPathToTestFile("20130508_200904_emma.xml"),
                 delegate(string msg) { }, true,
-                new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseName[] courseNames, out CourseControls);
+                new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseData[] courseNames, out CourseControls);
                                                                            
 
             Assert.AreEqual(377, runners.Length);
@@ -41,7 +41,7 @@ namespace LiveResults.Client.Tests
 
             var runners = Parsers.IofXmlParser.ParseFile(TestHelpers.GetPathToTestFile("oe_speaker_result_0.1sec.xml"),
                 delegate (string msg) { },true,
-               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseName[] courseNames, out courseControls);
+               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseData[] courseNames, out courseControls);
 
 
             Assert.AreEqual(82, runners.Length);
@@ -69,7 +69,7 @@ namespace LiveResults.Client.Tests
                 delegate(string msg)
                 {
                 }, 
-               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseName[] courseNames, out courseControls);
+               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseData[] courseNames, out courseControls);
 
 
             var runner = runners.First(x => x.Name == "Johann Kugler");
@@ -87,7 +87,7 @@ namespace LiveResults.Client.Tests
                 new LogMessageDelegate(delegate(string msg)
                 {
                 }), 
-               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseName[] courseNames, out courseControls);
+               new IofXmlParser.IDCalculator(0).CalculateID, true, out radioControls, out CourseData[] courseNames, out courseControls);
 
             Assert.IsNull(runners.FirstOrDefault(x => x.Name == "Stepan Malinovskii"));
         }

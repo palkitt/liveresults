@@ -75,13 +75,13 @@ namespace LiveResults.Client.Parsers
         }
 
         public static Runner[] ParseFile(string filename, LogMessageDelegate logit, GetIdDelegate getIdFunc, bool readRadioControls,
-           out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
+           out RadioControl[] radioControls, out CourseData[] courseNames, out CourseControl[] courseControls)
         {
             return ParseFile(filename, logit, true, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
         }
 
         public static Runner[] ParseFile(string filename, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls,
-            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
+            out RadioControl[] radioControls, out CourseData[] courseNames, out CourseControl[] courseControls)
         {
             byte[] fileContents;
             radioControls = null;
@@ -117,7 +117,7 @@ namespace LiveResults.Client.Parsers
         }
 
         public static Runner[] ParseXmlData(byte[] xml, LogMessageDelegate logit, bool deleteFile, GetIdDelegate getIdFunc, bool readRadioControls,
-            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
+            out RadioControl[] radioControls, out CourseData[] courseData, out CourseControl[] courseControls)
         {
             Runner[] runners;
 
@@ -138,12 +138,12 @@ namespace LiveResults.Client.Parsers
             //Detect IOF-XML version..
             if (xmlDoc.DocumentElement.Attributes["iofVersion"] != null && xmlDoc.DocumentElement.Attributes["iofVersion"].Value != null && xmlDoc.DocumentElement.Attributes["iofVersion"].Value.StartsWith("3."))
             {
-                runners = IofXmlV3Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc, readRadioControls, out radioControls, out courseNames, out courseControls);
+                runners = IofXmlV3Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc, readRadioControls, out radioControls, out courseData, out courseControls);
             }
             else
             {
                 radioControls = null;
-                courseNames = null;
+                courseData = null;
                 courseControls = null;
                 //Fallback to 2.0
                 runners = IOFXmlV2Parser.ParseXmlData(xmlDoc, logit, deleteFile, getIdFunc);

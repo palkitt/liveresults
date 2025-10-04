@@ -34,8 +34,7 @@ namespace LiveResults.Client
         public event DeleteUnusedIDDelegate OnDeleteUnusedID;
         public event RadioControlDelegate OnRadioControl;
         public event MergeRadioControlsDelegate OnMergeRadioControls;
-        public event MergeCourseControlsDelegate OnMergeCourseControls;
-        public event MergeCourseNamesDelegate OnMergeCourseNames;
+        public event MergeCourseDataDelegate OnMergeCourseData;
         public event MergeVacantsDelegate OnMergeVacants;
         public event DeleteVacantIDDelegate OnDeleteVacantID;
         private readonly bool m_updateEcardTimes;
@@ -236,7 +235,7 @@ namespace LiveResults.Client
                             if (CCTimer >= maxCCTimer)
                             {
                                 setCourses(out courses);
-                                setCourseNames();
+                                setCourseData(courses);
                                 setRadioControls(isRelay, isSprint, day, courses, out intermediates);
                                 CCTimer = 0;
                             }
@@ -347,72 +346,64 @@ namespace LiveResults.Client
             courses = new Dictionary<int, List<CourseControl>>();
             try
             {
-                var dlgMergeCourseControls = OnMergeCourseControls;
-                if (dlgMergeCourseControls != null) // Read courses
+                // Read courses
+                List<CourseControl> courseControls = new List<CourseControl>();
+                Dictionary<int, int> radioCnt = new Dictionary<int, int>();
+                if (m_updateEcardTimes || m_ecardAsBackup)
                 {
-                    List<CourseControl> courseControls = new List<CourseControl>();
-                    Dictionary<int, int> radioCnt = new Dictionary<int, int>();
-                    if (m_updateEcardTimes || m_ecardAsBackup)
+                    int lastCourse = -1;
+                    IDbCommand cmd = m_connection.CreateCommand();
+                    cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype, dist FROM controls ORDER BY courceno, controlno");
+                    using (IDataReader reader = cmd.ExecuteReader())
                     {
-                        int lastCourse = -1;
-                        IDbCommand cmd = m_connection.CreateCommand();
-                        cmd.CommandText = string.Format(@"SELECT courceno, controlno, code, posttype, dist FROM controls ORDER BY courceno, controlno");
-                        using (IDataReader reader = cmd.ExecuteReader())
+                        int accDist = 0;
+                        while (reader.Read())
                         {
-                            int accDist = 0;
-                            while (reader.Read())
+                            int courseno = 0, order = 0, code = 0, radiocode = 0, posttype = 0, dist = 0;
+                            if (reader["posttype"] != null && reader["posttype"] != DBNull.Value)
+                                posttype = Convert.ToInt32(reader["posttype"].ToString());
+                            if (posttype == 1)
+                                continue;
+                            if (reader["courceno"] != null && reader["courceno"] != DBNull.Value)
+                                courseno = Convert.ToInt32(reader["courceno"].ToString());
+                            if (reader["controlno"] != null && reader["controlno"] != DBNull.Value)
+                                order = Convert.ToInt32(reader["controlno"].ToString());
+                            if (reader["code"] != null && reader["code"] != DBNull.Value)
+                                code = Convert.ToInt32(reader["code"].ToString());
+                            if (reader["dist"] != null && reader["dist"] != DBNull.Value)
+                                dist = Convert.ToInt32(reader["dist"].ToString());
+
+                            if (courseno != lastCourse)
                             {
-                                int courseno = 0, order = 0, code = 0, radiocode = 0, posttype = 0, dist = 0;
-                                if (reader["posttype"] != null && reader["posttype"] != DBNull.Value)
-                                    posttype = Convert.ToInt32(reader["posttype"].ToString());
-                                if (posttype == 1)
-                                    continue;
-                                if (reader["courceno"] != null && reader["courceno"] != DBNull.Value)
-                                    courseno = Convert.ToInt32(reader["courceno"].ToString());
-                                if (reader["controlno"] != null && reader["controlno"] != DBNull.Value)
-                                    order = Convert.ToInt32(reader["controlno"].ToString());
-                                if (reader["code"] != null && reader["code"] != DBNull.Value)
-                                    code = Convert.ToInt32(reader["code"].ToString());
-                                if (reader["dist"] != null && reader["dist"] != DBNull.Value)
-                                    dist = Convert.ToInt32(reader["dist"].ToString());
-
-                                if (courseno != lastCourse)
-                                {
-                                    radioCnt.Clear();
-                                    accDist = dist;
-                                }
-                                else
-                                    accDist += dist;
-                                lastCourse = courseno;
-
-                                if (!radioCnt.ContainsKey(code))
-                                    radioCnt.Add(code, 0);
-                                radioCnt[code]++;
-                                radiocode = code + radioCnt[code] * 1000;
-
-                                var control = new CourseControl
-                                {
-                                    CourseNo = courseno,
-                                    Code = code,
-                                    RadioCode = radiocode,
-                                    Order = order,
-                                    AccDist = accDist
-                                };
-                                courseControls.Add(control);
-                                if (!courses.ContainsKey(courseno))
-                                    courses.Add(courseno, new List<CourseControl>());
-                                courses[courseno].Add(control);
+                                radioCnt.Clear();
+                                accDist = dist;
                             }
-                            reader.Close();
+                            else
+                                accDist += dist;
+                            lastCourse = courseno;
+
+                            if (!radioCnt.ContainsKey(code))
+                                radioCnt.Add(code, 0);
+                            radioCnt[code]++;
+                            radiocode = code + radioCnt[code] * 1000;
+
+                            var control = new CourseControl
+                            {
+                                CourseNo = courseno,
+                                Code = code,
+                                RadioCode = radiocode,
+                                Order = order,
+                                AccDist = accDist
+                            };
+                            courseControls.Add(control);
+                            if (!courses.ContainsKey(courseno))
+                                courses.Add(courseno, new List<CourseControl>());
+                            courses[courseno].Add(control);
                         }
-                    }
-                    if (m_updateEcardTimes)
-                    {
-                        CourseControl[] courseControlArray = courseControls.ToArray();
-                        bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
-                        dlgMergeCourseControls(courseControlArray, deleteUnused);
+                        reader.Close();
                     }
                 }
+                CourseControl[] courseControlArray = courseControls.ToArray();
             }
             catch (Exception ee)
             {
@@ -420,14 +411,14 @@ namespace LiveResults.Client
             }
         }
 
-        private void setCourseNames()
+        private void setCourseData(Dictionary<int, List<CourseControl>> courses)
         {
             try
             {
-                var dlgMergeCourseNames = OnMergeCourseNames;
-                if (dlgMergeCourseNames != null) // Read course names
+                var dlgMergeCourseData = OnMergeCourseData;
+                if (dlgMergeCourseData != null) // Read course names
                 {
-                    List<CourseName> courseNames = new List<CourseName>();
+                    List<CourseData> courseData = new List<CourseData>();
                     if (m_updateEcardTimes)
                     {
                         IDbCommand cmd = m_connection.CreateCommand();
@@ -441,23 +432,25 @@ namespace LiveResults.Client
                                 if (reader["code"] != null && reader["code"] != DBNull.Value)
                                     courseNo = Convert.ToInt32(reader["code"].ToString());
                                 courseName = reader["name"] as string;
-                                courseNames.Add(new CourseName()
+                                string controls = courses.ContainsKey(courseNo) ? string.Join(",", courses[courseNo].Select(c => c.Code.ToString()).ToArray()) : "";
+                                courseData.Add(new CourseData()
                                 {
                                     CourseNo = courseNo,
-                                    Name = courseName
+                                    Name = courseName,
+                                    Controls = controls
                                 });
                             }
                             reader.Close();
                         }
                     }
-                    CourseName[] courseNameArray = courseNames.ToArray();
+                    CourseData[] courseDataArray = courseData.ToArray();
                     bool deleteUnused = (m_IdOffset == 0); // Delete unused courses only if ID offset = 0
-                    dlgMergeCourseNames(courseNameArray, deleteUnused);
+                    dlgMergeCourseData(courseDataArray, deleteUnused);
                 }
             }
             catch (Exception ee)
             {
-                FireLogMsg("eTiming parser setCourseNames: " + ee.Message);
+                FireLogMsg("eTiming parser setCourseData: " + ee.Message);
             }
         }
 
@@ -787,7 +780,7 @@ namespace LiveResults.Client
                                         {
                                             ClassName = classN,
                                             ControlName = radioControl.Description + "PassTime",
-                                            Code = sign* (Code + radioControl.Count * 1000 + 100000),
+                                            Code = sign * (Code + radioControl.Count * 1000 + 100000),
                                             Order = nStep * radioControl.Order - 1 // Sort this before "normal" intermediate time
                                         });
                                     }

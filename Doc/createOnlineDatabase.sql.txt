@@ -127,6 +127,7 @@ CREATE TABLE `coursedata` (
   `tavid` int(11) NOT NULL DEFAULT 0,
   `courseno` int(11) NOT NULL DEFAULT 0,
   `name` varchar(50) character set 'utf8' NOT NULL DEFAULT '',
+  `controls` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`tavid`,`courseno`)
 ) DEFAULT CHARSET=utf8;
 

@@ -345,10 +345,10 @@ namespace LiveResults.Client
                 try
                 {
                     RadioControl[] radioControls;
-                    CourseName[] courseNames;
+                    CourseData[] courseData;
                     CourseControl[] courseControls;
                     var runners = IofXmlParser.ParseFile(fullFilename, Logit, new IofXmlParser.IDCalculator(m_compid).CalculateID, chkAutoCreateRadioControls.Checked,
-                        out radioControls, out courseNames, out courseControls);
+                        out radioControls, out courseData, out courseControls);
 
                     foreach (EmmaMysqlClient c in m_clients)
                     {
@@ -359,10 +359,8 @@ namespace LiveResults.Client
                             c.DeleteUnusedRunners(usedID);
                         if (radioControls != null)
                             c.MergeRadioControls(radioControls);
-                        if (courseNames != null)
-                            c.MergeCourseNames(courseNames, true);
-                        if (courseControls != null)
-                            c.MergeCourseControls(courseControls, true);
+                        if (courseData != null)
+                            c.MergeCourseData(courseData, true);
                     }
                     if (runners != null)
                     {
@@ -395,10 +393,10 @@ namespace LiveResults.Client
             try
             {
                 RadioControl[] radioControls;
-                CourseName[] courseNames;
+                CourseData[] courseData;
                 CourseControl[] courseControls;
                 var runners = IofXmlParser.ParseFile(URL, Logit, new IofXmlParser.IDCalculator(m_compid).CalculateID, chkAutoCreateRadioControls.Checked,
-                    out radioControls, out courseNames, out courseControls);
+                    out radioControls, out courseData, out courseControls);
 
                 foreach (EmmaMysqlClient c in m_clients)
                 {
@@ -409,10 +407,8 @@ namespace LiveResults.Client
                         c.DeleteUnusedRunners(usedID);
                     if (radioControls != null)
                         c.MergeRadioControls(radioControls);
-                    if (courseNames != null)
-                        c.MergeCourseNames(courseNames, true);
-                    if (courseControls != null)
-                        c.MergeCourseControls(courseControls, true);
+                    if (courseData != null)
+                        c.MergeCourseData(courseData, true);
                 }
                 if (runners != null)
                     Logit("Successful reading results from URL. Runners in XML: " + runners.Length);

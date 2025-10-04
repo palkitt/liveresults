@@ -1214,7 +1214,21 @@ class Emma
 
 	function getCourseControls($course)
 	{
+		// Get all controls for a course. Try first from coursedata, then from courses
 		$ret = array();
+		$q = "SELECT controls from coursedata WHERE tavid = " . $this->m_CompId . " AND courseno = " . $course . " LIMIT 1";
+		if ($result = mysqli_query($this->m_Conn, $q)) {
+			if ($row = mysqli_fetch_row($result)) {
+				if ($row[0] != null && $row[0] != '') {
+					$ret = explode(',', $row[0]);
+				}
+			}
+			mysqli_free_result($result);
+		} else
+			echo (mysqli_error($this->m_Conn));
+		if (sizeof($ret) > 0)
+			return $ret;
+
 		$q = "SELECT code, corder from courses WHERE tavid = " . $this->m_CompId . " AND courseno = " . $course . " ORDER BY corder ASC";
 		if ($result = mysqli_query($this->m_Conn, $q)) {
 			while ($tmp = mysqli_fetch_array($result))

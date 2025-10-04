@@ -15,9 +15,9 @@ namespace LiveResults.Client.Parsers
         static readonly Dictionary<string, string> m_suppressedIDCalculationErrors = new Dictionary<string, string>();
 
         public static Runner[] ParseXmlData(XmlDocument xmlDoc, LogMessageDelegate logit, bool deleteFile, LiveResults.Client.Parsers.IofXmlParser.GetIdDelegate getIdFunc, bool readRadioControls,
-            out RadioControl[] radioControls, out CourseName[] courseNames, out CourseControl[] courseControls)
+            out RadioControl[] radioControls, out CourseData[] courseData, out CourseControl[] courseControls)
         {
-            List<CourseName> courseNameList = new List<CourseName>();
+            List<CourseData> courseDataList = new List<CourseData>();
             List<CourseControl> courseControlList = new List<CourseControl>();
 
             var nsMgr = new XmlNamespaceManager(xmlDoc.NameTable);
@@ -150,10 +150,11 @@ namespace LiveResults.Client.Parsers
                     length = Convert.ToInt32(double.Parse(classLength.InnerText, CultureInfo.InvariantCulture));
 
                 // Make one course per class
-                courseNameList.Add(new CourseName()
+                courseDataList.Add(new CourseData()
                 {
                     CourseNo = numClass,
-                    Name = "L" + numClass
+                    Name = "L" + numClass,
+                    Controls = ""
                 });
 
                 /*Read splitcontrols-extension*/
@@ -326,6 +327,11 @@ namespace LiveResults.Client.Parsers
                         if (newClass && newCourseControlList != null)
                         {
                             courseControlList.AddRange(newCourseControlList);
+                            if (newCourseControlList.Count > 0)
+                            {
+                                var controls = newCourseControlList.OrderBy(c => c.Order).Select(c => c.Code.ToString()).ToArray();
+                                courseDataList[courseDataList.Count - 1].Controls = string.Join(",", controls);
+                            }
                         }
 
                         newClass = false;
@@ -334,7 +340,7 @@ namespace LiveResults.Client.Parsers
             }
 
             radioControls = (t_radioControls != null && t_radioControls.Count > 0) ? t_radioControls.ToArray() : null;
-            courseNames = courseNameList.ToArray();
+            courseData = courseDataList.ToArray();
             courseControls = courseControlList.ToArray();
 
             return runners.ToArray();

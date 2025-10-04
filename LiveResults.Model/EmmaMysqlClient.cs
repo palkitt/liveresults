@@ -24,7 +24,6 @@ namespace LiveResults.Model
             ResultChanged?.Invoke(r, position);
         }
 
-
         private static readonly Dictionary<int, Dictionary<string, int>> m_compsSourceToIdMapping =
             new Dictionary<int, Dictionary<string, int>>();
         private static readonly Dictionary<int, int> m_compsNextGeneratedId = new Dictionary<int, int>();
@@ -134,7 +133,7 @@ namespace LiveResults.Model
         public readonly Dictionary<int, Runner> m_runners;
         private readonly Dictionary<string, RadioControl[]> m_classRadioControls;
         private readonly Dictionary<int, CourseControl[]> m_courseControls;
-        private readonly Dictionary<int, CourseName> m_courseNames;
+        private readonly Dictionary<int, CourseData> m_courseData;
         private readonly Dictionary<int, VacantRunner> m_vacantRunners;
         private readonly List<DbItem> m_itemsToUpdate;
         private readonly bool m_assignIDsInternally;
@@ -144,8 +143,7 @@ namespace LiveResults.Model
         {
             m_runners = new Dictionary<int, Runner>();
             m_classRadioControls = new Dictionary<string, RadioControl[]>();
-            m_courseControls = new Dictionary<int, CourseControl[]>();
-            m_courseNames = new Dictionary<int, CourseName>();
+            m_courseData = new Dictionary<int, CourseData>();
             m_vacantRunners = new Dictionary<int, VacantRunner>();
             m_itemsToUpdate = new List<DbItem>();
             m_assignIDsInternally = assignIDsInternally;
@@ -292,41 +290,22 @@ namespace LiveResults.Model
                 {
                     m_classRadioControls.Add(kvp.Key, kvp.Value.ToArray());
                 }
+                               
 
-
-                // Course controls
-                cmd.CommandText = "select courseno,corder,code from courses where tavid = " + m_compID;
-                reader = cmd.ExecuteReader();
-                Dictionary<int, List<CourseControl>> tmpControls = new Dictionary<int, List<CourseControl>>();
-                while (reader.Read())
-                {
-                    int courseNo = Convert.ToInt32(reader["courseno"]);
-                    int corder = Convert.ToInt32(reader["corder"]);
-                    int code = Convert.ToInt32(reader["code"]);
-
-                    if (!tmpControls.ContainsKey(courseNo))
-                        tmpControls.Add(courseNo, new List<CourseControl>());
-
-                    tmpControls[courseNo].Add(new CourseControl() { CourseNo = courseNo, Code = code, Order = corder });
-                }
-                reader.Close();
-                foreach (var kvp in tmpControls)
-                {
-                    m_courseControls.Add(kvp.Key, kvp.Value.ToArray());
-                }
-
-                // Course names
-                cmd.CommandText = "select courseno,name from coursedata where tavid = " + m_compID;
+                // Course data
+                cmd.CommandText = "select courseno,name,controls from coursedata where tavid = " + m_compID;
                 reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
                     int courseNo = Convert.ToInt32(reader["courseno"]);
                     string name = reader["name"] as string;
-                    m_courseNames.Add(courseNo,
-                        new CourseName()
+                    string controls = reader["controls"] as string;
+                    m_courseData.Add(courseNo,
+                        new CourseData()
                         {
                             CourseNo = courseNo,
-                            Name = name
+                            Name = name,
+                            Controls = controls
                         });
                 }
                 reader.Close();
@@ -673,104 +652,31 @@ namespace LiveResults.Model
             }
         }
 
-        public void MergeCourseControls(CourseControl[] courses, bool deleteUnused)
+
+        public void MergeCourseData(CourseData[] courseData, bool deleteUnused)
         {
-            if (courses == null)
+            if (courseData == null)
                 return;
 
-            foreach (var kvp in courses.GroupBy(x => x.CourseNo))
+            foreach (var cD in courseData)
             {
-                CourseControl[] controls = kvp.OrderBy(x => x.Order).ToArray();
-                if (m_courseControls.ContainsKey(kvp.Key))
-                {
-                    CourseControl[] existingControls = m_courseControls[kvp.Key];
-                    for (int i = 0; i < controls.Length; i++)
-                    {
-                        if (existingControls.Length > i)
-                        {
-                            if (existingControls[i].Order != controls[i].Order || existingControls[i].Code != controls[i].Code)
-                            {
-                                m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
-                                m_itemsToUpdate.Add(controls[i]);
-                            }
-                        }
-                        else
-                        {
-                            m_itemsToUpdate.Add(controls[i]);
-                        }
-                    }
-                    if (existingControls.Length > controls.Length)
-                    {
-                        for (int i = controls.Length; i < existingControls.Length; i++)
-                        {
-                            m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
-                        }
-                    }
-                    m_courseControls[kvp.Key] = controls;
-
-                }
-                else
-                {
-                    foreach (var control in controls)
-                    {
-                        m_itemsToUpdate.Add(control);
-                    }
-                    m_courseControls.Add(kvp.Key, controls);
-                }
-            }
-
-            // Delete all controls for course that are not in the array
-            if (deleteUnused)
-            {
-                var courseNo = courses.GroupBy(x => x.CourseNo).ToDictionary(x => x.Key);
-                foreach (var controls in m_courseControls.ToList())
-                {
-                    if (!courseNo.ContainsKey(controls.Key))
-                    {
-                        CourseControl[] existingControls = m_courseControls[controls.Key];
-                        for (int i = 0; i < existingControls.Length; i++)
-                        {
-                            m_itemsToUpdate.Add(new DelCourseControl() { ToDelete = existingControls[i] });
-                        }
-                        m_courseControls.Remove(controls.Key);
-                    }
-                }
-            }
-        }
-
-        public void MergeCourseNames(CourseName[] courseNames, bool deleteUnused)
-        {
-            if (courseNames == null)
-                return;
-
-            foreach (var courseName in courseNames)
-            {
-                int key = courseName.CourseNo;
-                if (m_courseNames.ContainsKey(key))
-                {
-                    if (m_courseNames[key].Name != courseName.Name)
-                    {
-                        m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
-                        m_itemsToUpdate.Add(courseName);
-                        m_courseNames[key] = courseName;
-                    }
-                }
-                else
-                {
-                    m_itemsToUpdate.Add(courseName);
-                    m_courseNames[key] = courseName;
+                int key = cD.CourseNo;
+                if (!m_courseData.ContainsKey(key) || m_courseData[key].Name != cD.Name || m_courseData[key].Controls != cD.Controls)
+                {                    
+                    m_itemsToUpdate.Add(cD);
+                    m_courseData[key] = cD;
                 }
             }
             if (deleteUnused)
             {
                 // Delete all courses that are not in the array            
-                foreach (var courseName in m_courseNames.ToList())
+                foreach (var cD in m_courseData.ToList())
                 {
-                    int key = courseName.Key;
-                    if (!courseNames.Any(cn => cn.CourseNo == key))
+                    int key = cD.Key;
+                    if (!courseData.Any(cn => cn.CourseNo == key))
                     {
-                        m_itemsToUpdate.Add(new DelCourseName() { ToDelete = m_courseNames[key] });
-                        m_courseNames.Remove(key);
+                        m_itemsToUpdate.Add(new DelCourseData() { ToDelete = m_courseData[key] });
+                        m_courseData.Remove(key);
                     }
                 }
             }
@@ -1046,14 +952,15 @@ namespace LiveResults.Model
                             {
                                 var item = m_itemsToUpdate[0];
 
-                                if (item is CourseName)
+                                if (item is CourseData)
                                 {
-                                    var c = item as CourseName;
+                                    var c = item as CourseData;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
                                     cmd.Parameters.AddWithValue("?courseno", c.CourseNo);
                                     cmd.Parameters.AddWithValue("?name", c.Name);
-                                    cmd.CommandText = "REPLACE INTO coursedata(tavid,courseno,name) VALUES (?compid,?courseno,?name)";
+                                    cmd.Parameters.AddWithValue("?controls", c.Controls);
+                                    cmd.CommandText = "REPLACE INTO coursedata(tavid,courseno,name,controls) VALUES (?compid,?courseno,?name,?controls)";
 
                                     try
                                     {
@@ -1063,14 +970,14 @@ namespace LiveResults.Model
                                     {
                                         m_itemsToUpdate.Add(c);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not add course name: " + c.CourseNo + "-" + c.Name + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not add course data: " + c.CourseNo + "-" + c.Name + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update add course name: " + c.CourseNo + "-" + c.Name);
+                                    FireLogMsg("Server update add course data: " + c.CourseNo + "-" + c.Name);
                                 }
-                                else if (item is DelCourseName)
+                                else if (item is DelCourseData)
                                 {
-                                    var dc = item as DelCourseName;
+                                    var dc = item as DelCourseData;
                                     var c = dc.ToDelete;
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
@@ -1085,58 +992,11 @@ namespace LiveResults.Model
                                     {
                                         m_itemsToUpdate.Add(dc);
                                         m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not delete course name: " + c.CourseNo + "-" + c.Name + " to server due to: " + ee.Message, ee);
+                                        throw new ApplicationException("Could not delete course data: " + c.CourseNo + "-" + c.Name + " to server due to: " + ee.Message, ee);
                                     }
                                     cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete course name: " + c.CourseNo + "-" + c.Name);
-                                }
-                                if (item is CourseControl)
-                                {
-                                    var c = item as CourseControl;
-                                    cmd.Parameters.Clear();
-                                    cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?courseno", c.CourseNo);
-                                    cmd.Parameters.AddWithValue("?corder", c.Order);
-                                    cmd.Parameters.AddWithValue("?code", c.Code);
-                                    cmd.CommandText = "REPLACE INTO courses(tavid,courseno,corder,code) VALUES (?compid,?courseno,?corder,?code)";
-
-                                    try
-                                    {
-                                        cmd.ExecuteNonQuery();
-                                    }
-                                    catch (Exception ee)
-                                    {
-                                        m_itemsToUpdate.Add(c);
-                                        m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not add course control " + c.Order + "." + c.Code + " in course no" + c.CourseNo + " to server due to: " + ee.Message, ee);
-                                    }
-                                    cmd.Parameters.Clear();
-                                    FireLogMsg("Server update add: Course control " + c.Order + "." + c.Code + " in course no " + c.CourseNo);
-                                }
-                                else if (item is DelCourseControl)
-                                {
-                                    var dc = item as DelCourseControl;
-                                    var c = dc.ToDelete;
-                                    cmd.Parameters.Clear();
-                                    cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?courseno", c.CourseNo);
-                                    cmd.Parameters.AddWithValue("?corder", c.Order);
-                                    cmd.Parameters.AddWithValue("?code", c.Code);
-                                    cmd.CommandText = "delete from courses where tavid= ?compid and courseno = ?courseno and corder = ?corder and code = ?code";
-
-                                    try
-                                    {
-                                        cmd.ExecuteNonQuery();
-                                    }
-                                    catch (Exception ee)
-                                    {
-                                        m_itemsToUpdate.Add(dc);
-                                        m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not delete course control " + c.Order + "." + c.Code + " in course no" + c.CourseNo + " to server due to: " + ee.Message, ee);
-                                    }
-                                    cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete: Course control " + c.Order + "." + c.Code + " in course no " + c.CourseNo);
-                                }
+                                    FireLogMsg("Server update delete course data: " + c.CourseNo + "-" + c.Name);
+                                }                                
                                 if (item is RadioControl)
                                 {
                                     var r = item as RadioControl;

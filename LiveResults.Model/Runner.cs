@@ -88,11 +88,6 @@ namespace LiveResults.Model
         public int Distance { get; set; } = 0;
     }
 
-    class DelCourseControl : DbItem
-    {
-        public CourseControl ToDelete;
-    }
-
     public class CourseControl : DbItem
     {
         public int CourseNo { get; set; }
@@ -102,15 +97,16 @@ namespace LiveResults.Model
         public int AccDist { get; set; }
     }
 
-    class DelCourseName : DbItem
+    class DelCourseData : DbItem
     {
-        public CourseName ToDelete;
+        public CourseData ToDelete;
     }
 
-    public class CourseName : DbItem
+    public class CourseData : DbItem
     {
         public int CourseNo { get; set; }
         public string Name { get; set; }
+        public string Controls { get; set; }
     }
 
     class DelVacantRunner : DbItem
