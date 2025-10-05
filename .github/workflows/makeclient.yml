@@ -38,12 +38,14 @@ jobs:
           copy ***\bin\Release\Newtonsoft.Json.dllpackage\
 
       - name: Zip binaries (flat, with date)
+        shell: pwsh
         run: |
           $date = Get-Date -Format "yyyy-MM-dd"
           $zipName = "LiveResClient_$date.zip"
+          if (Test-Path $zipName) { Remove-Item $zipName }
           Compress-Archive -Path package\* -DestinationPath $zipName
           echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
-
+          
       - name: Upload ZIP to release
         if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
