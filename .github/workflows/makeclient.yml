@@ -32,20 +32,21 @@ jobs:
       - name: Collect binaries
         run: |
           mkdir package
-          copy **\bin\Release\*.exe package\
-          copy ***\bin\Release\LiveResuls.Model.dll package\
+          copy **\bin\Release\LiveResults.Client.exe package\
+          copy ***\bin\Release\LiveResults.Model.dll package\
           copy ***\bin\Release\MySql.Data.dll package\
           copy ***\bin\Release\Newtonsoft.Json.dll package\
 
       - name: Zip binaries (flat, with date)
         shell: pwsh
-        run: |
+        run: |  
           $date = Get-Date -Format "yyyy-MM-dd"
           $zipName = "LiveResClient_$date.zip"
           $packagePath = "$env:GITHUB_WORKSPACE\package"
           if (Test-Path $zipName) { Remove-Item $zipName }
           if (-Not (Test-Path $packagePath)) { Write-Error "Package folder not found: $packagePath" }
-          Compress-Archive -Path (Get-ChildItem $packagePath) -DestinationPath $zipName
+          $filesToZip = Get-ChildItem $packagePath -Recurse | Where-Object { -not $_.PSIsContainer }
+          Compress-Archive -Path $filesToZip -DestinationPath $zipName
           Add-Content -Path $env:GITHUB_ENV -Value "ZIP_NAME=$zipName"
           
       - name: Upload ZIP to release
