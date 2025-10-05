@@ -6,6 +6,8 @@ on:
         description: 'Branch to build'
         required: true
         default: 'main'
+  release:
+    types: [published]
 
 jobs:
   build-and-upload:
@@ -35,15 +37,27 @@ jobs:
           copy ***\bin\Release\MySql.Data.dll package\
           copy ***\bin\Release\Newtonsoft.Json.dllpackage\
 
-      - name: Zip binaries (flat)
-        run: powershell Compress-Archive -Path package\* -DestinationPath build.zip
+      - name: Zip binaries (flat, with date)
+        run: |
+          $date = Get-Date -Format "yyyy-MM-dd"
+          $zipName = "LiveResClient_$date.zip"
+          Compress-Archive -Path package\* -DestinationPath $zipName
+          echo "ZIP_NAME=$zipName" >> $env:GITHUB_ENV
 
       - name: Upload ZIP to release
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
-          files: build.zip
+          files: ${{ env.ZIP_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact (manual run only)
+        if: github.event_name != 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ZIP_NAME }}
+          path: ${{ env.ZIP_NAME }}
 
 
 
