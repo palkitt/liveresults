@@ -2,9 +2,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35312.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveResults.Client", "LiveResults.Client\LiveResults.Client.csproj", "{8738FAFC-E55D-40F8-ACF4-C70DF5DB9B0A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "H2Sharp", "H2Sharp\H2Sharp.csproj", "{4FED5F49-C953-4E6E-ADC4-8156E17D2AF0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveResults.Client", "LiveResults.Client\LiveResults.Client.csproj", "{8738FAFC-E55D-40F8-ACF4-C70DF5DB9B0A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveResults.Client.Tests", "LiveResults.Client.Tests\LiveResults.Client.Tests.csproj", "{4B6FA38E-237C-4780-9357-864F07F2A676}"
 EndProject
@@ -56,10 +56,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "css", "css", "{505B00D3-748
 	ProjectSection(SolutionItems) = preProject
 		web\css\style-eoc.css = web\css\style-eoc.css
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveResultsWeb_Angular", "LiveResultsWeb_Angular\LiveResultsWeb_Angular.csproj", "{C1463B2E-DF52-41F6-B822-004D334DE612}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UdpSirapTest", "UdpSirapTest\UdpSirapTest.csproj", "{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveResults.CasparClient", "LiveResults.CasparClient\LiveResults.CasparClient.csproj", "{AB05A898-690A-41B6-9F90-B8669EEDD976}"
 EndProject
@@ -120,41 +116,10 @@ Global
 		{4B6FA38E-237C-4780-9357-864F07F2A676}.DebugSIT|Any CPU.ActiveCfg = Debug|Any CPU
 		{4B6FA38E-237C-4780-9357-864F07F2A676}.DebugSIT|Any CPU.Build.0 = Debug|Any CPU
 		{4B6FA38E-237C-4780-9357-864F07F2A676}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4B6FA38E-237C-4780-9357-864F07F2A676}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4B6FA38E-237C-4780-9357-864F07F2A676}.ReleaseOLA|Any CPU.ActiveCfg = Release|Any CPU
 		{4B6FA38E-237C-4780-9357-864F07F2A676}.ReleaseOLA|Any CPU.Build.0 = Release|Any CPU
 		{4B6FA38E-237C-4780-9357-864F07F2A676}.ReleaseOS|Any CPU.ActiveCfg = Release|Any CPU
 		{4B6FA38E-237C-4780-9357-864F07F2A676}.ReleaseOS|Any CPU.Build.0 = Release|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.DebugOE|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.DebugOE|Any CPU.Build.0 = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.DebugOLA|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.DebugOLA|Any CPU.Build.0 = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.DebugOS|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.DebugOS|Any CPU.Build.0 = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.DebugSIT|Any CPU.ActiveCfg = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.DebugSIT|Any CPU.Build.0 = Debug|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.ReleaseOLA|Any CPU.ActiveCfg = Release|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.ReleaseOLA|Any CPU.Build.0 = Release|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.ReleaseOS|Any CPU.ActiveCfg = Release|Any CPU
-		{C1463B2E-DF52-41F6-B822-004D334DE612}.ReleaseOS|Any CPU.Build.0 = Release|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.DebugOE|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.DebugOE|Any CPU.Build.0 = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.DebugOLA|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.DebugOLA|Any CPU.Build.0 = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.DebugOS|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.DebugOS|Any CPU.Build.0 = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.DebugSIT|Any CPU.ActiveCfg = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.DebugSIT|Any CPU.Build.0 = Debug|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.ReleaseOLA|Any CPU.ActiveCfg = Release|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.ReleaseOLA|Any CPU.Build.0 = Release|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.ReleaseOS|Any CPU.ActiveCfg = Release|Any CPU
-		{0A4BBE94-BABB-48AA-BF32-6D82CC206EF9}.ReleaseOS|Any CPU.Build.0 = Release|Any CPU
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.DebugOE|Any CPU.ActiveCfg = Debug|Any CPU
@@ -166,7 +131,6 @@ Global
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.DebugSIT|Any CPU.ActiveCfg = Debug|Any CPU
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.DebugSIT|Any CPU.Build.0 = Debug|Any CPU
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AB05A898-690A-41B6-9F90-B8669EEDD976}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.ReleaseOLA|Any CPU.ActiveCfg = Release|Any CPU
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.ReleaseOLA|Any CPU.Build.0 = Release|Any CPU
 		{AB05A898-690A-41B6-9F90-B8669EEDD976}.ReleaseOS|Any CPU.ActiveCfg = Release|Any CPU

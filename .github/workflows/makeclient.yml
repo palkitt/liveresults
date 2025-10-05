@@ -1,29 +1,70 @@
-name: Build client files
-
+name: Build and release client files
 on: 
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: true
+        default: 'master'
+  release:
+    types: [published]
 
 jobs:
-  build:
-    runs on: windows-latest
+  build-and-upload:
+    runs-on: windows-latest
 
     steps:
-      - name: Check out repo
+      - name: Check out selected branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || 'refs/heads/master' }}
+          submodules: recursive
 
       - name: Set up MS Build
         uses: microsoft/setup-msbuild@v2
+        
+      - name: Restore NuGet packages
+        run: nuget restore LiveResults.Client.sln
 
-      - name: Build repo
+      - name: Build solution
         run: msbuild LiveResults.Client.sln /p:Configuration=Release
 
-      - name: Upload artifacts
+      - name: Collect binaries
+        run: |
+          mkdir package
+          copy **\bin\Release\LiveResults.Client.exe package\
+          copy ***\bin\Release\LiveResults.Model.dll package\
+          copy ***\bin\Release\MySql.Data.dll package\
+          copy ***\bin\Release\Newtonsoft.Json.dll package\
+
+      - name: Zip binaries (flat, with date)
+        shell: pwsh
+        run: |  
+          $date = Get-Date -Format "yyyy-MM-dd"
+          $zipName = "LiveResClient_$date.zip"
+          $packagePath = "$env:GITHUB_WORKSPACE\package"
+          if (Test-Path $zipName) { Remove-Item $zipName }
+          if (-Not (Test-Path $packagePath)) { Write-Error "Package folder not found: $packagePath" }
+          $filesToZip = Get-ChildItem $packagePath -Recurse | Where-Object { -not $_.PSIsContainer }
+          Compress-Archive -Path $filesToZip -DestinationPath $zipName
+          Add-Content -Path $env:GITHUB_ENV -Value "ZIP_NAME=$zipName"
+          
+      - name: Upload ZIP to release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact (manual run only)
+        if: github.event_name == 'workflow_dispatch'
         uses: actions/upload-artifact@v4
-        with: 
-          name: build.output
-          path: |
-            **\bin\Release\*.exe
-            **\bin\Release\LiveResuls.Model.dll
-            **\bin\Release\MySql.Data.dll
-            **\bin\Release\Newtonsoft.Json.dll
+        with:
+          name: LiveResClient
+          path: package/**
+
+
+
+
             
