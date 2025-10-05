@@ -20,22 +20,24 @@ jobs:
           ref: ${{ inputs.branch }}
           submodules: recursive
 
-      - name: Set up MS Build
-        uses: microsoft/setup-msbuild@v2
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '4.7.2'
       
       - name: Restore NuGet packages
         run: nuget restore LiveResults.Client.sln
        
-      - name: Build solution
-        run: msbuild LiveResults.Client.sln /p:Configuration=Release
+      - name: Build and publish solution
+        run: dotnet publish LiveResults.Client.sln -c Release -o published
 
       - name: Collect binaries
         run: |
           mkdir package
-          copy **\bin\Release\*.exe package\
-          copy ***\bin\Release\LiveResuls.Model.dll package\
-          copy ***\bin\Release\MySql.Data.dll package\
-          copy ***\bin\Release\Newtonsoft.Json.dllpackage\
+          copy published\*.exe package\
+          copy published\LiveResuls.Model.dll package\
+          copy published\MySql.Data.dll package\
+          copy published\Newtonsoft.Json.dll package\
 
       - name: Zip binaries (flat, with date)
         shell: pwsh
@@ -45,7 +47,7 @@ jobs:
           $packagePath = "$env:GITHUB_WORKSPACE\package"
           if (Test-Path $zipName) { Remove-Item $zipName }
           if (-Not (Test-Path $packagePath)) { Write-Error "Package folder not found: $packagePath" }
-          Compress-Archive -Path "$packagePath\*" -DestinationPath $zipName
+          Compress-Archive -Path (Get-ChildItem $packagePath) -DestinationPath $zipName
           Add-Content -Path $env:GITHUB_ENV -Value "ZIP_NAME=$zipName"
           
       - name: Upload ZIP to release
