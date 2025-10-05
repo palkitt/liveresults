@@ -20,24 +20,22 @@ jobs:
           ref: ${{ inputs.branch }}
           submodules: recursive
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: '4.7.2'
-      
+      - name: Set up MS Build
+        uses: microsoft/setup-msbuild@v2
+        
       - name: Restore NuGet packages
         run: nuget restore LiveResults.Client.sln
-       
-      - name: Build and publish solution
-        run: dotnet publish LiveResults.Client.sln -c Release -o published
+
+      - name: Build solution
+        run: msbuild LiveResults.Client.sln /p:Configuration=Release
 
       - name: Collect binaries
         run: |
           mkdir package
-          copy published\*.exe package\
-          copy published\LiveResuls.Model.dll package\
-          copy published\MySql.Data.dll package\
-          copy published\Newtonsoft.Json.dll package\
+          copy **\bin\Release\*.exe package\
+          copy ***\bin\Release\LiveResuls.Model.dll package\
+          copy ***\bin\Release\MySql.Data.dll package\
+          copy ***\bin\Release\Newtonsoft.Json.dll package\
 
       - name: Zip binaries (flat, with date)
         shell: pwsh
