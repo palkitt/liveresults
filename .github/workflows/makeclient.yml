@@ -1,5 +1,4 @@
-name: Build client files
-
+name: Build and release client files
 on: 
   workflow_dispatch:
     inputs:
@@ -9,7 +8,7 @@ on:
         default: 'main'
 
 jobs:
-  build:
+  build-and-upload:
     runs-on: windows-latest
 
     steps:
@@ -25,16 +24,29 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore LiveResults.Client.sln
        
-      - name: Build repo
+      - name: Build solution
         run: msbuild LiveResults.Client.sln /p:Configuration=Release
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with: 
-          name: build.output
-          path: |
-            **\bin\Release\*.exe
-            **\bin\Release\LiveResuls.Model.dll
-            **\bin\Release\MySql.Data.dll
-            **\bin\Release\Newtonsoft.Json.dll
+      - name: Collect binaries
+        run: |
+          mkdir package
+          copy **\bin\Release\*.exe package\
+          copy ***\bin\Release\LiveResuls.Model.dll package\
+          copy ***\bin\Release\MySql.Data.dll package\
+          copy ***\bin\Release\Newtonsoft.Json.dllpackage\
+
+      - name: Zip binaries (flat)
+        run: powershell Compress-Archive -Path package\* -DestinationPath build.zip
+
+      - name: Upload ZIP to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
+
+
+
             
