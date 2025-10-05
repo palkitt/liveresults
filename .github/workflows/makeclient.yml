@@ -5,7 +5,7 @@ on:
       branch:
         description: 'Branch to build'
         required: true
-        default: 'main'
+        default: 'master'
   release:
     types: [published]
 
@@ -17,7 +17,7 @@ jobs:
       - name: Check out selected branch
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.branch }}
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || 'refs/heads/master' }}
           submodules: recursive
 
       - name: Set up MS Build
