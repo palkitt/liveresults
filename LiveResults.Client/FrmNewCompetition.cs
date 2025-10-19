@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.IO;
+using System.Reflection;
+using System.Linq;
 #if _CASPARCG_
 using LiveResults.CasparClient;
 #endif
@@ -15,8 +17,18 @@ namespace LiveResults.Client
         public FrmNewCompetition()
         {
             InitializeComponent();
-            //NewETimingComp cmp = new NewETimingComp();
-            //cmp.ShowDialog(this);
+            this.Text = $"Version: {GetBuildDate()}";
+        }
+
+        static string GetBuildDate()
+        {
+            var asm = Assembly.GetExecutingAssembly();
+            foreach (var attr in asm.GetCustomAttributes<AssemblyMetadataAttribute>())
+            {
+                if (attr.Key == "BuildDate")
+                    return attr.Value;
+            }
+            return "unknown";
         }
 
         private void flowLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -219,7 +231,6 @@ namespace LiveResults.Client
         private void FrmNewCompetition_KeyPress(object sender, KeyPressEventArgs e)
         {
 
-          
         }
 
         private void button5_MouseEnter(object sender, EventArgs e)

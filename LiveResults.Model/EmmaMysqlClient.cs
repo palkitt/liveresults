@@ -290,7 +290,7 @@ namespace LiveResults.Model
                 {
                     m_classRadioControls.Add(kvp.Key, kvp.Value.ToArray());
                 }
-                               
+
 
                 // Course data
                 cmd.CommandText = "select courseno,name,controls from coursedata where tavid = " + m_compID;
@@ -662,7 +662,7 @@ namespace LiveResults.Model
             {
                 int key = cD.CourseNo;
                 if (!m_courseData.ContainsKey(key) || m_courseData[key].Name != cD.Name || m_courseData[key].Controls != cD.Controls)
-                {                    
+                {
                     m_itemsToUpdate.Add(cD);
                     m_courseData[key] = cD;
                 }
@@ -961,7 +961,6 @@ namespace LiveResults.Model
                                     cmd.Parameters.AddWithValue("?name", c.Name);
                                     cmd.Parameters.AddWithValue("?controls", c.Controls);
                                     cmd.CommandText = "REPLACE INTO coursedata(tavid,courseno,name,controls) VALUES (?compid,?courseno,?name,?controls)";
-
                                     try
                                     {
                                         cmd.ExecuteNonQuery();
@@ -983,7 +982,6 @@ namespace LiveResults.Model
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
                                     cmd.Parameters.AddWithValue("?courseno", c.CourseNo);
                                     cmd.CommandText = "delete from coursedata where tavid= ?compid and courseno = ?courseno";
-
                                     try
                                     {
                                         cmd.ExecuteNonQuery();
@@ -996,8 +994,8 @@ namespace LiveResults.Model
                                     }
                                     cmd.Parameters.Clear();
                                     FireLogMsg("Server update delete course data: " + c.CourseNo + "-" + c.Name);
-                                }                                
-                                if (item is RadioControl)
+                                }
+                                else if (item is RadioControl)
                                 {
                                     var r = item as RadioControl;
                                     cmd.Parameters.Clear();
@@ -1007,7 +1005,6 @@ namespace LiveResults.Model
                                     cmd.Parameters.AddWithValue("?code", r.Code);
                                     cmd.Parameters.AddWithValue("?cname", Encoding.UTF8.GetBytes(r.ControlName));
                                     cmd.CommandText = "REPLACE INTO splitcontrols(tavid,classname,corder,code,name) VALUES (?compid,?name,?corder,?code,?cname)";
-
                                     try
                                     {
                                         cmd.ExecuteNonQuery();
@@ -1032,7 +1029,6 @@ namespace LiveResults.Model
                                     cmd.Parameters.AddWithValue("?code", r.Code);
                                     cmd.Parameters.AddWithValue("?cname", Encoding.UTF8.GetBytes(r.ControlName));
                                     cmd.CommandText = "delete from splitcontrols where tavid= ?compid and classname = ?name and corder = ?corder and code = ?code and name = ?cname";
-
                                     try
                                     {
                                         cmd.ExecuteNonQuery();
@@ -1045,31 +1041,6 @@ namespace LiveResults.Model
                                     }
                                     cmd.Parameters.Clear();
                                     FireLogMsg("Server update delete: Radio control " + r.ControlName + ", " + r.ClassName + ", " + r.Code);
-                                }
-                                else if (item is DelRunner)
-                                {
-                                    var dr = item as DelRunner;
-                                    var r = dr.RunnerID;
-                                    cmd.Parameters.Clear();
-                                    cmd.Parameters.AddWithValue("?compid", m_compID);
-                                    cmd.Parameters.AddWithValue("?id", r);
-                                    cmd.CommandText = "delete from results where tavid= ?compid and dbid = ?id";
-                                    try
-                                    {
-                                        cmd.ExecuteNonQuery();
-                                        cmd.CommandText = "delete from runners where tavid= ?compid and dbid = ?id";
-                                        cmd.ExecuteNonQuery();
-                                        cmd.CommandText = "delete from runneraliases where compid= ?compid and id = ?id";
-                                        cmd.ExecuteNonQuery();
-                                    }
-                                    catch (Exception ee)
-                                    {
-                                        m_itemsToUpdate.Add(dr);
-                                        m_itemsToUpdate.RemoveAt(0);
-                                        throw new ApplicationException("Could not delete runner " + r + " on server due to: " + ee.Message, ee);
-                                    }
-                                    cmd.Parameters.Clear();
-                                    FireLogMsg("Server update delete: Runner ID " + r);
                                 }
                                 else if (item is DelSplitTime)
                                 {
@@ -1117,7 +1088,6 @@ namespace LiveResults.Model
                                             "VALUES (?compid,?name,?club,?class,?course,?length,0,?id,?ecard1,?ecard2,?bib,?ecardtimes,0) " +
                                             "ON DUPLICATE KEY UPDATE name=?name,club=?club,class=?class,course=?course,length=?length," +
                                             "ecard1=?ecard1,ecard2=?ecard2,bib=?bib,ecardtimes=?ecardtimes,ecardchecked=ecardchecked";
-
                                         try
                                         {
                                             cmd.ExecuteNonQuery();
@@ -1232,6 +1202,31 @@ namespace LiveResults.Model
                                         cmd.Parameters.Clear();
                                     }
                                 }
+                                else if (item is DelRunner)
+                                {
+                                    var dr = item as DelRunner;
+                                    var r = dr.RunnerID;
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.AddWithValue("?compid", m_compID);
+                                    cmd.Parameters.AddWithValue("?id", r);
+                                    cmd.CommandText = "delete from results where tavid= ?compid and dbid = ?id";
+                                    try
+                                    {
+                                        cmd.ExecuteNonQuery();
+                                        cmd.CommandText = "delete from runners where tavid= ?compid and dbid = ?id";
+                                        cmd.ExecuteNonQuery();
+                                        cmd.CommandText = "delete from runneraliases where compid= ?compid and id = ?id";
+                                        cmd.ExecuteNonQuery();
+                                    }
+                                    catch (Exception ee)
+                                    {
+                                        m_itemsToUpdate.Add(dr);
+                                        m_itemsToUpdate.RemoveAt(0);
+                                        throw new ApplicationException("Could not delete runner " + r + " on server due to: " + ee.Message, ee);
+                                    }
+                                    cmd.Parameters.Clear();
+                                    FireLogMsg("Server update delete: Runner ID " + r);
+                                }
                                 else if (item is VacantRunner)
                                 {
                                     var v = item as VacantRunner;
@@ -1242,7 +1237,6 @@ namespace LiveResults.Model
                                     cmd.Parameters.AddWithValue("?classid", v.classid);
                                     cmd.Parameters.AddWithValue("?classname", v.classname);
                                     cmd.CommandText = "REPLACE INTO vacants(tavid,dbid,bib,classid,class) VALUES (?compid,?dbid,?bib,?classid,?classname)";
-
                                     try
                                     {
                                         cmd.ExecuteNonQuery();
@@ -1264,7 +1258,6 @@ namespace LiveResults.Model
                                     cmd.Parameters.AddWithValue("?compid", m_compID);
                                     cmd.Parameters.AddWithValue("?dbid", v.dbid);
                                     cmd.CommandText = "delete from vacants where tavid=?compid and dbid=?dbid";
-
                                     try
                                     {
                                         cmd.ExecuteNonQuery();
