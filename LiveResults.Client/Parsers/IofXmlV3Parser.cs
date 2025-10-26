@@ -441,49 +441,49 @@ namespace LiveResults.Client.Parsers
             int istatus = 10;
             switch (status.ToLower())
             {
+                case "ok":
+                    if (itime < 0 || resultListMode == "Unordered" || resultListMode == "UnorderedNoTimes")
+                        istatus = 13;
+                    else 
+                        istatus = 0;
+                    break;
+                case "didnotstart":
+                    istatus = 1;
+                    itime = -3;
+                    break;
+                case "didnotfinish":
+                    istatus = 2;
+                    itime = -3;
+                    break;
                 case "missingpunch":
                     istatus = 3;
                     break;
                 case "disqualified":
                     istatus = 4;
                     break;
-                case "didnotfinish":
-                    istatus = 3;
-                    itime = -3;
-                    break;
-                case "didnotstart":
-                    istatus = 1;
-                    itime = -3;
-                    break;
                 case "overtime":
                     istatus = 5;
-                    break;
-                case "inactive":
-                    istatus = 10;
-                    itime = -3;
                     break;
                 case "checked":
                     istatus = 9;
                     itime = -3;
                     break;
-                case "ok":
-                    istatus = 0;
+                case "inactive":
+                    istatus = 10;
+                    itime = -3;
                     break;
             }
 
-            // Modify for unordered resultlist
+            // Modify time for unordered resultlist
             if (resultListMode == "Unordered")
             {
                 if (itime > 0)
                     runner.SetSplitTime(-999, itime);
-                if (istatus == 0)
-                    istatus = 13;
+                itime = -10;
             }
             else if (resultListMode == "UnorderedNoTimes")
             {
                 itime = -10;
-                if (istatus == 0)
-                    istatus = 13;
             }
 
             runner.SetResult(itime, istatus);
