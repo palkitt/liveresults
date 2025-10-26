@@ -88,13 +88,13 @@ namespace LiveResults.Client
         private void btnOLA_Click(object sender, EventArgs e)
         {
             NewOLAComp cmp = new NewOLAComp();
-            cmp.ShowDialog(this);
+            cmp.Show(this);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
             OEForm frm = new OEForm(false);
-            frm.ShowDialog();
+            frm.Show();
         }
 
         private void button1_Click_1(object sender, EventArgs e)
@@ -115,7 +115,7 @@ namespace LiveResults.Client
             WocParser wp = new WocParser(urls.ToArray());
             monForm.SetParser(wp as IExternalSystemResultParser);
             monForm.CompetitionID = compId;
-            monForm.ShowDialog(this);
+            monForm.Show(this);
         }
 
 
@@ -173,7 +173,7 @@ namespace LiveResults.Client
         private void button4_Click(object sender, EventArgs e)
         {
             OEForm frm = new OEForm();
-            frm.ShowDialog();
+            frm.Show();
         }
 #if _CASPARCG_
         private void label2_Click(object sender, EventArgs e)
@@ -203,7 +203,7 @@ namespace LiveResults.Client
                 var mon = new FrmMonitor();
                 mon.CompetitionID = -112;
                 mon.SetParser(parser);
-                mon.ShowDialog(this);
+                mon.Show(this);
             }
 
             if (e.KeyCode == Keys.W)
@@ -218,12 +218,12 @@ namespace LiveResults.Client
                 var mon = new FrmMonitor();
                 mon.CompetitionID = 13187;
                 mon.SetParser(parser);
-                mon.ShowDialog(this);
+                mon.Show(this);
             }
             if (e.KeyCode == Keys.S)
             {
                 var frm = new FrmReSimulateEvent();
-                frm.ShowDialog(this);
+                frm.Show(this);
             }
 
         }
@@ -241,19 +241,19 @@ namespace LiveResults.Client
         private void button5_Click(object sender, EventArgs e)
         {
             NewMeosComp frm = new NewMeosComp();
-            frm.ShowDialog(this);
+            frm.Show(this);
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
             NewETimingComp cmp = new NewETimingComp();
-            cmp.ShowDialog(this);
+            cmp.Show(this);
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
             NewBrikkesysComp cmp = new NewBrikkesysComp();
-            cmp.ShowDialog(this);
+            cmp.Show(this);
         }
     }
 }

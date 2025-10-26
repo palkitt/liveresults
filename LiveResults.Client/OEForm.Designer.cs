@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OEForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.txtRefresh = new System.Windows.Forms.TextBox();
             this.txtRefreshTitle = new System.Windows.Forms.Label();
@@ -97,7 +98,7 @@
             this.txtRefresh.Location = new System.Drawing.Point(250, 150);
             this.txtRefresh.Name = "txtRefresh";
             this.txtRefresh.Size = new System.Drawing.Size(55, 20);
-            this.txtRefresh.TabIndex = 17;
+            this.txtRefresh.TabIndex = 5;
             this.txtRefresh.Text = "15";
             // 
             // txtRefreshTitle
@@ -116,7 +117,7 @@
             this.txtURL.Location = new System.Drawing.Point(10, 149);
             this.txtURL.Name = "txtURL";
             this.txtURL.Size = new System.Drawing.Size(229, 20);
-            this.txtURL.TabIndex = 15;
+            this.txtURL.TabIndex = 4;
             // 
             // label6
             // 
@@ -132,7 +133,7 @@
             this.txtZeroTime.Location = new System.Drawing.Point(159, 173);
             this.txtZeroTime.Name = "txtZeroTime";
             this.txtZeroTime.Size = new System.Drawing.Size(146, 20);
-            this.txtZeroTime.TabIndex = 12;
+            this.txtZeroTime.TabIndex = 6;
             // 
             // lblZeroTime
             // 
@@ -166,7 +167,7 @@
             this.cmbFormat.Location = new System.Drawing.Point(10, 111);
             this.cmbFormat.Name = "cmbFormat";
             this.cmbFormat.Size = new System.Drawing.Size(295, 21);
-            this.cmbFormat.TabIndex = 9;
+            this.cmbFormat.TabIndex = 3;
             this.cmbFormat.SelectedIndexChanged += new System.EventHandler(this.cmbFormat_SelectedIndexChanged);
             // 
             // label3
@@ -183,7 +184,7 @@
             this.txtExtension.Location = new System.Drawing.Point(10, 75);
             this.txtExtension.Name = "txtExtension";
             this.txtExtension.Size = new System.Drawing.Size(112, 20);
-            this.txtExtension.TabIndex = 7;
+            this.txtExtension.TabIndex = 2;
             this.txtExtension.Text = "*.xml";
             // 
             // button1
@@ -224,14 +225,15 @@
             this.listBox1.Location = new System.Drawing.Point(12, 248);
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(576, 199);
-            this.listBox1.TabIndex = 1;
+            this.listBox1.TabIndex = 98;
+            this.listBox1.TabStop = false;
             // 
             // button2
             // 
             this.button2.Location = new System.Drawing.Point(170, 212);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 31);
-            this.button2.TabIndex = 2;
+            this.button2.TabIndex = 11;
             this.button2.Text = "Start upload";
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
@@ -248,7 +250,8 @@
             this.listBox2.Location = new System.Drawing.Point(329, 32);
             this.listBox2.Name = "listBox2";
             this.listBox2.Size = new System.Drawing.Size(251, 69);
-            this.listBox2.TabIndex = 3;
+            this.listBox2.TabIndex = 97;
+            this.listBox2.TabStop = false;
             // 
             // timer1
             // 
@@ -270,14 +273,14 @@
             this.txtCompID.Location = new System.Drawing.Point(12, 222);
             this.txtCompID.Name = "txtCompID";
             this.txtCompID.Size = new System.Drawing.Size(74, 20);
-            this.txtCompID.TabIndex = 5;
+            this.txtCompID.TabIndex = 9;
             // 
             // button3
             // 
             this.button3.Location = new System.Drawing.Point(252, 212);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(73, 31);
-            this.button3.TabIndex = 6;
+            this.button3.TabIndex = 12;
             this.button3.Text = "Stop upload";
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
@@ -306,7 +309,7 @@
             this.button4.Location = new System.Drawing.Point(466, 212);
             this.button4.Name = "button4";
             this.button4.Size = new System.Drawing.Size(114, 33);
-            this.button4.TabIndex = 11;
+            this.button4.TabIndex = 13;
             this.button4.Text = "Copy log to clipboard";
             this.button4.UseVisualStyleBackColor = true;
             this.button4.Click += new System.EventHandler(this.button4_Click);
@@ -320,7 +323,7 @@
             this.chkAutoCreateRadioControls.Location = new System.Drawing.Point(330, 117);
             this.chkAutoCreateRadioControls.Name = "chkAutoCreateRadioControls";
             this.chkAutoCreateRadioControls.Size = new System.Drawing.Size(187, 17);
-            this.chkAutoCreateRadioControls.TabIndex = 12;
+            this.chkAutoCreateRadioControls.TabIndex = 7;
             this.chkAutoCreateRadioControls.Text = "Automatically create radio controls";
             this.chkAutoCreateRadioControls.UseVisualStyleBackColor = true;
             // 
@@ -329,7 +332,7 @@
             this.txtOrganizer.Location = new System.Drawing.Point(93, 222);
             this.txtOrganizer.Name = "txtOrganizer";
             this.txtOrganizer.Size = new System.Drawing.Size(74, 20);
-            this.txtOrganizer.TabIndex = 14;
+            this.txtOrganizer.TabIndex = 10;
             // 
             // label7
             // 
@@ -349,7 +352,7 @@
             this.chkDeleteUnused.Location = new System.Drawing.Point(330, 139);
             this.chkDeleteUnused.Name = "chkDeleteUnused";
             this.chkDeleteUnused.Size = new System.Drawing.Size(149, 17);
-            this.chkDeleteUnused.TabIndex = 15;
+            this.chkDeleteUnused.TabIndex = 8;
             this.chkDeleteUnused.Text = "Delete runners not in XML";
             this.chkDeleteUnused.UseVisualStyleBackColor = true;
             // 
@@ -371,6 +374,7 @@
             this.Controls.Add(this.button2);
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.groupBox1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "OEForm";
             this.Text = "LiveResults Client, UploadClient";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OEForm_FormClosing);
