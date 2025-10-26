@@ -1,0 +1,4154 @@
+{
+    "component": "Entries\/Entries",
+    "props": {
+        "errors": {},
+        "entries": {
+            "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6": [
+                {
+                    "created_at": "2025-10-18T16:36:58.815038Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 355000,
+                            "counter": 1,
+                            "position": 7,
+                            "time": 4113928,
+                            "updated": "2025-10-18T10:23:35+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 351000,
+                            "counter": 1,
+                            "position": 7,
+                            "time": 4047094,
+                            "updated": "2025-10-18T10:22:26+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 141000,
+                            "counter": 1,
+                            "position": 6,
+                            "time": 2430785,
+                            "updated": "2025-10-18T09:55:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 292000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 3360539,
+                            "updated": "2025-10-18T10:10:57+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 113000,
+                            "counter": 1,
+                            "position": 9,
+                            "time": 1941879,
+                            "updated": "2025-10-18T09:47:21+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fredrikstad SK",
+                        "id": 7
+                    },
+                    "person": {
+                        "name": "Selmer Ringstad Holt",
+                        "id": 8
+                    },
+                    "position": 7,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:19+00:00",
+                        "startTime": null,
+                        "bibNo": 1301
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:05+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 356000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:23:51+02:00",
+                        "time": 4131000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.488562Z",
+                    "id": "a01d38cc-df5e-464b-8124-44acbcdd7076"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.824361Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 585000,
+                            "counter": 1,
+                            "position": 22,
+                            "time": 4343330,
+                            "updated": "2025-10-18T10:28:10+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 570000,
+                            "counter": 1,
+                            "position": 24,
+                            "time": 4266579,
+                            "updated": "2025-10-18T10:26:06+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 255000,
+                            "counter": 1,
+                            "position": 21,
+                            "time": 2544910,
+                            "updated": "2025-10-18T09:57:26+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 395000,
+                            "counter": 1,
+                            "position": 22,
+                            "time": 3463952,
+                            "updated": "2025-10-18T10:12:41+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 166000,
+                            "counter": 1,
+                            "position": 24,
+                            "time": 1994589,
+                            "updated": "2025-10-18T09:48:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Porsgrunn OL",
+                        "id": 30
+                    },
+                    "person": {
+                        "name": "Arvid Wennerstrand",
+                        "id": 66
+                    },
+                    "position": 23,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:23+00:00",
+                        "startTime": null,
+                        "bibNo": 1302
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 590000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:27:45+02:00",
+                        "time": 4365000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.499028Z",
+                    "id": "a01d38dd-325c-485b-a228-de9ffe37cd9a"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.833823Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1026000,
+                            "counter": 1,
+                            "position": 26,
+                            "time": 4784883,
+                            "updated": "2025-10-18T10:34:50+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1021000,
+                            "counter": 1,
+                            "position": 27,
+                            "time": 4717396,
+                            "updated": "2025-10-18T10:33:37+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 601000,
+                            "counter": 1,
+                            "position": 29,
+                            "time": 2890103,
+                            "updated": "2025-10-18T10:03:11+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 811000,
+                            "counter": 1,
+                            "position": 28,
+                            "time": 3879886,
+                            "updated": "2025-10-18T10:19:36+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 433000,
+                            "counter": 1,
+                            "position": 29,
+                            "time": 2261827,
+                            "updated": "2025-10-18T09:52:41+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Freidig",
+                        "id": 36
+                    },
+                    "person": {
+                        "name": "Trygve B\u00f8hle",
+                        "id": 77
+                    },
+                    "position": 26,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:24+00:00",
+                        "startTime": null,
+                        "bibNo": 1303
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1028000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:35:03+02:00",
+                        "time": 4803000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.510563Z",
+                    "id": "a01d38e0-1212-4663-a3ff-993d0f2922c4"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.843228Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 0,
+                            "counter": 1,
+                            "position": 1,
+                            "time": 3758634,
+                            "updated": "2025-10-18T10:17:40+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 0,
+                            "counter": 1,
+                            "position": 1,
+                            "time": 3696898,
+                            "updated": "2025-10-18T10:16:36+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 7000,
+                            "counter": 1,
+                            "position": 4,
+                            "time": 2296333,
+                            "updated": "2025-10-18T09:53:16+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 3000,
+                            "counter": 1,
+                            "position": 3,
+                            "time": 3071464,
+                            "updated": "2025-10-18T10:06:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 4000,
+                            "counter": 1,
+                            "position": 2,
+                            "time": 1832055,
+                            "updated": "2025-10-18T09:45:31+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Asker Skiklubb",
+                        "id": 27
+                    },
+                    "person": {
+                        "name": "Sigve Nyg\u00e5rd Fagervold",
+                        "id": 102
+                    },
+                    "position": 1,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:25+00:00",
+                        "startTime": null,
+                        "bibNo": 1304
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:06+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 0,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:17:55+02:00",
+                        "time": 3775000,
+                        "updated": "2025-10-18T16:24:06+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.520622Z",
+                    "id": "a01d38e6-4411-4eda-a43c-319bb3cce453"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.852416Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 584000,
+                            "counter": 1,
+                            "position": 21,
+                            "time": 4342132,
+                            "updated": "2025-10-18T10:27:25+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 568000,
+                            "counter": 1,
+                            "position": 22,
+                            "time": 4264917,
+                            "updated": "2025-10-18T10:26:01+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 246000,
+                            "counter": 1,
+                            "position": 20,
+                            "time": 2535534,
+                            "updated": "2025-10-18T09:57:15+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 450000,
+                            "counter": 1,
+                            "position": 23,
+                            "time": 3518652,
+                            "updated": "2025-10-18T10:13:36+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 158000,
+                            "counter": 1,
+                            "position": 20,
+                            "time": 1986344,
+                            "updated": "2025-10-18T09:48:06+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Kongsberg OL",
+                        "id": 1
+                    },
+                    "person": {
+                        "name": "Eirik Lesteberg",
+                        "id": 124
+                    },
+                    "position": 21,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:27+00:00",
+                        "startTime": null,
+                        "bibNo": 1305
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 584000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:27:39+02:00",
+                        "time": 4359000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.531422Z",
+                    "id": "a01d38eb-ebe6-43b4-817d-4eee7120d325"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.861344Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2273000,
+                            "counter": 1,
+                            "position": 37,
+                            "time": 6031058,
+                            "updated": "2025-10-18T10:55:35+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2186000,
+                            "counter": 1,
+                            "position": 37,
+                            "time": 5882665,
+                            "updated": "2025-10-18T10:53:01+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1266000,
+                            "counter": 1,
+                            "position": 38,
+                            "time": 3555424,
+                            "updated": "2025-10-18T10:14:16+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1764000,
+                            "counter": 1,
+                            "position": 37,
+                            "time": 4832708,
+                            "updated": "2025-10-18T10:35:31+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1037000,
+                            "counter": 1,
+                            "position": 41,
+                            "time": 2865476,
+                            "updated": "2025-10-18T10:02:46+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Elverum OK",
+                        "id": 48
+                    },
+                    "person": {
+                        "name": "Elias Skaug-Danielsen",
+                        "id": 142
+                    },
+                    "position": 37,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:28+00:00",
+                        "startTime": null,
+                        "bibNo": 1306
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2281000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:55:56+02:00",
+                        "time": 6056000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.543176Z",
+                    "id": "a01d38f0-9f8c-401c-b02b-fd794a197352"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.870498Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 353000,
+                            "counter": 1,
+                            "position": 6,
+                            "time": 4111923,
+                            "updated": "2025-10-18T10:23:36+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 353000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 4049533,
+                            "updated": "2025-10-18T10:22:26+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 147000,
+                            "counter": 1,
+                            "position": 12,
+                            "time": 2436165,
+                            "updated": "2025-10-18T09:55:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 290000,
+                            "counter": 1,
+                            "position": 7,
+                            "time": 3358351,
+                            "updated": "2025-10-18T10:10:57+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 106000,
+                            "counter": 1,
+                            "position": 7,
+                            "time": 1934410,
+                            "updated": "2025-10-18T09:47:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Asker Skiklubb",
+                        "id": 27
+                    },
+                    "person": {
+                        "name": "Gaute Fuglseth Olsen",
+                        "id": 147
+                    },
+                    "position": 6,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:28+00:00",
+                        "startTime": null,
+                        "bibNo": 1307
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:06+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 353000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:23:48+02:00",
+                        "time": 4128000,
+                        "updated": "2025-10-18T16:24:06+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.554655Z",
+                    "id": "a01d38f1-e3dc-46a1-adb7-8247ac09a403"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.879554Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 366000,
+                            "counter": 1,
+                            "position": 14,
+                            "time": 4124031,
+                            "updated": "2025-10-18T10:23:46+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 360000,
+                            "counter": 1,
+                            "position": 14,
+                            "time": 4056517,
+                            "updated": "2025-10-18T10:22:36+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 144000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 2433415,
+                            "updated": "2025-10-18T09:55:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 311000,
+                            "counter": 1,
+                            "position": 17,
+                            "time": 3379807,
+                            "updated": "2025-10-18T10:11:16+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 117000,
+                            "counter": 1,
+                            "position": 11,
+                            "time": 1945379,
+                            "updated": "2025-10-18T09:47:26+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sandnes IL (Rogaland)",
+                        "id": 14
+                    },
+                    "person": {
+                        "name": "Vebj\u00f8rn Oftedal",
+                        "id": 155
+                    },
+                    "position": 14,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:29+00:00",
+                        "startTime": null,
+                        "bibNo": 1308
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 374000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:24:09+02:00",
+                        "time": 4149000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.565354Z",
+                    "id": "a01d38f3-ed97-4b97-8459-ae40141e27d9"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.889024Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2632000,
+                            "counter": 1,
+                            "position": 40,
+                            "time": 6390942,
+                            "updated": "2025-10-18T11:01:35+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2597000,
+                            "counter": 1,
+                            "position": 41,
+                            "time": 6293683,
+                            "updated": "2025-10-18T10:59:52+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1701000,
+                            "counter": 1,
+                            "position": 42,
+                            "time": 3990781,
+                            "updated": "2025-10-18T10:21:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 2265000,
+                            "counter": 1,
+                            "position": 43,
+                            "time": 5333866,
+                            "updated": "2025-10-18T10:43:51+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1391000,
+                            "counter": 1,
+                            "position": 44,
+                            "time": 3219869,
+                            "updated": "2025-10-18T10:08:41+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sandnes IL (Rogaland)",
+                        "id": 14
+                    },
+                    "person": {
+                        "name": "Sebastian Knutsen",
+                        "id": 187
+                    },
+                    "position": 41,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:31+00:00",
+                        "startTime": null,
+                        "bibNo": 1309
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:02+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2645000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:02:00+02:00",
+                        "time": 6420000,
+                        "updated": "2025-10-18T16:24:02+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.575598Z",
+                    "id": "a01d38fb-fb3c-4ffe-9f5a-a69f758340f7"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.898529Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 3178000,
+                            "counter": 1,
+                            "position": 47,
+                            "time": 6936400,
+                            "updated": "2025-10-18T11:10:40+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 3133000,
+                            "counter": 1,
+                            "position": 47,
+                            "time": 6829110,
+                            "updated": "2025-10-18T11:08:46+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 2137000,
+                            "counter": 1,
+                            "position": 48,
+                            "time": 4426400,
+                            "updated": "2025-10-18T10:28:46+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 2715000,
+                            "counter": 1,
+                            "position": 47,
+                            "time": 5783221,
+                            "updated": "2025-10-18T10:51:21+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1819000,
+                            "counter": 1,
+                            "position": 48,
+                            "time": 3647166,
+                            "updated": "2025-10-18T10:15:46+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fredrikstad SK",
+                        "id": 7
+                    },
+                    "person": {
+                        "name": "William Barslund",
+                        "id": 188
+                    },
+                    "position": 47,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:31+00:00",
+                        "startTime": null,
+                        "bibNo": 1310
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:01+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 3182000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:10:57+02:00",
+                        "time": 6957000,
+                        "updated": "2025-10-18T16:24:01+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.586720Z",
+                    "id": "a01d38fc-3961-41cf-967a-7b9c56777758"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.907664Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 11000,
+                            "counter": 1,
+                            "position": 4,
+                            "time": 3769589,
+                            "updated": "2025-10-18T10:17:55+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 15000,
+                            "counter": 1,
+                            "position": 4,
+                            "time": 3711266,
+                            "updated": "2025-10-18T10:16:46+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 5000,
+                            "counter": 1,
+                            "position": 3,
+                            "time": 2294483,
+                            "updated": "2025-10-18T09:53:16+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1000,
+                            "counter": 1,
+                            "position": 2,
+                            "time": 3069808,
+                            "updated": "2025-10-18T10:06:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 13000,
+                            "counter": 1,
+                            "position": 4,
+                            "time": 1841212,
+                            "updated": "2025-10-18T09:45:41+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sandnes IL (Rogaland)",
+                        "id": 14
+                    },
+                    "person": {
+                        "name": "Oliver Duncan",
+                        "id": 201
+                    },
+                    "position": 4,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:32+00:00",
+                        "startTime": null,
+                        "bibNo": 1311
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:06+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 13000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:18:08+02:00",
+                        "time": 3788000,
+                        "updated": "2025-10-18T16:24:06+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.597115Z",
+                    "id": "a01d38ff-6615-429e-a97e-65898bf06eeb"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.916738Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 3406000,
+                            "counter": 1,
+                            "position": 48,
+                            "time": 7164006,
+                            "updated": "2025-10-18T11:14:25+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 3349000,
+                            "counter": 1,
+                            "position": 48,
+                            "time": 7045470,
+                            "updated": "2025-10-18T11:12:21+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 2041000,
+                            "counter": 1,
+                            "position": 47,
+                            "time": 4330800,
+                            "updated": "2025-10-18T10:27:11+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 2762000,
+                            "counter": 1,
+                            "position": 48,
+                            "time": 5830731,
+                            "updated": "2025-10-18T10:52:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1630000,
+                            "counter": 1,
+                            "position": 47,
+                            "time": 3458974,
+                            "updated": "2025-10-18T10:12:41+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fredrikstad SK",
+                        "id": 7
+                    },
+                    "person": {
+                        "name": "Sondre Str\u00f8mberg",
+                        "id": 206
+                    },
+                    "position": 48,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:32+00:00",
+                        "startTime": null,
+                        "bibNo": 1312
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:23:59+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 3415000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:14:50+02:00",
+                        "time": 7190000,
+                        "updated": "2025-10-18T16:23:59+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.607829Z",
+                    "id": "a01d3900-b656-40bb-9cd0-055dcbae2517"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.925352Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2279000,
+                            "counter": 1,
+                            "position": 38,
+                            "time": 6037907,
+                            "updated": "2025-10-18T10:55:40+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2193000,
+                            "counter": 1,
+                            "position": 38,
+                            "time": 5889863,
+                            "updated": "2025-10-18T10:53:06+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1291000,
+                            "counter": 1,
+                            "position": 40,
+                            "time": 3580604,
+                            "updated": "2025-10-18T10:14:41+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1869000,
+                            "counter": 1,
+                            "position": 39,
+                            "time": 4937460,
+                            "updated": "2025-10-18T10:37:16+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1009000,
+                            "counter": 1,
+                            "position": 39,
+                            "time": 2837360,
+                            "updated": "2025-10-18T10:02:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Kongsberg OL",
+                        "id": 1
+                    },
+                    "person": {
+                        "name": "Sindre Tandberg",
+                        "id": 238
+                    },
+                    "position": 38,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:34+00:00",
+                        "startTime": null,
+                        "bibNo": 1313
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2287000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:56:02+02:00",
+                        "time": 6062000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.619058Z",
+                    "id": "a01d3908-fedc-4baf-b836-89e0f72ff5b4"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.934256Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 372000,
+                            "counter": 1,
+                            "position": 15,
+                            "time": 4130782,
+                            "updated": "2025-10-18T10:23:56+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 364000,
+                            "counter": 1,
+                            "position": 15,
+                            "time": 4060788,
+                            "updated": "2025-10-18T10:22:36+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 152000,
+                            "counter": 1,
+                            "position": 17,
+                            "time": 2441060,
+                            "updated": "2025-10-18T09:55:41+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 312000,
+                            "counter": 1,
+                            "position": 18,
+                            "time": 3380729,
+                            "updated": "2025-10-18T10:11:21+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 128000,
+                            "counter": 1,
+                            "position": 18,
+                            "time": 1956364,
+                            "updated": "2025-10-18T09:47:36+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Kongsberg OL",
+                        "id": 1
+                    },
+                    "person": {
+                        "name": "Mathis Renard",
+                        "id": 254
+                    },
+                    "position": 16,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:35+00:00",
+                        "startTime": null,
+                        "bibNo": 1314
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 385000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:24:20+02:00",
+                        "time": 4160000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.629552Z",
+                    "id": "a01d390d-29e5-4f8c-abb7-f105d6deeedb"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:06.628321Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "Oppsal Orientering",
+                        "id": 18
+                    },
+                    "person": {
+                        "name": "Erling Melv\u00e6r Ettest\u00f8l",
+                        "id": 272
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:36+00:00",
+                        "startTime": null,
+                        "bibNo": 1315
+                    },
+                    "status": {
+                        "updated": "2025-10-18T12:26:36+00:00",
+                        "status": "DidNotStart"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": null,
+                        "finishTime": null,
+                        "time": null,
+                        "updated": null
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:56:32.661486Z",
+                    "id": "a01d3911-9be5-4c00-8b6e-3bd2618a01ea"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.943131Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 24000,
+                            "counter": 1,
+                            "position": 5,
+                            "time": 3782261,
+                            "updated": "2025-10-18T10:18:05+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 17000,
+                            "counter": 1,
+                            "position": 5,
+                            "time": 3713047,
+                            "updated": "2025-10-18T10:16:52+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 2000,
+                            "counter": 1,
+                            "position": 2,
+                            "time": 2291384,
+                            "updated": "2025-10-18T09:53:11+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 5000,
+                            "counter": 1,
+                            "position": 4,
+                            "time": 3073439,
+                            "updated": "2025-10-18T10:06:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 14000,
+                            "counter": 1,
+                            "position": 5,
+                            "time": 1842499,
+                            "updated": "2025-10-18T09:45:41+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fana IL",
+                        "id": 64
+                    },
+                    "person": {
+                        "name": "Emil Heksem",
+                        "id": 275
+                    },
+                    "position": 5,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:37+00:00",
+                        "startTime": null,
+                        "bibNo": 1316
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:06+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 28000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:18:23+02:00",
+                        "time": 3803000,
+                        "updated": "2025-10-18T16:24:06+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.640171Z",
+                    "id": "a01d3912-6e4a-4e1a-b567-34f89cc5b1b1"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.952180Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 356000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 4114813,
+                            "updated": "2025-10-18T10:23:41+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 349000,
+                            "counter": 1,
+                            "position": 6,
+                            "time": 4045537,
+                            "updated": "2025-10-18T10:22:21+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 150000,
+                            "counter": 1,
+                            "position": 16,
+                            "time": 2439629,
+                            "updated": "2025-10-18T09:55:41+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 292000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 3360450,
+                            "updated": "2025-10-18T10:10:57+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 95000,
+                            "counter": 1,
+                            "position": 6,
+                            "time": 1923086,
+                            "updated": "2025-10-18T09:47:05+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fossum IF",
+                        "id": 46
+                    },
+                    "person": {
+                        "name": "Aron Bj\u00f8rke",
+                        "id": 310
+                    },
+                    "position": 10,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:39+00:00",
+                        "startTime": null,
+                        "bibNo": 1317
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:06+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 365000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:24:00+02:00",
+                        "time": 4140000,
+                        "updated": "2025-10-18T16:24:06+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.650530Z",
+                    "id": "a01d391b-4c45-4221-a189-112877e5176e"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.961331Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 586000,
+                            "counter": 1,
+                            "position": 23,
+                            "time": 4344279,
+                            "updated": "2025-10-18T10:27:25+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 565000,
+                            "counter": 1,
+                            "position": 21,
+                            "time": 4261834,
+                            "updated": "2025-10-18T10:26:01+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 260000,
+                            "counter": 1,
+                            "position": 22,
+                            "time": 2549071,
+                            "updated": "2025-10-18T09:57:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 390000,
+                            "counter": 1,
+                            "position": 21,
+                            "time": 3458914,
+                            "updated": "2025-10-18T10:12:36+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 163000,
+                            "counter": 1,
+                            "position": 22,
+                            "time": 1991329,
+                            "updated": "2025-10-18T09:48:11+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sandnes IL (Rogaland)",
+                        "id": 14
+                    },
+                    "person": {
+                        "name": "Andreas Soleng",
+                        "id": 314
+                    },
+                    "position": 22,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:39+00:00",
+                        "startTime": null,
+                        "bibNo": 1318
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 587000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:27:42+02:00",
+                        "time": 4362000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.661516Z",
+                    "id": "a01d391c-4f26-4f04-b438-387758b374f4"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.970097Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1206000,
+                            "counter": 1,
+                            "position": 33,
+                            "time": 4964412,
+                            "updated": "2025-10-18T10:37:45+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1169000,
+                            "counter": 1,
+                            "position": 33,
+                            "time": 4865595,
+                            "updated": "2025-10-18T10:37:06+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 779000,
+                            "counter": 1,
+                            "position": 33,
+                            "time": 3068806,
+                            "updated": "2025-10-18T10:06:06+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1022000,
+                            "counter": 1,
+                            "position": 33,
+                            "time": 4090468,
+                            "updated": "2025-10-18T10:23:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 587000,
+                            "counter": 1,
+                            "position": 31,
+                            "time": 2415383,
+                            "updated": "2025-10-18T09:55:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sandnes IL (Rogaland)",
+                        "id": 14
+                    },
+                    "person": {
+                        "name": "Magnus S\u00e6ter\u00e5s",
+                        "id": 316
+                    },
+                    "position": 33,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:39+00:00",
+                        "startTime": null,
+                        "bibNo": 1319
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:02+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1215000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:38:10+02:00",
+                        "time": 4990000,
+                        "updated": "2025-10-18T16:24:02+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.671671Z",
+                    "id": "a01d391c-cbb9-476d-9c26-2d52fd3d9721"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.978907Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1182000,
+                            "counter": 1,
+                            "position": 32,
+                            "time": 4940391,
+                            "updated": "2025-10-18T10:37:25+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1139000,
+                            "counter": 1,
+                            "position": 32,
+                            "time": 4835080,
+                            "updated": "2025-10-18T10:35:31+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 503000,
+                            "counter": 1,
+                            "position": 28,
+                            "time": 2792649,
+                            "updated": "2025-10-18T10:01:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 915000,
+                            "counter": 1,
+                            "position": 29,
+                            "time": 3983849,
+                            "updated": "2025-10-18T10:21:21+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 347000,
+                            "counter": 1,
+                            "position": 28,
+                            "time": 2175505,
+                            "updated": "2025-10-18T09:51:15+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sandnes IL (Rogaland)",
+                        "id": 14
+                    },
+                    "person": {
+                        "name": "Sjur Undheim",
+                        "id": 351
+                    },
+                    "position": 32,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:41+00:00",
+                        "startTime": null,
+                        "bibNo": 1320
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1199000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:37:54+02:00",
+                        "time": 4974000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.681983Z",
+                    "id": "a01d3926-0169-4d56-8798-38dfcaa92dfb"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.987779Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 449000,
+                            "counter": 1,
+                            "position": 20,
+                            "time": 4207136,
+                            "updated": "2025-10-18T10:25:10+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 382000,
+                            "counter": 1,
+                            "position": 19,
+                            "time": 4078814,
+                            "updated": "2025-10-18T10:22:56+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 143000,
+                            "counter": 1,
+                            "position": 7,
+                            "time": 2432159,
+                            "updated": "2025-10-18T09:55:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 306000,
+                            "counter": 1,
+                            "position": 14,
+                            "time": 3374895,
+                            "updated": "2025-10-18T10:11:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 112000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 1940269,
+                            "updated": "2025-10-18T09:47:20+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Halden SK",
+                        "id": 24
+                    },
+                    "person": {
+                        "name": "Joel Bronebakk Johansson",
+                        "id": 374
+                    },
+                    "position": 20,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:43+00:00",
+                        "startTime": null,
+                        "bibNo": 1321
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 470000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:25:45+02:00",
+                        "time": 4245000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.692673Z",
+                    "id": "a01d392b-dc17-4fc4-bb24-1a60c03616e9"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.997323Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 357000,
+                            "counter": 1,
+                            "position": 10,
+                            "time": 4115657,
+                            "updated": "2025-10-18T10:23:41+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 353000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 4049391,
+                            "updated": "2025-10-18T10:22:26+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 144000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 2433190,
+                            "updated": "2025-10-18T09:55:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 293000,
+                            "counter": 1,
+                            "position": 10,
+                            "time": 3361867,
+                            "updated": "2025-10-18T10:11:01+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 115000,
+                            "counter": 1,
+                            "position": 10,
+                            "time": 1943457,
+                            "updated": "2025-10-18T09:47:26+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fana IL",
+                        "id": 64
+                    },
+                    "person": {
+                        "name": "Magnus Wilhelmsen Nielsen",
+                        "id": 381
+                    },
+                    "position": 12,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:43+00:00",
+                        "startTime": null,
+                        "bibNo": 1322
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:05+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 368000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:24:03+02:00",
+                        "time": 4143000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.702821Z",
+                    "id": "a01d392d-9efe-4e78-835b-ec1088da90eb"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.005917Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 417000,
+                            "counter": 1,
+                            "position": 18,
+                            "time": 4175842,
+                            "updated": "2025-10-18T10:24:40+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 381000,
+                            "counter": 1,
+                            "position": 18,
+                            "time": 4077544,
+                            "updated": "2025-10-18T10:22:56+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 146000,
+                            "counter": 1,
+                            "position": 10,
+                            "time": 2435003,
+                            "updated": "2025-10-18T09:55:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 312000,
+                            "counter": 1,
+                            "position": 18,
+                            "time": 3380399,
+                            "updated": "2025-10-18T10:11:21+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 117000,
+                            "counter": 1,
+                            "position": 11,
+                            "time": 1945799,
+                            "updated": "2025-10-18T09:47:26+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "\u00c5s-NMBU Orientering",
+                        "id": 81
+                    },
+                    "person": {
+                        "name": "Dyre Stokke Meen",
+                        "id": 384
+                    },
+                    "position": 18,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:43+00:00",
+                        "startTime": null,
+                        "bibNo": 1323
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 425000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:25:00+02:00",
+                        "time": 4200000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.713045Z",
+                    "id": "a01d392e-6d4a-4252-8816-be9020c63d69"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.014588Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1136000,
+                            "counter": 1,
+                            "position": 28,
+                            "time": 4894753,
+                            "updated": "2025-10-18T10:36:40+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1106000,
+                            "counter": 1,
+                            "position": 28,
+                            "time": 4802692,
+                            "updated": "2025-10-18T10:35:02+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 347000,
+                            "counter": 1,
+                            "position": 26,
+                            "time": 2636655,
+                            "updated": "2025-10-18T09:58:56+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 806000,
+                            "counter": 1,
+                            "position": 27,
+                            "time": 3874864,
+                            "updated": "2025-10-18T10:19:36+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 169000,
+                            "counter": 1,
+                            "position": 25,
+                            "time": 1997157,
+                            "updated": "2025-10-18T09:48:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "\u00c5s-NMBU Orientering",
+                        "id": 81
+                    },
+                    "person": {
+                        "name": "Erlend Stokke Meen",
+                        "id": 385
+                    },
+                    "position": 28,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:43+00:00",
+                        "startTime": null,
+                        "bibNo": 1324
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:02+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1138000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:36:53+02:00",
+                        "time": 4913000,
+                        "updated": "2025-10-18T16:24:02+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.723437Z",
+                    "id": "a01d392e-a87f-4655-8d65-546e6c67713e"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:06.656791Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "Nydalens SK",
+                        "id": 26
+                    },
+                    "person": {
+                        "name": "Alfred Teig",
+                        "id": 429
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:46+00:00",
+                        "startTime": null,
+                        "bibNo": 1325
+                    },
+                    "status": {
+                        "updated": "2025-10-18T12:26:36+00:00",
+                        "status": "DidNotStart"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": null,
+                        "finishTime": null,
+                        "time": null,
+                        "updated": null
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:56:32.679334Z",
+                    "id": "a01d3939-e30a-4ffe-8de6-39fb94c44524"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.023346Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 3492000,
+                            "counter": 1,
+                            "position": 49,
+                            "time": 7250623,
+                            "updated": "2025-10-18T11:15:56+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 3447000,
+                            "counter": 1,
+                            "position": 49,
+                            "time": 7143516,
+                            "updated": "2025-10-18T11:14:01+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 2606000,
+                            "counter": 1,
+                            "position": 49,
+                            "time": 4895427,
+                            "updated": "2025-10-18T10:36:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 3178000,
+                            "counter": 1,
+                            "position": 49,
+                            "time": 6246999,
+                            "updated": "2025-10-18T10:59:06+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 2302000,
+                            "counter": 1,
+                            "position": 49,
+                            "time": 4130450,
+                            "updated": "2025-10-18T10:23:51+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Nydalens SK",
+                        "id": 26
+                    },
+                    "person": {
+                        "name": "Iver Aarseth",
+                        "id": 467
+                    },
+                    "position": 49,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:48+00:00",
+                        "startTime": null,
+                        "bibNo": 1326
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:23:59+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 3498000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:16:13+02:00",
+                        "time": 7273000,
+                        "updated": "2025-10-18T16:23:59+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.734098Z",
+                    "id": "a01d3943-7c0a-4296-8cc1-3bc4e25d343d"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.032180Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 4000,
+                            "counter": 1,
+                            "position": 3,
+                            "time": 3762103,
+                            "updated": "2025-10-18T10:17:45+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 11000,
+                            "counter": 1,
+                            "position": 3,
+                            "time": 3707675,
+                            "updated": "2025-10-18T10:16:46+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 0,
+                            "counter": 1,
+                            "position": 1,
+                            "time": 2289650,
+                            "updated": "2025-10-18T09:53:11+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 0,
+                            "counter": 1,
+                            "position": 1,
+                            "time": 3068552,
+                            "updated": "2025-10-18T10:06:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 0,
+                            "counter": 1,
+                            "position": 1,
+                            "time": 1828669,
+                            "updated": "2025-10-18T09:45:31+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Nydalens SK",
+                        "id": 26
+                    },
+                    "person": {
+                        "name": "Karl Oraug Rygh",
+                        "id": 473
+                    },
+                    "position": 3,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:49+00:00",
+                        "startTime": null,
+                        "bibNo": 1327
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:06+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 10000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:18:05+02:00",
+                        "time": 3785000,
+                        "updated": "2025-10-18T16:24:06+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.745572Z",
+                    "id": "a01d3945-1889-4210-8823-eb1a596e0e2a"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.040923Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1029000,
+                            "counter": 1,
+                            "position": 27,
+                            "time": 4787128,
+                            "updated": "2025-10-18T10:34:50+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1020000,
+                            "counter": 1,
+                            "position": 26,
+                            "time": 4716501,
+                            "updated": "2025-10-18T10:33:36+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 457000,
+                            "counter": 1,
+                            "position": 27,
+                            "time": 2746229,
+                            "updated": "2025-10-18T10:00:46+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 697000,
+                            "counter": 1,
+                            "position": 26,
+                            "time": 3765233,
+                            "updated": "2025-10-18T10:17:46+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 328000,
+                            "counter": 1,
+                            "position": 27,
+                            "time": 2156197,
+                            "updated": "2025-10-18T09:50:56+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sandnes IL (Rogaland)",
+                        "id": 14
+                    },
+                    "person": {
+                        "name": "Sindre Wathne",
+                        "id": 477
+                    },
+                    "position": 27,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:49+00:00",
+                        "startTime": null,
+                        "bibNo": 1328
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1031000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:35:06+02:00",
+                        "time": 4806000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.756011Z",
+                    "id": "a01d3946-2e43-4403-acc0-dce5aab84214"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.049284Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1149000,
+                            "counter": 1,
+                            "position": 30,
+                            "time": 4907665,
+                            "updated": "2025-10-18T10:36:50+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1130000,
+                            "counter": 1,
+                            "position": 30,
+                            "time": 4826303,
+                            "updated": "2025-10-18T10:35:26+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 758000,
+                            "counter": 1,
+                            "position": 30,
+                            "time": 3047935,
+                            "updated": "2025-10-18T10:05:46+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1009000,
+                            "counter": 1,
+                            "position": 30,
+                            "time": 4077409,
+                            "updated": "2025-10-18T10:22:56+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 665000,
+                            "counter": 1,
+                            "position": 37,
+                            "time": 2493776,
+                            "updated": "2025-10-18T09:56:36+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Konnerud IL",
+                        "id": 44
+                    },
+                    "person": {
+                        "name": "Ted Bostr\u00f6m",
+                        "id": 485
+                    },
+                    "position": 30,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:49+00:00",
+                        "startTime": null,
+                        "bibNo": 1329
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1156000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:37:11+02:00",
+                        "time": 4931000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.766185Z",
+                    "id": "a01d3948-2834-4a33-ab14-1465a7278074"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.058679Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2000,
+                            "counter": 1,
+                            "position": 2,
+                            "time": 3760577,
+                            "updated": "2025-10-18T10:17:45+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 6000,
+                            "counter": 1,
+                            "position": 2,
+                            "time": 3702950,
+                            "updated": "2025-10-18T10:16:41+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 11000,
+                            "counter": 1,
+                            "position": 5,
+                            "time": 2300952,
+                            "updated": "2025-10-18T09:53:21+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 9000,
+                            "counter": 1,
+                            "position": 5,
+                            "time": 3077752,
+                            "updated": "2025-10-18T10:06:16+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 10000,
+                            "counter": 1,
+                            "position": 3,
+                            "time": 1838056,
+                            "updated": "2025-10-18T09:45:40+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Horsens OK",
+                        "id": 93
+                    },
+                    "person": {
+                        "name": "Eskild Stig Nielsen",
+                        "id": 495
+                    },
+                    "position": 2,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:50+00:00",
+                        "startTime": null,
+                        "bibNo": 1330
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:08+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 6000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:18:01+02:00",
+                        "time": 3781000,
+                        "updated": "2025-10-18T16:24:08+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.777608Z",
+                    "id": "a01d394a-b84b-45c3-b59d-c517fd0bece5"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.067827Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 785000,
+                            "counter": 1,
+                            "position": 25,
+                            "time": 4543022,
+                            "updated": "2025-10-18T10:30:45+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 752000,
+                            "counter": 1,
+                            "position": 25,
+                            "time": 4448379,
+                            "updated": "2025-10-18T10:29:06+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 266000,
+                            "counter": 1,
+                            "position": 24,
+                            "time": 2555010,
+                            "updated": "2025-10-18T09:57:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 527000,
+                            "counter": 1,
+                            "position": 25,
+                            "time": 3595432,
+                            "updated": "2025-10-18T10:14:51+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 161000,
+                            "counter": 1,
+                            "position": 21,
+                            "time": 1989177,
+                            "updated": "2025-10-18T09:48:11+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fana IL",
+                        "id": 64
+                    },
+                    "person": {
+                        "name": "Jakob Barg\u00e5rd Aarnes",
+                        "id": 533
+                    },
+                    "position": 25,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:52+00:00",
+                        "startTime": null,
+                        "bibNo": 1331
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 785000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:31:00+02:00",
+                        "time": 4560000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.788616Z",
+                    "id": "a01d3954-7e2c-4228-ba2b-a537a7f3566f"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.076591Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 379000,
+                            "counter": 1,
+                            "position": 17,
+                            "time": 4137997,
+                            "updated": "2025-10-18T10:24:00+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 366000,
+                            "counter": 1,
+                            "position": 16,
+                            "time": 4062122,
+                            "updated": "2025-10-18T10:22:42+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 169000,
+                            "counter": 1,
+                            "position": 18,
+                            "time": 2458900,
+                            "updated": "2025-10-18T09:55:56+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 308000,
+                            "counter": 1,
+                            "position": 15,
+                            "time": 3376588,
+                            "updated": "2025-10-18T10:11:16+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 120000,
+                            "counter": 1,
+                            "position": 14,
+                            "time": 1948237,
+                            "updated": "2025-10-18T09:47:31+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Kristiansand OK",
+                        "id": 59
+                    },
+                    "person": {
+                        "name": "Kasper Hott",
+                        "id": 552
+                    },
+                    "position": 17,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:54+00:00",
+                        "startTime": null,
+                        "bibNo": 1332
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:05+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 394000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:24:29+02:00",
+                        "time": 4169000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.799031Z",
+                    "id": "a01d3959-1833-4a07-8c21-289b3ef16a89"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:06.684885Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "B\u00e6kkelagets SK",
+                        "id": 12
+                    },
+                    "person": {
+                        "name": "Jonas Hirsch",
+                        "id": 580
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:55+00:00",
+                        "startTime": null,
+                        "bibNo": 1333
+                    },
+                    "status": {
+                        "updated": "2025-10-18T12:26:36+00:00",
+                        "status": "DidNotStart"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": null,
+                        "finishTime": null,
+                        "time": null,
+                        "updated": null
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:56:32.697818Z",
+                    "id": "a01d395f-d9b6-496e-be44-941b881b2fa8"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.085620Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1604000,
+                            "counter": 1,
+                            "position": 35,
+                            "time": 5362687,
+                            "updated": "2025-10-18T10:44:25+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1576000,
+                            "counter": 1,
+                            "position": 35,
+                            "time": 5272939,
+                            "updated": "2025-10-18T10:42:51+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 801000,
+                            "counter": 1,
+                            "position": 35,
+                            "time": 3090799,
+                            "updated": "2025-10-18T10:06:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1265000,
+                            "counter": 1,
+                            "position": 35,
+                            "time": 4333952,
+                            "updated": "2025-10-18T10:27:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 615000,
+                            "counter": 1,
+                            "position": 34,
+                            "time": 2443666,
+                            "updated": "2025-10-18T09:55:46+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fredrikstad SK",
+                        "id": 7
+                    },
+                    "person": {
+                        "name": "Hugo Holmquist",
+                        "id": 581
+                    },
+                    "position": 34,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:55+00:00",
+                        "startTime": null,
+                        "bibNo": 1334
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1605000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:44:40+02:00",
+                        "time": 5380000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.809082Z",
+                    "id": "a01d3960-19b2-4b32-8235-50aeeff3bdf8"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.094464Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1138000,
+                            "counter": 1,
+                            "position": 29,
+                            "time": 4896597,
+                            "updated": "2025-10-18T10:36:40+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1114000,
+                            "counter": 1,
+                            "position": 29,
+                            "time": 4810979,
+                            "updated": "2025-10-18T10:35:06+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 767000,
+                            "counter": 1,
+                            "position": 32,
+                            "time": 3056915,
+                            "updated": "2025-10-18T10:05:56+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1013000,
+                            "counter": 1,
+                            "position": 32,
+                            "time": 4081151,
+                            "updated": "2025-10-18T10:23:01+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 584000,
+                            "counter": 1,
+                            "position": 30,
+                            "time": 2412491,
+                            "updated": "2025-10-18T09:55:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Modum OL",
+                        "id": 101
+                    },
+                    "person": {
+                        "name": "J\u00f8rgen Wiger",
+                        "id": 610
+                    },
+                    "position": 29,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:57+00:00",
+                        "startTime": null,
+                        "bibNo": 1335
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1141000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:36:56+02:00",
+                        "time": 4916000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.819275Z",
+                    "id": "a01d3967-81bb-49ec-ab66-76fb60143f73"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.796767Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "B\u00e6kkelagets SK",
+                        "id": 12
+                    },
+                    "person": {
+                        "name": "H\u00e5kon Fenne Ingierd",
+                        "id": 612
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:57+00:00",
+                        "startTime": null,
+                        "bibNo": 1336
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "MissingPunch"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": null,
+                        "finishTime": null,
+                        "time": null,
+                        "updated": null
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.468217Z",
+                    "id": "a01d3968-0a1d-4f20-8b3f-4ce75c1d0ec9"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.787598Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "Sturla, IF",
+                        "id": 41
+                    },
+                    "person": {
+                        "name": "Aksel Elias Sauve",
+                        "id": 623
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:58+00:00",
+                        "startTime": null,
+                        "bibNo": 1337
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:02+00:00",
+                        "status": "MissingPunch"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:47:55+02:00",
+                        "time": 5575000,
+                        "updated": "2025-10-18T16:24:02+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.458498Z",
+                    "id": "a01d396a-9eb3-47c7-8c6f-d0f8a249e723"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.103641Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 356000,
+                            "counter": 1,
+                            "position": 8,
+                            "time": 4114650,
+                            "updated": "2025-10-18T10:23:36+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 355000,
+                            "counter": 1,
+                            "position": 10,
+                            "time": 4051548,
+                            "updated": "2025-10-18T10:22:31+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 149000,
+                            "counter": 1,
+                            "position": 14,
+                            "time": 2438259,
+                            "updated": "2025-10-18T09:55:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 287000,
+                            "counter": 1,
+                            "position": 6,
+                            "time": 3355757,
+                            "updated": "2025-10-18T10:10:56+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 121000,
+                            "counter": 1,
+                            "position": 15,
+                            "time": 1949707,
+                            "updated": "2025-10-18T09:47:31+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Verdal OK",
+                        "id": 102
+                    },
+                    "person": {
+                        "name": "William Mitchell Iversen",
+                        "id": 627
+                    },
+                    "position": 8,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:58+00:00",
+                        "startTime": null,
+                        "bibNo": 1338
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:06+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 360000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:23:55+02:00",
+                        "time": 4135000,
+                        "updated": "2025-10-18T16:24:06+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.829559Z",
+                    "id": "a01d396b-b03e-48d8-b196-7190bc6b6b6b"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:06.670744Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "Oppsal Orientering",
+                        "id": 18
+                    },
+                    "person": {
+                        "name": "Sivert Landr\u00f8 Grindedal",
+                        "id": 640
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:59+00:00",
+                        "startTime": null,
+                        "bibNo": 1339
+                    },
+                    "status": {
+                        "updated": "2025-10-18T12:26:36+00:00",
+                        "status": "DidNotStart"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": null,
+                        "finishTime": null,
+                        "time": null,
+                        "updated": null
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:56:32.688310Z",
+                    "id": "a01d396e-d663-4397-a908-4baf5cc8eeb6"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.118809Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 373000,
+                            "counter": 1,
+                            "position": 16,
+                            "time": 4131788,
+                            "updated": "2025-10-18T10:23:56+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 368000,
+                            "counter": 1,
+                            "position": 17,
+                            "time": 4064892,
+                            "updated": "2025-10-18T10:22:42+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 170000,
+                            "counter": 1,
+                            "position": 19,
+                            "time": 2459942,
+                            "updated": "2025-10-18T09:56:01+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 295000,
+                            "counter": 1,
+                            "position": 11,
+                            "time": 3363894,
+                            "updated": "2025-10-18T10:11:01+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 146000,
+                            "counter": 1,
+                            "position": 19,
+                            "time": 1974113,
+                            "updated": "2025-10-18T09:47:56+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Stokke IL",
+                        "id": 92
+                    },
+                    "person": {
+                        "name": "Johannes Aass Eilevstj\u00f8nn",
+                        "id": 644
+                    },
+                    "position": 15,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:55:59+00:00",
+                        "startTime": null,
+                        "bibNo": 1340
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 382000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:24:17+02:00",
+                        "time": 4157000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.840191Z",
+                    "id": "a01d396f-bfe4-41b7-b1f8-5789b83838e9"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.128144Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 433000,
+                            "counter": 1,
+                            "position": 19,
+                            "time": 4191161,
+                            "updated": "2025-10-18T10:24:56+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 427000,
+                            "counter": 1,
+                            "position": 20,
+                            "time": 4123448,
+                            "updated": "2025-10-18T10:23:42+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 292000,
+                            "counter": 1,
+                            "position": 25,
+                            "time": 2581089,
+                            "updated": "2025-10-18T09:58:01+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 368000,
+                            "counter": 1,
+                            "position": 20,
+                            "time": 3436586,
+                            "updated": "2025-10-18T10:12:16+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 236000,
+                            "counter": 1,
+                            "position": 26,
+                            "time": 2064520,
+                            "updated": "2025-10-18T09:49:25+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "IFK G\u00f6teborg Orientering",
+                        "id": 75
+                    },
+                    "person": {
+                        "name": "Noel Kjellberger",
+                        "id": 660
+                    },
+                    "position": 19,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:00+00:00",
+                        "startTime": null,
+                        "bibNo": 1341
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 434000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:25:09+02:00",
+                        "time": 4209000,
+                        "updated": "2025-10-18T16:24:04+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.850863Z",
+                    "id": "a01d3973-b157-431c-b216-167f3e7218df"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.137760Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2636000,
+                            "counter": 1,
+                            "position": 42,
+                            "time": 6394764,
+                            "updated": "2025-10-18T11:01:40+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2600000,
+                            "counter": 1,
+                            "position": 42,
+                            "time": 6296780,
+                            "updated": "2025-10-18T10:59:57+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1128000,
+                            "counter": 1,
+                            "position": 37,
+                            "time": 3417170,
+                            "updated": "2025-10-18T10:11:56+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 2257000,
+                            "counter": 1,
+                            "position": 42,
+                            "time": 5325824,
+                            "updated": "2025-10-18T10:43:46+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 627000,
+                            "counter": 1,
+                            "position": 35,
+                            "time": 2455135,
+                            "updated": "2025-10-18T09:55:56+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "OK Moss",
+                        "id": 22
+                    },
+                    "person": {
+                        "name": "Anders Rostveit Elmi",
+                        "id": 664
+                    },
+                    "position": 43,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:00+00:00",
+                        "startTime": null,
+                        "bibNo": 1342
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2660000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:02:15+02:00",
+                        "time": 6435000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.861371Z",
+                    "id": "a01d3974-bd36-458b-b30d-b21823562596"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.146869Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 589000,
+                            "counter": 1,
+                            "position": 24,
+                            "time": 4347643,
+                            "updated": "2025-10-18T10:27:30+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 568000,
+                            "counter": 1,
+                            "position": 22,
+                            "time": 4264105,
+                            "updated": "2025-10-18T10:26:01+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 262000,
+                            "counter": 1,
+                            "position": 23,
+                            "time": 2551009,
+                            "updated": "2025-10-18T09:57:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 453000,
+                            "counter": 1,
+                            "position": 24,
+                            "time": 3521959,
+                            "updated": "2025-10-18T10:13:41+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 165000,
+                            "counter": 1,
+                            "position": 23,
+                            "time": 1993250,
+                            "updated": "2025-10-18T09:48:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Nydalens SK",
+                        "id": 26
+                    },
+                    "person": {
+                        "name": "Jonathan Bj\u00f6rck Fodstad",
+                        "id": 684
+                    },
+                    "position": 24,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:02+00:00",
+                        "startTime": null,
+                        "bibNo": 1343
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 593000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:27:48+02:00",
+                        "time": 4368000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.871795Z",
+                    "id": "a01d397a-0073-43ed-aa7c-9f8c0e02e8ea"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.156169Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2637000,
+                            "counter": 1,
+                            "position": 43,
+                            "time": 6395281,
+                            "updated": "2025-10-18T11:01:41+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2602000,
+                            "counter": 1,
+                            "position": 43,
+                            "time": 6298810,
+                            "updated": "2025-10-18T10:59:57+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1704000,
+                            "counter": 1,
+                            "position": 43,
+                            "time": 3993501,
+                            "updated": "2025-10-18T10:21:31+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 2269000,
+                            "counter": 1,
+                            "position": 44,
+                            "time": 5337168,
+                            "updated": "2025-10-18T10:43:56+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1259000,
+                            "counter": 1,
+                            "position": 42,
+                            "time": 3087899,
+                            "updated": "2025-10-18T10:06:31+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Oppsal Orientering",
+                        "id": 18
+                    },
+                    "person": {
+                        "name": "Sigurd Bjella Unneberg",
+                        "id": 691
+                    },
+                    "position": 42,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:02+00:00",
+                        "startTime": null,
+                        "bibNo": 1344
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:01+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2648000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:02:03+02:00",
+                        "time": 6423000,
+                        "updated": "2025-10-18T16:24:01+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.882597Z",
+                    "id": "a01d397b-be9d-42da-b983-ca31e0c9e56c"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.165627Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2890000,
+                            "counter": 1,
+                            "position": 46,
+                            "time": 6648838,
+                            "updated": "2025-10-18T11:05:51+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2857000,
+                            "counter": 1,
+                            "position": 45,
+                            "time": 6553007,
+                            "updated": "2025-10-18T11:04:22+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1956000,
+                            "counter": 1,
+                            "position": 46,
+                            "time": 4245353,
+                            "updated": "2025-10-18T10:25:46+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 2485000,
+                            "counter": 1,
+                            "position": 46,
+                            "time": 5553114,
+                            "updated": "2025-10-18T10:47:31+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1610000,
+                            "counter": 1,
+                            "position": 46,
+                            "time": 3438817,
+                            "updated": "2025-10-18T10:12:21+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Oppsal Orientering",
+                        "id": 18
+                    },
+                    "person": {
+                        "name": "Sander Vuong Medhus",
+                        "id": 694
+                    },
+                    "position": 46,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:02+00:00",
+                        "startTime": null,
+                        "bibNo": 1345
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:23:59+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2897000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:06:12+02:00",
+                        "time": 6672000,
+                        "updated": "2025-10-18T16:23:59+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.892825Z",
+                    "id": "a01d397c-7c77-4ccd-8c33-8efc8c03e174"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.175042Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2887000,
+                            "counter": 1,
+                            "position": 45,
+                            "time": 6645388,
+                            "updated": "2025-10-18T11:05:51+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2859000,
+                            "counter": 1,
+                            "position": 46,
+                            "time": 6555043,
+                            "updated": "2025-10-18T11:04:22+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1797000,
+                            "counter": 1,
+                            "position": 45,
+                            "time": 4086458,
+                            "updated": "2025-10-18T10:23:05+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 2481000,
+                            "counter": 1,
+                            "position": 45,
+                            "time": 5549180,
+                            "updated": "2025-10-18T10:47:26+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1425000,
+                            "counter": 1,
+                            "position": 45,
+                            "time": 3253253,
+                            "updated": "2025-10-18T10:09:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "\u00c5s-NMBU Orientering",
+                        "id": 81
+                    },
+                    "person": {
+                        "name": "Thorvald B\u00f8rresen",
+                        "id": 723
+                    },
+                    "position": 45,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:04+00:00",
+                        "startTime": null,
+                        "bibNo": 1346
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:23:59+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2891000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:06:06+02:00",
+                        "time": 6666000,
+                        "updated": "2025-10-18T16:23:59+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.903326Z",
+                    "id": "a01d3983-c3d9-423a-bb71-2ca0ee710fb5"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.184152Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1603000,
+                            "counter": 1,
+                            "position": 34,
+                            "time": 5361946,
+                            "updated": "2025-10-18T10:44:25+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1574000,
+                            "counter": 1,
+                            "position": 34,
+                            "time": 5270527,
+                            "updated": "2025-10-18T10:42:46+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 841000,
+                            "counter": 1,
+                            "position": 36,
+                            "time": 3130721,
+                            "updated": "2025-10-18T10:07:11+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1267000,
+                            "counter": 1,
+                            "position": 36,
+                            "time": 4335978,
+                            "updated": "2025-10-18T10:27:16+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 630000,
+                            "counter": 1,
+                            "position": 36,
+                            "time": 2458886,
+                            "updated": "2025-10-18T09:56:01+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Malvik IL",
+                        "id": 110
+                    },
+                    "person": {
+                        "name": "Tim Aursand",
+                        "id": 738
+                    },
+                    "position": 34,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:05+00:00",
+                        "startTime": null,
+                        "bibNo": 1347
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1605000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:44:40+02:00",
+                        "time": 5380000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.914068Z",
+                    "id": "a01d3987-71cd-4e75-9382-c4f3dc242d0e"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.193353Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2374000,
+                            "counter": 1,
+                            "position": 39,
+                            "time": 6132391,
+                            "updated": "2025-10-18T10:57:15+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2331000,
+                            "counter": 1,
+                            "position": 39,
+                            "time": 6027067,
+                            "updated": "2025-10-18T10:55:26+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1357000,
+                            "counter": 1,
+                            "position": 41,
+                            "time": 3646852,
+                            "updated": "2025-10-18T10:15:46+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1826000,
+                            "counter": 1,
+                            "position": 38,
+                            "time": 4894045,
+                            "updated": "2025-10-18T10:36:31+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 931000,
+                            "counter": 1,
+                            "position": 38,
+                            "time": 2759232,
+                            "updated": "2025-10-18T10:01:01+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Fossum IF",
+                        "id": 46
+                    },
+                    "person": {
+                        "name": "Henrik Duvaas",
+                        "id": 769
+                    },
+                    "position": 39,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:07+00:00",
+                        "startTime": null,
+                        "bibNo": 1348
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:01+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2380000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:57:35+02:00",
+                        "time": 6155000,
+                        "updated": "2025-10-18T16:24:01+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.924228Z",
+                    "id": "a01d3990-0106-401c-acf1-7fd5cb8f3438"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:06.698125Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "Sturla, IF",
+                        "id": 41
+                    },
+                    "person": {
+                        "name": "Kristian Kaiser",
+                        "id": 844
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:11+00:00",
+                        "startTime": null,
+                        "bibNo": 1349
+                    },
+                    "status": {
+                        "updated": "2025-10-18T12:26:36+00:00",
+                        "status": "DidNotStart"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": null,
+                        "finishTime": null,
+                        "time": null,
+                        "updated": null
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:56:32.706771Z",
+                    "id": "a01d39a3-3e20-4419-ac2c-134715f908d4"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.765015Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "Heming Orientering",
+                        "id": 21
+                    },
+                    "person": {
+                        "name": "Martin Amlie Brenna",
+                        "id": 848
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:12+00:00",
+                        "startTime": null,
+                        "bibNo": 1350
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:01+00:00",
+                        "status": "MissingPunch"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:05:04+02:00",
+                        "time": 6604000,
+                        "updated": "2025-10-18T16:24:01+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.437734Z",
+                    "id": "a01d39a4-7cd3-4beb-b58e-8296c53a09ce"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.202881Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2886000,
+                            "counter": 1,
+                            "position": 44,
+                            "time": 6644630,
+                            "updated": "2025-10-18T11:05:45+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2840000,
+                            "counter": 1,
+                            "position": 44,
+                            "time": 6536633,
+                            "updated": "2025-10-18T11:03:56+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1285000,
+                            "counter": 1,
+                            "position": 39,
+                            "time": 3574434,
+                            "updated": "2025-10-18T10:14:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1929000,
+                            "counter": 1,
+                            "position": 40,
+                            "time": 4997864,
+                            "updated": "2025-10-18T10:38:16+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1026000,
+                            "counter": 1,
+                            "position": 40,
+                            "time": 2854913,
+                            "updated": "2025-10-18T10:02:36+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Indre \u00d8stfold OK",
+                        "id": 38
+                    },
+                    "person": {
+                        "name": "Olav Lavoll Giltvedt",
+                        "id": 889
+                    },
+                    "position": 44,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:14+00:00",
+                        "startTime": null,
+                        "bibNo": 1351
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:00+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2889000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:06:04+02:00",
+                        "time": 6664000,
+                        "updated": "2025-10-18T16:24:01+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.934846Z",
+                    "id": "a01d39af-01be-4e9b-8287-c3d77bce3677"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.212233Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 4115000,
+                            "counter": 1,
+                            "position": 50,
+                            "time": 7873864,
+                            "updated": "2025-10-18T11:26:16+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 4089000,
+                            "counter": 1,
+                            "position": 50,
+                            "time": 7785434,
+                            "updated": "2025-10-18T11:24:41+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 2971000,
+                            "counter": 1,
+                            "position": 50,
+                            "time": 5260793,
+                            "updated": "2025-10-18T10:42:41+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 3627000,
+                            "counter": 1,
+                            "position": 50,
+                            "time": 6695709,
+                            "updated": "2025-10-18T11:06:36+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 2426000,
+                            "counter": 1,
+                            "position": 50,
+                            "time": 4254482,
+                            "updated": "2025-10-18T10:25:56+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "OK Horten",
+                        "id": 121
+                    },
+                    "person": {
+                        "name": "Gard \u00d8vre\u00e5s Viljugrein",
+                        "id": 909
+                    },
+                    "position": 50,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:16+00:00",
+                        "startTime": null,
+                        "bibNo": 1352
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:23:59+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 4127000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:26:42+02:00",
+                        "time": 7902000,
+                        "updated": "2025-10-18T16:23:59+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.945346Z",
+                    "id": "a01d39b4-05f7-4f39-9aad-12f06bbf3ff8"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.221220Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 362000,
+                            "counter": 1,
+                            "position": 13,
+                            "time": 4120463,
+                            "updated": "2025-10-18T10:23:46+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 356000,
+                            "counter": 1,
+                            "position": 11,
+                            "time": 4052735,
+                            "updated": "2025-10-18T10:22:31+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 146000,
+                            "counter": 1,
+                            "position": 10,
+                            "time": 2435768,
+                            "updated": "2025-10-18T09:55:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 310000,
+                            "counter": 1,
+                            "position": 16,
+                            "time": 3378057,
+                            "updated": "2025-10-18T10:11:16+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 122000,
+                            "counter": 1,
+                            "position": 16,
+                            "time": 1950451,
+                            "updated": "2025-10-18T09:47:31+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sturla, IF",
+                        "id": 41
+                    },
+                    "person": {
+                        "name": "Aksel Klausen",
+                        "id": 915
+                    },
+                    "position": 13,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:16+00:00",
+                        "startTime": null,
+                        "bibNo": 1353
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:05+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 371000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:24:06+02:00",
+                        "time": 4146000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.955580Z",
+                    "id": "a01d39b5-8a05-4c8b-a74a-58e206d206db"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.230007Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1710000,
+                            "counter": 1,
+                            "position": 36,
+                            "time": 5468649,
+                            "updated": "2025-10-18T10:46:10+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1580000,
+                            "counter": 1,
+                            "position": 36,
+                            "time": 5276033,
+                            "updated": "2025-10-18T10:42:51+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 795000,
+                            "counter": 1,
+                            "position": 34,
+                            "time": 3084463,
+                            "updated": "2025-10-18T10:06:26+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1038000,
+                            "counter": 1,
+                            "position": 34,
+                            "time": 4106299,
+                            "updated": "2025-10-18T10:23:26+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 602000,
+                            "counter": 1,
+                            "position": 32,
+                            "time": 2430765,
+                            "updated": "2025-10-18T09:55:31+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Sandnes IL (Rogaland)",
+                        "id": 14
+                    },
+                    "person": {
+                        "name": "Thomas Vaktdal",
+                        "id": 1016
+                    },
+                    "position": 36,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:22+00:00",
+                        "startTime": null,
+                        "bibNo": 1354
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:03+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1723000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:46:38+02:00",
+                        "time": 5498000,
+                        "updated": "2025-10-18T16:24:03+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.965743Z",
+                    "id": "a01d39ce-e076-4a1a-90b4-61cd7757b0b1"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:06.711364Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "Oppsal Orientering",
+                        "id": 18
+                    },
+                    "person": {
+                        "name": "Oskar Torp Nedrelid",
+                        "id": 1036
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:24+00:00",
+                        "startTime": null,
+                        "bibNo": 1355
+                    },
+                    "status": {
+                        "updated": "2025-10-18T12:26:37+00:00",
+                        "status": "DidNotStart"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": null,
+                        "finishTime": null,
+                        "time": null,
+                        "updated": null
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:56:32.715721Z",
+                    "id": "a01d39d4-1c68-4da1-97b7-b28219efc611"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.238484Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 358000,
+                            "counter": 1,
+                            "position": 12,
+                            "time": 4116203,
+                            "updated": "2025-10-18T10:23:41+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 359000,
+                            "counter": 1,
+                            "position": 13,
+                            "time": 4055251,
+                            "updated": "2025-10-18T10:22:32+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 149000,
+                            "counter": 1,
+                            "position": 14,
+                            "time": 2438836,
+                            "updated": "2025-10-18T09:55:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 305000,
+                            "counter": 1,
+                            "position": 13,
+                            "time": 3373259,
+                            "updated": "2025-10-18T10:11:11+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 123000,
+                            "counter": 1,
+                            "position": 17,
+                            "time": 1951155,
+                            "updated": "2025-10-18T09:47:31+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "B\u00e6kkelagets SK",
+                        "id": 12
+                    },
+                    "person": {
+                        "name": "Oliver Benberg",
+                        "id": 1044
+                    },
+                    "position": 11,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:24+00:00",
+                        "startTime": null,
+                        "bibNo": 1356
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:05+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 366000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:24:01+02:00",
+                        "time": 4141000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.976177Z",
+                    "id": "a01d39d6-363f-4b63-9c52-f0d4815f4b24"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.247088Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 1156000,
+                            "counter": 1,
+                            "position": 31,
+                            "time": 4914113,
+                            "updated": "2025-10-18T10:36:55+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 1136000,
+                            "counter": 1,
+                            "position": 31,
+                            "time": 4832329,
+                            "updated": "2025-10-18T10:35:31+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 765000,
+                            "counter": 1,
+                            "position": 31,
+                            "time": 3054586,
+                            "updated": "2025-10-18T10:05:56+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 1012000,
+                            "counter": 1,
+                            "position": 31,
+                            "time": 4080993,
+                            "updated": "2025-10-18T10:23:01+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 605000,
+                            "counter": 1,
+                            "position": 33,
+                            "time": 2433551,
+                            "updated": "2025-10-18T09:55:36+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Nydalens SK",
+                        "id": 26
+                    },
+                    "person": {
+                        "name": "Mark Fey",
+                        "id": 1108
+                    },
+                    "position": 31,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:28+00:00",
+                        "startTime": null,
+                        "bibNo": 1357
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:02+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 1161000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:37:16+02:00",
+                        "time": 4936000,
+                        "updated": "2025-10-18T16:24:02+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.986987Z",
+                    "id": "a01d39e6-e74e-4699-8b16-98820f7b8cbc"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.256036Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 357000,
+                            "counter": 1,
+                            "position": 10,
+                            "time": 4115833,
+                            "updated": "2025-10-18T10:23:41+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 357000,
+                            "counter": 1,
+                            "position": 12,
+                            "time": 4053943,
+                            "updated": "2025-10-18T10:22:31+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 147000,
+                            "counter": 1,
+                            "position": 12,
+                            "time": 2436597,
+                            "updated": "2025-10-18T09:55:36+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 300000,
+                            "counter": 1,
+                            "position": 12,
+                            "time": 3368556,
+                            "updated": "2025-10-18T10:11:06+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 119000,
+                            "counter": 1,
+                            "position": 13,
+                            "time": 1947093,
+                            "updated": "2025-10-18T09:47:26+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Nittedal OL",
+                        "id": 122
+                    },
+                    "person": {
+                        "name": "Eiven Skram",
+                        "id": 1150
+                    },
+                    "position": 9,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:30+00:00",
+                        "startTime": null,
+                        "bibNo": 1358
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:05+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 362000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:23:57+02:00",
+                        "time": 4137000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.996811Z",
+                    "id": "a01d39f2-2495-4716-b9d0-6809e7274f5b"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:59.264567Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": {
+                        "131-1": {
+                            "behind": 2632000,
+                            "counter": 1,
+                            "position": 40,
+                            "time": 6390982,
+                            "updated": "2025-10-18T11:01:36+00:00",
+                            "intermediateControl": "131"
+                        },
+                        "136-1": {
+                            "behind": 2594000,
+                            "counter": 1,
+                            "position": 40,
+                            "time": 6290684,
+                            "updated": "2025-10-18T10:59:47+00:00",
+                            "intermediateControl": "136"
+                        },
+                        "134-1": {
+                            "behind": 1711000,
+                            "counter": 1,
+                            "position": 44,
+                            "time": 4000156,
+                            "updated": "2025-10-18T10:21:41+00:00",
+                            "intermediateControl": "134"
+                        },
+                        "135-1": {
+                            "behind": 2252000,
+                            "counter": 1,
+                            "position": 41,
+                            "time": 5320766,
+                            "updated": "2025-10-18T10:43:41+00:00",
+                            "intermediateControl": "135"
+                        },
+                        "133-1": {
+                            "behind": 1367000,
+                            "counter": 1,
+                            "position": 43,
+                            "time": 3195180,
+                            "updated": "2025-10-18T10:08:16+00:00",
+                            "intermediateControl": "133"
+                        }
+                    },
+                    "organisation": {
+                        "name": "Asker Skiklubb",
+                        "id": 27
+                    },
+                    "person": {
+                        "name": "Aleksander Anden\u00e6s",
+                        "id": 1184
+                    },
+                    "position": 40,
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-16T11:56:33+00:00",
+                        "startTime": null,
+                        "bibNo": 1359
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:01+00:00",
+                        "status": "OK"
+                    },
+                    "time": {
+                        "behind": 2639000,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T13:01:54+02:00",
+                        "time": 6414000,
+                        "updated": "2025-10-18T16:24:01+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:13.007293Z",
+                    "id": "a01d39fa-ba6b-4707-9374-35526b4b78db"
+                },
+                {
+                    "created_at": "2025-10-18T16:36:58.806141Z",
+                    "entryStatus": "Entered",
+                    "intermediateTimes": [],
+                    "organisation": {
+                        "name": "Halden SK",
+                        "id": 24
+                    },
+                    "person": {
+                        "name": "Ville Emil Wingstedt",
+                        "id": 1222
+                    },
+                    "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+                    "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+                    "start": {
+                        "updated": "2025-10-15T21:07:37+00:00",
+                        "startTime": null,
+                        "bibNo": 1360
+                    },
+                    "status": {
+                        "updated": "2025-10-18T16:24:04+00:00",
+                        "status": "MissingPunch"
+                    },
+                    "time": {
+                        "behind": null,
+                        "startTime": "2025-10-18T11:15:00+02:00",
+                        "finishTime": "2025-10-18T12:29:01+02:00",
+                        "time": 4441000,
+                        "updated": "2025-10-18T16:24:05+00:00"
+                    },
+                    "timingStartTimeSource": "StartList",
+                    "updated_at": "2025-10-18T16:57:12.478436Z",
+                    "id": "a022bb0e-a984-4f4e-ba31-12847a6f1439"
+                }
+            ]
+        }
+    },
+    "url": "\/fsk\/blodslitet2025\/resultater\/single?classes%5B0%5D=9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+    "version": "5d78aa7909050f5fa1f92dd4d027c1f6",
+    "encryptHistory": false,
+    "clearHistory": false
+}

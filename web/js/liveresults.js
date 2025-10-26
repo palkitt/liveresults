@@ -5,7 +5,7 @@ var LiveResults;
   var AjaxViewer = /** @class */ (function () {
     function AjaxViewer(competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsControlsDiv, resultsDiv, txtResetSorting,
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
-      EmmaServer = false, filterDiv = null, fixedTable = false) {
+      EmmaServer, Time4oServer, filterDiv = null, fixedTable = false) {
       var _this = this;
       this.local = true;
       this.competitionId = competitionId;
@@ -25,6 +25,7 @@ var LiveResults;
       this.setCompactViewText = setCompactViewText;
       this.runnerStatus = runnerStatus;
       this.EmmaServer = EmmaServer;
+      this.Time4oServer = Time4oServer;
       this.fixedTable = fixedTable;
       this.updateAutomatically = true;
       this.autoUpdateLastPassings = true;
@@ -33,7 +34,7 @@ var LiveResults;
       this.showTimesInSprint = false;
       this.showCourseResults = false;
       this.showTenthOfSecond = false;
-      this.updateInterval = (EmmaServer ? 15000 : (this.local ? 2000 : 5000));
+      this.updateInterval = (this.EmmaServer ? 15000 : (this.local ? 2000 : 5000));
       this.lastChanged = 0;
       this.radioUpdateInterval = (this.local ? 2000 : 5000);
       this.clubUpdateInterval = 20000;
@@ -94,6 +95,7 @@ var LiveResults;
       this.relayClasses = [];
       this.courses = {};
       this.courseNames = {};
+      this.activeClasses = null;
       this.runnerList = null;
       this.speakerView = false;
       this.shortSprint = false;
@@ -112,7 +114,6 @@ var LiveResults;
       $(window).on('hashchange', function (e) {
         _this.onload();
       });
-
     }
 
     AjaxViewer.prototype.onload = function () {
@@ -205,25 +206,41 @@ var LiveResults;
 
     // Update the classlist
     AjaxViewer.prototype.updateClassList = function (first = false) {
+      if (!this.updateAutomatically)
+        return
       var _this = this;
       this.inactiveTimer += this.classUpdateInterval / 1000;
 
-      if (this.updateAutomatically) {
-        $.ajax({
-          url: this.apiURL,
-          data: "comp=" + this.competitionId + "&method=getclasses&last_hash=" + this.lastClassListHash,
-          success: function (data) {
-            _this.handleUpdateClassListResponse(data, first);
-          },
-          error: function () {
-            _this.classUpdateTimer = setTimeout(function () { _this.updateClassList(first); }, _this.classUpdateInterval);
-          },
-          dataType: "json"
-        });
+      var url = this.apiURL;
+      var data = "comp=" + this.competitionId + "&method=getclasses&last_hash=" + this.lastClassListHash;
+
+      if (this.Time4oServer) {
+        url = "api/time4o/time4o_raceinfo.json";
+        data = "";
       }
+
+      $.ajax({
+        url: url,
+        data: data,
+        success: function (data) {
+          _this.handleUpdateClassListResponse(data, first);
+        },
+        error: function () {
+          _this.classUpdateTimer = setTimeout(function () { _this.updateClassList(first); }, _this.classUpdateInterval);
+        },
+        dataType: "json"
+      });
+
     };
+
     AjaxViewer.prototype.handleUpdateClassListResponse = function (data, first) {
       var _this = this;
+      if (this.Time4oServer) {
+        data = this.convertTime4oRaceInfoToLiveres(data);
+        this.compDate = data.eventDate;
+        $("#compname").html(data.eventName);
+        this.activeClasses = data.classes;
+      }
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
@@ -232,6 +249,7 @@ var LiveResults;
         if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0)
           $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
         if (data.classes != null) {
+          data.classes = this.sortClasses(data.classes);
           this.courses = {};
           this.relayClasses = [];
           var classes = data.classes;
@@ -354,7 +372,7 @@ var LiveResults;
               }
             }
           };
-          if (!this.EmmaServer) {
+          if (!this.EmmaServer && !this.Time4oServer) {
             str += "<hr><a href=\"javascript:LiveResults.Instance.chooseClass('plainresults')\" style=\"text-decoration: none\">Alle klasser</a>";
             str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('startlist')\" style=\"text-decoration: none\">Startliste</a>";
             if (this.isMultiDayEvent)
@@ -2491,47 +2509,60 @@ var LiveResults;
 
     //Check for updating of class results 
     AjaxViewer.prototype.checkForClassUpdate = function () {
+      if (!this.updateAutomatically)
+        return;
       var _this = this;
       if (this.inactiveTimer > this.inactiveTimeout) {
         alert('For lenge inaktiv. Trykk OK for å oppdatere.')
         this.inactiveTimer = 0;
       }
-      if (this.updateAutomatically) {
-        if (this.currentTable != null) {
-          var preTime = new Date().getTime();
-          $.ajax({
-            url: this.apiURL,
-            data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(this.curClassName) + "&nosplits=" + this.noSplits +
-              "&last_hash=" + this.lastClassHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
-            success: function (data, status, resp) {
-              var expTime = false;
-              try {
-                var postTime = new Date().getTime();
-                var varTime = Math.max(1000, postTime - preTime); // Uncertainty in server time. Add 1000 to account for seconds resultion
-                var reqTime = resp.getResponseHeader("date");
-                if (reqTime) {
-                  var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
-                  if (Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
-                    _this.serverTimeDiff = 0.9 * _this.serverTimeDiff + 0.1 * newTimeDiff;
-                }
-                expTime = new Date(resp.getResponseHeader("expires")).getTime();
-              }
-              catch (e) { }
-              _this.handleUpdateClassResults(data, expTime);
-            },
-            error: function () {
-              _this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, _this.updateInterval);
-            },
-            dataType: "json"
-          });
+
+      if (this.currentTable != null) {
+        var preTime = new Date().getTime();
+        url = this.apiURL;
+        data = "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(this.curClassName) + "&nosplits=" + this.noSplits +
+          "&last_hash=" + this.lastClassHash + (this.isMultiDayEvent ? "&includetotal=true" : "")
+        if (this.Time4oServer) {
+          url = "api/time4o/time4o_" + this.curClassName + ".json";
+          data = "";
         }
+        $.ajax({
+          url: url,
+          data: data,
+          success: function (data, status, resp) {
+            var expTime = false;
+            try {
+              var postTime = new Date().getTime();
+              var varTime = Math.max(1000, postTime - preTime); // Uncertainty in server time. Add 1000 to account for seconds resultion
+              var reqTime = resp.getResponseHeader("date");
+              if (reqTime) {
+                var newTimeDiff = postTime - (new Date(reqTime).getTime() + 500);
+                if (!_this.Time4oServer && Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
+                  _this.serverTimeDiff = 0.9 * _this.serverTimeDiff + 0.1 * newTimeDiff;
+              }
+              expTime = new Date(resp.getResponseHeader("expires")).getTime();
+            }
+            catch (e) { }
+            _this.handleUpdateClassResults(data, expTime);
+          },
+          error: function () {
+            _this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, _this.updateInterval);
+          },
+          dataType: "json"
+        });
       }
+
     };
 
     //handle response from class-results-update
     AjaxViewer.prototype.handleUpdateClassResults = function (newData, expTime) {
       if (this.curClassName == null)
         return;
+      if (this.Time4oServer) {
+        newData = this.convertTime4oResultsToLiveres(newData, classInfo = null);
+        newData.className = this.curClassName;
+        newData.splitcontrols = this.activeClasses?.find(c => c.className === this.curClassName).splitcontrols;
+      }
       try {
         if (newData.rt != undefined && newData.rt > 0)
           this.updateInterval = newData.rt * 1000;
@@ -2939,9 +2970,17 @@ var LiveResults;
           $('#divLivelox').html('<a href="' + LiveloxLink + '">Livelox <img src="images/livelox32x32.png" style="height:1em;"></a>');
         }
       }
+
+      var url = this.apiURL;
+      var data = "comp=" + this.competitionId + callStr;
+      if (this.Time4oServer) {
+        url = "api/time4o/time4o_" + this.curClassName + ".json";
+        data = "";
+      }
+
       $.ajax({
-        url: this.apiURL,
-        data: "comp=" + this.competitionId + callStr,
+        url: url,
+        data: data,
         success: function (data, status, resp) {
           var expTime = false;
           try {
@@ -2967,6 +3006,14 @@ var LiveResults;
     AjaxViewer.prototype.updateClassResults = function (data, expTime) {
       if (this.curClassName == null)
         return;
+
+      if (this.Time4oServer) {
+        const classInfo = this.activeClasses?.find(c => c.className === this.curClassName) ?? null;
+        if (classInfo == null)
+          return;
+        data = this.convertTime4oResultsToLiveres(data, classInfo);
+      }
+
       if (data != null && data.rt != undefined && data.rt > 0)
         this.updateInterval = data.rt * 1000;
       if (data != null && data.lastchanged != undefined)
@@ -3233,7 +3280,10 @@ var LiveResults;
                     if (clubShort.length > _this.maxClubLength)
                       clubShort = _this.clubShort(clubShort);
                   }
-                  return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                  if (this.Time4oServer)
+                    return clubShort;
+                  else
+                    return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 }
               });
             columns.push({
@@ -3254,7 +3304,8 @@ var LiveResults;
                   if (clubShort.length > _this.maxClubLength)
                     clubShort = _this.clubShort(clubShort);
                 }
-                var clubLink = "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                var clubLink = (_this.Time4oServer ? clubShort :
+                  "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>");
                 return (haveSplitControls && fullView ? clubLink + "<br/>" + nameShort : nameShort);
               }
             });
@@ -3297,7 +3348,7 @@ var LiveResults;
                 var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 if ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes))
                   return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
-                else if (_this.fixedTable)
+                else if (_this.fixedTable || _this.Time4oServer)
                   return clubShort;
                 else
                   return link;
@@ -3414,7 +3465,7 @@ var LiveResults;
                   data: "splits." + value.code,
                   render: function (data, type, row) {
                     if (isNaN(parseInt(data)))
-                      return data;
+                      return data ?? "";
                     else if (type == "sort")
                       return parseInt(data);
                     else {
@@ -3521,7 +3572,10 @@ var LiveResults;
                   visible: false,
                   targets: [col++],
                   type: "numeric",
-                  data: "splits." + value.code + "_status"
+                  data: "splits." + value.code + "_status",
+                  render: function (data, type, row) {
+                    return data ?? "";
+                  }
                 });
               }
             });
@@ -5503,6 +5557,184 @@ var LiveResults;
       return sumVal / nValues;
     };
 
+    AjaxViewer.prototype.convertTime4oRaceInfoToLiveres = function (data) {
+      const classes = (data?.props?.raceClasses ?? []).map(classEntry => this.normalizeClasses(classEntry));
+      const eventName = data?.props?.race?.name ?? "";
+      const eventDate = data?.props?.race?.firstStart ?? "";
+      const eventDateShort = eventDate.substr(0, 10);
+
+      return {
+        status: "OK",
+        classes: classes ?? "",
+        eventName: eventName,
+        eventDate: eventDateShort,
+        hash: ""
+      };
+    }
+
+    AjaxViewer.prototype.normalizeClasses = function (classEntry) {
+      _this = this;
+
+      const rawStartIso = classEntry?.firstStart ?? null;
+      const id = classEntry?.id ?? null;
+      const firstStart = rawStartIso != null;
+      const resultListMode = classEntry?.resultListMode ?? null;
+      const startType = classEntry?.startType ?? null;
+      const timingResolution = classEntry?.timingResolution ?? null;
+      const splitcontrols = _this.normalizeIntermediateControls(classEntry?.intermediateControls, classEntry?.resultListMode);
+
+      if (resultListMode == "Unordered")
+        splitcontrols.push({ code: -999, order: 999, name: "Time" });
+
+      return {
+        className: classEntry?.name ?? "",
+        firstStart: firstStart ? Math.floor(Date.parse(rawStartIso) / 1000) : -999,
+        resultListMode: resultListMode,
+        startType: startType,
+        timingResolution: timingResolution,
+        id: id,
+        splitcontrols: splitcontrols
+      };
+    }
+
+    AjaxViewer.prototype.normalizeIntermediateControls = function (intermediateControl, resultListMode) {
+      if (!intermediateControl) return [];
+      const unordered = ["Unordered", "UnorderedNoTimes"].includes(resultListMode);
+      return Object.values(intermediateControl)
+        .map((ctrl, idx) => ({
+          order: ctrl?.order ?? idx + 1,
+          code: (Number(ctrl?.id) + (ctrl?.counter ?? 0) * 1000) * (unordered ? -1 : 1),
+          name: ctrl?.name ?? `Split ${idx + 1}`
+        }))
+        .sort((a, b) => a.order - b.order)
+        .map(({ code, name, order }) => ({ code, name, order }));
+    }
+
+    AjaxViewer.prototype.convertTime4oResultsToLiveres = function (data, classInfo) {
+      const classId = Object.keys(data?.props?.entries ?? {})[0];
+      const entries = (data?.props?.entries?.[classId] ?? []).map(entry => this.normalizeEntry(entry, classInfo));
+
+      return {
+        status: "OK",
+        classId: classId ?? "",
+        className: classInfo?.className ?? "",
+        distance: "",
+        splitcontrols: classInfo?.splitcontrols ?? [],
+        results: entries,
+        lastchanged: "",
+        infotext: "",
+        hash: "",
+        rt: 3,
+        active: 0
+      };
+    }
+
+    AjaxViewer.prototype.normalizeEntry = function (entry, classInfo) {
+      var _this = this;
+      const statusMap = {
+        "OK": 0,
+        "DidNotStart": 1,
+        "DidNotFinish": 2,
+        "MissingPunch": 3,
+        "Disqualified": 4,
+        "OverTime": 5,
+        "NotClassified": 6,
+        "Overtime": 11,
+        "Walkover": 12,
+        "Finished": 13
+        /*        
+        runnerStatus[9] = "";
+        runnerStatus[10] = "";
+        */
+      };
+
+      const unordered = ["Unordered", "UnorderedNoTimes"].includes(classInfo?.resultListMode);
+      let statusKey = entry?.status?.status ?? "Unknown";
+      if (statusKey == "OK" && unordered)
+        statusKey = "Finished";
+      const statusValue = statusMap[statusKey] ?? 10;
+      const rawStartIso = entry?.time?.startTime ?? null;
+      const changedIso = entry?.status?.updated ?? entry?.updated_at ?? null;
+      const intermediates = entry?.intermediateTimes ?? {};
+      const splits = Object.entries(intermediates).reduce((acc, [key, val]) => {
+        const code = (Number(key.split('-')[1]) * 1000 + Number(key.split('-')[0])) * (unordered ? -1 : 1);
+        const timeHundredths = val?.time != null ? Math.round(val.time / 10) : "";
+        const behindHundredths = val?.behind != null ? Math.round(val.behind / 10) : "";
+        const changedEpoch = val?.updated ? Math.floor(new Date(val.updated).getTime() / 1000) : 0;
+
+        acc[code] = timeHundredths;
+        acc[`${code}_status`] = statusValue;
+        acc[`${code}_changed`] = changedEpoch;
+        acc[`${code}_timeplus`] = behindHundredths;
+        acc[`${code}_place`] = val?.position ?? "-";
+        return acc;
+      }, {});
+
+      let rawResult = entry?.time?.time ?? null;
+      let rawBehind = entry?.time?.behind ?? null;
+      let place = entry?.position != null ? String(entry.position) : "-"
+
+      if (statusKey == "Finished") {
+        splits["-999"] = rawResult != null ? Math.round(rawResult / 10) : "";
+        splits["-999_status"] = statusValue;
+        splits["-999_changed"] = changedIso;
+        splits["-999_timeplus"] = 0;
+        splits["-999_place"] = "F";
+        rawResult = entry?.person?.id != null ? entry.person.id : 100;
+        place = "F";
+      }
+      return {
+        place: place,
+        dbid: entry?.person?.id ?? 0,
+        bib: entry?.start?.bibNo ?? 0,
+        name: entry?.person?.name ?? "",
+        club: entry?.organisation?.name ?? "",
+        pace: -1,
+        splits: splits,
+        result: rawResult != null ? String(Math.round(rawResult / 10)) : -3,
+        status: statusValue,
+        timeplus: rawBehind != null ? Math.round(rawBehind / 10) : "",
+        changed: changedIso ? Math.floor(Date.parse(changedIso) / 1000) : 0,
+        progress: -1, // finish = 100, start = 0, intermediate = fraction
+        start: rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : -999
+      };
+    }
+
+    AjaxViewer.prototype.toHundredthsSinceMidnight = function (isoString) {
+      const d = new Date(isoString);
+      if (Number.isNaN(d.getTime())) return -999;
+      const ms = (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) * 1000 + d.getMilliseconds();
+      return Math.round(ms / 10);
+    }
+
+    AjaxViewer.prototype.sortClasses = function (classes) {
+      if (!Array.isArray(classes)) return [];
+
+      const sortWeight = (cls) => {
+        const name = cls?.className ?? cls?.Class ?? "";
+        let key = name.toLowerCase();
+
+        if (/(åpen|open|gjest|dir|utv)/i.test(key))
+          key = "z" + key;
+        if (/(-e| e|\d+e|elite|wre|nm)(\s*\d*)$/i.test(key))
+          key = "a" + key;
+
+        return key
+          .replace(/\d+/g, (num) => num.padStart(3, "0"))
+          .replace(/\s+/g, "")
+          .replace(/[-+]/g, "")
+          .replace(/prolog/gi, "a")
+          .replace(/kvart/gi, "b")
+          .replace(/semi/gi, "c")
+          .replace(/finale/gi, "d");
+      };
+
+      return classes.slice().sort((a, b) => {
+        const keyA = sortWeight(a);
+        const keyB = sortWeight(b);
+        return keyA.localeCompare(keyB);
+      });
+    }
 
     // ReSharper disable once InconsistentNaming
     AjaxViewer.VERSION = "2016-08-06-01";

@@ -6,15 +6,16 @@ $lang = "no";
 if (isset($_GET['lang']))
   $lang = $_GET['lang'];
 $isEmmaComp = isset($_GET['emma']);
+$isTime4oComp = isset($_GET['time4o']);
 $isSpeaker = isset($_GET['speaker']);
-$compNo = $_GET['comp'];
+$compID = $_GET['comp'];
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
 include_once("templates/datatablesURL.php");
 
 if ($isEmmaComp) {
-  $url = "https://liveresultat.orientering.se/api.php?method=getcompetitioninfo&comp=" . $compNo;
+  $url = "https://liveresultat.orientering.se/api.php?method=getcompetitioninfo&comp=" . $compID;
   $json = file_get_contents($url);
   $json = preg_replace('/[[:cntrl:]]/', '', $json);
   $json = str_replace('"O"', 'O', $json);
@@ -37,9 +38,39 @@ if ($isEmmaComp) {
   $liveloxid = 0;
   $indexRef = "index.php?emma&lang=" . $lang;
   $CHARSET = 'utf-8';
+} else if ($isTime4oComp) {
+  $url = "https://center.time4o.com/" . $compID;
+  $opts = [
+    'https' => [
+      'method'  => 'GET',
+      'header'  => "x-inertia: true\r\nx-inertia-partial-data: entries\r\nx-inertia-partial-component: Entries/Entries\r\nx-inertia-version: 5d78aa7909050f5fa1f92dd4d027c1f6\r\nAccept: application/json\r\n",
+      'timeout' => 10
+    ]
+  ];
+  $context = stream_context_create($opts);
+  $json = ""; //file_get_contents($url, false, $context);
+  $currentComp = json_decode($json, true);
+  $compName = ""; // $currentComp["props.race.name"];
+  $compDate = ""; // substr($currentComp["props.center.startDate"], 0, 10);
+  $eventTimeZoneDiff = 0;
+  $organizer = ""; // $currentComp["props.center.client.name"];
+  $showInfo = false;
+  $showEcardTimes = false;
+  $showTimesInSprint = false;
+  $showCourseResults = false;
+  $isMultiDayEvent = "false";
+  $showTenths = false;
+  $highTime = 60;
+  $rankedStartlist = false;
+  $qualLimits = "";
+  $qualClasses = "";
+  $infoText = "";
+  $liveloxid = 0;
+  $indexRef = "https://center.time4o.com/";
+  $CHARSET = 'utf-8';
 } else {
   include_once("templates/classEmma.class.php");
-  $currentComp = new Emma($compNo);
+  $currentComp = new Emma($compID);
   $compName = $currentComp->CompName();
   $compDate = $currentComp->CompDate();
   $eventTimeZoneDiff = $currentComp->TimeZoneDiff();
@@ -70,7 +101,7 @@ $isSingleClub = isset($_GET['club']);
 if ($isSingleClub)
   $singleClub = rawurldecode($_GET['club']);
 
-$showLastPassings = !($isSingleClass || $isSingleClub) || (isset($_GET['showLastPassings']) && $_GET['showLastPassings'] == "true");
+$showLastPassings = !($isTime4oComp || $isSingleClass || $isSingleClub) || (isset($_GET['showLastPassings']) && $_GET['showLastPassings'] == "true");
 
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
@@ -173,8 +204,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         } catch (error) {}
       <?php } ?>
 
-      res = new LiveResults.AjaxViewer(<?= $compNo ?>, "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
-        Resources, <?= $isMultiDayEvent ?>, <?= (($isSingleClass || $isSingleClub) ? "true" : "false") ?>, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "", <?= $isEmmaComp ?>);
+      res = new LiveResults.AjaxViewer("<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls",
+        "divResults", "txtResetSorting", Resources, <?= $isMultiDayEvent ?>, <?= (($isSingleClass || $isSingleClub) ? "true" : "false") ?>,
+        "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "",
+        <?= ($isEmmaComp ? "true" : "false") ?>, <?= ($isTime4oComp ? "true" : "false") ?>);
 
       <?php if ($isSpeaker) { ?>
         res.speakerView = true;
@@ -254,7 +287,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
       // If mobile: close top and use unpinned class column
       <?php if ((!$isSingleClass && !$isSingleClub)) { ?>
-        if (res.browserType == 1 && <?= (in_array($compNo, array("10203")) ? 0 : 1) ?>) {
+        if (res.browserType == 1 && <?= (in_array($compID, array("10203")) ? 0 : 1) ?>) {
           closeTop();
           if (locked == undefined || !locked)
             togglelocked();
@@ -387,19 +420,21 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           <td align="center">
             <div id="topBar" style="overflow: hidden">
               <?php if ($organizer == "Freidig/Wing/Malvik") { ?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
-              <?php if (in_array($compNo, array("10118", "10119", "10120", "10121"))) { ?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
-              <?php if (in_array($compNo, array("10110", "10111", "10112"))) { ?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
-              <?php if (in_array($compNo, array("10203"))) { ?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
+              <?php if (in_array($compID, array("10118", "10119", "10120", "10121"))) { ?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
+              <?php if (in_array($compID, array("10110", "10111", "10112"))) { ?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
+              <?php if (in_array($compID, array("10203"))) { ?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
               <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:var(--bkdark); padding: 5px">
                 <tr>
                   <?php
-                  if (in_array($compNo, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
-                  else if (in_array($compNo, array("10118", "10119", "10120", "10121")))  $image = "images/NM2021.jpg";
-                  else if (in_array($compNo, array("10215")))  $image = "images/Skien.png";
-                  else if (in_array($compNo, array("10532", "10533", "10534", "10535"))) $image = "images/HL2023.png";
-                  else if (in_array($compNo, array("10606")))  $image = "images/Blodslitet.jpg";
-                  else if (in_array($compNo, array("10836", "10837", "10838")))  $image = "images/HL_logo_200.png";
-                  else if (in_array($compNo, array("11140", "11141", "11142", "11143")))  $image = "images/nmuka25.jpg";
+                  if ($isTime4oComp)
+                    $image = "images/time4o.svg";
+                  else if (in_array($compID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
+                  else if (in_array($compID, array("10118", "10119", "10120", "10121")))  $image = "images/NM2021.jpg";
+                  else if (in_array($compID, array("10215")))  $image = "images/Skien.png";
+                  else if (in_array($compID, array("10532", "10533", "10534", "10535"))) $image = "images/HL2023.png";
+                  else if (in_array($compID, array("10606")))  $image = "images/Blodslitet.jpg";
+                  else if (in_array($compID, array("10836", "10837", "10838")))  $image = "images/HL_logo_200.png";
+                  else if (in_array($compID, array("11140", "11141", "11142", "11143")))  $image = "images/nmuka25.jpg";
                   else switch (strtolower($organizer)) {
                     case "larvik ok":
                       $image = "images/larvikok.png";
@@ -506,8 +541,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                     <input type="text" id="searchBib" placeholder="Startno..." size="3em"> <span id="searchRunner">Ukjent startnummer</span>
                   </td>
                   <td align="right">
-                    <a href="startlist.php?comp=<?= $compNo ?>"><?= $_START ?></a> | <a href="radio.php?code=-1&comp=<?= $compNo ?>">Melde</a> |
-                    <a href="radio.php?code=1000&comp=<?= $compNo ?>"><?= $_CONTROLFINISH ?></a> |
+                    <a href="startlist.php?comp=<?= $compID ?>"><?= $_START ?></a> | <a href="radio.php?code=-1&comp=<?= $compID ?>">Melde</a> |
+                    <a href="radio.php?code=1000&comp=<?= $compID ?>"><?= $_CONTROLFINISH ?></a> |
                     <a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF"></a><span id="Oslo_z71e"></span>
                   </td>
                 </tr>
