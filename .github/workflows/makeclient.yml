@@ -26,17 +26,6 @@ jobs:
       - name: Restore NuGet packages
         run: nuget restore LiveResults.Client.sln
 
-      - name: Generate build info
-        shell: pwsh
-        run: |
-          $buildDate = (Get-Date).ToString("yyyy-MM-dd")
-          $path = "LiveResults.Client/Properties/BuildInfo.cs"
-          @"
-          using System.Reflection;
-          [assembly: AssemblyMetadata("BuildDate", "$buildDate")]
-          "@ | Out-File -Encoding utf8 $path
-          Write-Host "Updated BuildInfo.cs with build date $buildDate"
-
       - name: Build solution
         run: msbuild LiveResults.Client.sln /p:Configuration=Release
 
