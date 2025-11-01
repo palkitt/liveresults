@@ -7,6 +7,7 @@ if (isset($_GET['lang']))
   $lang = $_GET['lang'];
 $isEmmaComp = isset($_GET['emma']);
 $isTime4oComp = isset($_GET['time4o']);
+$isLiveResComp = (!$isEmmaComp && !$isTime4oComp);
 $isSpeaker = isset($_GET['speaker']);
 $compID = $_GET['comp'];
 
@@ -39,21 +40,18 @@ if ($isEmmaComp) {
   $indexRef = "index.php?emma&lang=" . $lang;
   $CHARSET = 'utf-8';
 } else if ($isTime4oComp) {
-  $url = "https://center.time4o.com/" . $compID;
-  $opts = [
-    'https' => [
-      'method'  => 'GET',
-      'header'  => "x-inertia: true\r\nx-inertia-partial-data: entries\r\nx-inertia-partial-component: Entries/Entries\r\nx-inertia-version: 5d78aa7909050f5fa1f92dd4d027c1f6\r\nAccept: application/json\r\n",
-      'timeout' => 10
-    ]
-  ];
-  $context = stream_context_create($opts);
-  $json = ""; //file_get_contents($url, false, $context);
-  $currentComp = json_decode($json, true);
-  $compName = ""; // $currentComp["props.race.name"];
-  $compDate = ""; // substr($currentComp["props.center.startDate"], 0, 10);
+  $url = "https://center.time4o.com/api/v1/race/" . $compID;
+  //$url = "api/time4o/time4o_raceinfo_single.json";
+  $json = file_get_contents($url);
+  $data = json_decode($json, true);
+  $currentComp = $data["data"];
+  if (isset($currentComp["raceNumber"])) {
+    $compName = $currentComp['event']['name'] . " - " . $currentComp["racenumber"];
+  } else
+    $compName = $currentComp["name"];
+  $compDate = $currentComp["date"];
+  $organizer = $currentComp["event"]["organisers"][0]["name"] ?? "";
   $eventTimeZoneDiff = 0;
-  $organizer = ""; // $currentComp["props.center.client.name"];
   $showInfo = false;
   $showEcardTimes = false;
   $showTimesInSprint = false;
@@ -66,7 +64,7 @@ if ($isEmmaComp) {
   $qualClasses = "";
   $infoText = "";
   $liveloxid = 0;
-  $indexRef = "https://center.time4o.com/";
+  $indexRef = "index.php?time4o&lang=" . $lang;
   $CHARSET = 'utf-8';
 } else {
   include_once("templates/classEmma.class.php");
@@ -286,8 +284,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         var locked = (localStorage.getItem("classLock") == "true");
 
       // If mobile: close top and use unpinned class column
-      <?php if ((!$isSingleClass && !$isSingleClub)) { ?>
-        if (res.browserType == 1 && <?= (in_array($compID, array("10203")) ? 0 : 1) ?>) {
+      <?php if (!$isSingleClass && !$isSingleClub) { ?>
+        if (res.browserType == 1) {
           closeTop();
           if (locked == undefined || !locked)
             togglelocked();
@@ -298,6 +296,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           if (locked != undefined && !locked)
             togglelocked();
         }
+      <?php } ?>
+
+      // If Time4o - close top (until delivery of last passings)
+      <?php if ($isTime4oComp) { ?>
+        closeTop();
       <?php } ?>
 
       loadFontSize();
@@ -422,12 +425,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <?php if ($organizer == "Freidig/Wing/Malvik") { ?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
               <?php if (in_array($compID, array("10118", "10119", "10120", "10121"))) { ?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
               <?php if (in_array($compID, array("10110", "10111", "10112"))) { ?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
-              <?php if (in_array($compID, array("10203"))) { ?> <img src="images/BSKrennet2022.png" height="50"><br> <?php } ?>
               <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:var(--bkdark); padding: 5px">
                 <tr>
                   <?php
                   if ($isTime4oComp)
-                    $image = "images/time4o.svg";
+                    $image = "images/time4o_small.svg";
                   else if (in_array($compID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
                   else if (in_array($compID, array("10118", "10119", "10120", "10121")))  $image = "images/NM2021.jpg";
                   else if (in_array($compID, array("10215")))  $image = "images/Skien.png";
@@ -560,7 +562,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                 <div class="dropdownClass">
                   <button id="dropbtnClass" class="dropbtnClass">
                     <span class="fa-solid fa-bars"></span>&nbsp;
-                    <?php if (!$isEmmaComp) { ?>
+                    <?php if ($isLiveResComp) { ?>
                       <span id="liveIndicator"></span>
                     <?php } ?>
                     <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b></span>
@@ -585,7 +587,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                 <table class="numrunners">
                   <tr>
                     <td>Klasse</td>
-                    <?php if (!$isEmmaComp) { ?>
+                    <?php if ($isLiveResComp) { ?>
                       <td>Totalt</td>
                       <td><?= $_START ?></td>
                       <td><?= $_CONTROLFINISH ?></td>
@@ -593,7 +595,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   </tr>
                   <tr>
                     <td><span id="numberOfRunners"></span></td>
-                    <?php if (!$isEmmaComp) { ?>
+                    <?php if ($isLiveResComp) { ?>
                       <td><span id="numberOfRunnersTotal"></span></td>
                       <td><span id="numberOfRunnersStarted"></span></td>
                       <td><span id="numberOfRunnersFinished"></span></td>
@@ -602,8 +604,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                 </table>
                 <div style="font-size: 0.7em; color:gray; line-height:1.3em;">
                   Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
-                  * <?= $_HELPREDRESULTS ?><br>
                   &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
+                  <?php if ($isTime4oComp) { ?>
+                    <br>
+                    <img src="images/time4o_small.svg" height="10px"> Timing data from Time4o: https://app.time4o.com
+                  <?php } ?>
                 </div>
             </div>
           </div>

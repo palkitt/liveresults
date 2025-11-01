@@ -1,0 +1,24 @@
+{
+    "data": {
+        "id": "9f42d7f2-d887-4aa8-bc33-67a53d6958a6",
+        "date": "2026-08-05",
+        "name": "Kretsstafetten",
+        "raceNumber": null,
+        "eventForm": "Relay",
+        "event": {
+            "organisers": [
+                {
+                    "id": "9e3a61d1-65f0-4329-82be-d817e7175388",
+                    "name": "Nydalens Skiklub"
+                }
+            ],
+            "name": "Kretsstafetten",
+            "startDate": "2026-08-05",
+            "startTime": "00:00:00",
+            "locale": "nb",
+            "timezone": "Europe/Oslo"
+        },
+        "identifierType": "Norway",
+        "identifier": "20170"
+    }
+}

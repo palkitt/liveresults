@@ -34,9 +34,7 @@ var LiveResults;
       this.showTimesInSprint = false;
       this.showCourseResults = false;
       this.showTenthOfSecond = false;
-      this.updateInterval = (this.EmmaServer ? 15000 : (this.local ? 2000 : 5000));
       this.lastChanged = 0;
-      this.radioUpdateInterval = (this.local ? 2000 : 5000);
       this.clubUpdateInterval = 20000;
       this.classUpdateInterval = 60000;
       this.inactiveTimeout = 30 * 60;
@@ -102,9 +100,35 @@ var LiveResults;
       this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
       this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
       this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
-      this.apiURL = (EmmaServer ? "https://liveresultat.orientering.se/api.php" : (this.local ? "api/api.php" : "//api.liveres.live/api.php"));
-      this.radioURL = (this.local ? "api/radioapi.php" : "//api.liveres.live/radioapi.php");
-      this.messageURL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
+
+      if (Time4oServer) {
+        this.updateInterval = 3000;
+        this.radioUpdateInterval = 3000;
+        this.apiURL = "https://center.time4o.com/api/v1/";
+        this.radioURL = "//api.liveres.live/radioapi.php";
+        this.messageURL = "//api.liveres.live/messageapi.php";
+      }
+      else if (EmmaServer) {
+        this.updateInterval = 15000;
+        this.radioUpdateInterval = 5000;
+        this.apiURL = "https://liveresultat.orientering.se/api.php";
+        this.radioURL = "";
+        this.messageURL = "";
+      }
+      else if (this.local) {
+        this.updateInterval = 2000;
+        this.radioUpdateInterval = 2000;
+        this.apiURL = "api/api.php";
+        this.radioURL = "api/radioapi.php";
+        this.messageURL = "api/messageapi.php";
+      }
+      else { // LiveRes
+        this.updateInterval = 5000;
+        this.radioUpdateInterval = 5000;
+        this.apiURL = "//api.liveres.live/api.php";
+        this.radioURL = "//api.liveres.live/radioapi.php";
+        this.messageURL = "//api.liveres.live/messageapi.php";
+      }
       LiveResults.Instance = this;
 
       $(document).ready(function (e) {
@@ -140,8 +164,10 @@ var LiveResults;
         }
         else {
           cl = decodeURIComponent(hash);
-          if (cl != _this.curClassName)
-            setTimeout(function () { _this.chooseClass(cl); }, 100);
+          if (cl != _this.curClassName) {
+            var delay = (_this.Time4oServer ? 500 : 100);
+            setTimeout(function () { _this.chooseClass(cl); }, delay);
+          }
         }
       }
     }
@@ -210,19 +236,32 @@ var LiveResults;
         return
       var _this = this;
       this.inactiveTimer += this.classUpdateInterval / 1000;
-
-      var url = this.apiURL;
-      var data = "comp=" + this.competitionId + "&method=getclasses&last_hash=" + this.lastClassListHash;
-
+      var URLextra, headers;
       if (this.Time4oServer) {
-        url = "api/time4o/time4o_raceinfo.json";
-        data = "";
+        //this.apiURL = "api/time4o/time4o_raceinfo.json";
+        URLextra = "race/" + this.competitionId + "/raceClass";
+        headers = this.lastClassListHash ? { 'If-None-Match': this.lastClassListHash } : {};
       }
-
+      else {
+        URLextra = "?comp=" + this.competitionId + "&method=getclasses&last_hash=" + this.lastClassListHash;
+        headers = {};
+      }
       $.ajax({
-        url: url,
-        data: data,
-        success: function (data) {
+        url: this.apiURL + URLextra,
+        headers: headers,
+        success: function (data, status, resp) {
+          if (_this.Time4oServer) {
+            if (resp.status == 200) {
+              var etag = resp.getResponseHeader("etag");
+              if (etag.length >= 2)
+                _this.lastClassListHash = etag.slice(1, -1);
+              data.status = "OK";
+            }
+            else if (resp.status == 304) {
+              data = { status: "NOT MODIFIED", lastchanged: false };
+            }
+            data.rt = _this.classUpdateInterval / 1000;
+          }
           _this.handleUpdateClassListResponse(data, first);
         },
         error: function () {
@@ -235,15 +274,15 @@ var LiveResults;
 
     AjaxViewer.prototype.handleUpdateClassListResponse = function (data, first) {
       var _this = this;
-      if (this.Time4oServer) {
-        data = this.convertTime4oRaceInfoToLiveres(data);
-        this.compDate = data.eventDate;
-        $("#compname").html(data.eventName);
-        this.activeClasses = data.classes;
-      }
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
+        if (this.Time4oServer) {
+          data = this.Time4oClassesToLiveres(data);
+          this.activeClasses = data.classes;
+        }
+
+        this.lastClassListHash = data.hash;
         this.courseNames = data.courses;
         $('#divInfoText').html(data.infotext);
         if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0)
@@ -392,8 +431,6 @@ var LiveResults;
           $("#numberOfRunnersTotal").html(data.numberOfRunners);
           $("#numberOfRunnersStarted").html(data.numberOfStartedRunners);
           $("#numberOfRunnersFinished").html(data.numberOfFinishedRunners);
-
-          this.lastClassListHash = data.hash;
         }
       }
 
@@ -1405,7 +1442,7 @@ var LiveResults;
     //Request data for the last-passings div
     AjaxViewer.prototype.updateLastPassings = function () {
       var _this = this;
-      if (this.updateAutomatically && this.autoUpdateLastPassings) {
+      if (this.updateAutomatically && this.autoUpdateLastPassings && !this.Time4oServer) {
         $.ajax({
           url: this.apiURL,
           data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language + "&last_hash=" + this.lastPassingsUpdateHash,
@@ -2519,16 +2556,23 @@ var LiveResults;
 
       if (this.currentTable != null) {
         var preTime = new Date().getTime();
-        url = this.apiURL;
-        data = "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(this.curClassName) + "&nosplits=" + this.noSplits +
-          "&last_hash=" + this.lastClassHash + (this.isMultiDayEvent ? "&includetotal=true" : "")
+        var URLextra, headers;
         if (this.Time4oServer) {
-          url = "api/time4o/time4o_" + this.curClassName + ".json";
-          data = "";
+          URLextra = "race/" + this.competitionId + "/entry/" +
+            this.activeClasses?.find(c => c.className === this.curClassName).id;
+          headers = this.lastClassHash ? { 'If-None-Match': this.lastClassHash } : {};
+          //this.apiURL = "api/time4o/time4o_H 17-20E.json";
+          //data = "";
+        }
+        else {
+          URLextra = "?comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class="
+            + encodeURIComponent(this.curClassName) + "&nosplits=" + this.noSplits +
+            "&last_hash=" + this.lastClassHash + (this.isMultiDayEvent ? "&includetotal=true" : "")
+          headers = {};
         }
         $.ajax({
-          url: url,
-          data: data,
+          url: this.apiURL + URLextra,
+          headers: headers,
           success: function (data, status, resp) {
             var expTime = false;
             try {
@@ -2541,7 +2585,20 @@ var LiveResults;
                   _this.serverTimeDiff = 0.9 * _this.serverTimeDiff + 0.1 * newTimeDiff;
               }
               expTime = new Date(resp.getResponseHeader("expires")).getTime();
+              if (_this.Time4oServer) {
+                if (resp.status == 200) {
+                  var etag = resp.getResponseHeader("etag");
+                  if (etag.length >= 2)
+                    _this.lastClassHash = etag.slice(1, -1);
+                  data.status = "OK";
+                }
+                else if (resp.status == 304) {
+                  data = { status: "NOT MODIFIED" };
+                };
+              }
+              data.rt = _this.updateInterval / 1000;
             }
+
             catch (e) { }
             _this.handleUpdateClassResults(data, expTime);
           },
@@ -2558,11 +2615,6 @@ var LiveResults;
     AjaxViewer.prototype.handleUpdateClassResults = function (newData, expTime) {
       if (this.curClassName == null)
         return;
-      if (this.Time4oServer) {
-        newData = this.convertTime4oResultsToLiveres(newData, classInfo = null);
-        newData.className = this.curClassName;
-        newData.splitcontrols = this.activeClasses?.find(c => c.className === this.curClassName).splitcontrols;
-      }
       try {
         if (newData.rt != undefined && newData.rt > 0)
           this.updateInterval = newData.rt * 1000;
@@ -2583,6 +2635,14 @@ var LiveResults;
         var _this = this;
         var table = this.currentTable;
         if (newData.status == "OK") {
+          if (this.Time4oServer) {
+            const classInfo = this.activeClasses?.find(c => c.className === this.curClassName) ?? null;
+            if (classInfo == null)
+              return;
+            newData = this.Time4oResultsToLiveres(newData, classInfo);
+            newData.className = this.curClassName;
+            newData.splitcontrols = classInfo.splitcontrols;
+          }
           clearTimeout(this.updatePredictedTimeTimer);
           if (this.animating) // Wait until animation is completed
           {
@@ -2637,7 +2697,7 @@ var LiveResults;
             var newResults = table.data().toArray();
             this.animateTable(oldResults, newResults, this.animTime);
 
-            if (!newData.lastChanged)
+            if (!newData.lastChanged && !this.Time4oServer)
               this.lastClassHash = newData.hash;
 
             setTimeout(function () { _this.startPredictedTimeTimer(); }, _this.animTime + 200);
@@ -2651,7 +2711,7 @@ var LiveResults;
           this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
         }
         else
-          this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
+          this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, _this.updateInterval);
       }
     };
 
@@ -2971,16 +3031,19 @@ var LiveResults;
         }
       }
 
-      var url = this.apiURL;
-      var data = "comp=" + this.competitionId + callStr;
+      var URLextra;
       if (this.Time4oServer) {
-        url = "api/time4o/time4o_" + this.curClassName + ".json";
-        data = "";
+        //this.apiURL = "api/time4o/time4o_H 17-20E.json";
+        URLextra = "race/" + this.competitionId + "/entry/" +
+          this.activeClasses?.find(c => c.className === this.curClassName).id;
+      }
+      else {
+        URLextra = "?comp=" + this.competitionId + callStr;
       }
 
       $.ajax({
-        url: url,
-        data: data,
+        url: this.apiURL + URLextra,
+        headers: {},
         success: function (data, status, resp) {
           var expTime = false;
           try {
@@ -2993,6 +3056,13 @@ var LiveResults;
                 _this.serverTimeDiff = newTimeDiff;
             }
             expTime = new Date(resp.getResponseHeader("expires")).getTime();
+            if (_this.Time4oServer && resp.status === 200) {
+              var etag = resp.getResponseHeader("etag");
+              if (etag.length >= 2)
+                _this.lastClassHash = etag.slice(1, -1);
+              data.status = "OK";
+              data.rt = _this.updateInterval / 1000;
+            }
           }
           catch (e) { }
           _this.updateClassResults(data, expTime);
@@ -3007,13 +3077,6 @@ var LiveResults;
       if (this.curClassName == null)
         return;
 
-      if (this.Time4oServer) {
-        const classInfo = this.activeClasses?.find(c => c.className === this.curClassName) ?? null;
-        if (classInfo == null)
-          return;
-        data = this.convertTime4oResultsToLiveres(data, classInfo);
-      }
-
       if (data != null && data.rt != undefined && data.rt > 0)
         this.updateInterval = data.rt * 1000;
       if (data != null && data.lastchanged != undefined)
@@ -3026,6 +3089,12 @@ var LiveResults;
       }
       var _this = this;
       if (data != null && data.status == "OK") {
+        if (this.Time4oServer) {
+          const classInfo = this.activeClasses?.find(c => c.className === this.curClassName) ?? null;
+          if (classInfo == null)
+            return;
+          data = this.Time4oResultsToLiveres(data, classInfo);
+        }
         $('#divInfoText').html(data.infotext);
         if (data.className != null) {
           var courseResults = data.className.indexOf("course::") == 0;
@@ -3868,7 +3937,8 @@ var LiveResults;
             }
           }
 
-          this.lastClassHash = data.hash;
+          if (!this.Time4oServer)
+            this.lastClassHash = data.hash;
 
           if (this.isCompToday()) {
             this.updatePredictedTimes(true); // Insert times only
@@ -5557,17 +5627,11 @@ var LiveResults;
       return sumVal / nValues;
     };
 
-    AjaxViewer.prototype.convertTime4oRaceInfoToLiveres = function (data) {
-      const classes = (data?.props?.raceClasses ?? []).map(classEntry => this.normalizeClasses(classEntry));
-      const eventName = data?.props?.race?.name ?? "";
-      const eventDate = data?.props?.race?.firstStart ?? "";
-      const eventDateShort = eventDate.substr(0, 10);
-
+    AjaxViewer.prototype.Time4oClassesToLiveres = function (payload) {
+      const classes = (payload?.data ?? []).map(classEntry => this.normalizeClasses(classEntry));
       return {
         status: "OK",
         classes: classes ?? "",
-        eventName: eventName,
-        eventDate: eventDateShort,
         hash: ""
       };
     }
@@ -5575,9 +5639,8 @@ var LiveResults;
     AjaxViewer.prototype.normalizeClasses = function (classEntry) {
       _this = this;
 
-      const rawStartIso = classEntry?.firstStart ?? null;
       const id = classEntry?.id ?? null;
-      const firstStart = rawStartIso != null;
+      const firstStart = classEntry?.firstStart ?? null
       const resultListMode = classEntry?.resultListMode ?? null;
       const startType = classEntry?.startType ?? null;
       const timingResolution = classEntry?.timingResolution ?? null;
@@ -5588,7 +5651,7 @@ var LiveResults;
 
       return {
         className: classEntry?.name ?? "",
-        firstStart: firstStart ? Math.floor(Date.parse(rawStartIso) / 1000) : -999,
+        firstStart: firstStart ? firstStart : -999,
         resultListMode: resultListMode,
         startType: startType,
         timingResolution: timingResolution,
@@ -5610,21 +5673,17 @@ var LiveResults;
         .map(({ code, name, order }) => ({ code, name, order }));
     }
 
-    AjaxViewer.prototype.convertTime4oResultsToLiveres = function (data, classInfo) {
-      const classId = Object.keys(data?.props?.entries ?? {})[0];
-      const entries = (data?.props?.entries?.[classId] ?? []).map(entry => this.normalizeEntry(entry, classInfo));
+    AjaxViewer.prototype.Time4oResultsToLiveres = function (payload, classInfo) {
+      const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry, classInfo));
 
       return {
         status: "OK",
-        classId: classId ?? "",
         className: classInfo?.className ?? "",
         distance: "",
         splitcontrols: classInfo?.splitcontrols ?? [],
         results: entries,
-        lastchanged: "",
+        lastchanged: false,
         infotext: "",
-        hash: "",
-        rt: 3,
         active: 0
       };
     }
@@ -5653,18 +5712,25 @@ var LiveResults;
       if (statusKey == "OK" && unordered)
         statusKey = "Finished";
       const statusValue = statusMap[statusKey] ?? 10;
-      const rawStartIso = entry?.time?.startTime ?? null;
+
+      const timingStartTimeSource = entry?.timingStartTimeSource ?? "StartList";
+      if (timingStartTimeSource === "StartList") {
+        rawStartIso = entry?.start?.startTime ?? classInfo?.firstStart;
+      } else if (timingStartTimeSource === "Timing") {
+        rawStartIso = entry?.time?.startTime ?? entry?.start?.startTime ?? null;
+      }
+
       const changedIso = entry?.status?.updated ?? entry?.updated_at ?? null;
       const intermediates = entry?.intermediateTimes ?? {};
       const splits = Object.entries(intermediates).reduce((acc, [key, val]) => {
         const code = (Number(key.split('-')[1]) * 1000 + Number(key.split('-')[0])) * (unordered ? -1 : 1);
         const timeHundredths = val?.time != null ? Math.round(val.time / 10) : "";
         const behindHundredths = val?.behind != null ? Math.round(val.behind / 10) : "";
-        const changedEpoch = val?.updated ? Math.floor(new Date(val.updated).getTime() / 1000) : 0;
+        const changed = val?.updated ? Math.floor(Date.parse(val.updated) / 1000) : 0;
 
         acc[code] = timeHundredths;
         acc[`${code}_status`] = statusValue;
-        acc[`${code}_changed`] = changedEpoch;
+        acc[`${code}_changed`] = changed;
         acc[`${code}_timeplus`] = behindHundredths;
         acc[`${code}_place`] = val?.position ?? "-";
         return acc;
@@ -5672,12 +5738,17 @@ var LiveResults;
 
       let rawResult = entry?.time?.time ?? null;
       let rawBehind = entry?.time?.behind ?? null;
-      let place = entry?.position != null ? String(entry.position) : "-"
+      let place = entry?.position != null ? String(entry.position) : "";
+      if (statusValue != 0 && statusValue != 9 && statusValue != 10) {
+        place = "-";
+      }
+
+      var changed = changedIso ? Math.floor(Date.parse(changedIso) / 1000) : 0;
 
       if (statusKey == "Finished") {
         splits["-999"] = rawResult != null ? Math.round(rawResult / 10) : "";
         splits["-999_status"] = statusValue;
-        splits["-999_changed"] = changedIso;
+        splits["-999_changed"] = changed;
         splits["-999_timeplus"] = 0;
         splits["-999_place"] = "F";
         rawResult = entry?.person?.id != null ? entry.person.id : 100;
@@ -5690,13 +5761,13 @@ var LiveResults;
         name: entry?.person?.name ?? "",
         club: entry?.organisation?.name ?? "",
         pace: -1,
-        splits: splits,
-        result: rawResult != null ? String(Math.round(rawResult / 10)) : -3,
         status: statusValue,
+        splits: splits,
+        start: rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : -999,
+        result: rawResult != null ? String(Math.round(rawResult / 10)) : -3,
         timeplus: rawBehind != null ? Math.round(rawBehind / 10) : "",
-        changed: changedIso ? Math.floor(Date.parse(changedIso) / 1000) : 0,
-        progress: -1, // finish = 100, start = 0, intermediate = fraction
-        start: rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : -999
+        changed: changed,
+        progress: (place != "" ? 100 : 0)
       };
     }
 
