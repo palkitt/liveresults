@@ -1,0 +1,2060 @@
+{
+    "data": [
+        {
+            "created_at": "2025-10-18T16:36:48.329366Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 1244000,
+                    "counter": 1,
+                    "position": 28,
+                    "time": 5796621,
+                    "updated": "2025-10-18T09:37:20+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 1224000,
+                    "counter": 1,
+                    "position": 27,
+                    "time": 5712597,
+                    "updated": "2025-10-18T09:35:51+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 585000,
+                    "counter": 1,
+                    "position": 28,
+                    "time": 3239614,
+                    "updated": "2025-10-18T08:54:41+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 877000,
+                    "counter": 1,
+                    "position": 28,
+                    "time": 4468736,
+                    "updated": "2025-10-18T09:15:06+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Ingar Tollum Andersen",
+                "id": 1
+            },
+            "position": 29,
+            "raceClassId": "9fedfc22-49b6-4010-a61d-b49f6bc74785",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:18+00:00",
+                "startTime": null,
+                "bibNo": 2501
+            },
+            "status": {
+                "updated": "2025-10-18T15:46:42+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 1245000,
+                "startTime": "2025-10-18T10:00:40+02:00",
+                "finishTime": "2025-10-18T11:37:40+02:00",
+                "time": 5820000,
+                "updated": "2025-10-18T15:46:42+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:02.560493Z",
+            "id": "a01d38ca-8246-40b0-80e4-269d34e75c2d"
+        },
+        {
+            "created_at": "2025-10-18T16:36:41.301572Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 3884000,
+                    "counter": 1,
+                    "position": 36,
+                    "time": 8580613,
+                    "updated": "2025-10-18T10:53:05+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 3814000,
+                    "counter": 1,
+                    "position": 36,
+                    "time": 8452319,
+                    "updated": "2025-10-18T10:50:51+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 2142000,
+                    "counter": 1,
+                    "position": 37,
+                    "time": 4877515,
+                    "updated": "2025-10-18T09:51:16+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 2757000,
+                    "counter": 1,
+                    "position": 36,
+                    "time": 6474223,
+                    "updated": "2025-10-18T10:17:51+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Børge Brubæk",
+                "id": 12
+            },
+            "position": 36,
+            "raceClassId": "9fedfc22-fedf-4dc1-8af3-9d1deba29be3",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:19+00:00",
+                "startTime": null,
+                "bibNo": 2701
+            },
+            "status": {
+                "updated": "2025-10-18T15:44:55+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 3922000,
+                "startTime": "2025-10-18T10:30:00+02:00",
+                "finishTime": "2025-10-18T12:54:00+02:00",
+                "time": 8640000,
+                "updated": "2025-10-18T15:44:55+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:00.799959Z",
+            "id": "a01d38cd-f877-4928-a8a0-0abea3446d2f"
+        },
+        {
+            "created_at": "2025-10-18T16:36:42.738208Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 2234000,
+                    "counter": 1,
+                    "position": 10,
+                    "time": 6534624,
+                    "updated": "2025-10-18T10:33:55+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 2205000,
+                    "counter": 1,
+                    "position": 10,
+                    "time": 6438361,
+                    "updated": "2025-10-18T10:32:16+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 1247000,
+                    "counter": 1,
+                    "position": 12,
+                    "time": 3531459,
+                    "updated": "2025-10-18T09:43:51+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 1746000,
+                    "counter": 1,
+                    "position": 11,
+                    "time": 4991571,
+                    "updated": "2025-10-18T10:08:11+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Ann-Karin Lesteberg",
+                "id": 123
+            },
+            "position": 10,
+            "raceClassId": "9fedfc21-338a-4f23-90d1-27f5bb8150eb",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:27+00:00",
+                "startTime": null,
+                "bibNo": 2102
+            },
+            "status": {
+                "updated": "2025-10-18T15:45:25+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 2233000,
+                "startTime": "2025-10-18T10:45:00+02:00",
+                "finishTime": "2025-10-18T12:34:24+02:00",
+                "time": 6564000,
+                "updated": "2025-10-18T15:45:25+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:56.450353Z",
+            "id": "a01d38eb-ae42-4370-8464-28f8840e1db0"
+        },
+        {
+            "created_at": "2025-10-18T16:36:58.852416Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 584000,
+                    "counter": 1,
+                    "position": 21,
+                    "time": 4342132,
+                    "updated": "2025-10-18T10:27:25+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 568000,
+                    "counter": 1,
+                    "position": 22,
+                    "time": 4264917,
+                    "updated": "2025-10-18T10:26:01+00:00",
+                    "intermediateControl": "136"
+                },
+                "134-1": {
+                    "behind": 246000,
+                    "counter": 1,
+                    "position": 20,
+                    "time": 2535534,
+                    "updated": "2025-10-18T09:57:15+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 450000,
+                    "counter": 1,
+                    "position": 23,
+                    "time": 3518652,
+                    "updated": "2025-10-18T10:13:36+00:00",
+                    "intermediateControl": "135"
+                },
+                "133-1": {
+                    "behind": 158000,
+                    "counter": 1,
+                    "position": 20,
+                    "time": 1986344,
+                    "updated": "2025-10-18T09:48:06+00:00",
+                    "intermediateControl": "133"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Eirik Lesteberg",
+                "id": 124
+            },
+            "position": 21,
+            "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:27+00:00",
+                "startTime": null,
+                "bibNo": 1305
+            },
+            "status": {
+                "updated": "2025-10-18T16:24:03+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 584000,
+                "startTime": "2025-10-18T11:15:00+02:00",
+                "finishTime": "2025-10-18T12:27:39+02:00",
+                "time": 4359000,
+                "updated": "2025-10-18T16:24:04+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:12.531422Z",
+            "id": "a01d38eb-ebe6-43b4-817d-4eee7120d325"
+        },
+        {
+            "created_at": "2025-10-18T16:36:30.904575Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "130-1": {
+                    "behind": 965000,
+                    "counter": 1,
+                    "position": 28,
+                    "time": 1657531,
+                    "updated": "2025-10-18T09:12:41+00:00",
+                    "intermediateControl": "130"
+                },
+                "131-1": {
+                    "behind": 2413000,
+                    "counter": 1,
+                    "position": 28,
+                    "time": 3839361,
+                    "updated": "2025-10-18T09:49:01+00:00",
+                    "intermediateControl": "131"
+                },
+                "130-2": {
+                    "behind": 3468000,
+                    "counter": 2,
+                    "position": 28,
+                    "time": 5586340,
+                    "updated": "2025-10-18T10:18:10+00:00",
+                    "intermediateControl": "130"
+                },
+                "134-1": {
+                    "behind": 8336000,
+                    "counter": 1,
+                    "position": 27,
+                    "time": 12890841,
+                    "updated": "2025-10-18T12:19:51+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 9878000,
+                    "counter": 1,
+                    "position": 28,
+                    "time": 15226700,
+                    "updated": "2025-10-18T12:58:46+00:00",
+                    "intermediateControl": "135"
+                },
+                "131-2": {
+                    "behind": 4726000,
+                    "counter": 2,
+                    "position": 28,
+                    "time": 7571233,
+                    "updated": "2025-10-18T10:51:15+00:00",
+                    "intermediateControl": "131"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Ingrid Lesteberg",
+                "id": 125
+            },
+            "position": 28,
+            "raceClassId": "9fedfc1c-2a8b-4fee-9165-b6d0201bcab4",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:27+00:00",
+                "startTime": null,
+                "bibNo": 202
+            },
+            "status": {
+                "updated": "2025-10-18T15:41:24+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 10960000,
+                "startTime": "2025-10-18T10:45:00+02:00",
+                "finishTime": "2025-10-18T15:29:36+02:00",
+                "time": 17076000,
+                "updated": "2025-10-18T15:41:24+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:52.816381Z",
+            "id": "a01d38ec-2a69-4db3-9563-34a39e416b86"
+        },
+        {
+            "created_at": "2025-10-18T16:36:26.331513Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "130-1": {
+                    "behind": 4000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 1250502,
+                    "updated": "2025-10-18T10:35:55+00:00",
+                    "intermediateControl": "130"
+                },
+                "131-1": {
+                    "behind": 163000,
+                    "counter": 1,
+                    "position": 9,
+                    "time": 2911873,
+                    "updated": "2025-10-18T11:03:36+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 150000,
+                    "counter": 1,
+                    "position": 9,
+                    "time": 2838163,
+                    "updated": "2025-10-18T11:02:16+00:00",
+                    "intermediateControl": "136"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Magnus Lesteberg",
+                "id": 126
+            },
+            "position": 9,
+            "raceClassId": "9fedfc1e-45dd-42c7-8eca-5fc3b9e7aa6a",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:27+00:00",
+                "startTime": null,
+                "bibNo": 1108
+            },
+            "status": {
+                "updated": "2025-10-18T15:44:53+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 175000,
+                "startTime": "2025-10-18T12:15:00+02:00",
+                "finishTime": "2025-10-18T13:04:03+02:00",
+                "time": 2943000,
+                "updated": "2025-10-18T15:44:54+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:21.866808Z",
+            "id": "a01d38ec-7aeb-4c84-9976-9f40cd870bb8"
+        },
+        {
+            "created_at": "2025-10-18T16:36:47.110435Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": [],
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Klara Zahl Eriksson",
+                "id": 159
+            },
+            "raceClassId": "9fedfc1d-5fee-43c2-acea-117009588616",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:29+00:00",
+                "startTime": null,
+                "bibNo": 804
+            },
+            "status": {
+                "updated": "2025-10-18T15:46:46+00:00",
+                "status": "MissingPunch"
+            },
+            "time": {
+                "behind": null,
+                "startTime": "2025-10-18T10:30:00+02:00",
+                "finishTime": "2025-10-18T11:18:40+02:00",
+                "time": 2920000,
+                "updated": "2025-10-18T15:46:46+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:03.415745Z",
+            "id": "a01d38f5-060e-4280-a2a8-98ec9546bcea"
+        },
+        {
+            "timingStartTimeSource": "StartList",
+            "created_at": "2025-10-18T16:36:16.924524Z",
+            "entryStatus": "Entered",
+            "raceClassId": "9fedfc1d-db38-4d49-8668-5fe5a647750b",
+            "status": {
+                "updated": "2025-10-18T15:41:33+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 1658000,
+                "startTime": "2025-10-18T12:30:00+02:00",
+                "finishTime": "2025-10-18T13:47:59+02:00",
+                "time": 4679000,
+                "updated": "2025-10-18T15:41:33+00:00"
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "updated_at": "2025-10-18T16:36:16.924524Z",
+            "intermediateTimes": {
+                "130-1": {
+                    "behind": 480000,
+                    "counter": 1,
+                    "position": 28,
+                    "time": 1875371,
+                    "updated": "2025-10-18T11:01:20+00:00",
+                    "intermediateControl": "130"
+                },
+                "131-1": {
+                    "behind": 1650000,
+                    "counter": 1,
+                    "position": 30,
+                    "time": 4653679,
+                    "updated": "2025-10-18T11:48:16+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 1613000,
+                    "counter": 1,
+                    "position": 29,
+                    "time": 4538841,
+                    "updated": "2025-10-18T11:45:36+00:00",
+                    "intermediateControl": "136"
+                }
+            },
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "position": 30,
+            "start": {
+                "updated": "2025-10-16T11:55:29+00:00",
+                "startTime": null,
+                "bibNo": 1007
+            },
+            "person": {
+                "name": "Alva Zahl Eriksson",
+                "id": 160
+            },
+            "id": "a01d38f5-4576-4d12-a3e6-ac02a6ad9f75"
+        },
+        {
+            "created_at": "2025-10-18T16:37:00.145441Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 374000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 5807387,
+                    "updated": "2025-10-18T11:06:50+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 346000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 5679508,
+                    "updated": "2025-10-18T11:04:37+00:00",
+                    "intermediateControl": "136"
+                },
+                "134-1": {
+                    "behind": 198000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 3520264,
+                    "updated": "2025-10-18T10:28:41+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 175000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 4670652,
+                    "updated": "2025-10-18T10:47:51+00:00",
+                    "intermediateControl": "135"
+                },
+                "133-1": {
+                    "behind": 242000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 2835388,
+                    "updated": "2025-10-18T10:17:15+00:00",
+                    "intermediateControl": "133"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Celine Renard",
+                "id": 212
+            },
+            "position": 3,
+            "raceClassId": "9fedfc1f-aea5-4132-a68f-165c17c7cb21",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:33+00:00",
+                "startTime": null,
+                "bibNo": 1704
+            },
+            "status": {
+                "updated": "2025-10-18T16:25:01+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 376000,
+                "startTime": "2025-10-18T11:30:00+02:00",
+                "finishTime": "2025-10-18T13:07:15+02:00",
+                "time": 5835000,
+                "updated": "2025-10-18T16:25:01+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:22.404013Z",
+            "id": "a01d3902-4660-4834-a566-4c4dab47d57d"
+        },
+        {
+            "created_at": "2025-10-18T16:36:39.372069Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "137-1": {
+                    "behind": 3033000,
+                    "counter": 1,
+                    "position": 43,
+                    "time": 9048311,
+                    "updated": "2025-10-18T10:31:26+00:00",
+                    "intermediateControl": "137"
+                },
+                "130-1": {
+                    "behind": 327000,
+                    "counter": 1,
+                    "position": 46,
+                    "time": 941490,
+                    "updated": "2025-10-18T08:16:25+00:00",
+                    "intermediateControl": "130"
+                },
+                "131-1": {
+                    "behind": 653000,
+                    "counter": 1,
+                    "position": 44,
+                    "time": 1845010,
+                    "updated": "2025-10-18T08:31:31+00:00",
+                    "intermediateControl": "131"
+                },
+                "130-2": {
+                    "behind": 978000,
+                    "counter": 2,
+                    "position": 44,
+                    "time": 2821472,
+                    "updated": "2025-10-18T08:47:47+00:00",
+                    "intermediateControl": "130"
+                },
+                "134-1": {
+                    "behind": 2263000,
+                    "counter": 1,
+                    "position": 42,
+                    "time": 6702131,
+                    "updated": "2025-10-18T09:52:21+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 2811000,
+                    "counter": 1,
+                    "position": 44,
+                    "time": 8100120,
+                    "updated": "2025-10-18T10:15:41+00:00",
+                    "intermediateControl": "135"
+                },
+                "131-2": {
+                    "behind": 1314000,
+                    "counter": 2,
+                    "position": 43,
+                    "time": 3772287,
+                    "updated": "2025-10-18T09:03:36+00:00",
+                    "intermediateControl": "131"
+                },
+                "133-1": {
+                    "behind": 1992000,
+                    "counter": 1,
+                    "position": 45,
+                    "time": 5890561,
+                    "updated": "2025-10-18T09:38:51+00:00",
+                    "intermediateControl": "133"
+                },
+                "131-3": {
+                    "behind": 3041000,
+                    "counter": 3,
+                    "position": 42,
+                    "time": 9116609,
+                    "updated": "2025-10-18T10:32:40+00:00",
+                    "intermediateControl": "131"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Arne Biseth",
+                "id": 221
+            },
+            "position": 43,
+            "raceClassId": "9fedfc1c-661d-4e6d-be85-414f8be4f7ad",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:33+00:00",
+                "startTime": null,
+                "bibNo": 317
+            },
+            "status": {
+                "updated": "2025-10-18T15:45:43+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 3035000,
+                "startTime": "2025-10-18T10:00:40+02:00",
+                "finishTime": "2025-10-18T12:32:53+02:00",
+                "time": 9133000,
+                "updated": "2025-10-18T15:45:43+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:54.117714Z",
+            "id": "a01d3904-9260-49b7-a91a-a9cdefed5858"
+        },
+        {
+            "created_at": "2025-10-18T16:36:58.925352Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 2279000,
+                    "counter": 1,
+                    "position": 38,
+                    "time": 6037907,
+                    "updated": "2025-10-18T10:55:40+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 2193000,
+                    "counter": 1,
+                    "position": 38,
+                    "time": 5889863,
+                    "updated": "2025-10-18T10:53:06+00:00",
+                    "intermediateControl": "136"
+                },
+                "134-1": {
+                    "behind": 1291000,
+                    "counter": 1,
+                    "position": 40,
+                    "time": 3580604,
+                    "updated": "2025-10-18T10:14:41+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 1869000,
+                    "counter": 1,
+                    "position": 39,
+                    "time": 4937460,
+                    "updated": "2025-10-18T10:37:16+00:00",
+                    "intermediateControl": "135"
+                },
+                "133-1": {
+                    "behind": 1009000,
+                    "counter": 1,
+                    "position": 39,
+                    "time": 2837360,
+                    "updated": "2025-10-18T10:02:16+00:00",
+                    "intermediateControl": "133"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Sindre Tandberg",
+                "id": 238
+            },
+            "position": 38,
+            "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:34+00:00",
+                "startTime": null,
+                "bibNo": 1313
+            },
+            "status": {
+                "updated": "2025-10-18T16:24:03+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 2287000,
+                "startTime": "2025-10-18T11:15:00+02:00",
+                "finishTime": "2025-10-18T12:56:02+02:00",
+                "time": 6062000,
+                "updated": "2025-10-18T16:24:03+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:12.619058Z",
+            "id": "a01d3908-fedc-4baf-b836-89e0f72ff5b4"
+        },
+        {
+            "created_at": "2025-10-18T16:36:31.098432Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "137-1": {
+                    "behind": 886000,
+                    "counter": 1,
+                    "position": 7,
+                    "time": 6919515,
+                    "updated": "2025-10-18T10:40:16+00:00",
+                    "intermediateControl": "137"
+                },
+                "130-1": {
+                    "behind": 65000,
+                    "counter": 1,
+                    "position": 7,
+                    "time": 757563,
+                    "updated": "2025-10-18T08:57:40+00:00",
+                    "intermediateControl": "130"
+                },
+                "131-1": {
+                    "behind": 97000,
+                    "counter": 1,
+                    "position": 8,
+                    "time": 1523664,
+                    "updated": "2025-10-18T09:10:26+00:00",
+                    "intermediateControl": "131"
+                },
+                "130-2": {
+                    "behind": 311000,
+                    "counter": 2,
+                    "position": 7,
+                    "time": 2429621,
+                    "updated": "2025-10-18T09:25:30+00:00",
+                    "intermediateControl": "130"
+                },
+                "134-1": {
+                    "behind": 727000,
+                    "counter": 1,
+                    "position": 7,
+                    "time": 5281804,
+                    "updated": "2025-10-18T10:13:01+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 784000,
+                    "counter": 1,
+                    "position": 7,
+                    "time": 6132160,
+                    "updated": "2025-10-18T10:27:11+00:00",
+                    "intermediateControl": "135"
+                },
+                "131-2": {
+                    "behind": 432000,
+                    "counter": 2,
+                    "position": 8,
+                    "time": 3277155,
+                    "updated": "2025-10-18T09:39:40+00:00",
+                    "intermediateControl": "131"
+                },
+                "131-3": {
+                    "behind": 893000,
+                    "counter": 3,
+                    "position": 7,
+                    "time": 6987769,
+                    "updated": "2025-10-18T10:41:30+00:00",
+                    "intermediateControl": "131"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Elise Renard",
+                "id": 253
+            },
+            "position": 7,
+            "raceClassId": "9fedfc1c-2a8b-4fee-9165-b6d0201bcab4",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:35+00:00",
+                "startTime": null,
+                "bibNo": 207
+            },
+            "status": {
+                "updated": "2025-10-18T15:45:15+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 895000,
+                "startTime": "2025-10-18T10:45:00+02:00",
+                "finishTime": "2025-10-18T12:41:51+02:00",
+                "time": 7011000,
+                "updated": "2025-10-18T15:45:15+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:52.670160Z",
+            "id": "a01d390c-ecb9-41ef-b989-4f5d21b51ded"
+        },
+        {
+            "created_at": "2025-10-18T16:36:58.934256Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 372000,
+                    "counter": 1,
+                    "position": 15,
+                    "time": 4130782,
+                    "updated": "2025-10-18T10:23:56+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 364000,
+                    "counter": 1,
+                    "position": 15,
+                    "time": 4060788,
+                    "updated": "2025-10-18T10:22:36+00:00",
+                    "intermediateControl": "136"
+                },
+                "134-1": {
+                    "behind": 152000,
+                    "counter": 1,
+                    "position": 17,
+                    "time": 2441060,
+                    "updated": "2025-10-18T09:55:41+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 312000,
+                    "counter": 1,
+                    "position": 18,
+                    "time": 3380729,
+                    "updated": "2025-10-18T10:11:21+00:00",
+                    "intermediateControl": "135"
+                },
+                "133-1": {
+                    "behind": 128000,
+                    "counter": 1,
+                    "position": 18,
+                    "time": 1956364,
+                    "updated": "2025-10-18T09:47:36+00:00",
+                    "intermediateControl": "133"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Mathis Renard",
+                "id": 254
+            },
+            "position": 16,
+            "raceClassId": "9fedfc1e-c676-47bf-8a94-d3be2bf2b9a6",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:35+00:00",
+                "startTime": null,
+                "bibNo": 1314
+            },
+            "status": {
+                "updated": "2025-10-18T16:24:04+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 385000,
+                "startTime": "2025-10-18T11:15:00+02:00",
+                "finishTime": "2025-10-18T12:24:20+02:00",
+                "time": 4160000,
+                "updated": "2025-10-18T16:24:04+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:12.629552Z",
+            "id": "a01d390d-29e5-4f8c-abb7-f105d6deeedb"
+        },
+        {
+            "created_at": "2025-10-18T16:36:39.438141Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "137-1": {
+                    "behind": 1831000,
+                    "counter": 1,
+                    "position": 33,
+                    "time": 7846085,
+                    "updated": "2025-10-18T10:11:21+00:00",
+                    "intermediateControl": "137"
+                },
+                "130-1": {
+                    "behind": 111000,
+                    "counter": 1,
+                    "position": 16,
+                    "time": 725286,
+                    "updated": "2025-10-18T08:12:10+00:00",
+                    "intermediateControl": "130"
+                },
+                "131-1": {
+                    "behind": 213000,
+                    "counter": 1,
+                    "position": 24,
+                    "time": 1405268,
+                    "updated": "2025-10-18T08:24:11+00:00",
+                    "intermediateControl": "131"
+                },
+                "130-2": {
+                    "behind": 450000,
+                    "counter": 2,
+                    "position": 31,
+                    "time": 2293665,
+                    "updated": "2025-10-18T08:38:56+00:00",
+                    "intermediateControl": "130"
+                },
+                "134-1": {
+                    "behind": 1282000,
+                    "counter": 1,
+                    "position": 30,
+                    "time": 5721201,
+                    "updated": "2025-10-18T09:36:01+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 1596000,
+                    "counter": 1,
+                    "position": 32,
+                    "time": 6885291,
+                    "updated": "2025-10-18T09:55:26+00:00",
+                    "intermediateControl": "135"
+                },
+                "131-2": {
+                    "behind": 601000,
+                    "counter": 2,
+                    "position": 30,
+                    "time": 3059049,
+                    "updated": "2025-10-18T08:51:41+00:00",
+                    "intermediateControl": "131"
+                },
+                "133-1": {
+                    "behind": 1037000,
+                    "counter": 1,
+                    "position": 31,
+                    "time": 4935695,
+                    "updated": "2025-10-18T09:22:56+00:00",
+                    "intermediateControl": "133"
+                },
+                "131-3": {
+                    "behind": 1839000,
+                    "counter": 3,
+                    "position": 32,
+                    "time": 7914510,
+                    "updated": "2025-10-18T10:12:35+00:00",
+                    "intermediateControl": "131"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Jon Strand",
+                "id": 586
+            },
+            "position": 33,
+            "raceClassId": "9fedfc1c-661d-4e6d-be85-414f8be4f7ad",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:56+00:00",
+                "startTime": null,
+                "bibNo": 340
+            },
+            "status": {
+                "updated": "2025-10-18T15:45:52+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 1843000,
+                "startTime": "2025-10-18T10:00:40+02:00",
+                "finishTime": "2025-10-18T12:13:01+02:00",
+                "time": 7941000,
+                "updated": "2025-10-18T15:45:52+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:24.803687Z",
+            "id": "a01d3961-4da0-4831-b451-d3a503b85e1e"
+        },
+        {
+            "created_at": "2025-10-18T16:36:10.197703Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": [],
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Jan Olav Bergan",
+                "id": 603
+            },
+            "raceClassId": "9fedfc1c-661d-4e6d-be85-414f8be4f7ad",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:55:57+00:00",
+                "startTime": null,
+                "bibNo": 342
+            },
+            "status": {
+                "updated": "2025-10-18T12:32:31+00:00",
+                "status": "DidNotStart"
+            },
+            "time": {
+                "behind": null,
+                "startTime": null,
+                "finishTime": null,
+                "time": null,
+                "updated": null
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:36.186125Z",
+            "id": "a01d3965-acab-47f1-8912-7c62b6955aad"
+        },
+        {
+            "created_at": "2025-10-18T16:36:41.051970Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 637000,
+                    "counter": 1,
+                    "position": 6,
+                    "time": 5333578,
+                    "updated": "2025-10-18T09:58:56+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 619000,
+                    "counter": 1,
+                    "position": 6,
+                    "time": 5257863,
+                    "updated": "2025-10-18T09:57:36+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 282000,
+                    "counter": 1,
+                    "position": 7,
+                    "time": 3017144,
+                    "updated": "2025-10-18T09:20:16+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 435000,
+                    "counter": 1,
+                    "position": 6,
+                    "time": 4152966,
+                    "updated": "2025-10-18T09:39:11+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Svein-Erik Søgård",
+                "id": 743
+            },
+            "position": 6,
+            "raceClassId": "9fedfc22-fedf-4dc1-8af3-9d1deba29be3",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:05+00:00",
+                "startTime": null,
+                "bibNo": 2733
+            },
+            "status": {
+                "updated": "2025-10-18T15:46:28+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 648000,
+                "startTime": "2025-10-18T10:30:00+02:00",
+                "finishTime": "2025-10-18T11:59:26+02:00",
+                "time": 5366000,
+                "updated": "2025-10-18T15:46:28+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:53.289669Z",
+            "id": "a01d3988-9671-4a3c-8686-8ef6bf69fb07"
+        },
+        {
+            "created_at": "2025-10-18T16:36:32.666847Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 150000,
+                    "counter": 1,
+                    "position": 4,
+                    "time": 5204398,
+                    "updated": "2025-10-18T10:41:45+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 145000,
+                    "counter": 1,
+                    "position": 4,
+                    "time": 5113478,
+                    "updated": "2025-10-18T10:40:11+00:00",
+                    "intermediateControl": "137"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Unn Hilde Heggedal",
+                "id": 744
+            },
+            "position": 4,
+            "raceClassId": "9fedfc22-b53d-4512-ab23-a45aae25c9ab",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:05+00:00",
+                "startTime": null,
+                "bibNo": 2608
+            },
+            "status": {
+                "updated": "2025-10-18T15:45:12+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 167000,
+                "startTime": "2025-10-18T11:15:00+02:00",
+                "finishTime": "2025-10-18T12:42:22+02:00",
+                "time": 5242000,
+                "updated": "2025-10-18T15:45:12+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:53.617705Z",
+            "id": "a01d3988-d437-41a3-934c-8714bc70ad43"
+        },
+        {
+            "created_at": "2025-10-18T16:36:42.886231Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 217000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 4517119,
+                    "updated": "2025-10-18T10:00:21+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 207000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 4440176,
+                    "updated": "2025-10-18T09:58:57+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 10000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 2294741,
+                    "updated": "2025-10-18T09:23:16+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 82000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 3327903,
+                    "updated": "2025-10-18T09:40:26+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Ingjerd Sommerstad",
+                "id": 753
+            },
+            "position": 3,
+            "raceClassId": "9fedfc21-338a-4f23-90d1-27f5bb8150eb",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:06+00:00",
+                "startTime": null,
+                "bibNo": 2111
+            },
+            "status": {
+                "updated": "2025-10-18T15:46:27+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 212000,
+                "startTime": "2025-10-18T10:45:00+02:00",
+                "finishTime": "2025-10-18T12:00:43+02:00",
+                "time": 4543000,
+                "updated": "2025-10-18T15:46:27+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:56.594182Z",
+            "id": "a01d398b-0b90-497c-8a63-36fa0dd15dc4"
+        },
+        {
+            "created_at": "2025-10-18T16:36:50.381078Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": [],
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Simen Sommerstad Røste",
+                "id": 754
+            },
+            "raceClassId": "9fedfc1c-661d-4e6d-be85-414f8be4f7ad",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:06+00:00",
+                "startTime": null,
+                "bibNo": 346
+            },
+            "status": {
+                "updated": "2025-10-18T15:48:21+00:00",
+                "status": "MissingPunch"
+            },
+            "time": {
+                "behind": null,
+                "startTime": "2025-10-18T10:00:40+02:00",
+                "finishTime": "2025-10-18T10:15:32+02:00",
+                "time": 892000,
+                "updated": "2025-10-18T15:48:21+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:09.134166Z",
+            "id": "a01d398b-4985-43bb-9950-c67312b845b6"
+        },
+        {
+            "created_at": "2025-10-18T16:36:09.563565Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": [],
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Espen Røste",
+                "id": 755
+            },
+            "raceClassId": "9fedfc21-846c-4fec-8f48-dec1cc382b63",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:06+00:00",
+                "startTime": null,
+                "bibNo": 2229
+            },
+            "status": {
+                "updated": "2025-10-18T12:31:33+00:00",
+                "status": "DidNotStart"
+            },
+            "time": {
+                "behind": null,
+                "startTime": null,
+                "finishTime": null,
+                "time": null,
+                "updated": null
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:35.538962Z",
+            "id": "a01d398b-8854-4c16-92a0-42bec98c1511"
+        },
+        {
+            "created_at": "2025-10-18T16:36:04.832412Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 788000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 4380809,
+                    "updated": "2025-10-18T11:13:05+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 773000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 4297411,
+                    "updated": "2025-10-18T11:11:36+00:00",
+                    "intermediateControl": "136"
+                },
+                "134-1": {
+                    "behind": 522000,
+                    "counter": 1,
+                    "position": 4,
+                    "time": 2690975,
+                    "updated": "2025-10-18T10:44:51+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 659000,
+                    "counter": 1,
+                    "position": 3,
+                    "time": 3572088,
+                    "updated": "2025-10-18T10:59:31+00:00",
+                    "intermediateControl": "135"
+                },
+                "133-1": {
+                    "behind": 472000,
+                    "counter": 1,
+                    "position": 6,
+                    "time": 2200117,
+                    "updated": "2025-10-18T10:36:41+00:00",
+                    "intermediateControl": "133"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Damien Renard",
+                "id": 799
+            },
+            "position": 3,
+            "raceClassId": "9fedfc26-4434-43e2-8129-609084a7682b",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:09+00:00",
+                "startTime": null,
+                "bibNo": 4120
+            },
+            "status": {
+                "updated": "2025-10-18T15:43:49+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 786000,
+                "startTime": "2025-10-18T12:00:00+02:00",
+                "finishTime": "2025-10-18T13:13:23+02:00",
+                "time": 4403000,
+                "updated": "2025-10-18T15:43:49+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:30.490756Z",
+            "id": "a01d3997-ba35-4836-a4e2-b6d419206b11"
+        },
+        {
+            "created_at": "2025-10-18T16:36:27.564422Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "137-1": {
+                    "behind": 4115000,
+                    "counter": 1,
+                    "position": 16,
+                    "time": 12644260,
+                    "updated": "2025-10-18T12:15:41+00:00",
+                    "intermediateControl": "137"
+                },
+                "130-1": {
+                    "behind": 377000,
+                    "counter": 1,
+                    "position": 17,
+                    "time": 1220714,
+                    "updated": "2025-10-18T09:05:25+00:00",
+                    "intermediateControl": "130"
+                },
+                "131-1": {
+                    "behind": 692000,
+                    "counter": 1,
+                    "position": 18,
+                    "time": 2110191,
+                    "updated": "2025-10-18T09:20:15+00:00",
+                    "intermediateControl": "131"
+                },
+                "130-2": {
+                    "behind": 1234000,
+                    "counter": 2,
+                    "position": 17,
+                    "time": 3502026,
+                    "updated": "2025-10-18T09:43:25+00:00",
+                    "intermediateControl": "130"
+                },
+                "134-1": {
+                    "behind": 3474000,
+                    "counter": 1,
+                    "position": 17,
+                    "time": 10446664,
+                    "updated": "2025-10-18T11:39:05+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 3743000,
+                    "counter": 1,
+                    "position": 16,
+                    "time": 11549363,
+                    "updated": "2025-10-18T11:57:26+00:00",
+                    "intermediateControl": "135"
+                },
+                "131-2": {
+                    "behind": 1691000,
+                    "counter": 2,
+                    "position": 18,
+                    "time": 4546975,
+                    "updated": "2025-10-18T10:00:51+00:00",
+                    "intermediateControl": "131"
+                },
+                "132-1": {
+                    "behind": 2883000,
+                    "counter": 1,
+                    "position": 17,
+                    "time": 8402557,
+                    "updated": "2025-10-18T11:05:02+00:00",
+                    "intermediateControl": "132"
+                },
+                "133-1": {
+                    "behind": 3224000,
+                    "counter": 1,
+                    "position": 17,
+                    "time": 9646975,
+                    "updated": "2025-10-18T11:25:46+00:00",
+                    "intermediateControl": "133"
+                },
+                "131-3": {
+                    "behind": 4141000,
+                    "counter": 3,
+                    "position": 16,
+                    "time": 12716692,
+                    "updated": "2025-10-18T12:17:00+00:00",
+                    "intermediateControl": "131"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Ola Lesteberg",
+                "id": 826
+            },
+            "position": 16,
+            "raceClassId": "9fedfc1b-690c-48a0-8fe7-ec9c3211f748",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:10+00:00",
+                "startTime": null,
+                "bibNo": 21
+            },
+            "status": {
+                "updated": "2025-10-18T15:41:29+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 4144000,
+                "startTime": "2025-10-18T10:45:00+02:00",
+                "finishTime": "2025-10-18T14:17:18+02:00",
+                "time": 12738000,
+                "updated": "2025-10-18T15:41:29+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:21.219333Z",
+            "id": "a01d399e-626a-4cf8-9d34-a00df909f675"
+        },
+        {
+            "created_at": "2025-10-18T16:36:41.245776Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 4503000,
+                    "counter": 1,
+                    "position": 40,
+                    "time": 9199893,
+                    "updated": "2025-10-18T11:03:25+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 4405000,
+                    "counter": 1,
+                    "position": 40,
+                    "time": 9043487,
+                    "updated": "2025-10-18T11:00:41+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 2419000,
+                    "counter": 1,
+                    "position": 39,
+                    "time": 5154175,
+                    "updated": "2025-10-18T09:55:51+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 3246000,
+                    "counter": 1,
+                    "position": 40,
+                    "time": 6963504,
+                    "updated": "2025-10-18T10:26:01+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Torgeir Brandal",
+                "id": 836
+            },
+            "position": 40,
+            "raceClassId": "9fedfc22-fedf-4dc1-8af3-9d1deba29be3",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:11+00:00",
+                "startTime": null,
+                "bibNo": 2738
+            },
+            "status": {
+                "updated": "2025-10-18T15:44:45+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 4537000,
+                "startTime": "2025-10-18T10:30:00+02:00",
+                "finishTime": "2025-10-18T13:04:15+02:00",
+                "time": 9255000,
+                "updated": "2025-10-18T15:44:45+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:00.819339Z",
+            "id": "a01d39a1-2668-4a67-84f7-57034f7b2960"
+        },
+        {
+            "created_at": "2025-10-18T16:36:01.804538Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "130-1": {
+                    "behind": 736000,
+                    "counter": 1,
+                    "position": 35,
+                    "time": 1982185,
+                    "updated": "2025-10-18T10:48:05+00:00",
+                    "intermediateControl": "130"
+                },
+                "131-1": {
+                    "behind": 1295000,
+                    "counter": 1,
+                    "position": 26,
+                    "time": 4043386,
+                    "updated": "2025-10-18T11:22:26+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 1257000,
+                    "counter": 1,
+                    "position": 25,
+                    "time": 3945726,
+                    "updated": "2025-10-18T11:20:41+00:00",
+                    "intermediateControl": "136"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Erik Bergan",
+                "id": 904
+            },
+            "position": 26,
+            "raceClassId": "9fedfc1e-45dd-42c7-8eca-5fc3b9e7aa6a",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:15+00:00",
+                "startTime": null,
+                "bibNo": 1143
+            },
+            "status": {
+                "updated": "2025-10-18T15:43:38+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 1310000,
+                "startTime": "2025-10-18T12:15:00+02:00",
+                "finishTime": "2025-10-18T13:22:58+02:00",
+                "time": 4078000,
+                "updated": "2025-10-18T15:43:39+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:27.659638Z",
+            "id": "a01d39b2-c421-43d2-8d6c-ba18798cd3b9"
+        },
+        {
+            "created_at": "2025-10-18T16:36:41.088326Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 3989000,
+                    "counter": 1,
+                    "position": 38,
+                    "time": 8685717,
+                    "updated": "2025-10-18T10:54:50+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 3915000,
+                    "counter": 1,
+                    "position": 38,
+                    "time": 8553552,
+                    "updated": "2025-10-18T10:52:31+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 2339000,
+                    "counter": 1,
+                    "position": 38,
+                    "time": 5074327,
+                    "updated": "2025-10-18T09:54:36+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 3119000,
+                    "counter": 1,
+                    "position": 39,
+                    "time": 6836997,
+                    "updated": "2025-10-18T10:23:56+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Kolbjørn Kasin",
+                "id": 1030
+            },
+            "position": 38,
+            "raceClassId": "9fedfc22-fedf-4dc1-8af3-9d1deba29be3",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:23+00:00",
+                "startTime": null,
+                "bibNo": 2745
+            },
+            "status": {
+                "updated": "2025-10-18T15:44:58+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 4004000,
+                "startTime": "2025-10-18T10:30:00+02:00",
+                "finishTime": "2025-10-18T12:55:22+02:00",
+                "time": 8722000,
+                "updated": "2025-10-18T15:44:58+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:00.685330Z",
+            "id": "a01d39d2-7d89-451a-a60a-1ca0ecad867d"
+        },
+        {
+            "created_at": "2025-10-18T16:36:11.502437Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 1291000,
+                    "counter": 1,
+                    "position": 17,
+                    "time": 5289620,
+                    "updated": "2025-10-18T11:28:15+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 1277000,
+                    "counter": 1,
+                    "position": 18,
+                    "time": 5216573,
+                    "updated": "2025-10-18T11:26:57+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 655000,
+                    "counter": 1,
+                    "position": 17,
+                    "time": 2817773,
+                    "updated": "2025-10-18T10:46:56+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 983000,
+                    "counter": 1,
+                    "position": 17,
+                    "time": 4001672,
+                    "updated": "2025-10-18T11:06:41+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Ingvild Tronstad Andersen",
+                "id": 1034
+            },
+            "position": 17,
+            "raceClassId": "9fedfc25-f110-4558-8272-77035d0de2b3",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:23+00:00",
+                "startTime": null,
+                "bibNo": 4021
+            },
+            "status": {
+                "updated": "2025-10-18T15:42:53+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 1313000,
+                "startTime": "2025-10-18T12:00:00+02:00",
+                "finishTime": "2025-10-18T13:28:55+02:00",
+                "time": 5335000,
+                "updated": "2025-10-18T15:42:53+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:37.490811Z",
+            "id": "a01d39d3-977a-455a-aeec-f583dc15ccf0"
+        },
+        {
+            "created_at": "2025-10-18T16:36:32.134521Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 365000,
+                    "counter": 1,
+                    "position": 8,
+                    "time": 5676339,
+                    "updated": "2025-10-18T11:04:41+00:00",
+                    "intermediateControl": "131"
+                },
+                "136-1": {
+                    "behind": 359000,
+                    "counter": 1,
+                    "position": 8,
+                    "time": 5591707,
+                    "updated": "2025-10-18T11:03:11+00:00",
+                    "intermediateControl": "136"
+                },
+                "134-1": {
+                    "behind": 227000,
+                    "counter": 1,
+                    "position": 8,
+                    "time": 3976196,
+                    "updated": "2025-10-18T10:36:16+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 340000,
+                    "counter": 1,
+                    "position": 8,
+                    "time": 4909448,
+                    "updated": "2025-10-18T10:51:46+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Halvor Saunes",
+                "id": 1042
+            },
+            "position": 8,
+            "raceClassId": "9fedfc20-1b74-4a54-8469-7df98afca118",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:24+00:00",
+                "startTime": null,
+                "bibNo": 1827
+            },
+            "status": {
+                "updated": "2025-10-18T15:44:37+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 373000,
+                "startTime": "2025-10-18T11:30:00+02:00",
+                "finishTime": "2025-10-18T13:05:05+02:00",
+                "time": 5705000,
+                "updated": "2025-10-18T15:44:37+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:51.821743Z",
+            "id": "a01d39d5-aa9d-42bc-827c-92ef64534f0b"
+        },
+        {
+            "created_at": "2025-10-18T16:36:51.564820Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 903000,
+                    "counter": 1,
+                    "position": 12,
+                    "time": 2083334,
+                    "updated": "2025-10-18T08:49:45+00:00",
+                    "intermediateControl": "131"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Ingeborg Saunes",
+                "id": 1043
+            },
+            "position": 12,
+            "raceClassId": "9fedfc1c-cede-4d00-8c47-321b06d3cb1f",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:24+00:00",
+                "startTime": null,
+                "bibNo": 615
+            },
+            "status": {
+                "updated": "2025-10-18T15:47:19+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 924000,
+                "startTime": "2025-10-18T10:15:00+02:00",
+                "finishTime": "2025-10-18T10:50:25+02:00",
+                "time": 2125000,
+                "updated": "2025-10-18T15:47:19+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:05.188816Z",
+            "id": "a01d39d5-f48c-48f3-b6e8-e13977e96f15"
+        },
+        {
+            "created_at": "2025-10-18T16:37:03.917851Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 745000,
+                    "counter": 1,
+                    "position": 9,
+                    "time": 4743142,
+                    "updated": "2025-10-18T11:19:06+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 729000,
+                    "counter": 1,
+                    "position": 9,
+                    "time": 4668422,
+                    "updated": "2025-10-18T11:17:46+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 389000,
+                    "counter": 1,
+                    "position": 13,
+                    "time": 2551774,
+                    "updated": "2025-10-18T10:42:31+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 579000,
+                    "counter": 1,
+                    "position": 7,
+                    "time": 3597803,
+                    "updated": "2025-10-18T10:59:56+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Sofie Aarnes",
+                "id": 1046
+            },
+            "position": 9,
+            "raceClassId": "9fedfc25-f110-4558-8272-77035d0de2b3",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-16T11:56:24+00:00",
+                "startTime": null,
+                "bibNo": 4022
+            },
+            "status": {
+                "updated": "2025-10-18T16:29:59+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 748000,
+                "startTime": "2025-10-18T12:00:00+02:00",
+                "finishTime": "2025-10-18T13:19:30+02:00",
+                "time": 4770000,
+                "updated": "2025-10-18T16:29:59+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:57:23.197676Z",
+            "id": "a01d39d6-c050-4b25-ad7e-c5f5526e016d"
+        },
+        {
+            "created_at": "2025-10-18T16:36:11.811652Z",
+            "entryStatus": "Entered",
+            "intermediateTimes": {
+                "131-1": {
+                    "behind": 933000,
+                    "counter": 1,
+                    "position": 15,
+                    "time": 4931490,
+                    "updated": "2025-10-18T11:22:15+00:00",
+                    "intermediateControl": "131"
+                },
+                "137-1": {
+                    "behind": 898000,
+                    "counter": 1,
+                    "position": 15,
+                    "time": 4837039,
+                    "updated": "2025-10-18T11:20:36+00:00",
+                    "intermediateControl": "137"
+                },
+                "134-1": {
+                    "behind": 379000,
+                    "counter": 1,
+                    "position": 9,
+                    "time": 2541617,
+                    "updated": "2025-10-18T10:42:21+00:00",
+                    "intermediateControl": "134"
+                },
+                "135-1": {
+                    "behind": 618000,
+                    "counter": 1,
+                    "position": 14,
+                    "time": 3636451,
+                    "updated": "2025-10-18T11:00:37+00:00",
+                    "intermediateControl": "135"
+                }
+            },
+            "organisation": {
+                "name": "Kongsberg OL",
+                "id": 1
+            },
+            "person": {
+                "name": "Linnea Olofsson",
+                "id": 1237
+            },
+            "position": 15,
+            "raceClassId": "9fedfc25-f110-4558-8272-77035d0de2b3",
+            "raceId": "9fedfc19-db66-4942-b300-315eae02f58d",
+            "start": {
+                "updated": "2025-10-15T21:07:27+00:00",
+                "startTime": null,
+                "bibNo": 4035
+            },
+            "status": {
+                "updated": "2025-10-18T15:43:41+00:00",
+                "status": "OK"
+            },
+            "time": {
+                "behind": 947000,
+                "startTime": "2025-10-18T12:00:00+02:00",
+                "finishTime": "2025-10-18T13:22:49+02:00",
+                "time": 4969000,
+                "updated": "2025-10-18T15:43:41+00:00"
+            },
+            "timingStartTimeSource": "StartList",
+            "updated_at": "2025-10-18T16:56:37.709561Z",
+            "id": "a0240b7d-ebe5-401f-9505-eed9e6f401af"
+        }
+    ]
+}

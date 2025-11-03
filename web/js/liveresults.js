@@ -147,8 +147,10 @@ var LiveResults;
         var cl;
         if (hash.indexOf('club::') >= 0) {
           cl = decodeURIComponent(hash.substring(6));
-          if (cl != _this.curClubName)
-            LiveResults.Instance.viewClubResults(cl);
+          if (cl != _this.curClubName) {
+            var delay = (_this.Time4oServer ? 500 : 100);
+            setTimeout(function () { _this.viewClubResults(cl); }, delay);
+          }
         }
         else if (hash.indexOf('splits::') >= 0 && hash.indexOf('::course::') >= 0) {
           var coind = hash.indexOf('::course::');
@@ -239,6 +241,7 @@ var LiveResults;
       var URLextra, headers;
       if (this.Time4oServer) {
         //this.apiURL = "api/time4o/time4o_raceinfo.json";
+        //URLextra = "";
         URLextra = "race/" + this.competitionId + "/raceClass";
         headers = this.lastClassListHash ? { 'If-None-Match': this.lastClassListHash } : {};
       }
@@ -277,12 +280,14 @@ var LiveResults;
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
+
         if (this.Time4oServer) {
           data = this.Time4oClassesToLiveres(data);
           this.activeClasses = data.classes;
         }
+        else
+          this.lastClassListHash = data.hash;
 
-        this.lastClassListHash = data.hash;
         this.courseNames = data.courses;
         $('#divInfoText').html(data.infotext);
         if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0)
@@ -2558,11 +2563,11 @@ var LiveResults;
         var preTime = new Date().getTime();
         var URLextra, headers;
         if (this.Time4oServer) {
-          URLextra = "race/" + this.competitionId + "/entry/" +
+          URLextra = "race/" + this.competitionId + "/entry?raceClassId=" +
             this.activeClasses?.find(c => c.className === this.curClassName).id;
           headers = this.lastClassHash ? { 'If-None-Match': this.lastClassHash } : {};
-          //this.apiURL = "api/time4o/time4o_H 17-20E.json";
-          //data = "";
+          // this.apiURL = "api/time4o/time4o_H 17-20E.json";
+          // URLextra = "";
         }
         else {
           URLextra = "?comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class="
@@ -2595,8 +2600,8 @@ var LiveResults;
                 else if (resp.status == 304) {
                   data = { status: "NOT MODIFIED" };
                 };
+                data.rt = _this.updateInterval / 1000;
               }
-              data.rt = _this.updateInterval / 1000;
             }
 
             catch (e) { }
@@ -2910,23 +2915,50 @@ var LiveResults;
         alert('For lenge inaktiv. Trykk OK for å oppdatere.')
         this.inactiveTimer = 0;
       }
-      if (this.updateAutomatically) {
-        if (this.currentTable != null) {
-          $.ajax({
-            url: this.apiURL,
-            data: "comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club=" + encodeURIComponent(this.curClubName) + "&last_hash=" + this.lastClubHash + (this.isMultiDayEvent ? "&includetotal=true" : ""),
-            success: function (data, status, resp) {
-              var expTime = new Date();
-              expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-              _this.handleUpdateClubResults(data, expTime);
-            },
-            error: function () {
-              _this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
-            },
-            dataType: "json"
-          });
-        }
+      if (!this.updateAutomatically || this.currentTable == null)
+        return;
+
+      var URLextra, headers;
+      if (this.Time4oServer) {
+        URLextra = "race/" + this.competitionId + "/entry?organisationId=" + this.curClubName;
+        headers = this.lastClubHash ? { 'If-None-Match': lastClubHash } : {};
+
+        // this.apiURL = "api/time4o/time4o_clubresults.json";
+        // URLextra = "";
       }
+      else {
+        URLextra = "?comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club="
+          + encodeURIComponent(this.curClubName) + "&last_hash=" + this.lastClubHash
+          + (this.isMultiDayEvent ? "&includetotal=true" : ""),
+          headers = {};
+      }
+
+      $.ajax({
+        url: this.apiURL + URLextra,
+        headers: headers,
+        dataTable: "json",
+        success: function (data, status, resp) {
+          var expTime = new Date();
+          expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+
+          if (_this.Time4oServer) {
+            if (resp.status == 200) {
+              var etag = resp.getResponseHeader("etag");
+              if (etag.length >= 2)
+                _this.lastClubHash = etag.slice(1, -1);
+              data.status = "OK";
+            }
+            else if (resp.status == 304) {
+              data = { status: "NOT MODIFIED" };
+            };
+            data.rt = _this.clubUpdateInterval / 1000;
+          }
+          _this.handleUpdateClubResults(data, expTime);
+        },
+        error: function () {
+          _this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
+        }
+      });
     };
 
     //handle the response on club-results update
@@ -2944,6 +2976,8 @@ var LiveResults;
       }
       var table = this.currentTable;
       if (data.status == "OK" && this.currentTable != null) {
+        if (this.Time4oServer)
+          data = this.Time4oClubResultsToLiveres(data, this.activeClasses);
         clearTimeout(this.updatePredictedTimeTimer);
         var numberOfRunners = data.results.length;
         $('#numberOfRunners').html(numberOfRunners);
@@ -2974,7 +3008,8 @@ var LiveResults;
         $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
         window.scrollTo(scrollX, scrollY)
         this.animateTable(oldData, data.results, this.animTime, false, true);
-        this.lastClubHash = data.hash;
+        if (!this.Time4oServer)
+          this.lastClubHash = data.hash;
       }
       if (_this.isCompToday()) {
         this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
@@ -3033,8 +3068,9 @@ var LiveResults;
 
       var URLextra;
       if (this.Time4oServer) {
-        //this.apiURL = "api/time4o/time4o_H 17-20E.json";
-        URLextra = "race/" + this.competitionId + "/entry/" +
+        // this.apiURL = "api/time4o/time4o_H 17-20E.json";
+        // URLextra = "";
+        URLextra = "race/" + this.competitionId + "/entry?raceClassId=" +
           this.activeClasses?.find(c => c.className === this.curClassName).id;
       }
       else {
@@ -3287,7 +3323,7 @@ var LiveResults;
           this.curClassLapTimes = (haveSplitControls && this.curClassSplits[0].code != "0" && this.curClassSplits.length > 1 && this.curClassSplits[this.curClassSplits.length - 1].code == "999");
           this.curClassIsUnranked = !(this.curClassSplits.every(function check(el) { return el.code != "-999"; })) || !(data.results.every(function check(el) { return el.status != 13; }));
           this.curClassHasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
-          this.curClassIsCourse = (data.results[0].class != undefined);
+          this.curClassIsCourse = (data.results[0].class != undefined && !this.Time4oServer);
           this.curClassIsMassStart = (this.checkForMassStart(data) || this.curClassIsRelay);
           this.compactView = !(this.curClassIsRelay || this.curClassLapTimes || this.isMultiDayEvent);
           var fullView = !this.compactView;
@@ -3342,17 +3378,14 @@ var LiveResults;
                 targets: [col++],
                 data: "club",
                 render: function (data, type, row) {
-                  var param = row.club;
+                  var param = (_this.Time4oServer ? row.clubId : row.club);
                   var clubShort = row.club;
                   if (param && param.length > 0) {
                     param = param.replace('\'', '\\\'');
                     if (clubShort.length > _this.maxClubLength)
                       clubShort = _this.clubShort(clubShort);
                   }
-                  if (this.Time4oServer)
-                    return clubShort;
-                  else
-                    return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
+                  return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 }
               });
             columns.push({
@@ -3363,7 +3396,7 @@ var LiveResults;
               targets: [col++],
               data: "name",
               render: function (data, type, row) {
-                var param = row.club;
+                var param = (_this.Time4oServer ? row.clubId : row.club);
                 var clubShort = row.club;
                 var nameShort = row.name;
                 if (row.name.length > _this.maxNameLength)
@@ -3373,8 +3406,8 @@ var LiveResults;
                   if (clubShort.length > _this.maxClubLength)
                     clubShort = _this.clubShort(clubShort);
                 }
-                var clubLink = (_this.Time4oServer ? clubShort :
-                  "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>");
+                var clubLink =
+                  "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 return (haveSplitControls && fullView ? clubLink + "<br/>" + nameShort : nameShort);
               }
             });
@@ -3407,7 +3440,7 @@ var LiveResults;
               data: "club",
               width: (_this.fixedTable ? "20%" : null),
               render: function (data, type, row) {
-                var param = row.club;
+                var param = (_this.Time4oServer ? row.clubId : row.club);
                 var clubShort = row.club;
                 if (param && param.length > 0) {
                   param = param.replace('\'', '\\\'');
@@ -3417,7 +3450,7 @@ var LiveResults;
                 var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 if ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes))
                   return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
-                else if (_this.fixedTable || _this.Time4oServer)
+                else if (_this.fixedTable)
                   return clubShort;
                 else
                   return link;
@@ -4320,20 +4353,47 @@ var LiveResults;
       this.curSplitView = null;
       this.curRelayView = null;
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
-      $.ajax({
-        url: this.apiURL,
-        data: "comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club=" + encodeURIComponent(clubName) + (this.isMultiDayEvent ? "&includetotal=true" : ""),
-        success: function (data, status, resp) {
-          var expTime = new Date();
-          expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-          _this.updateClubResults(data, expTime);
-        },
-        dataType: "json"
-      });
-      if (!this.isSingleClass) {
-        window.location.hash = "club::" + clubName;
+
+      var URLextra, headers;
+      if (this.Time4oServer) {
+        URLextra = "race/" + this.competitionId + "/entry?organisationId=" + clubName;
+        headers = {};
+        // this.apiURL = "api/time4o/time4o_clubresults.json";
+        // URLextra = "";
       }
+      else {
+        URLextra = "?comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club="
+          + encodeURIComponent(clubName) + (this.isMultiDayEvent ? "&includetotal=true" : ""),
+          headers = {};
+      }
+
+      $.ajax({
+        url: this.apiURL + URLextra,
+        headers: headers,
+        dataTable: "json",
+        success: function (data, status, resp) {
+          var expTime = false;
+          try {
+            expTime = new Date(resp.getResponseHeader("expires")).getTime();
+            if (_this.Time4oServer) {
+              if (resp.status == 200) {
+                var etag = resp.getResponseHeader("etag");
+                if (etag.length >= 2)
+                  _this.lastClubHash = etag.slice(1, -1);
+                data.status = "OK";
+                data.rt = _this.clubUpdateInterval / 1000;
+              }
+            }
+            if (!this.isSingleClass) {
+              window.location.hash = "club::" + clubName;
+            }
+            _this.updateClubResults(data, expTime);
+          }
+          catch (e) { }
+        }
+      });
     };
+
 
     AjaxViewer.prototype.updateClubResults = function (data, expTime) {
       if (this.curClubName == null)
@@ -4349,6 +4409,8 @@ var LiveResults;
         $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
       }
       if (data != null && data.status == "OK") {
+        if (this.Time4oServer)
+          data = this.Time4oClubResultsToLiveres(data, _this.activeClasses);
         if (data.clubName != null) {
           $('#' + this.resultsHeaderDiv).html('<b>' + data.clubName + '</b>');
           $('#' + this.resultsControlsDiv).show();
@@ -4661,7 +4723,8 @@ var LiveResults;
           });
           $('#colSelector').html('');
           this.currentTable.buttons(0, null).containers().appendTo($('#colSelector'));
-          this.lastClubHash = data.hash;
+          if (!this.Time4oServer)
+            this.lastClubHash = data.hash;
         }
       }
       this.updateClubOrder(); // Update position in table
@@ -5673,6 +5736,20 @@ var LiveResults;
         .map(({ code, name, order }) => ({ code, name, order }));
     }
 
+    AjaxViewer.prototype.Time4oClubResultsToLiveres = function (payload, classes) {
+      const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry,
+        classes.find(c => c.id === entry?.raceClassId)));
+
+      return {
+        status: "OK",
+        clubName: entries[0]?.club ?? "",
+        results: entries,
+        lastchanged: false,
+        infotext: "",
+        active: 0
+      };
+    }
+
     AjaxViewer.prototype.Time4oResultsToLiveres = function (payload, classInfo) {
       const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry, classInfo));
 
@@ -5760,6 +5837,8 @@ var LiveResults;
         bib: entry?.start?.bibNo ?? 0,
         name: entry?.person?.name ?? "",
         club: entry?.organisation?.name ?? "",
+        clubId: entry?.organisation?.id ?? 0,
+        class: classInfo?.className ?? "",
         pace: -1,
         status: statusValue,
         splits: splits,
