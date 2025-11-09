@@ -143,6 +143,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
       // Today's competitions
       foreach ($comps as $comp) {
+        if (isset($comp['public']) && $comp['public'] == false)
+          continue;
         if ($comp["date"] === $today) {
           $compName = $comp["name"];
           $compName = substr($compName, 0, ($isMobile ? 30 : 60));
@@ -197,6 +199,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       $today = strtotime(date("Y-m-d"));
       $firstAfterToday = false;
       foreach ($comps as $comp) {
+        if (isset($comp['public']) && $comp['public'] == false)
+          continue;
         $compName = $comp["name"];
         $compName = substr($compName, 0, ($isMobile ? 30 : 60));
         $date = strtotime($comp["date"]);

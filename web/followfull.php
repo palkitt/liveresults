@@ -41,14 +41,10 @@ if ($isEmmaComp) {
   $CHARSET = 'utf-8';
 } else if ($isTime4oComp) {
   $url = "https://center.time4o.com/api/v1/race/" . $compID;
-  //$url = "api/time4o/time4o_raceinfo_single.json";
   $json = file_get_contents($url);
   $data = json_decode($json, true);
   $currentComp = $data["data"];
-  if (isset($currentComp["raceNumber"])) {
-    $compName = $currentComp['event']['name'] . " - " . $currentComp["racenumber"];
-  } else
-    $compName = $currentComp["name"];
+  $compName = $currentComp["title"];
   $compDate = $currentComp["date"];
   $organizer = $currentComp["event"]["organisers"][0]["name"] ?? "";
   $eventTimeZoneDiff = 0;
@@ -607,7 +603,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
                   <?php if ($isTime4oComp) { ?>
                     <br>
-                    <img src="images/time4o_small.svg" height="10px"> Timing data from Time4o: https://app.time4o.com
+                    Timing data from Time4o <img src="images/time4o_small.svg" height="10px">: https://time4o.com/
                   <?php } ?>
                 </div>
             </div>
