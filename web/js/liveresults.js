@@ -5958,7 +5958,8 @@ var LiveResults;
       return classes.slice().sort((a, b) => {
         const keyA = sortWeight(a);
         const keyB = sortWeight(b);
-        return keyA.localeCompare(keyB);
+        if (keyA === keyB) return 0;
+        return keyA < keyB ? -1 : 1;
       });
     }
 
