@@ -4,6 +4,11 @@ $lang = "no";
 
 if (isset($_GET['lang']))
   $lang = $_GET['lang'];
+$compID = $_GET['comp'];
+$code = isset($_GET['code']);
+
+$isTime4oComp = isset($_GET['time4o']);
+$isLiveResComp = !$isTime4oComp;
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
@@ -11,8 +16,25 @@ include_once("templates/classEmma.class.php");
 include_once("templates/datatablesURL.php");
 header('Content-Type: text/html; charset=' . $CHARSET);
 
-$currentComp = new Emma($_GET['comp']);
-$code = isset($_GET['code']);
+
+if ($isTime4oComp) {
+  $url = "https://center.time4o.com/api/v1/race/" . $compID;
+  $json = file_get_contents($url);
+  $data = json_decode($json, true);
+  $currentComp = $data["data"];
+  if (isset($currentComp["raceNumber"])) {
+    $compName = $currentComp['event']['name'] . " - " . $currentComp["racenumber"];
+  } else
+    $compName = $currentComp["name"];
+  $compDate = $currentComp["date"];
+  $eventTimeZoneDiff = 0;
+} else {
+  include_once("templates/classEmma.class.php");
+  $currentComp = new Emma($compID);
+  $compName = $currentComp->CompName();
+  $compDate = $currentComp->CompDate();
+  $eventTimeZoneDiff = $currentComp->TimeZoneDiff();
+}
 
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
@@ -20,7 +42,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <html>
 
 <head>
-  <title>LiveRes Radio :: <?= $currentComp->CompName() ?> [<?= $currentComp->CompDate() ?>]</title>
+  <title>LiveRes Radio :: <?= $compName ?> [<?= $compDate ?>]</title>
 
   <META HTTP-EQUIV="expires" CONTENT="-1">
   <meta http-equiv="Content-Type" content="text/html;charset=<?= $CHARSET ?>">
@@ -54,7 +76,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     document.addEventListener("click", enableNoSleep);
 
     var res = null;
-    var Resources = null;
+    var Resources = {
+      _FREESTART: "<?= $_FREESTART ?>"
+    };
     var runnerStatus = null;
     var preTime = 1;
     var callTime = 3;
@@ -71,6 +95,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         "&pretime=" + preTime + "&minbib=" + minBib + "&maxbib=" + maxBib;
       if (open)
         url += "&openstart";
+      if (<?= $isTime4oComp ? "true" : "false" ?>)
+        url += "&time4o";
       window.location = url;
     }
 
@@ -122,11 +148,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         echo 'maxBib = ', $_GET['maxbib'], ';';
       ?>
 
-      res = new LiveResults.AjaxViewer(<?= $_GET['comp'] ?>, "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
-        Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
-      res.compName = "<?= $currentComp->CompName() ?>";
-      res.compDate = "<?= $currentComp->CompDate() ?>";
-      res.eventTimeZoneDiff = <?= $currentComp->TimeZoneDiff() ?>;
+      res = new LiveResults.AjaxViewer("<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls",
+        "divResults", "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "divRadioPassings",
+        false, <?= ($isTime4oComp ? "true" : "false") ?>, "filterText");
+      res.compName = "<?= $compName ?>";
+      res.compDate = "<?= $compDate ?>";
+      res.eventTimeZoneDiff = <?= $eventTimeZoneDiff ?>;
 
       function updateClock() {
         var time = document.getElementById("time");
@@ -154,7 +181,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           document.getElementById("minBib").value = minBib;
         if (maxBib != null)
           document.getElementById("maxBib").value = maxBib;
-        res.updateStartRegistration(<?= (isset($_GET['openstart']) ? 1 : 0) ?>);
+
+        var delay = 0;
+        if (<?= $isTime4oComp ?>) {
+          res.updateClassList();
+          var delay = 500;
+        }
+        setTimeout(function() {
+          res.updateStartRegistration(<?= (isset($_GET['openstart']) ? 1 : 0) ?>);
+        }, delay);
+
       } else
         res.updateRadioPassings(<?= $_GET['code'] ?>);
 
