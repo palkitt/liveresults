@@ -5742,6 +5742,7 @@ var LiveResults;
       const resultListMode = classEntry?.resultListMode ?? null;
       const startType = classEntry?.startType ?? null;
       const timingResolution = classEntry?.timingResolution ?? null;
+      const timingStartTimeSource = classEntry?.timingStartTimeSource ?? null;
       const splitcontrols = _this.normalizeIntermediateControls(classEntry?.intermediateControls, classEntry?.resultListMode);
 
       if (resultListMode == "Unordered")
@@ -5754,7 +5755,8 @@ var LiveResults;
         startType: startType,
         timingResolution: timingResolution,
         id: id,
-        splitcontrols: splitcontrols
+        splitcontrols: splitcontrols,
+        timingStartTimeSource: timingStartTimeSource
       };
     }
 
@@ -5866,11 +5868,17 @@ var LiveResults;
         statusKey = "Finished";
       const statusValue = statusMap[statusKey] ?? 10;
 
-      const timingStartTimeSource = entry?.timingStartTimeSource ?? "StartList";
-      if (timingStartTimeSource === "StartList") {
-        rawStartIso = entry?.start?.startTime ?? classInfo?.firstStart;
+      // Determine start time
+      const timingStartTimeSource = entry?.timingStartTimeSource ?? classInfo?.timingStartTimeSource ?? "Timing";
+      const startListStartTime = entry?.start?.startTime ?? classInfo?.firstStart ?? null;
+      let rawStartIso = null;
+      if (classInfo?.startType === "Free") {
+        rawStartIso = entry?.time?.startTime ?? null;
       } else if (timingStartTimeSource === "Timing") {
-        rawStartIso = entry?.time?.startTime ?? entry?.start?.startTime ?? null;
+        rawStartIso = entry?.time?.startTime ?? startListStartTime;
+      }
+      else {
+        rawStartIso = startListStartTime;
       }
 
       const changedIso = entry?.status?.updated ?? entry?.updated_at ?? null;
