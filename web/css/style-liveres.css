@@ -16,7 +16,8 @@ select,
 input,
 table,
 button {
-  font-family: arial, helvetica, verdana, geneva, sans-serif;
+  font-family: roboto, arial, helvetica, verdana, geneva, sans-serif;
+  font-variant-numeric: tabular-nums;
   font-size: 1em;
 }
 

@@ -30,6 +30,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<meta name="theme-color" content="#555556">
 
 	<link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
 	<link rel="stylesheet" type="text/css" href="css/style-liveres.css">
 	<link rel="stylesheet" type="text/css" href="css/jquery.prompt.css">
 	<script src="<?= $DataTablesURL ?>datatables.min.js"></script>
