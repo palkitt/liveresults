@@ -5,10 +5,8 @@ $lang = "no";
 if (isset($_GET['lang']))
   $lang = $_GET['lang'];
 $compID = $_GET['comp'];
-$code = isset($_GET['code']);
 
-$isTime4oComp = isset($_GET['time4o']);
-$isLiveResComp = !$isTime4oComp;
+$isTime4oComp = isset($_GET['time4o']) ? 1 : 0;
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
@@ -96,7 +94,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         "&pretime=" + preTime + "&minbib=" + minBib + "&maxbib=" + maxBib;
       if (open)
         url += "&openstart";
-      if (<?= $isTime4oComp ? "true" : "false" ?>)
+      if (<?= $isTime4oComp ?>)
         url += "&time4o";
       window.location = url;
     }
@@ -151,7 +149,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
       res = new LiveResults.AjaxViewer("<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls",
         "divResults", "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "divRadioPassings",
-        false, <?= ($isTime4oComp ? "true" : "false") ?>, "filterText");
+        false, <?= ($isTime4oComp) ?>, "filterText");
       res.compName = "<?= $compName ?>";
       res.compDate = "<?= $compDate ?>";
       res.eventTimeZoneDiff = <?= $eventTimeZoneDiff ?>;
