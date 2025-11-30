@@ -52,11 +52,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "templates", "templates", "{
 		web\templates\emmalang_sv.php = web\templates\emmalang_sv.php
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "css", "css", "{505B00D3-748C-4B8E-9356-6C0D5FD861BA}"
-	ProjectSection(SolutionItems) = preProject
-		web\css\style-eoc.css = web\css\style-eoc.css
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveResults.CasparClient", "LiveResults.CasparClient\LiveResults.CasparClient.csproj", "{AB05A898-690A-41B6-9F90-B8669EEDD976}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveResults.Model", "LiveResults.Model\LiveResults.Model.csproj", "{90078189-7B0A-4C17-BCDA-B1F9E564FC5E}"
