@@ -1785,15 +1785,18 @@ var LiveResults;
         headers: headers,
         dataType: "json",
         success: function (data, status, resp) {
-          var expTime = new Date(resp.getResponseHeader("expires")).getTime();
+          var expTime = false;
           if (_this.Time4oServer) {
+            expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.radioUpdateInterval;
             if (resp.status == 200) {
               _this.lastRadioPassingsUpdateHash = resp.getResponseHeader("etag").slice(1, -1);
               data.status = "OK";
             }
             else if (resp.status == 304) {
               data = { status: "NOT MODIFIED" };
-            };
+            }
+            else
+              expTime = new Date(resp.getResponseHeader("expires")).getTime();
             data.rt = _this.radioUpdateInterval / 1000;
           }
           _this.handleUpdateStartRegistration(data, expTime, openStart);
@@ -2626,8 +2629,8 @@ var LiveResults;
                 if (!_this.Time4oServer && Math.abs(newTimeDiff - _this.serverTimeDiff) > varTime)
                   _this.serverTimeDiff = 0.9 * _this.serverTimeDiff + 0.1 * newTimeDiff;
               }
-              expTime = new Date(resp.getResponseHeader("expires")).getTime();
               if (_this.Time4oServer) {
+                expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.updateInterval;
                 if (resp.status == 200) {
                   _this.lastClassHash = resp.getResponseHeader("etag").slice(1, -1);
                   data.status = "OK";
@@ -2637,6 +2640,8 @@ var LiveResults;
                 };
                 data.rt = _this.updateInterval / 1000;
               }
+              else
+                expTime = new Date(resp.getResponseHeader("expires")).getTime();
             }
 
             catch { }
@@ -2973,9 +2978,8 @@ var LiveResults;
         dataTable: "json",
         success: function (data, status, resp) {
           var expTime = new Date();
-          expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-
           if (_this.Time4oServer) {
+            expTime.setTime(new Date(resp.getResponseHeader("date")).getTime() + _this.clubUpdateInterval);
             if (resp.status == 200) {
               _this.lastClubHash = resp.getResponseHeader("etag").slice(1, -1);
               data.status = "OK";
@@ -2985,6 +2989,8 @@ var LiveResults;
             };
             data.rt = _this.clubUpdateInterval / 1000;
           }
+          else
+            expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
           _this.handleUpdateClubResults(data, expTime);
         },
         error: function () {
@@ -3123,13 +3129,15 @@ var LiveResults;
               if (Math.abs(newTimeDiff - _this.serverTimeDiff) > 1.5 * varTime)
                 _this.serverTimeDiff = newTimeDiff;
             }
-            expTime = new Date(resp.getResponseHeader("expires")).getTime();
             if (_this.Time4oServer && resp.status === 200) {
+              expTime = new Date(resp.getResponseHeader("date")).getTime() - _this.updateInterval;
               _this.lastClassHash = resp.getResponseHeader("etag").slice(1, -1);
               data.status = "OK";
               data.type = (className === "startlist" ? "startList" : className === "plainresults" ? "plainResults" : "classResults");
               data.rt = _this.updateInterval / 1000;
             }
+            else
+              expTime = new Date(resp.getResponseHeader("expires")).getTime();
           }
           catch { }
           _this.updateClassResults(data, expTime);
@@ -4402,15 +4410,14 @@ var LiveResults;
       this.curRelayView = null;
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
 
-      var URLextra, headers;
+      var URLextra;
+      var headers = {};
       if (this.Time4oServer) {
         URLextra = "race/" + this.competitionId + "/entry?organisationId=" + clubName;
-        headers = {};
       }
       else {
         URLextra = "?comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club="
           + encodeURIComponent(clubName) + (this.isMultiDayEvent ? "&includetotal=true" : "");
-        headers = {};
       }
 
       $.ajax({
@@ -4420,14 +4427,16 @@ var LiveResults;
         success: function (data, status, resp) {
           var expTime = false;
           try {
-            expTime = new Date(resp.getResponseHeader("expires")).getTime();
             if (_this.Time4oServer) {
+              expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.clubUpdateInterval;
               if (resp.status == 200) {
                 _this.lastClubHash = resp.getResponseHeader("etag").slice(1, -1);
                 data.status = "OK";
                 data.rt = _this.clubUpdateInterval / 1000;
               }
             }
+            else
+              expTime = new Date(resp.getResponseHeader("expires")).getTime();
             if (!this.isSingleClass) {
               window.location.hash = "club::" + clubName;
             }
