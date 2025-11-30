@@ -901,7 +901,12 @@ var LiveResults;
         }
       }
 
-      // Update split places
+      this.updateSplitPlaces(data, classSplitsUpdated);
+    }
+
+    // Update split places and timeplus 
+    AjaxViewer.prototype.updateSplitPlaces = function (data, classSplitsUpdated) {
+      var classSplits = data.splitcontrols;
       for (var sp = 0; sp < classSplits.length; sp++) {
         if (!classSplitsUpdated[sp])
           continue;
@@ -914,7 +919,7 @@ var LiveResults;
         var bestSplitKey = -1;
         var secondBest = false;
 
-        for (var j = 0; j < numRunners; j++) {
+        for (var j = 0; j < data.results.length; j++) {
           var spTime = "";
           var raceStatus = data.results[j].status;
 
@@ -2674,6 +2679,8 @@ var LiveResults;
             if (classInfo == null)
               return;
             newData = this.Time4oResultsToLiveres(newData, classInfo);
+            if (newData.updatedSplits.some(v => v))
+              this.updateSplitPlaces(newData, newData.updatedSplits);
             newData.className = this.curClassName;
             newData.splitcontrols = classInfo.splitcontrols;
           }
@@ -3157,6 +3164,8 @@ var LiveResults;
             if (classInfo == null)
               return;
             data = this.Time4oResultsToLiveres(data, classInfo);
+            if (data.updatedSplits.some(v => v))
+              this.updateSplitPlaces(data, data.updatedSplits);
           }
         }
         $('#divInfoText').html(data.infotext);
@@ -5724,6 +5733,8 @@ var LiveResults;
       return sumVal / nValues;
     };
 
+    // Converters from Time4o format to LiveRes format
+
     AjaxViewer.prototype.Time4oClassesToLiveres = function (payload) {
       const classes = (payload?.data ?? []).map(classEntry => this.normalizeClasses(classEntry));
       return {
@@ -5745,7 +5756,26 @@ var LiveResults;
       const splitcontrols = _this.normalizeIntermediateControls(classEntry?.intermediateControls, classEntry?.resultListMode);
 
       if (resultListMode == "Unordered")
-        splitcontrols.push({ code: -999, order: 999, name: "Time" });
+        splitcontrols.push({ code: -999, order: 999, name: "Time", updated: false });
+
+      if (classEntry?.showLapTimes && splitcontrols.length > 0) {
+        splitcontrols.forEach(ctrl => {
+          splitcontrols.push({
+            code: ctrl.code + 100000,
+            order: (2 * ctrl.order - 1),
+            name: ctrl.name + "PassTime",
+            updated: true
+          });
+          ctrl.order = 2 * ctrl.order;
+        });
+        splitcontrols.push({
+          code: 999,
+          order: 999,
+          name: "Leg",
+          updated: true
+        });
+        splitcontrols.sort((a, b) => a.order - b.order);
+      }
 
       return {
         className: classEntry?.name ?? "",
@@ -5755,7 +5785,9 @@ var LiveResults;
         timingResolution: timingResolution,
         id: id,
         splitcontrols: splitcontrols,
-        timingStartTimeSource: timingStartTimeSource
+        timingStartTimeSource: timingStartTimeSource,
+        showLapTimes: classEntry?.showLapTimes ?? false,
+        updatedSplits: splitcontrols.map(ctrl => !!ctrl.updated)
       };
     }
 
@@ -5765,11 +5797,11 @@ var LiveResults;
       return Object.values(intermediateControl)
         .map((ctrl, idx) => ({
           order: ctrl?.order ?? idx + 1,
-          code: (Number(ctrl?.id) + (ctrl?.counter ?? 0) * 1000) * (unordered ? -1 : 1),
-          name: ctrl?.name ?? `Split ${idx + 1}`
+          code: (Number(ctrl?.id) + (ctrl?.counter ?? 1) * 1000) * (unordered ? -1 : 1),
+          name: ctrl?.name ?? `Split ${idx + 1}`,
+          updated: false
         }))
-        .sort((a, b) => a.order - b.order)
-        .map(({ code, name, order }) => ({ code, name, order }));
+        .sort((a, b) => a.order - b.order);
     }
 
     AjaxViewer.prototype.Time4oClubResultsToLiveres = function (payload, classes) {
@@ -5811,6 +5843,7 @@ var LiveResults;
           results: entries,
           lastchanged: false,
           infotext: "",
+          updatedSplits: classInfo?.updatedSplits ?? [],
           active: 0
         };
       }
@@ -5819,9 +5852,11 @@ var LiveResults;
     AjaxViewer.prototype.groupEntriesByClass = function (entries, type) {
       const groups = new Map();
       for (const e of (entries || [])) {
-        if (type === "plainResults" && (e.status == 9 || e.status == 10)) continue;
+        if (type === "plainResults" && (e.status == 9 || e.status == 10))
+          continue;
         const name = e.class || "Unknown";
-        if (!groups.has(name)) groups.set(name, []);
+        if (!groups.has(name))
+          groups.set(name, []);
         groups.get(name).push(e);
       }
 
@@ -5885,11 +5920,22 @@ var LiveResults;
       }
 
       const changedIso = entry?.status?.updated ?? entry?.updated_at ?? null;
+
+      let rawResult = entry?.time?.time ?? null;
+      let result = rawResult != null ? Math.floor(rawResult / 10) : -3;
+      let rawBehind = entry?.time?.behind ?? null;
+      let place = entry?.position != null ? String(entry.position) : "";
+      if (statusValue != 0 && statusValue != 9 && statusValue != 10) {
+        place = "-";
+      }
+
+      // Intermediate times
       const intermediates = entry?.intermediateTimes ?? {};
+      var prevSplitTime = 0;
       const splits = Object.entries(intermediates).reduce((acc, [key, val]) => {
         const code = (Number(key.split('-')[1]) * 1000 + Number(key.split('-')[0])) * (unordered ? -1 : 1);
-        const timeHundredths = val?.time != null ? Math.round(val.time / 10) : "";
-        const behindHundredths = val?.behind != null ? Math.round(val.behind / 10) : "";
+        const timeHundredths = val?.time != null ? Math.floor(val.time / 10) : "";
+        const behindHundredths = val?.behind != null ? Math.floor(val.behind / 10) : "";
         const changed = val?.updated ? Math.floor(Date.parse(val.updated) / 1000) : 0;
 
         acc[code] = timeHundredths;
@@ -5897,25 +5943,28 @@ var LiveResults;
         acc[`${code}_changed`] = changed;
         acc[`${code}_timeplus`] = behindHundredths;
         acc[`${code}_place`] = val?.position ?? "-";
+
+        if (classInfo?.showLapTimes) {
+          const lapTime = timeHundredths !== "" ? timeHundredths - prevSplitTime : "";
+          acc[code + 100000] = lapTime;
+          prevSplitTime = val?.time != null ? Math.floor(val.time / 10) : prevSplitTime;
+        }
         return acc;
       }, {});
 
-      let rawResult = entry?.time?.time ?? null;
-      let rawBehind = entry?.time?.behind ?? null;
-      let place = entry?.position != null ? String(entry.position) : "";
-      if (statusValue != 0 && statusValue != 9 && statusValue != 10) {
-        place = "-";
+      if (classInfo?.showLapTimes && result > 0 && result > prevSplitTime) {
+        const lapTime = result - prevSplitTime;
+        splits[999] = lapTime;
       }
 
       var changed = changedIso ? Math.floor(Date.parse(changedIso) / 1000) : 0;
-
       if (statusKey == "Finished") {
-        splits["-999"] = rawResult != null ? Math.round(rawResult / 10) : "";
+        splits["-999"] = result > 0 ? result : "";
         splits["-999_status"] = statusValue;
         splits["-999_changed"] = changed;
         splits["-999_timeplus"] = 0;
         splits["-999_place"] = "F";
-        rawResult = entry?.person?.id != null ? entry.person.id : 100;
+        result = entry?.person?.id != null ? entry.person.id : 100;
         place = "F";
       }
       return {
@@ -5930,8 +5979,8 @@ var LiveResults;
         status: statusValue,
         splits: splits,
         start: rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : -999,
-        result: rawResult != null ? String(Math.round(rawResult / 10)) : -3,
-        timeplus: rawBehind != null ? Math.round(rawBehind / 10) : "",
+        result: result,
+        timeplus: rawBehind != null ? Math.floor(rawBehind / 10) : "",
         changed: changed,
         progress: (place != "" ? 100 : 0)
       };
@@ -5939,23 +5988,22 @@ var LiveResults;
 
     AjaxViewer.prototype.toHundredthsSinceMidnight = function (isoString) {
       const d = new Date(isoString);
-      if (Number.isNaN(d.getTime())) return -999;
+      if (Number.isNaN(d.getTime()))
+        return -999;
       const ms = (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) * 1000 + d.getMilliseconds();
       return Math.round(ms / 10);
     }
 
     AjaxViewer.prototype.sortClasses = function (classes) {
-      if (!Array.isArray(classes)) return [];
-
+      if (!Array.isArray(classes))
+        return [];
       const sortWeight = (cls) => {
         const name = cls?.className ?? cls?.Class ?? "";
         let key = name.toLowerCase();
-
         if (/(åpen|open|gjest|dir|utv)/i.test(key))
           key = "z" + key;
         if (/(-e| e|\d+e|elite|wre|nm)(\s*\d*)$/i.test(key))
           key = "a" + key;
-
         return key
           .replace(/\d+/g, (num) => num.padStart(3, "0"))
           .replace(/\s+/g, "")
@@ -5969,7 +6017,8 @@ var LiveResults;
       return classes.slice().sort((a, b) => {
         const keyA = sortWeight(a);
         const keyB = sortWeight(b);
-        if (keyA === keyB) return 0;
+        if (keyA === keyB)
+          return 0;
         return keyA < keyB ? -1 : 1;
       });
     }
