@@ -3962,6 +3962,12 @@ var LiveResults;
             stateSave: true,
             stateSaveParams: function (settings, data) {
               delete data.order;
+              data.compId = _this.competitionId;
+            },
+            stateLoadParams: (settings, data) => {
+              if (!data || data.compId !== this.competitionId)
+                return false;
+              return true;
             },
             fixedHeader: {
               header: true,
@@ -4740,6 +4746,12 @@ var LiveResults;
             stateSave: true,
             stateSaveParams: function (settings, data) {
               delete data.order;
+              data.compId = _this.competitionId;
+            },
+            stateLoadParams: (settings, data) => {
+              if (!data || data.compId !== this.competitionId)
+                return false;
+              return true;
             },
             fixedHeader: true,
             fixedColumns: { leftColumns: 2 },
