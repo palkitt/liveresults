@@ -1,26 +1,35 @@
-import { defineConfig } from "eslint/config";
-import prettier from "eslint-plugin-prettier";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import js from "@eslint/js";
-import { FlatCompat } from "@eslint/eslintrc";
+// import eslint from "@eslint/js";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
-});
+export default [
+  // Grunnregler fra ESLint
+  // eslint.configs.recommended,
 
-export default defineConfig([{
-    extends: compat.extends("plugin:prettier/recommended"),
-
-    plugins: {
-        prettier,
+  {
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
     },
 
     rules: {
-        "prettier/prettier": "error",
+      // Indentering (2 mellomrom)
+      "indent": ["warn", 2, { SwitchCase: 1 }],
+
+      // Slå av «kosmetiske» regler
+      "linebreak-style": "off",
+      "quotes": "off",
+      "semi": "off",
+      "comma-dangle": "off",
+      "object-curly-spacing": "off",
+      "array-bracket-spacing": "off",
+      "keyword-spacing": "off",
+      "space-before-function-paren": "off",
+      "no-multiple-empty-lines": "off",
+      "padded-blocks": "off",
+
+      // Behold «ordentlige» feil
+      "no-unused-vars": "warn",
+      "no-undef": "off",
+      "no-console": "off",
     },
-}]);
+  },
+];

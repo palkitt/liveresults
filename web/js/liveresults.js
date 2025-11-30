@@ -131,11 +131,11 @@ var LiveResults;
       }
       LiveResults.Instance = this;
 
-      $(document).ready(function (e) {
+      $(document).ready(function () {
         _this.onload();
       });
 
-      $(window).on('hashchange', function (e) {
+      $(window).on('hashchange', function () {
         _this.onload();
       });
     }
@@ -589,7 +589,10 @@ var LiveResults;
       this.curClassSplitsOK = classSplitsOK;
 
       // Calculate split fractions and sprint times per runner
-      var splitFracRunner = Array.from({ length: this.curClassNumSplits + 1 }, _ => [0]);
+      var splitFracRunner = Array.from(
+        { length: this.curClassNumSplits },
+        () => new Array(numRunners).fill(null)
+      );
       var splitFrac;
       var prevSplit;
       var nextSplit;
@@ -1043,7 +1046,7 @@ var LiveResults;
     }
 
     // Convert from split data number to render number
-    AjaxViewer.prototype.refSplit = function (spRef, totTime = false) {
+    AjaxViewer.prototype.refSplit = function (spRef) {
       if (this.curClassIsRelay)
         return Math.floor((spRef - 1) / 2);
       else if (this.curClassLapTimes)
@@ -1419,7 +1422,7 @@ var LiveResults;
               this.startPredictedTimeTimer();
           }
         }
-        catch (e) {
+        catch {
           this.startPredictedTimeTimer();
         }
       }
@@ -1636,7 +1639,7 @@ var LiveResults;
           }
           columns.push({
             title: "&#8470;", className: "dt-right", orderable: leftInForest, targets: [col++], data: "bib",
-            render: function (data, type, row) {
+            render: function (data, type) {
               if (type === 'display') {
                 if (data < 0) // Relay
                   return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
@@ -1651,7 +1654,7 @@ var LiveResults;
           });
           columns.push({
             title: "Navn", className: "dt-left", orderable: leftInForest, targets: [col++], data: "runnerName",
-            render: function (data, type, row) {
+            render: function (data, type) {
               if (type === 'display') {
                 if (data.length > _this.maxNameLength)
                   return _this.nameShort(data);
@@ -1664,7 +1667,7 @@ var LiveResults;
           });
           columns.push({
             title: "Klubb", className: "dt-left", orderable: leftInForest, targets: [col++], data: "club",
-            render: function (data, type, row) {
+            render: function (data, type) {
               if (type === 'display') {
                 if (data.length > _this.maxClubLength) {
                   return _this.clubShort(data);
@@ -1860,7 +1863,7 @@ var LiveResults;
             });
             columns.push({
               title: "&#8470;", className: "dt-right", orderable: false, targets: [col++], data: "bib",
-              render: function (data, type, row) {
+              render: function (data, type) {
                 if (type === 'display') {
                   if (data < 0) // Relay
                     return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
@@ -1875,7 +1878,7 @@ var LiveResults;
             });
             columns.push({
               title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
-              render: function (data, type, row) {
+              render: function (data, type) {
                 if (type === 'display') {
                   var name = (data.length > _this.maxNameLength ? _this.nameShort(data) : data);
                   return name;
@@ -1886,7 +1889,7 @@ var LiveResults;
             });
             columns.push({
               title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
-              render: function (data, type, row) {
+              render: function (data, type) {
                 if (type === 'display') {
                   var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);
                   return club;
@@ -1927,14 +1930,14 @@ var LiveResults;
             });
             columns.push({
               title: "Starttid", className: "dt-right", orderable: false, targets: [col++], data: "start",
-              render: function (data, type, row) {
+              render: function (data) {
                 return data;
               }
             });
             if (!openStart) {
               columns.push({
                 title: "Diff", className: "dt-right", orderable: false, targets: [col++], data: "timeToStart",
-                render: function (data, type, row) {
+                render: function (data) {
                   timeToStartStr = "<span style=\"color:" + (data < 0 ? "black" : "red") + "\">";
                   timeToStartStr += (data < 0 ? "-" : "+") + _this.formatTime(Math.abs(data), 0, false);
                   timeToStartStr += "<\span>";
@@ -2116,9 +2119,7 @@ var LiveResults;
           var timer = (ms > 800 ? 2000 - ms : 1000 - ms);
           this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, timer);
         }
-        catch (e) {
-          console.log(e);
-        };
+        catch { }
       }
     }
 
@@ -2177,7 +2178,7 @@ var LiveResults;
         $.ajax({
           url: this.apiURL,
           data: "comp=" + this.competitionId + "&method=getrunners",
-          success: function (data, status, resp) {
+          success: function (data) {
             _this.handleUpdateStartList(data);
           },
           error: function () { },
@@ -2195,7 +2196,7 @@ var LiveResults;
         var col = 0;
         columns.push({
           title: "St.no", visible: false, className: "dt-right", orderable: false, targets: [col++], data: "bib",
-          render: function (data, type, row) {
+          render: function (data) {
             return Math.abs(data);
           }
         });
@@ -2497,12 +2498,12 @@ var LiveResults;
               $.ajax({
                 url: this.apiURL + "?method=getracesplitter",
                 data: "&comp=" + this.competitionId + "&firststart=" + firstStartcs + "&interval=" + interval,
-                success: function (data, status, resp) {
+                success: function (data) {
                   try {
                     var blob = new Blob([data], { type: "text/plain;charset=utf-8" });
                     saveAs(blob, "RaceSplitter.csv")
                   }
-                  catch (e) { }
+                  catch { }
                 },
                 dataType: "html"
               });
@@ -2540,7 +2541,7 @@ var LiveResults;
                 }
                 expTime = new Date(resp.getResponseHeader("expires")).getTime();
               }
-              catch (e) { }
+              catch { }
               _this.handleUpdateChanges(data, expTime);
             },
             error: function () {
@@ -2581,7 +2582,7 @@ var LiveResults;
           }
         }
       }
-      catch (e) { }
+      catch { }
       if (this.isCompToday())
         this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
     };
@@ -2638,7 +2639,7 @@ var LiveResults;
               }
             }
 
-            catch (e) { }
+            catch { }
             _this.handleUpdateClassResults(data, expTime);
           },
           error: function () {
@@ -2745,7 +2746,7 @@ var LiveResults;
           }
         }
       }
-      catch (e) { }
+      catch { }
       if (this.isCompToday()) {
         if (newData.lastchanged) {
           this.lastChanged = newData.lastchanged;
@@ -2916,7 +2917,7 @@ var LiveResults;
         }
         setTimeout(function () { _this.endAnimateTable(table, predRank, clubTable) }, _this.animTime + 100);
       }
-      catch (e) {
+      catch {
         this.animating = false;
         if (!this.currentTable.fixedHeader.enabled()) {
           this.currentTable.fixedHeader.enable();
@@ -2962,8 +2963,8 @@ var LiveResults;
       else {
         URLextra = "?comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club="
           + encodeURIComponent(this.curClubName) + "&last_hash=" + this.lastClubHash
-          + (this.isMultiDayEvent ? "&includetotal=true" : ""),
-          headers = {};
+          + (this.isMultiDayEvent ? "&includetotal=true" : "");
+        headers = {};
       }
 
       $.ajax({
@@ -3066,7 +3067,7 @@ var LiveResults;
         try {
           this.currentTable.destroy();
         }
-        catch (e) { }
+        catch { }
       }
 
       // Remove dropdown class list
@@ -3130,7 +3131,7 @@ var LiveResults;
               data.rt = _this.updateInterval / 1000;
             }
           }
-          catch (e) { }
+          catch { }
           _this.updateClassResults(data, expTime);
         },
         dataType: "json"
@@ -3411,7 +3412,7 @@ var LiveResults;
             targets: [col++],
             data: "place",
             width: (_this.fixedTable ? "5%" : null),
-            render: function (data, type, row) {
+            render: function (data) {
               return data;
             }
           });
@@ -3471,7 +3472,7 @@ var LiveResults;
                 targets: [col++],
                 data: "name",
                 width: (_this.fixedTable ? "30%" : null),
-                render: function (data, type, row) {
+                render: function (data, type) {
                   if (type === 'display')
                     return (data.length > _this.maxNameLength ? _this.nameShort(data) : data);
                   else
@@ -3531,7 +3532,7 @@ var LiveResults;
               targets: [col++],
               data: "bib",
               width: (_this.fixedTable ? "5%" : null),
-              render: function (data, type, row) {
+              render: function (data, type) {
                 if (type === 'display') {
                   var txt = "";
                   if (data < 0)       // Relay
@@ -3722,7 +3723,7 @@ var LiveResults;
                   targets: [col++],
                   type: "numeric",
                   data: "splits." + value.code + "_status",
-                  render: function (data, type, row) {
+                  render: function (data) {
                     return data ?? "";
                   }
                 });
@@ -4390,7 +4391,7 @@ var LiveResults;
         try {
           this.currentTable.destroy();
         }
-        catch (e) { }
+        catch { }
       }
       $('#divResults').html('');
       $('#divLivelox').html('');
@@ -4408,8 +4409,8 @@ var LiveResults;
       }
       else {
         URLextra = "?comp=" + this.competitionId + "&method=getclubresults&unformattedTimes=true&club="
-          + encodeURIComponent(clubName) + (this.isMultiDayEvent ? "&includetotal=true" : ""),
-          headers = {};
+          + encodeURIComponent(clubName) + (this.isMultiDayEvent ? "&includetotal=true" : "");
+        headers = {};
       }
 
       $.ajax({
@@ -4432,7 +4433,7 @@ var LiveResults;
             }
             _this.updateClubResults(data, expTime);
           }
-          catch (e) { }
+          catch { }
         }
       });
     };
@@ -4506,7 +4507,7 @@ var LiveResults;
             className: "dt-left",
             targets: [col++],
             data: "name",
-            render: function (data, type, row) {
+            render: function (data, type) {
               if (type === 'display') {
                 if (data.length > _this.maxNameLength)
                   return _this.nameShort(data);
@@ -4557,7 +4558,7 @@ var LiveResults;
             visible: false,
             data: (_this.EmmaServer ? null : "bib"),
             targets: [col++],
-            render: function (data, type, row) {
+            render: function (data) {
               return Math.abs(data);
             }
           });
@@ -4586,7 +4587,7 @@ var LiveResults;
             data: "start",
             targets: [col++],
             data: "start",
-            render: function (data, type, row) {
+            render: function (data) {
               if (data < 0) // Open start
                 return 99999999;
               else if (data == "")
@@ -4896,7 +4897,7 @@ var LiveResults;
           }
         }
       }
-      catch (e) { }
+      catch { }
       if (startTimer)
         this.updatePredictedTimeTimer = setTimeout(function () { _this.updateClubTimes(); }, 1000);
     }
@@ -4909,7 +4910,7 @@ var LiveResults;
         try {
           this.currentTable.destroy();
         }
-        catch (e) { }
+        catch { }
       }
       $('#classColumnContent').removeClass('open').addClass('closed');
       $('#divResults').html('');
@@ -5144,213 +5145,6 @@ var LiveResults;
       return link;
     };
 
-    //Request data for result viewer
-    AjaxViewer.prototype.updateResultView = function (className, place, first, last) {
-      var _this = this;
-      $.ajax({
-        url: this.apiURL,
-        data: "comp=" + this.competitionId + "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className),
-        success: function (data, status, resp) { _this.handleUpdateResultViews(data, className, place, first, last); },
-        error: function () { },
-        dataType: "json"
-      });
-    };
-
-    //Handle response for updating the last radio passings..
-    AjaxViewer.prototype.handleUpdateResultViews = function (data, className, place, first, last) {
-      var _this = this;
-      if (data != null && data.status == "OK") {
-        if (data.className != null)
-          $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
-        if (data.results != null && data.results.length > 0) {
-          var haveSplitControls = (data.splitcontrols != null) && (data.splitcontrols.length > 0);
-          this.curClassSplits = data.splitcontrols;
-          this.curClassIsRelay = (haveSplitControls && this.curClassSplits[0].code == "0");
-          this.curClassIsUnranked = !(this.curClassSplits.every(function check(el) { return el.code != "-999"; })) || !(data.results.every(function check(el) { return el.status != 13; }));
-          this.curClassHasBibs = (data.results[0].bib != undefined && data.results[0].bib != 0);
-          var isRelayClass = this.relayClasses.includes(data.className);
-
-          if (this.curClassSplits == null)
-            this.curClassNumSplits = 0;
-          else if (this.curClassIsRelay)
-            this.curClassNumSplits = this.curClassSplits.length / 2 - 1;
-          else if (this.curClassLapTimes)
-            this.curClassNumSplits = (this.curClassSplits.length - 1) / 2;
-          else
-            this.curClassNumSplits = this.curClassSplits.length;
-
-          this.curClassSplitsOK = new Array(this.curClassNumSplits).fill(true);
-          this.checkRadioControls(data);
-          this.updateClassSplitsBest(data);
-          this.updateResultVirtualPosition(data.results);
-
-
-          // Select data for display
-          var results = [];
-          var minPlace = 1;
-          var maxPlace = 10;
-
-          for (var i = 0; i < data.results.length; i++) {
-            if (data.results[i].place >= minPlace && data.results[i].place <= maxPlace) {
-              results.push(data.results[i]);
-            }
-          }
-
-          var columns = Array();
-          var col = 0;
-
-          columns.push({
-            title: "#",
-            className: "dt-right",
-            orderable: false,
-            targets: [col++],
-            data: "place",
-            width: "5%"
-          });
-
-          if (_this.curClassHasBibs) {
-            columns.push({
-              title: "No",
-              className: "dt-right",
-              orderable: false,
-              targets: [col++],
-              data: "bib",
-              width: "5%",
-              render: function (data, type, row) {
-                if (type === 'display') {
-                  if (data < 0) // Relay
-                    return "(" + (-data / 100 | 0) + ")";
-                  else if (data > 0)    // Ordinary
-                    return "(" + data + ")";
-                  else
-                    return "";
-                }
-                else
-                  return Math.abs(data);
-              }
-            });
-          }
-
-          if (isRelayClass) {
-            columns.push({
-              title: this.resources["_CLUB"],
-              className: "dt-left",
-              orderable: false,
-              targets: [col++],
-              data: "club",
-              width: "20%",
-              render: function (data, type, row) {
-
-                var clubShort = row.club;
-                if (clubShort.length > _this.maxClubLength)
-                  clubShort = _this.clubShort(clubShort);
-                return clubShort;
-              }
-            });
-
-            columns.push({
-              title: this.resources["_NAME"],
-              className: "dt-left",
-              orderable: false,
-              targets: [col++],
-              data: "name",
-              width: "20%",
-              render: function (data, type, row) {
-                var nameShort = row.name;
-                if (row.name.length > _this.maxNameLength)
-                  nameShort = _this.nameShort(row.name);
-                return nameShort;
-              }
-            });
-          }
-          else // Not this.curClassIsRelay
-          {
-            columns.push({
-              title: this.resources["_NAME"],
-              className: "dt-left",
-              orderable: false,
-              targets: [col++],
-              data: "name",
-              width: "20%",
-              render: function (data, type, row) {
-                var nameShort = row.name;
-                if (row.name.length > _this.maxNameLength)
-                  nameShort = _this.nameShort(row.name);
-
-                return nameShort;
-              }
-            });
-
-            columns.push({
-              title: this.resources["_CLUB"],
-              className: "dt-left",
-              orderable: false,
-              targets: [col++],
-              data: "club",
-              width: "20%",
-              render: function (data, type, row) {
-                var clubShort = row.club;
-                if (clubShort.length > _this.maxClubLength)
-                  clubShort = _this.clubShort(clubShort);
-                return clubShort;
-              }
-            });
-          }
-
-          columns.push({
-            title: "Tid",
-            className: "dt-right",
-            type: "numeric",
-            orderable: false,
-            targets: [col++],
-            width: "10%",
-            render: function (data, type, row) {
-              if (type == "sort")
-                return parseInt(data);
-              var res = "";
-              res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
-              return res;
-            }
-          });
-
-          columns.push({
-            title: "&nbsp;&nbsp;&nbsp;&nbsp;",
-            className: "dt-right",
-            orderable: false,
-            targets: [col++],
-            data: "timeplus",
-            width: "10%",
-            render: function (data, type, row) {
-              var res = "";
-              if (row.status == 0) {
-                res += "<span class=\"plustime\">+";
-                res += _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond) + "</span>";
-              }
-              return res;
-            }
-          });
-
-          columns.push({
-            title: "sort",
-            visible: false,
-            targets: [col++],
-            data: "place"
-          });
-
-          this.currentTable = $('#' + this.resultsDiv).DataTable({
-            paging: false,
-            lengthChange: false,
-            searching: false,
-            info: false,
-            data: results,
-            order: [[col - 1, "asc"]],
-            columnDefs: columns,
-            destroy: true
-          });
-        }
-      }
-    };
-
 
     AjaxViewer.prototype.viewSplitTimeResults = function (className, course) {
       if (!this.showEcardTimes)
@@ -5365,7 +5159,7 @@ var LiveResults;
         try {
           this.currentTable.destroy();
         }
-        catch (e) { }
+        catch { }
       }
       $('#divResults').html('');
 
