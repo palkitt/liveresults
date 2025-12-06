@@ -5551,7 +5551,8 @@ var LiveResults;
     // Converters from Time4o format to LiveRes format
 
     AjaxViewer.prototype.Time4oClassesToLiveres = function (payload) {
-      const classes = (payload?.data ?? []).map(classEntry => this.normalizeClasses(classEntry));
+      const classes = (payload?.data ?? []).map(classEntry =>
+        this.normalizeClasses(classEntry)).flatMap(c => Array.isArray(c) ? c : [c]);;
       return {
         status: "OK",
         classes: classes ?? "",
@@ -5562,48 +5563,108 @@ var LiveResults;
     AjaxViewer.prototype.normalizeClasses = function (classEntry) {
       _this = this;
 
-      const id = classEntry?.id ?? null;
+      const isRelay = (classEntry?.eventForm == "Relay");
+      const isUnordered = (classEntry?.resultListMode == "Unordered");
+      const showLapTimes = classEntry?.showLapTimes ?? false;
+
       const firstStart = classEntry?.firstStart ?? null
       const resultListMode = classEntry?.resultListMode ?? null;
       const startType = classEntry?.startType ?? null;
       const timingResolution = classEntry?.timingResolution ?? null;
       const timingStartTimeSource = classEntry?.timingStartTimeSource ?? null;
-      const splitcontrols = _this.normalizeIntermediateControls(classEntry?.intermediateControls, classEntry?.resultListMode);
+      const legs = (classEntry?.legs ? Object.keys(classEntry.legs).length : 1);
+      var intermediateControls;
+      classInfo = [];
 
-      if (resultListMode == "Unordered")
-        splitcontrols.push({ code: -999, order: 999, name: "Time", updated: false });
+      for (var i = 1; i <= legs; i++) {
+        var legNo = classEntry?.legs[i].number ?? 1;
+        var className = classEntry?.name ?? "NoName";
+        var id = classEntry?.id ?? "NoId";
 
-      if (classEntry?.showLapTimes && splitcontrols.length > 0) {
-        splitcontrols.forEach(ctrl => {
+        // Relay specific fields
+        if (isRelay) {
+          if (!className.endsWith("-"))
+            className += "-";
+          className += String(legNo);
+          id = id + "." + String(legNo);
+          intermediateControls = classEntry?.legs[i]?.intermediateControls;
+        }
+        else {
+          intermediateControls = classEntry?.intermediateControls;
+        }
+
+        const splitcontrols = _this.normalizeIntermediateControls(intermediateControls, classEntry?.resultListMode);
+
+        // Add control for exchange times
+        if (isRelay && legNo > 1) {
+          splitcontrols.forEach(ctrl => {
+            splitcontrols.push({
+              code: ctrl.code + 100000,
+              order: (2 * ctrl.order - 1),
+              name: ctrl.name + "PassTime",
+              updated: true
+            });
+            ctrl.order = 2 * ctrl.order;
+          });
           splitcontrols.push({
-            code: ctrl.code + 100000,
-            order: (2 * ctrl.order - 1),
-            name: ctrl.name + "PassTime",
+            code: 0,
+            order: 0,
+            name: "Exchange",
             updated: true
           });
-          ctrl.order = 2 * ctrl.order;
-        });
-        splitcontrols.push({
-          code: 999,
-          order: 999,
-          name: "Leg",
-          updated: true
-        });
-        splitcontrols.sort((a, b) => a.order - b.order);
-      }
+          splitcontrols.push({
+            code: 999,
+            order: 999,
+            name: "Leg",
+            updated: true
+          });
+          splitcontrols.sort((a, b) => a.order - b.order);
+        }
 
-      return {
-        className: classEntry?.name ?? "",
-        firstStart: firstStart ? firstStart : -999,
-        resultListMode: resultListMode,
-        startType: startType,
-        timingResolution: timingResolution,
-        id: id,
-        splitcontrols: splitcontrols,
-        timingStartTimeSource: timingStartTimeSource,
-        showLapTimes: classEntry?.showLapTimes ?? false,
-        updatedSplits: splitcontrols.map(ctrl => !!ctrl.updated)
-      };
+        // Add control for showing time of unordered classes
+        if (isUnordered)
+          splitcontrols.push({
+            code: -999,
+            order: 999,
+            name: "Time",
+            updated: false
+          });
+
+        // Show lap times
+        if (showLapTimes && splitcontrols.length > 0) {
+          splitcontrols.forEach(ctrl => {
+            splitcontrols.push({
+              code: ctrl.code + 100000,
+              order: (2 * ctrl.order - 1),
+              name: ctrl.name + "PassTime",
+              updated: true
+            });
+            ctrl.order = 2 * ctrl.order;
+          });
+          splitcontrols.push({
+            code: 999,
+            order: 999,
+            name: "Leg",
+            updated: true
+          });
+          splitcontrols.sort((a, b) => a.order - b.order);
+        }
+
+        classInfo.push(
+          {
+            className: className,
+            firstStart: firstStart ? firstStart : -999,
+            resultListMode: resultListMode,
+            startType: startType,
+            timingResolution: timingResolution,
+            id: id,
+            splitcontrols: splitcontrols,
+            timingStartTimeSource: timingStartTimeSource,
+            showLapTimes: classEntry?.showLapTimes ?? false,
+            updatedSplits: splitcontrols.map(ctrl => !!ctrl.updated)
+          });
+      }
+      return classInfo;
     }
 
     AjaxViewer.prototype.normalizeIntermediateControls = function (intermediateControl, resultListMode) {
