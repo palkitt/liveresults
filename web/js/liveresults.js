@@ -100,6 +100,7 @@ var LiveResults;
       this.browserType = this.isMobile(); // 1:Mobile, 2:iPad, 3:PC and other
       this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
       this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
+      this.restartTimeOffset = 100 * 3600 * 100; // 100 hours added to time for restarted runners
 
       if (Time4oServer) {
         this.updateInterval = 3000;
@@ -161,8 +162,10 @@ var LiveResults;
         }
         else if (hash.indexOf('relay::') >= 0) {
           cl = decodeURIComponent(hash.substring(7));
-          if (cl != _this.curRelayView)
-            LiveResults.Instance.viewRelayResults(cl);
+          if (cl != _this.curRelayView) {
+            var delay = (_this.Time4oServer ? 500 : 100);
+            setTimeout(function () { _this.viewRelayResults(cl); }, delay);
+          }
         }
         else {
           cl = decodeURIComponent(hash);
@@ -329,8 +332,15 @@ var LiveResults;
                 {
                   if (this.EmmaServer)
                     str += "<b> " + classNameClean + "</b><br/>&nbsp;";
-                  else
-                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameURL.replace(/-[0-9]{1,2}$/, '') + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
+                  else {
+                    {
+                      if (this.Time4oServer)
+                        var classNameLink = classNameURL;
+                      else
+                        var classNameLink = classNameURL.replace(/-[0-9]{1,2}$/, '')
+                    }
+                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameLink + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
+                  }
                   leg = 0;
                 }
                 relay = true;
@@ -924,18 +934,22 @@ var LiveResults;
 
         for (var j = 0; j < data.results.length; j++) {
           var spTime = "";
-          var raceStatus = data.results[j].status;
+          var status = 0;
+          if (data.results[j].splits["999_status"] != undefined)
+            status = data.results[j].splits["999_status"];
+          else
+            status = data.results[j].status;
 
           if (data.results[j].splits[classSplits[sp].code] != undefined && data.results[j].splits[classSplits[sp].code] != "") {
             spTime = data.results[j].splits[classSplits[sp].code];
-            if (bestSplitTime < 0 && (raceStatus == 0 || raceStatus == 9 || raceStatus == 10)) {
+            if (bestSplitTime < 0 && (status == 0 || status == 9 || status == 10)) {
               bestSplitTime = spTime;
               bestSplitKey = j;
             }
           }
           if (spTime != "") {
             data.results[j].splits[classSplits[sp].code + "_timeplus"] = spTime - bestSplitTime;
-            if (!secondBest && bestSplitKey > -1 && j != bestSplitKey && (raceStatus == 0 || raceStatus == 9 || raceStatus == 10)) {
+            if (!secondBest && bestSplitKey > -1 && j != bestSplitKey && (status == 0 || status == 9 || status == 10)) {
               data.results[bestSplitKey].splits[classSplits[sp].code + "_timeplus"] = bestSplitTime - spTime;
               secondBest = true;
             }
@@ -946,17 +960,17 @@ var LiveResults;
           if (curSplitTime != spTime)
             curSplitPlace = splitPlace;
 
-          if (raceStatus == 0 || raceStatus == 9 || raceStatus == 10) {
+          if (status == 0 || status == 9 || status == 10) {
             data.results[j].splits[classSplits[sp].code + "_place"] = curSplitPlace;
             splitPlace++;
             if (data.results[j].splits[classSplits[sp].code] != undefined && data.results[j].splits[classSplits[sp].code] != "")
               curSplitTime = data.results[j].splits[classSplits[sp].code];
           }
-          else if (raceStatus == 13)
+          else if (status == 13)
             data.results[j].splits[classSplits[sp].code + "_place"] = "F";
           else {
             data.results[j].splits[classSplits[sp].code + "_place"] = "-";
-            data.results[j].splits[classSplits[sp].code + "_status"] = raceStatus;
+            data.results[j].splits[classSplits[sp].code + "_status"] = status;
           }
         }
       }
@@ -2362,10 +2376,13 @@ var LiveResults;
 
       var lastDiv = shortClub.lastIndexOf("-");
       var legNoStr = shortClub.substr(lastDiv);
+      var tooLong = (shortClub.length > _this.maxClubLength);
       if (!isNaN(legNoStr) && lastDiv > 0)
         shortClub = shortClub.substring(0, Math.min(lastDiv, _this.maxClubLength)) + legNoStr;
       else
         shortClub = shortClub.substring(0, _this.maxClubLength)
+      if (tooLong)
+        shortClub = shortClub + "..";
       if (del)
         shortClub = "<del>" + shortClub + "</del>";
 
@@ -3437,11 +3454,10 @@ var LiveResults;
                 render: function (data, type, row) {
                   var param = (_this.Time4oServer ? row.clubId : row.club);
                   var clubShort = row.club;
-                  if (param && param.length > 0) {
+                  if (param && param.length > 0)
                     param = param.replace('\'', '\\\'');
-                    if (clubShort.length > _this.maxClubLength)
-                      clubShort = _this.clubShort(clubShort);
-                  }
+                  if (clubShort.length > _this.maxClubLength)
+                    clubShort = _this.clubShort(clubShort);
                   return "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 }
               });
@@ -3458,11 +3474,10 @@ var LiveResults;
                 var nameShort = row.name;
                 if (row.name.length > _this.maxNameLength)
                   nameShort = _this.nameShort(row.name);
-                if (param && param.length > 0) {
+                if (param && param.length > 0)
                   param = param.replace('\'', '\\\'');
-                  if (clubShort.length > _this.maxClubLength)
-                    clubShort = _this.clubShort(clubShort);
-                }
+                if (clubShort.length > _this.maxClubLength)
+                  clubShort = _this.clubShort(clubShort);
                 var clubLink =
                   "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 return (haveSplitControls && fullView ? clubLink + "<br/>" + nameShort : nameShort);
@@ -4123,10 +4138,10 @@ var LiveResults;
         var tenth;
         var restart = "";
 
-        if (time > 100 * 3600 * 100) // 100 hours. Used for indicating restart in relay
+        if (time > this.restartTimeOffset) // 100 hours. Used for indicating restart in relay
         {
           restart = "<small>*</small>"; // Small * to indicate that team has restarted  
-          time = time % (100 * 3600 * 100);
+          time = time % this.restartTimeOffset;
         }
 
         if (showHours) {
@@ -4941,22 +4956,44 @@ var LiveResults;
       this.curClassName = null;
       this.curSplitView = null;
       this.curRelayView = className;
-
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+
+      var URLextra;
+      if (this.Time4oServer) {
+        var classId = this.activeClasses?.find(c => c.className === className).id;
+        classId = classId.replace('.1', '.all');
+        URLextra = "race/" + this.competitionId + "/entry?raceClassId=" + classId;
+      }
+      else {
+        URLextra = "?comp=" + this.competitionId + "&unformattedTimes=true&method=getrelayresults&class=" + encodeURIComponent(className)
+      }
+
       $.ajax({
-        url: this.apiURL,
-        data: "comp=" + this.competitionId + "&unformattedTimes=true&method=getrelayresults&class=" + encodeURIComponent(className),
+        url: this.apiURL + URLextra,
+        headers: {},
+        dataType: "json",
         success: function (data, status, resp) {
-          var expTime = new Date();
-          expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-          _this.updateRelayResults(data, expTime);
-        },
-        dataType: "json"
+          var expTime = false;
+          try {
+            if (_this.Time4oServer) {
+              expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.updateInterval;
+              if (resp.status == 200)
+                data.status = "OK";
+              else
+                data.status = "ERR";
+              data.rt = _this.updateInterval / 1000;
+            }
+            else
+              expTime = new Date(resp.getResponseHeader("expires")).getTime();
+            _this.updateRelayResults(data, expTime, className);
+          }
+          catch { }
+        }
       });
       window.location.hash = "relay::" + className;
     };
 
-    AjaxViewer.prototype.updateRelayResults = function (data, expTime) {
+    AjaxViewer.prototype.updateRelayResults = function (data, expTime, className) {
       if (this.curRelayView == null)
         return;
       var _this = this;
@@ -4970,6 +5007,9 @@ var LiveResults;
         $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
       }
       if (data != null && data.status == "OK") {
+        if (this.Time4oServer) {
+          data = this.Time4oRelayResultsToLiveres(data, className, this.activeClasses);
+        }
         if (data.className != null) {
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
           $('#' + this.resultsControlsDiv).show();
@@ -4985,7 +5025,7 @@ var LiveResults;
             var legResults = data.relayresults[leg - 1].results;
             for (let runner = 0; runner < legResults.length; runner++) {
               var br = "";
-              var teamBib = (-legResults[runner].bib / 100 | 0);
+              var teamBib = (this.Time4oServer ? legResults[runner].bib : (-legResults[runner].bib / 100 | 0));
               var legTime;
               var legStatus;
               var legPlusTime;
@@ -5267,11 +5307,10 @@ var LiveResults;
               render: function (data, type, row) {
                 var param = row.club;
                 var clubShort = row.club;
-                if (param && param.length > 0) {
+                if (param && param.length > 0)
                   param = param.replace('\'', '\\\'');
-                  if (clubShort.length > _this.maxClubLength)
-                    clubShort = _this.clubShort(clubShort);
-                }
+                if (clubShort.length > _this.maxClubLength)
+                  clubShort = _this.clubShort(clubShort);
                 var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
               }
@@ -5551,7 +5590,8 @@ var LiveResults;
     // Converters from Time4o format to LiveRes format
 
     AjaxViewer.prototype.Time4oClassesToLiveres = function (payload) {
-      const classes = (payload?.data ?? []).map(classEntry => this.normalizeClasses(classEntry));
+      const classes = (payload?.data ?? []).map(classEntry =>
+        this.normalizeClasses(classEntry)).flatMap(c => Array.isArray(c) ? c : [c]);;
       return {
         status: "OK",
         classes: classes ?? "",
@@ -5560,50 +5600,114 @@ var LiveResults;
     }
 
     AjaxViewer.prototype.normalizeClasses = function (classEntry) {
+      if (!classEntry) return null;
       _this = this;
 
-      const id = classEntry?.id ?? null;
-      const firstStart = classEntry?.firstStart ?? null
-      const resultListMode = classEntry?.resultListMode ?? null;
-      const startType = classEntry?.startType ?? null;
-      const timingResolution = classEntry?.timingResolution ?? null;
-      const timingStartTimeSource = classEntry?.timingStartTimeSource ?? null;
-      const splitcontrols = _this.normalizeIntermediateControls(classEntry?.intermediateControls, classEntry?.resultListMode);
+      const isRelay = (classEntry.eventForm == "Relay");
+      const isUnordered = (classEntry.resultListMode == "Unordered");
+      const isChaseStart = (classEntry.startType == "Chasing");
+      const showLapTimes = classEntry.showLapTimes ?? false;
+      const firstStart = classEntry.firstStart ?? null
+      const resultListMode = classEntry.resultListMode ?? null;
+      const startType = classEntry.startType ?? null;
+      const timingResolution = classEntry.timingResolution ?? null;
+      const timingStartTimeSource = classEntry.timingStartTimeSource ?? null;
+      const legs = (classEntry.legs ? Object.keys(classEntry.legs).length : 1);
+      var intermediateControls;
+      classInfo = [];
 
-      if (resultListMode == "Unordered")
-        splitcontrols.push({ code: -999, order: 999, name: "Time", updated: false });
+      for (var i = 1; i <= legs; i++) {
+        var legNo = i;
+        var className = classEntry.name ?? "NoName";
+        var id = classEntry.id ?? "NoId";
 
-      if (classEntry?.showLapTimes && splitcontrols.length > 0) {
-        splitcontrols.forEach(ctrl => {
+        // Relay specific fields
+        if (isRelay) {
+          legNo = classEntry.legs[i].number ?? 1;
+          if (!className.endsWith("-"))
+            className += "-";
+          className += String(legNo);
+          id = id + "." + String(legNo);
+          intermediateControls = classEntry.legs[i]?.intermediateControls;
+        }
+        else {
+          intermediateControls = classEntry.intermediateControls;
+        }
+
+        const splitcontrols = _this.normalizeIntermediateControls(intermediateControls, classEntry.resultListMode);
+
+        // Add control for exchange times
+        if (isChaseStart || (isRelay && legNo >= 2)) {
+          splitcontrols.forEach(ctrl => {
+            splitcontrols.push({
+              code: ctrl.code + 100000,
+              order: (2 * ctrl.order - 1),
+              name: ctrl.name + "PassTime",
+              updated: true
+            });
+            ctrl.order = 2 * ctrl.order;
+          });
           splitcontrols.push({
-            code: ctrl.code + 100000,
-            order: (2 * ctrl.order - 1),
-            name: ctrl.name + "PassTime",
+            code: 0,
+            order: 0,
+            name: "Exchange",
             updated: true
           });
-          ctrl.order = 2 * ctrl.order;
-        });
-        splitcontrols.push({
-          code: 999,
-          order: 999,
-          name: "Leg",
-          updated: true
-        });
-        splitcontrols.sort((a, b) => a.order - b.order);
-      }
+          splitcontrols.push({
+            code: 999,
+            order: 999,
+            name: "Leg",
+            updated: false
+          });
+          splitcontrols.sort((a, b) => a.order - b.order);
+        }
 
-      return {
-        className: classEntry?.name ?? "",
-        firstStart: firstStart ? firstStart : -999,
-        resultListMode: resultListMode,
-        startType: startType,
-        timingResolution: timingResolution,
-        id: id,
-        splitcontrols: splitcontrols,
-        timingStartTimeSource: timingStartTimeSource,
-        showLapTimes: classEntry?.showLapTimes ?? false,
-        updatedSplits: splitcontrols.map(ctrl => !!ctrl.updated)
-      };
+        // Add control for showing time of unordered classes
+        if (isUnordered)
+          splitcontrols.push({
+            code: -999,
+            order: 999,
+            name: "Time",
+            updated: false
+          });
+
+        // Show lap times
+        if (showLapTimes && splitcontrols.length > 0) {
+          splitcontrols.forEach(ctrl => {
+            splitcontrols.push({
+              code: ctrl.code + 100000,
+              order: (2 * ctrl.order - 1),
+              name: ctrl.name + "PassTime",
+              updated: true
+            });
+            ctrl.order = 2 * ctrl.order;
+          });
+          splitcontrols.push({
+            code: 999,
+            order: 999,
+            name: "Leg",
+            updated: true
+          });
+          splitcontrols.sort((a, b) => a.order - b.order);
+        }
+
+        classInfo.push(
+          {
+            className: className,
+            showLapTimes: classEntry.showLapTimes ?? false,
+            isRelay: isRelay,
+            legs: legs,
+            firstStart: firstStart ? firstStart : -999,
+            resultListMode: resultListMode,
+            startType: startType,
+            timingResolution: timingResolution,
+            id: id,
+            splitcontrols: splitcontrols,
+            timingStartTimeSource: timingStartTimeSource,
+            updatedSplits: splitcontrols.map(ctrl => !!ctrl.updated)
+          });
+      }
+      return classInfo;
     }
 
     AjaxViewer.prototype.normalizeIntermediateControls = function (intermediateControl, resultListMode) {
@@ -5617,6 +5721,29 @@ var LiveResults;
           updated: false
         }))
         .sort((a, b) => a.order - b.order);
+    }
+
+    AjaxViewer.prototype.Time4oRelayResultsToLiveres = function (payload, className, classes) {
+
+      const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry,
+        classes.find(c => c.id === entry?.raceClassId)));
+      const currentClass = classes.find(c => c.className === className);
+      const classNameClean = className.replace(/-[0-9]{1,2}$/, '');
+
+      let legResults = [];
+      for (let leg = 1; leg <= currentClass.legs; leg++) {
+        legResults[leg - 1] = {
+          leg: leg,
+          results: entries.filter(e => e.leg == leg)
+        };
+      }
+
+      return {
+        status: "OK",
+        className: classNameClean,
+        legs: currentClass.legs,
+        relayresults: legResults,
+      };
     }
 
     AjaxViewer.prototype.Time4oClubResultsToLiveres = function (payload, classes) {
@@ -5635,8 +5762,8 @@ var LiveResults;
 
     AjaxViewer.prototype.Time4oResultsToLiveres = function (payload, classInfo) {
       if (payload.type === "startList" || payload.type === "plainResults") {
-        const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry,
-          classInfo.find(c => c.id === entry?.raceClassId)));
+        const entries = (payload?.data ?? []).map(entry =>
+          this.normalizeEntry(entry, classInfo.find(c => c.id === entry?.raceClassId)));
         const classEntries = this.groupEntriesByClass(entries, payload.type);
         return {
           status: "OK",
@@ -5649,7 +5776,8 @@ var LiveResults;
         };
       }
       else {
-        const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry, classInfo));
+        const entries = (payload?.data ?? []).map(entry =>
+          this.normalizeEntry(entry, classInfo));
         return {
           status: "OK",
           className: classInfo?.className ?? "",
@@ -5686,9 +5814,8 @@ var LiveResults;
     };
 
     AjaxViewer.prototype.Time4oEntryListToLiveres = function (payload, classes) {
-      const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry,
-        classes.find(c => c.id === entry?.raceClassId)));
-
+      const entries = (payload?.data ?? []).map(entry =>
+        this.normalizeEntry(entry, classes.find(c => c.id === entry?.raceClassId)));
       return {
         status: "OK",
         runners: entries,
@@ -5696,8 +5823,7 @@ var LiveResults;
       };
     }
 
-    AjaxViewer.prototype.normalizeEntry = function (entry, classInfo) {
-      var _this = this;
+    AjaxViewer.prototype.Time4oStatusMap = function (statusKey, unordered) {
       const statusMap = {
         "OK": 0,
         "DidNotStart": 1,
@@ -5709,91 +5835,168 @@ var LiveResults;
         "Overtime": 11,
         "Walkover": 12,
         "Finished": 13
-        /*        
-        runnerStatus[9] = "";
-        runnerStatus[10] = "";
-        */
+        // runnerStatus[9] = "";
+        // runnerStatus[10] = "";
       };
-
-      const unordered = ["Unordered", "UnorderedNoTimes"].includes(classInfo?.resultListMode);
-      let statusKey = entry?.status?.status ?? "Unknown";
       if (statusKey == "OK" && unordered)
         statusKey = "Finished";
-      const statusValue = statusMap[statusKey] ?? 10;
+      return statusMap[statusKey] ?? 10;
+    }
 
-      // Determine start time
-      const timingStartTimeSource = entry?.timingStartTimeSource ?? classInfo?.timingStartTimeSource ?? "Timing";
-      const startListStartTime = entry?.start?.startTime ?? classInfo?.firstStart ?? null;
+    AjaxViewer.prototype.normalizeEntry = function (entry, classInfo) {
+      if (!entry || !classInfo) return null;
+      var _this = this;
+
+      // Start time
+      const timingStartTimeSource = entry.timingStartTimeSource ?? classInfo.timingStartTimeSource ?? "Timing";
+      const startListStartTime = entry.start?.startTime ?? classInfo.firstStart ?? null;
       let rawStartIso = null;
-      if (classInfo?.startType === "Free") {
-        rawStartIso = entry?.time?.startTime ?? null;
+      if (classInfo.startType === "Free") {
+        rawStartIso = entry.time?.startTime ?? null;
       } else if (timingStartTimeSource === "Timing") {
-        rawStartIso = entry?.time?.startTime ?? startListStartTime;
+        rawStartIso = entry.time?.startTime ?? startListStartTime;
       }
       else {
         rawStartIso = startListStartTime;
       }
+      const startTime = rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : -999;
+      var timeFromClassStart = 0;
+      if (startTime > 0 && classInfo.firstStart) {
+        timeFromClassStart = startTime - _this.toHundredthsSinceMidnight(classInfo.firstStart);
+      }
 
-      const changedIso = entry?.status?.updated ?? entry?.updated_at ?? null;
+      const unordered = ["Unordered", "UnorderedNoTimes"].includes(classInfo.resultListMode);
+      const chaseStart = (classInfo.startType == "Chasing");
+      var splits = {};
+      var rawResult, rawBehind, place, statusKey, statusValue;
+      var startTotalTime = 0;
+      var restart = false;
 
-      let rawResult = entry?.time?.time ?? null;
+      // Chase start or relay leg >= 2
+      if (chaseStart || (classInfo.isRelay && entry.leg?.number >= 2)) {
+        restart = entry.time?.restart ?? false;
+        statusKey = entry.overallStatus?.status ?? "Unknown";
+        statusValue = _this.Time4oStatusMap(statusKey, unordered);
+        place = entry.overallResult?.position != null ? String(entry.overallResult.position) : "";
+        rawResult = entry.overallResult?.time ?? null;
+        rawBehind = entry.overallResult?.behind ?? null;
+        if (restart) {
+          rawResult += _this.restartTimeOffset * 10;
+          rawBehind += _this.restartTimeOffset * 10;
+        }
+
+        if (entry.startOverallResult?.time) {
+          startTotalTime = Math.floor(entry.startOverallResult.time / 10);
+        }
+        else if (timeFromClassStart > 0) {
+          startTotalTime = timeFromClassStart;
+        }
+        if (startTotalTime > 0) {
+          splits["0"] = startTotalTime + (restart ? _this.restartTimeOffset : 0);
+        }
+
+        // Leg result
+        if (entry.time?.time != null) {
+          let legStatusKey = entry.status?.status ?? "Unknown";
+          let legStatusValue = _this.Time4oStatusMap(legStatusKey, unordered);
+          let rawLegResult = entry.time?.time ?? null;
+          let rawLegBehind = entry.time?.behind ?? null;
+          let legResult = rawLegResult != null ? Math.floor(rawLegResult / 10) : -3;
+          let legBehind = rawLegBehind != null ? Math.floor(rawLegBehind / 10) : null;
+          splits["999"] = legResult > 0 ? legResult : "";
+          splits["999_status"] = legStatusValue;
+          splits["999_timeplus"] = legBehind >= 0 ? legBehind : "";
+          splits["999_place"] = entry.position != null ? String(entry.position) : "-";
+        }
+      }
+      // Individual class
+      else {
+        statusKey = entry.status?.status ?? "Unknown";
+        statusValue = _this.Time4oStatusMap(statusKey, unordered);
+        rawResult = entry.time?.time ?? null;
+        rawBehind = entry.time?.behind ?? null;
+        place = entry.position != null ? String(entry.position) : "";
+      }
+
       let result = rawResult != null ? Math.floor(rawResult / 10) : -3;
-      let rawBehind = entry?.time?.behind ?? null;
-      let place = entry?.position != null ? String(entry.position) : "";
       if (statusValue != 0 && statusValue != 9 && statusValue != 10) {
         place = "-";
       }
 
       // Intermediate times
-      const intermediates = entry?.intermediateTimes ?? {};
+      const intermediates = entry.intermediateTimes ?? {};
       var prevSplitTime = 0;
-      const splits = Object.entries(intermediates).reduce((acc, [key, val]) => {
+      for (const [key, val] of Object.entries(intermediates)) {
+        const changedSplit = val?.updated ? Math.floor(Date.parse(val.updated) / 1000) : 0;
         const code = (Number(key.split('-')[1]) * 1000 + Number(key.split('-')[0])) * (unordered ? -1 : 1);
-        const timeHundredths = val?.time != null ? Math.floor(val.time / 10) : "";
-        const behindHundredths = val?.behind != null ? Math.floor(val.behind / 10) : "";
-        const changed = val?.updated ? Math.floor(Date.parse(val.updated) / 1000) : 0;
+        var timeHundredths = val?.time != null ? Math.floor(val.time / 10) : "";
+        var behindHundredths = val?.behind != null ? Math.floor(val.behind / 10) : "";
 
-        acc[code] = timeHundredths;
-        acc[`${code}_status`] = statusValue;
-        acc[`${code}_changed`] = changed;
-        acc[`${code}_timeplus`] = behindHundredths;
-        acc[`${code}_place`] = val?.position ?? "-";
+        // Leg times relay
+        if (classInfo.isRelay && entry.leg?.number >= 2) {
+          const legTime = timeHundredths !== "" ? timeHundredths - timeFromClassStart : "";
+          splits[code + 100000] = legTime;
+        }
 
-        if (classInfo?.showLapTimes) {
+        // Leg times chase start
+        if (chaseStart) {
+          const legTime = timeHundredths !== "" ? timeHundredths - startTotalTime : "";
+          splits[code + 100000] = legTime;
+        }
+
+        if (restart && timeHundredths !== "") {
+          timeHundredths += _this.restartTimeOffset;
+          behindHundredths += _this.restartTimeOffset;
+        }
+        splits[code] = timeHundredths;
+        splits[`${code}_status`] = statusValue;
+        splits[`${code}_changed`] = changedSplit;
+        splits[`${code}_timeplus`] = behindHundredths;
+        splits[`${code}_place`] = val?.position ?? "-";
+
+        // Lap times
+        if (classInfo.showLapTimes) {
           const lapTime = timeHundredths !== "" ? timeHundredths - prevSplitTime : "";
-          acc[code + 100000] = lapTime;
+          splits[code + 100000] = lapTime;
           prevSplitTime = val?.time != null ? Math.floor(val.time / 10) : prevSplitTime;
         }
-        return acc;
-      }, {});
+      }
 
-      if (classInfo?.showLapTimes && result > 0 && result > prevSplitTime) {
+      // Final lap time
+      if (classInfo.showLapTimes && result > 0 && result > prevSplitTime) {
         const lapTime = result - prevSplitTime;
         splits[999] = lapTime;
       }
 
-      var changed = changedIso ? Math.floor(Date.parse(changedIso) / 1000) : 0;
+      const changedIso = entry.time?.updated ?? entry.status?.updated ?? entry.updated_at ?? null;
+      const changed = changedIso ? Math.floor(Date.parse(changedIso) / 1000) : 0;
+
       if (statusKey == "Finished") {
         splits["-999"] = result > 0 ? result : "";
         splits["-999_status"] = statusValue;
         splits["-999_changed"] = changed;
         splits["-999_timeplus"] = 0;
         splits["-999_place"] = "F";
-        result = entry?.person?.id != null ? entry.person.id : 100;
+        result = entry.person?.id != null ? entry.person.id : 100;
         place = "F";
       }
+
+      // Club
+      const clubName = classInfo.isRelay ? (entry.team?.name ?? "") : (entry.organisation?.name ?? "");
+
       return {
         place: place,
-        dbid: entry?.person?.id ?? 0,
-        bib: entry?.start?.bibNo ?? 0,
-        name: entry?.person?.name ?? "",
-        club: entry?.organisation?.name ?? "",
-        clubId: entry?.organisation?.id ?? 0,
-        class: classInfo?.className ?? "",
+        dbid: entry.person?.id ?? 0,
+        bib: entry.start?.bibNo ?? 0,
+        name: entry.person?.name ?? "",
+        club: clubName,
+        clubId: entry.organisation?.id ?? 0,
+        class: classInfo.className ?? "",
+        leg: classInfo.isRelay ? entry.leg?.number ?? 1 : 0,
         pace: -1,
         status: statusValue,
         splits: splits,
-        start: rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : -999,
+        start: startTime,
         result: result,
         timeplus: rawBehind != null ? Math.floor(rawBehind / 10) : "",
         changed: changed,
