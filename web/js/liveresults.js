@@ -935,7 +935,7 @@ var LiveResults;
         for (var j = 0; j < data.results.length; j++) {
           var spTime = "";
           var status = 0;
-          if (data.results[j].splits["999_status"] != undefined)
+          if (data.results[j].splits["999_status"] != undefined && classSplits[sp].code != 0)
             status = data.results[j].splits["999_status"];
           else
             status = data.results[j].status;
