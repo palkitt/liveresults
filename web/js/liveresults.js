@@ -918,11 +918,12 @@ var LiveResults;
     }
 
     // Update split places and timeplus 
-    AjaxViewer.prototype.updateSplitPlaces = function (data, classSplitsUpdated) {
+    AjaxViewer.prototype.updateSplitPlaces = function (data, updateSplits) {
       var classSplits = data.splitcontrols;
       for (var sp = 0; sp < classSplits.length; sp++) {
-        if (!classSplitsUpdated[sp])
+        if (!updateSplits[sp])
           continue;
+
         data.results.sort(this.splitSort(sp, classSplits));
 
         var splitPlace = 1;
@@ -935,7 +936,7 @@ var LiveResults;
         for (var j = 0; j < data.results.length; j++) {
           var spTime = "";
           var status = 0;
-          if (data.results[j].splits["999_status"] != undefined && classSplits[sp].code != 0)
+          if (data.results[j].splits["999_status"] != undefined && classSplits[sp].code > 100000) // leg times
             status = data.results[j].splits["999_status"];
           else
             status = data.results[j].status;
@@ -3866,17 +3867,14 @@ var LiveResults;
                 targets: [col++],
                 data: "timeplus",
                 render: function (data, type, row) {
-                  if (isNaN(parseInt(data)))
+                  if (isNaN(parseInt(data)) && isNaN(parseInt(row.splits["999_place"])))
                     return data;
-                  var res = "";
-                  if (row.status == 0) {
-                    res += "<span>";
-                    if (row.place > 0)
-                      res += "+" + _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond);
-                    res += "</span><br/>";
-                    if (row.splits["999_place"] > 0)
-                      res += "<span class=\"legtime\">+" + _this.formatTime(Math.max(0, row.splits["999_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
-                  }
+                  var res = "<span>";
+                  if (row.status == 0 && row.place > 0)
+                    res += "+" + _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond);
+                  res += "</span><br/>";
+                  if (row.splits["999_place"] > 0)
+                    res += "<span class=\"legtime\">+" + _this.formatTime(Math.max(0, row.splits["999_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
                   return res;
                 }
               });
