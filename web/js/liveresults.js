@@ -5307,11 +5307,10 @@ var LiveResults;
               render: function (data, type, row) {
                 var param = row.club;
                 var clubShort = row.club;
-                if (param && param.length > 0) {
+                if (param && param.length > 0)
                   param = param.replace('\'', '\\\'');
-                  if (clubShort.length > _this.maxClubLength)
-                    clubShort = _this.clubShort(clubShort);
-                }
+                if (clubShort.length > _this.maxClubLength)
+                  clubShort = _this.clubShort(clubShort);
                 var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
               }
