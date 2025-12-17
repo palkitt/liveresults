@@ -331,7 +331,7 @@ var LiveResults;
                 if (!relay) // First class in relay  
                 {
                   if (this.EmmaServer)
-                    str += "<b> " + classNameClean + "</b><br/>&nbsp;";
+                    str += "<b> " + classNameClean + "</b><br>&nbsp;";
                   else {
                     {
                       if (this.Time4oServer)
@@ -339,7 +339,7 @@ var LiveResults;
                       else
                         var classNameLink = classNameURL.replace(/-[0-9]{1,2}$/, '')
                     }
-                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameLink + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br/>&nbsp;";
+                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameLink + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br>&nbsp;";
                   }
                   leg = 0;
                 }
@@ -367,7 +367,7 @@ var LiveResults;
 
                   if (!sprint) // First class in sprint or new class
                     str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
-                      "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br/>&nbsp;";
+                      "')\" style=\"text-decoration: none\"><b>" + this.shortClassName(classNameCleanSprint) + "</b></a><br>&nbsp;";
                   sprint = true;
                   sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
 
@@ -385,20 +385,20 @@ var LiveResults;
                 var legText = "";
                 leg += 1;
                 if (leg > 1 && (leg - 1) % 3 == 0) // Line shift every 3 legs
-                  str += "<br/>&nbsp;"
+                  str += "<br>&nbsp;"
                 if (className.replace(classNameClean, '') == "-All")
                   legText = "&#9398";
                 else
                   legText = "<span style=\"font-size:1.2em\">&#" + (10111 + leg) + ";</span>";
                 str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\" style=\"text-decoration: none\"> " + legText + "</a>";
                 if (!relayNext)
-                  str += "<br/>";
+                  str += "<br>";
               }
               else if (sprint) {
                 var heatStr = className.match(/ \d+$/);
                 var heat = parseInt((heatStr != null ? heatStr[0] : 0), 10);
                 if (heat > 1 && (heat - 1) % 3 == 0) // Line shift every 3 heat
-                  str += "<br/>&nbsp;"
+                  str += "<br>&nbsp;"
                 if (className.includes('| Prolog'))
                   heatText = "Prolog";
                 else if (className.includes('| Kvart'))
@@ -409,29 +409,29 @@ var LiveResults;
                   heatText = "F" + heat;
                 str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\" style=\"text-decoration: none\"> " + heatText + "</a>";
                 if (!sprintNext)
-                  str += "<br/>";
+                  str += "<br>";
                 else if (shiftHeat)
-                  str += "<br/>&nbsp;";
+                  str += "<br>&nbsp;";
               }
               else {
                 var elit = (className.toLowerCase().match(/(-e| e|\d+e|elite|wre|nm)(\s*\d*)$/) != null);
                 if (!elit && elitLast && !this.EmmaServer)
                   str += "<hr>";
-                str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\">" + className + "</a><br/>";
+                str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\">" + className + "</a><br>";
                 elitLast = elit;
               }
             }
           };
           if (!this.EmmaServer) {
             str += "<hr><a href=\"javascript:LiveResults.Instance.chooseClass('plainresults')\" style=\"text-decoration: none\">Alle klasser</a>";
-            str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('startlist')\" style=\"text-decoration: none\">Startliste</a>";
+            str += "<br><a href=\"javascript:LiveResults.Instance.chooseClass('startlist')\" style=\"text-decoration: none\">Startliste</a>";
             if (this.isMultiDayEvent)
-              str += "<br/><a href=\"javascript:LiveResults.Instance.chooseClass('plainresultstotal')\" style=\"text-decoration: none\">" + this.resources["_TOTAL"] + "</a>";
+              str += "<br><a href=\"javascript:LiveResults.Instance.chooseClass('plainresultstotal')\" style=\"text-decoration: none\">" + this.resources["_TOTAL"] + "</a>";
           }
           if (this.showCourseResults && data.courses != undefined) {
             str += "<hr></nowrap>";
             for (var i = 0; i < this.courseNames.length; i++) {
-              str += "<a href=\"javascript:LiveResults.Instance.chooseClass('course::" + this.courseNames[i].No + "')\">" + this.courseNames[i].Name + "</a><br/>";
+              str += "<a href=\"javascript:LiveResults.Instance.chooseClass('course::" + this.courseNames[i].No + "')\">" + this.courseNames[i].Name + "</a><br>";
             }
           }
 
@@ -1270,9 +1270,9 @@ var LiveResults;
                       }
                       if (this.isMultiDayEvent && !this.compactView) {
                         if (this.curClassNumberOfRunners >= 10)
-                          elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\"> &numsp;<i>&#10072;..&#10072;</i></span>";
+                          elapsedTimeStr += "<br>" + timeDiffStr + "<span class=\"place\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                         else
-                          elapsedTimeStr += "<br/>" + timeDiffStr + "<span class=\"place\"> <i>&#10072;..&#10072;</i></span>";
+                          elapsedTimeStr += "<br>" + timeDiffStr + "<span class=\"place\"> <i>&#10072;..&#10072;</i></span>";
                       }
                       else {
                         table.cell(i, 6 + MDoffset + (this.curClassHasBibs ? 1 : 0)).data(timeDiffStr);
@@ -1367,7 +1367,7 @@ var LiveResults;
 
                       // Display elapsed time
                       if (!this.compactView && !this.curClassIsRelay && !this.curClassLapTimes && nextSplit == this.curClassNumSplits)
-                        elapsedTimeStr += "<br/>" + timeDiffStr + extraSpace;
+                        elapsedTimeStr += "<br>" + timeDiffStr + extraSpace;
                       table.cell(i, offset + this.curClassNumSplits * 2).data(elapsedTimeStr);
 
                       // Update predData: Insert current time if longer than a runner with larger index / virtual position
@@ -1517,7 +1517,7 @@ var LiveResults;
               + (code == 1000 && status > 0 && status < 7 ? _this.resources["_NEWSTATUS"] :
                 (code == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"])
                 + " " + (status == 13 ? _this.resources["_LASTPASSWITHSTATUS"] : _this.resources["_LASTPASSWITHTIME"])) + " "
-              + value["time"] + placeStr + "<br/>";
+              + value["time"] + placeStr + "<br>";
           });
           $("#" + this.lastPassingsDiv).html(str);
           this.lastPassingsUpdateHash = data.hash;
@@ -3481,7 +3481,7 @@ var LiveResults;
                   clubShort = _this.clubShort(clubShort);
                 var clubLink =
                   "<a class=\"relayclub\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
-                return (haveSplitControls && fullView ? clubLink + "<br/>" + nameShort : nameShort);
+                return (haveSplitControls && fullView ? clubLink + "<br>" + nameShort : nameShort);
               }
             });
           }
@@ -3521,7 +3521,7 @@ var LiveResults;
                   clubShort = _this.clubShort(clubShort);
                 var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
                 if ((haveSplitControls || _this.isMultiDayEvent) && !_this.curClassIsUnranked && (fullView || _this.curClassLapTimes))
-                  return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
+                  return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br>" + link;
                 else if (_this.fixedTable)
                   return clubShort;
                 else
@@ -3603,7 +3603,7 @@ var LiveResults;
                       txt += "<span class=\"besttime\">";
                     else
                       txt += "<span>";
-                    txt += "+" + _this.formatTime(Math.max(0, row.splits["0_timeplus"]), 0, _this.showTenthOfSecond) + place + "</span><br/>";
+                    txt += "+" + _this.formatTime(Math.max(0, row.splits["0_timeplus"]), 0, _this.showTenthOfSecond) + place + "</span><br>";
                   }
                   txt += "<span>";
                   if (!fullView && row.splits["0_place"] >= 1)
@@ -3688,7 +3688,7 @@ var LiveResults;
                         if ((fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits[(value.code + 100000) + "_timeplus"] != undefined))
                         // Relay passing, second line with leg time to passing 
                         {
-                          txt += "<br/><span class=";
+                          txt += "<br><span class=";
                           var legplace = "";
 
                           if (row.splits[value.code + 100000 + "_estimate"]) {
@@ -3722,7 +3722,7 @@ var LiveResults;
                         else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !_this.curClassIsRelay && (value.code > 0) && row.splits[value.code + "_place"] > 1)
                         // Second line for ordinary passing (drop if code is negative - unranked)
                         {
-                          txt += "<br/><span class=";
+                          txt += "<br><span class=";
                           if (row.splits[value.code + "_estimate"])
                             txt += "\"estimate\">+";
                           else
@@ -3792,7 +3792,7 @@ var LiveResults;
                 res += place + "</span>";
 
                 if ((haveSplitControls || _this.isMultiDayEvent) && fullView && !(_this.curClassIsRelay) && !(_this.curClassLapTimes) && row.status == 0 && row.place > 1) {
-                  res += "<br/><span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
+                  res += "<br><span class=\"plustime\">+" + _this.formatTime(row.timeplus, row.status, _this.showTenthOfSecond) + "</span>";
                   if (_this.curClassNumberOfRunners >= 10)
                     res += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
                   else
@@ -3802,7 +3802,7 @@ var LiveResults;
               if (haveSplitControls && (fullView && _this.curClassIsRelay || _this.curClassLapTimes) && (row.splits["999_place"] != undefined)) {
                 if (row.splits[(999)] > 0) {
                   var legplace = "";
-                  res += "<br/><span class=";
+                  res += "<br><span class=";
                   if (row.splits["999_place"] == 1) {
                     res += "\"besttime\">";
                     legplace += "<span class=\"bestplace\"> ";
@@ -3861,7 +3861,7 @@ var LiveResults;
             if (_this.curClassIsRelay && fullView) {
               columns.push({
                 name: "total",
-                title: "Total<br/><span class=\"legtime\"><span class=\"legicon\">&#8635; </span>Etp</span>",
+                title: "Total<br><span class=\"legtime\"><span class=\"legicon\">&#8635; </span>Etp</span>",
                 className: "dt-right",
                 orderable: false,
                 targets: [col++],
@@ -3872,7 +3872,7 @@ var LiveResults;
                   var res = "<span>";
                   if (row.status == 0 && row.place > 0)
                     res += "+" + _this.formatTime(Math.max(0, row.timeplus), row.status, _this.showTenthOfSecond);
-                  res += "</span><br/>";
+                  res += "</span><br>";
                   if (row.splits["999_place"] > 0)
                     res += "<span class=\"legtime\">+" + _this.formatTime(Math.max(0, row.splits["999_timeplus"]), 0, _this.showTenthOfSecond) + "</span>";
                   return res;
@@ -3913,7 +3913,7 @@ var LiveResults;
                   totalplace += "&#10072;" + row.totalplace + "&#10072;</span>";
                   totalres += _this.formatTime(row.totalresult, row.totalstatus) + totalplace + "</span>";
                   if (fullView && row.totalplace > 1) {
-                    totalres += "<br/><span class=\"plustime\">+";
+                    totalres += "<br><span class=\"plustime\">+";
                     totalres += _this.formatTime(row.totalplus, row.totalstatus) + "</span>";
                     if (_this.curClassNumberOfRunners >= 10)
                       totalres += "<span class=\"hideplace\"> &numsp;<i>&#10072;..&#10072;</i></span>";
@@ -5033,19 +5033,19 @@ var LiveResults;
                 if (clubShort.length > _this.maxClubLength)
                   clubShort = _this.clubShort(clubShort);
                 teamresults[teamBib] = {
-                  names: "<b>" + clubShort + "</b><br/>",
-                  bib: "<b>" + teamBib + "</b><br/>",
-                  legTime: "<br/>",
-                  legPlace: "<br/>",
-                  legDiff: "<br/>",
+                  names: "<b>" + clubShort + "</b><br>",
+                  bib: "<b>" + teamBib + "</b><br>",
+                  legTime: "<br>",
+                  legPlace: "<br>",
+                  legDiff: "<br>",
                   totTime: "",
-                  totPlace: "<br/>",
+                  totPlace: "<br>",
                   totDiff: "",
-                  kmTime: "<br/>",
+                  kmTime: "<br>",
                   lastPlace: legResults[runner].place,
                   lastDiff: legResults[runner].timeplus,
-                  placeDiff: "<br/>",
-                  totGained: "<br/>",
+                  placeDiff: "<br>",
+                  totGained: "<br>",
                   placeStr: "",
                   sort: []
                 }
@@ -5055,7 +5055,7 @@ var LiveResults;
                 legPlace = legResults[runner].place;
               }
               else {
-                br = "<br/>";
+                br = "<br>";
                 legTime = legResults[runner].splits["999"];
                 legStatus = legResults[runner].status;
                 legPlusTime = legResults[runner].splits["999_timeplus"];
@@ -5109,10 +5109,10 @@ var LiveResults;
               if (leg == legs) {
                 teamresults[teamBib].placeStr = "<b>" + legResults[runner].place + "</b>";
                 teamresults[teamBib].totTime = "<b>" + _this.formatTime(legResults[runner].result, legResults[runner].status, _this.showTenthOfSecond)
-                  + "</b><br/>" + teamresults[teamBib].totTime;
+                  + "</b><br>" + teamresults[teamBib].totTime;
                 teamresults[teamBib].totDiff = "<b>" + (legResults[runner].status == 0 ? "+"
                   + _this.formatTime(Math.max(0, legResults[runner].timeplus), 0, _this.showTenthOfSecond) : "")
-                  + "</b><br/>" + teamresults[teamBib].totDiff;
+                  + "</b><br>" + teamresults[teamBib].totDiff;
               }
             };
           };
@@ -5296,7 +5296,7 @@ var LiveResults;
             });
 
             columns.push({
-              title: this.resources["_NAME"] + "<br/>" + this.resources["_CLUB"],
+              title: this.resources["_NAME"] + "<br>" + this.resources["_CLUB"],
               className: "dt-left",
               orderable: false,
               targets: [col++],
@@ -5310,12 +5310,12 @@ var LiveResults;
                 if (clubShort.length > _this.maxClubLength)
                   clubShort = _this.clubShort(clubShort);
                 var link = "<a class=\"club\" href=\"javascript:LiveResults.Instance.viewClubResults('" + param + "')\">" + clubShort + "</a>";
-                return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br/>" + link;
+                return (row.name.length > _this.maxNameLength ? _this.nameShort(row.name) : row.name) + "<br>" + link;
               }
             });
 
             columns.push({
-              title: "tid<br/>m/km",
+              title: "tid<br>m/km",
               className: "dt-right",
               orderable: false,
               targets: [col++],
@@ -5324,7 +5324,7 @@ var LiveResults;
               render: function (data, type, row) {
                 var ret = _this.formatTime(row.result, row.status);
                 if (row.status == 0 && row.pace > 0)
-                  ret += "<br/>" + _this.formatTime(row.pace, 0);
+                  ret += "<br>" + _this.formatTime(row.pace, 0);
                 return ret;
               }
             });
@@ -5335,11 +5335,11 @@ var LiveResults;
                 var title = "";
                 if (course > 0) {
                   if (i == 0)
-                    title = "S-1<br/>(" + code + ")";
+                    title = "S-1<br>(" + code + ")";
                   else if (code == 999)
                     title = i + "-" + _this.resources["_CONTROLFINISH"];
                   else
-                    title = i + "-" + (i + 1) + "<br/>(" + code + ")";
+                    title = i + "-" + (i + 1) + "<br>(" + code + ")";
                 }
                 else {
                   var codePre = (i > 0 ? data.splitcontrols[i - 1] : 0);
@@ -5411,7 +5411,7 @@ var LiveResults;
                       }
                       // Second line
                       if (splitTime > 0) {
-                        txt += "<br/>";
+                        txt += "<br>";
                         if (splitMiss)
                           txt += "<div class = \"splitMiss\">";
                         place = "";
