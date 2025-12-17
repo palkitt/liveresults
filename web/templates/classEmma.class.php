@@ -1408,7 +1408,7 @@ class Emma
 		$q .= "WHERE results.Control = 1000 and results.DbID = runners.DbId AND results.TavId in $comps ";
 		$q .= "AND runners.TavId = results.TavId AND runners.Class = '" . mysqli_real_escape_string($this->m_Conn, $className) . "'  ORDER BY results.Dbid";
 		if ($result = mysqli_query($this->m_Conn, $q)) {
-			if (in_array($this->m_CompId, [10016, 10688])) // Best of two races
+			if (in_array($this->m_CompId, [10688])) // Best of two races
 			{
 				while ($row = mysqli_fetch_array($result)) {
 					$dbId = $row['DbID'];
