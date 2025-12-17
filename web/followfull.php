@@ -15,6 +15,8 @@ include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
 include_once("templates/datatablesURL.php");
 
+$isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
+
 if ($isEmmaComp) {
   $url = "https://liveresultat.orientering.se/api.php?method=getcompetitioninfo&comp=" . $compID;
   $json = file_get_contents($url);
@@ -199,8 +201,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         } catch (error) {}
       <?php } ?>
 
-      res = new LiveResults.AjaxViewer("<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls",
-        "divResults", "txtResetSorting", Resources, <?= $isMultiDayEvent ?>, <?= (($isSingleClass || $isSingleClub) ? "true" : "false") ?>,
+      res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, "<?= $compID ?>", "<?= $lang ?>",
+        "divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
+        Resources, <?= $isMultiDayEvent ?>, <?= (($isSingleClass || $isSingleClub) ? "true" : "false") ?>,
         "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "",
         <?= ($isEmmaComp ? "true" : "false") ?>, <?= ($isTime4oComp ? "true" : "false") ?>);
 

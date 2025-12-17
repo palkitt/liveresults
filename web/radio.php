@@ -12,8 +12,10 @@ include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
 include_once("templates/classEmma.class.php");
 include_once("templates/datatablesURL.php");
-header('Content-Type: text/html; charset=' . $CHARSET);
 
+$isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
+
+header('Content-Type: text/html; charset=' . $CHARSET);
 
 if ($isTime4oComp) {
   $url = "https://center.time4o.com/api/v1/race/" . $compID;
@@ -147,7 +149,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         echo 'maxBib = ', $_GET['maxbib'], ';';
       ?>
 
-      res = new LiveResults.AjaxViewer("<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls",
+      res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, "<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls",
         "divResults", "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "divRadioPassings",
         false, <?= ($isTime4oComp) ?>, "filterText");
       res.compName = "<?= $compName ?>";

@@ -5,11 +5,12 @@ $lang = "no";
 if (isset($_GET['lang']))
 	$lang = $_GET['lang'];
 
-
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
 include_once("templates/classEmma.class.php");
 include_once("templates/datatablesURL.php");
+
+$isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
 
 header('Content-Type: text/html; charset=' . $CHARSET);
 
@@ -153,7 +154,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							divR.style = "width: 100%";
 							divR.id = divResults;
 
-							res[j] = new LiveResults.AjaxViewer(compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults,
+							res[j] = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults,
 								"txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "", false, "", true);
 							res[j].highTime = 0;
 							res[j].noSplits = true;

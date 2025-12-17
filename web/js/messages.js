@@ -3,8 +3,8 @@ var Messages;
   // ReSharper disable once InconsistentNaming
   Messages.Instance = null;
   var AjaxViewer = /** @class */ (function () {
-    function AjaxViewer(competitionId) {
-      this.local = true;
+    function AjaxViewer(local, competitionId) {
+      this.local = local;
       this.competitionId = competitionId;
       this.compName = "";
       this.compDate = "";

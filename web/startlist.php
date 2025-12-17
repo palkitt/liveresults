@@ -10,6 +10,9 @@ include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
 include_once("templates/classEmma.class.php");
 include_once("templates/datatablesURL.php");
+
+$isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
+
 header('Content-Type: text/html; charset=' . $CHARSET);
 
 $currentComp = new Emma($_GET['comp']);
@@ -43,7 +46,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var runnerStatus = null;
 
 		$(document).ready(function() {
-			res = new LiveResults.AjaxViewer(<?= $_GET['comp'] ?>, "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
+			res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, <?= $_GET['comp'] ?>, "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
 				Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
 			res.updateStartList();
 			res.compName = '<?= $currentComp->CompName() ?>';

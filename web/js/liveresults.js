@@ -3,11 +3,11 @@ var LiveResults;
   // ReSharper disable once InconsistentNaming
   LiveResults.Instance = null;
   var AjaxViewer = /** @class */ (function () {
-    function AjaxViewer(competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsControlsDiv, resultsDiv, txtResetSorting,
+    function AjaxViewer(local, competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsControlsDiv, resultsDiv, txtResetSorting,
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer, Time4oServer, filterDiv = null, fixedTable = false) {
       var _this = this;
-      this.local = true;
+      this.local = local;
       this.competitionId = competitionId;
       this.LiveloxID = 0;
       this.language = language;

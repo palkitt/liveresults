@@ -12,6 +12,7 @@ include_once("templates/datatablesURL.php");
 header('Content-Type: text/html; charset=' . $CHARSET);
 
 $currentComp = new Emma($_GET['comp']);
+$isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
 
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
@@ -108,7 +109,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var mess = null;
 
 		$(document).ready(function() {
-			mess = new Messages.AjaxViewer(<?= $_GET['comp'] ?>);
+			mess = new Messages.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, <?= $_GET['comp'] ?>);
 			mess.compName = "<?= $currentComp->CompName() ?>";
 			mess.compDate = "<?= $currentComp->CompDate() ?>";
 			mess.runnerStatus = runnerStatus;
