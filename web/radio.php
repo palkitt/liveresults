@@ -58,7 +58,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
-
+  <script language="javascript" type="text/javascript" src="js/liveresults.radio.js"></script>
+  <?php if ($isTime4oComp) { ?>
+    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js"></script>
+  <?php } ?>
   <script language="javascript" type="text/javascript">
     let wakeLock = null;
     async function enableNoSleep() {

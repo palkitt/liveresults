@@ -119,6 +119,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" href="css/style-liveres.css?a">
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
+  <?php if ($isTime4oComp) { ?>
+    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js"></script>
+  <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <?php if ($isSpeaker) { ?>
     <script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>

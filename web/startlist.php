@@ -40,14 +40,17 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 	<script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
 	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
+	<script language="javascript" type="text/javascript" src="js/liveresults.radio.js"></script>
 	<script language="javascript" type="text/javascript">
 		var res = null;
 		var Resources = null;
 		var runnerStatus = null;
 
 		$(document).ready(function() {
-			res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, <?= $_GET['comp'] ?>, "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
-				Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings", false, "filterText");
+			res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, <?= $_GET['comp'] ?>, "<?= $lang ?>",
+				"divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
+				Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings",
+				false, false, "filterText");
 			res.updateStartList();
 			res.compName = '<?= $currentComp->CompName() ?>';
 

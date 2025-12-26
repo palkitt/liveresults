@@ -57,11 +57,12 @@ var LiveResults;
       this.lastRunnerListHash = "";
       this.lastPassingsUpdateHash = "";
       this.lastRadioPassingsUpdateHash = "";
+      this.lastClassHash = "";
+      this.lastClubHash = "";
       this.curClassName = null;
       this.curClubName = null;
       this.curSplitView = null;
       this.curRelayView = null;
-      this.lastClassHash = "";
       this.curClassNumberOfRunners = 0;
       this.curClassSplits = null;
       this.curClassSplitsBests = null;
@@ -75,7 +76,6 @@ var LiveResults;
       this.curClassHasBibs = false;
       this.curClubSplits = null;
       this.highlightID = null;
-      this.lastClubHash = "";
       this.currentTable = null;
       this.serverTimeDiff = 0;
       this.eventTimeZoneDiff = 0;
@@ -141,6 +141,7 @@ var LiveResults;
       });
     }
 
+
     AjaxViewer.prototype.onload = function () {
       var _this = this;
       if (window.location.hash) {
@@ -177,6 +178,7 @@ var LiveResults;
       }
     }
 
+
     AjaxViewer.prototype.startPredictedTimeTimer = function () {
       var _this = this;
       let dt = new Date();
@@ -186,7 +188,8 @@ var LiveResults;
       return;
     };
 
-    // Function to detect if comp date is today or max 6 hours into next day
+
+    // Is the comp date today or max 6 hours into the next day
     AjaxViewer.prototype.isCompToday = function () {
       var now = new Date();
       var compDay = new Date(this.compDate);
@@ -194,7 +197,8 @@ var LiveResults;
       return (dDays > 0 && dDays < 1.25 || this.compDate == "" || this.local)
     };
 
-    //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
+
+    // Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
     AjaxViewer.prototype.isMobile = function () {
       if (navigator.userAgent.match(/iPad/i) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1))
         return 2;
@@ -207,6 +211,7 @@ var LiveResults;
         return 1;
       return 0;
     }
+
 
     // Update list of runners
     AjaxViewer.prototype.updateRunnerList = function () {
@@ -226,6 +231,7 @@ var LiveResults;
       }
     };
 
+
     AjaxViewer.prototype.handleUpdateRunnerListResponse = function (data) {
       var _this = this;
       if (data != null && data.status == "OK") {
@@ -234,6 +240,7 @@ var LiveResults;
       }
       this.runnerListTimer = setTimeout(function () { _this.updateRunnerList(); }, this.classUpdateInterval);
     }
+
 
     // Update the classlist
     AjaxViewer.prototype.updateClassList = function (first = false) {
@@ -271,8 +278,8 @@ var LiveResults;
         },
         dataType: "json"
       });
-
     };
+
 
     AjaxViewer.prototype.handleUpdateClassListResponse = function (data, first) {
       var _this = this;
@@ -333,13 +340,9 @@ var LiveResults;
                   if (this.EmmaServer)
                     str += "<b> " + classNameClean + "</b><br>&nbsp;";
                   else {
-                    {
-                      if (this.Time4oServer)
-                        var classNameLink = classNameURL;
-                      else
-                        var classNameLink = classNameURL.replace(/-[0-9]{1,2}$/, '')
-                    }
-                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameLink + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br>&nbsp;";
+                    var classNameLink = (this.Time4oServer ? classNameURL : classNameURL.replace(/-[0-9]{1,2}$/, ''));
+                    str += "<a href=\"javascript:LiveResults.Instance.viewRelayResults('" + classNameLink
+                      + "')\" style=\"text-decoration: none\"><b> " + classNameClean + "</b></a><br>&nbsp;";
                   }
                   leg = 0;
                 }
@@ -350,20 +353,16 @@ var LiveResults;
                 relayNext = false;
                 // Sprint
                 if (classNameURL.includes('| Prolog') || classNameURL.includes('| Kvart') || classNameURL.includes('| Semi') || classNameURL.includes('| Finale')) {
-                  var classNameCleanSprint = classNameURL.replace(' | ', '');
-                  classNameCleanSprint = classNameCleanSprint.replace('Prolog', '');
-                  classNameCleanSprint = classNameCleanSprint.replace(/Kvart \d+/, '');
-                  classNameCleanSprint = classNameCleanSprint.replace(/Semi \d+/, '');
-                  classNameCleanSprint = classNameCleanSprint.replace(/Finale \d+/, '');
+                  var classNameCleanSprint = classNameURL
+                    .replace(' | ', '')
+                    .replace(/Prolog|(Kvart|Semi|Finale) \d+/, '');
 
                   var classNameCleanSprintNext = "";
                   if (i < (nClass - 1)) {
                     classNameCleanSprintNext = classes[i + 1].className.replace('\'', '\\\'');
                     classNameCleanSprintNext = classNameCleanSprintNext.replace(' | ', '');
                   }
-                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Kvart \d+/, '');
-                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Semi \d+/, '');
-                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/Finale \d+/, '');
+                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/(Kvart|Semi|Finale) \d+/, '');
 
                   if (!sprint) // First class in sprint or new class
                     str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
@@ -446,20 +445,20 @@ var LiveResults;
           }
         }
       }
-
       if (_this.isCompToday())
         this.classUpdateTimer = setTimeout(function () { _this.updateClassList(); }, _this.classUpdateInterval);
     };
 
+
     AjaxViewer.prototype.shortClassName = function (className) {
-      var ret = className.replace(/menn/i, 'M');
-      ret = ret.replace(/kvinner/i, 'K');
-      ret = ret.replace(/gutter/i, 'G');
-      ret = ret.replace(/jenter/i, 'J');
-      ret = ret.replace(/veteraner/i, 'Vet');
-      ret = ret.replace(/veteran/i, 'Vet');
-      ret = ret.replace(' Vann', 'V');
-      return ret;
+      return className.replace(/menn/i, 'M')
+        .replace(/herrer/i, 'H')
+        .replace(/kvinner/i, 'K')
+        .replace(/damer/i, 'D')
+        .replace(/gutter/i, 'G')
+        .replace(/jenter/i, 'J')
+        .replace(/veteran(er)?/i, 'Vet')
+        .replace(' Vann', 'V');
     }
 
     // Update best split times
@@ -486,8 +485,9 @@ var LiveResults;
           }
         }
         classSplitsBest[this.curClassNumSplits].sort(function (a, b) { return a - b; });
+
+        // Fill in split times
         if (this.curClassNumSplits > 0) {
-          // Fill in split times
           var spRef;
           for (var sp = 0; sp < this.curClassNumSplits; sp++) {
             j = 0;
@@ -513,6 +513,7 @@ var LiveResults;
       }
     };
 
+
     AjaxViewer.prototype.checkForMassStart = function (data) {
       var isMassStart = false;
       if (data != null && data.status == "OK" && data.results != null) {
@@ -537,6 +538,7 @@ var LiveResults;
       return isMassStart;
     };
 
+
     // Quality check of radio controls and estimate missing passing times
     AjaxViewer.prototype.checkRadioControls = function (data) {
       if (data == null || data.status != "OK" || data.results == null || this.curClassIsLapTimes || this.curClassIsUnranked)
@@ -547,8 +549,8 @@ var LiveResults;
         return;
 
       const validateLim = 0.333;  // Fraction of runners with split to set split to OK
-      const minNum = 3;      // Minimum numbers of runners to set split to BAD
-      const sprintTimeLim = 90;     // Max time (seconds) from last to finish to trigger shortSprint setting
+      const minNum = 3;           // Minimum numbers of runners to set split to BAD
+      const sprintTimeLim = 90;   // Max time (seconds) from last to finish to trigger shortSprint setting
 
       this.updateResultVirtualPosition(data.results);
       var numRunners = data.results.length;
@@ -913,9 +915,9 @@ var LiveResults;
           }
         }
       }
-
       this.updateSplitPlaces(data, classSplitsUpdated);
     }
+
 
     // Update split places and timeplus 
     AjaxViewer.prototype.updateSplitPlaces = function (data, updateSplits) {
@@ -977,6 +979,7 @@ var LiveResults;
       }
     }
 
+
     // Sort function for passing times
     AjaxViewer.prototype.splitSort = function (split, classSplits) {
       return function (a, b) {
@@ -998,6 +1001,7 @@ var LiveResults;
           return 0;
       }
     }
+
 
     // Update qualification markings
     AjaxViewer.prototype.updateQualLimMarks = function (results, className) {
@@ -1050,6 +1054,7 @@ var LiveResults;
       }
     };
 
+
     // Convert from split render number to split data 
     AjaxViewer.prototype.splitRef = function (sp) {
       if (this.curClassIsRelay)
@@ -1060,6 +1065,7 @@ var LiveResults;
         return sp;
     }
 
+
     // Convert from split data number to render number
     AjaxViewer.prototype.refSplit = function (spRef) {
       if (this.curClassIsRelay)
@@ -1069,6 +1075,7 @@ var LiveResults;
       else
         return spRef;
     }
+
 
     // Updated predicted times
     AjaxViewer.prototype.updatePredictedTimes = function (timesOnly = false) {
@@ -1449,6 +1456,7 @@ var LiveResults;
       }
     };
 
+
     //Find rank number
     AjaxViewer.prototype.findRank = function (array, val) {
       var rank = 1;
@@ -1460,10 +1468,12 @@ var LiveResults;
       return rank;
     };
 
+
     //Set wether to display tenth of a second in results
     AjaxViewer.prototype.setShowTenth = function (val) {
       this.showTenthOfSecond = val;
     };
+
 
     //Request data for the last-passings div
     AjaxViewer.prototype.updateLastPassings = function () {
@@ -1480,6 +1490,7 @@ var LiveResults;
         });
       }
     };
+
 
     //Handle response for updating the last passings
     AjaxViewer.prototype.handleUpdateLastPassings = function (data) {
@@ -1527,634 +1538,6 @@ var LiveResults;
         this.passingsUpdateTimer = setTimeout(function () { _this.updateLastPassings(); }, _this.updateInterval);
     };
 
-    //Request data for the last radio passings div
-    AjaxViewer.prototype.updateRadioPassings = function (code) {
-      var _this = this;
-      clearTimeout(this.radioPassingsUpdateTimer);
-      if (this.updateAutomatically) {
-        $.ajax({
-          url: this.radioURL,
-          data: "comp=" + this.competitionId + "&method=getradiopassings&code=" + code +
-            "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash,
-          success: function (data, status, resp) {
-            var expTime = new Date();
-            expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-            _this.handleUpdateRadioPassings(data, expTime, code);
-          },
-          error: function () {
-            _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateRadioPassings(); }, _this.radioUpdateInterval);
-          },
-          dataType: "json"
-        });
-      }
-    };
-
-    //Handle response for updating the last radio passings..
-    AjaxViewer.prototype.handleUpdateRadioPassings = function (data, expTime, code) {
-
-      if (data.rt != undefined && data.rt > 0)
-        this.radioUpdateInterval = data.rt * 1000;
-      $('#updateinterval').html(this.radioUpdateInterval / 1000);
-      if (expTime) {
-        var lastUpdate = new Date();
-        lastUpdate.setTime(expTime - this.radioUpdateInterval + 1000);
-        $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
-      }
-
-      // Make live blinker pulsing
-      if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
-        $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
-      if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
-        $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
-
-      const maxLines = 40;
-      var _this = this;
-      var leftInForest = false;
-      var updated = false;
-
-      // Insert data from query            
-      if (data != null && data.status == "OK") {
-        this.lastRadioPassingsUpdateHash = data.hash;
-        updated = true;
-        if (data.passings != null) {
-          if (this.radioData == null || data.passings.length == 0 || data.passings[0].control == 100 || data.passings[0].timeDiff == -2)
-            this.radioData = data.passings;
-          else {
-            Array.prototype.unshift.apply(this.radioData, data.passings);
-            while (this.radioData.length > maxLines)
-              this.radioData.pop();
-          }
-        }
-
-        if (this.radioData != null && this.radioData.length > 0 && this.radioData[0].timeDiff == -2) {
-          leftInForest = true;
-          $('#numberOfRunners').html(this.radioData.length);
-        }
-      }
-
-      // Modify data-table
-      if (this.radioData != null) {
-        var dt = new Date();
-        var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
-        var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
-        var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
-        var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours() + 60 * timeZoneDiff;
-        $.each(this.radioData, function (idx, passing) {
-          if (_this.currentTable != null && (passing.status == 1 || _this.messageBibs.indexOf(parseInt(passing.dbid)) > -1)) {
-            var row = _this.currentTable.row(idx).node();
-            $(row).addClass('dns');
-          }
-
-          var hms = passing.passtime.split(':');
-          var passTime = (+hms[0]) * 60 * 60 + (+hms[1]) * 60 + (+hms[2]);
-          var age = time - passTime;
-          if (passing.status >= 1 && passing.status <= 6) {
-            if (passing.DT_RowClass != "yellow_row") {
-              passing.DT_RowClass = "yellow_row";
-              updated = true;
-            }
-          }
-          else if (age >= 0 && age <= _this.radioHighTime) {
-            if (passing.rank == 1 && passing.DT_RowClass != "green_row") {
-              passing.DT_RowClass = "green_row";
-              updated = true;
-            }
-            else if (passing.rank > 1 && passing.DT_RowClass != "red_row") {
-              passing.DT_RowClass = "red_row";
-              updated = true;
-            }
-          }
-          else if (passing.DT_RowClass != "") {
-            passing.DT_RowClass = "";
-            updated = true;
-          }
-        });
-      }
-
-      if (this.currentTable != null && updated) // Existing datatable
-      {
-        var scrollX = window.scrollX;
-        var scrollY = window.scrollY;
-        var oldData = $.extend(true, [], this.currentTable.data().toArray());
-        this.currentTable.clear();
-        this.currentTable.rows.add(this.radioData).draw();
-        this.filterTable();
-        window.scrollTo(scrollX, scrollY);
-        this.animateTable(oldData, this.radioData, this.animTime);
-      }
-
-      else if (this.currentTable == null) // New datatable
-      {
-        if (this.radioData != null && this.radioData.length > 0) {
-          var columns = Array();
-          var col = 0;
-          if (!leftInForest) {
-            columns.push({ title: "Sted", className: "dt-left", orderable: false, targets: [col++], data: "controlName" });
-            columns.push({ title: "Tidsp.", className: "dt-left", orderable: false, targets: [col++], data: "passtime" });
-          }
-          columns.push({
-            title: "&#8470;", className: "dt-right", orderable: leftInForest, targets: [col++], data: "bib",
-            render: function (data, type) {
-              if (type === 'display') {
-                if (data < 0) // Relay
-                  return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
-                else if (data > 0)    // Ordinary
-                  return " <span class=\"bib\">" + data + "</span>";
-                else
-                  return "";
-              }
-              else
-                return Math.abs(data);
-            }
-          });
-          columns.push({
-            title: "Navn", className: "dt-left", orderable: leftInForest, targets: [col++], data: "runnerName",
-            render: function (data, type) {
-              if (type === 'display') {
-                if (data.length > _this.maxNameLength)
-                  return _this.nameShort(data);
-                else
-                  return data;
-              }
-              else
-                return data;
-            }
-          });
-          columns.push({
-            title: "Klubb", className: "dt-left", orderable: leftInForest, targets: [col++], data: "club",
-            render: function (data, type) {
-              if (type === 'display') {
-                if (data.length > _this.maxClubLength) {
-                  return _this.clubShort(data);
-                }
-                else
-                  return data;
-              }
-              else
-                return data;
-            }
-          });
-          columns.push({
-            title: "Klasse", className: "dt-left", orderable: leftInForest, targets: [col++], data: "class",
-            render: function (data, type, row) {
-              var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "#" + encodeURIComponent(row.class);
-              link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
-              return link;
-            }
-          });
-          if (!leftInForest && this.radioData.length > 0 && this.radioData[0].rank != null)
-            columns.push({
-              title: "#", className: "dt-right", orderable: false, targets: [col++], data: "rank",
-              render: function (data, type, row) {
-                var res = "";
-                if (row.rank >= 0) res += row.rank;
-                return res;
-              }
-            });
-
-          var timeTitle = "Tid";
-          if (leftInForest)
-            timeTitle = "Starttid";
-          columns.push({ title: timeTitle, className: "dt-right", orderable: leftInForest, targets: [col++], data: "time" });
-
-          if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
-            columns.push({
-              title: "Diff", className: "dt-right", orderable: false, targets: [col++], data: "timeDiff",
-              render: function (data, type, row) {
-                var res = "";
-                if (row.timeDiff >= 0)
-                  res += "+" + _this.formatTime(row.timeDiff, 0, _this.showTenthOfSecond);
-                else if (row.timeDiff != -1)
-                  res += "<i>-" + _this.formatTime(-row.timeDiff, 0, _this.showTenthOfSecond) + "</i>";
-                return res;
-              }
-            });
-          if (leftInForest) {
-            columns.push({
-              title: "Sjekk", className: "dt-center", orderable: true, targets: [col++], data: "status",
-              render: function (data, type, row) {
-                var res = "";
-                if (row.checked == 1 || row.status == 9)
-                  res += "&#9989; "; // Green checkmark
-                else
-                  res += "&#11036; "; // Empty checkbox
-                return res;
-              }
-            });
-            columns.push({
-              title: "DNS", className: "dt-left", orderable: false, targets: [col++], data: "controlName",
-              render: function (data, type, row) {
-                var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.runnerName;
-                var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + ",1);\">&#128172;</button>";
-                return link;
-              }
-            });
-          }
-
-          this.currentTable = $('#' + this.radioPassingsDiv).DataTable({
-            fixedHeader: true,
-            fixedColumns: {
-              leftColumns: (leftInForest ? 2 : 4),
-              rightColumns: (leftInForest ? 1 : 0)
-            },
-            scrollX: true,
-            paging: false,
-            searching: true,
-            ordering: leftInForest,
-            data: this.radioData,
-            layout: {
-              topStart: null,
-              topEnd: null,
-              bottomStart: null,
-              bottomEnd: null
-            },
-            order: (leftInForest ? [] : [[1, "desc"]]),
-            columns: columns,
-            destroy: true,
-          });
-        }
-      }
-      if (this.isCompToday())
-        this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateRadioPassings(code); }, this.radioUpdateInterval);
-      else
-        $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
-
-    };
-
-    AjaxViewer.prototype.updateStartRegistration = function (openStart) {
-      var _this = this;
-      clearTimeout(this.radioPassingsUpdateTimer);
-      if (!this.updateAutomatically)
-        return;
-      var URLextra, headers;
-      if (this.Time4oServer) {
-        URLextra = "race/" + this.competitionId + "/entry";
-        headers = this.lastRadioPassingsUpdateHash ? { 'If-None-Match': this.lastRadioPassingsUpdateHash } : {};
-      }
-      else {
-        URLextra = "?comp=" + this.competitionId + "&method=getrunners&last_hash=" + this.lastRadioPassingsUpdateHash
-        headers = {};
-      }
-      $.ajax({
-        url: this.apiURL + URLextra,
-        headers: headers,
-        dataType: "json",
-        success: function (data, status, resp) {
-          var expTime = false;
-          if (_this.Time4oServer) {
-            expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.radioUpdateInterval;
-            if (resp.status == 200) {
-              _this.lastRadioPassingsUpdateHash = resp.getResponseHeader("etag").slice(1, -1);
-              data.status = "OK";
-            }
-            else if (resp.status == 304) {
-              data = { status: "NOT MODIFIED" };
-            }
-            else
-              expTime = new Date(resp.getResponseHeader("expires")).getTime();
-            data.rt = _this.radioUpdateInterval / 1000;
-          }
-          _this.handleUpdateStartRegistration(data, expTime, openStart);
-        },
-        error: function () {
-          _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, _this.radioUpdateInterval);
-        },
-        dataType: "json"
-      });
-    };
-
-    //Handle response for updating the start registration
-    AjaxViewer.prototype.handleUpdateStartRegistration = function (data, expTime, openStart) {
-      if (data.rt != undefined && data.rt > 0)
-        this.radioUpdateInterval = data.rt * 1000;
-      $('#updateinterval').html(this.radioUpdateInterval / 1000);
-      if (expTime) {
-        var lastUpdate = new Date();
-        lastUpdate.setTime(expTime - this.radioUpdateInterval + 1000);
-        $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
-      }
-
-      // Make live blinker pulsing
-      if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
-        $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
-      if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
-        $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
-
-      var _this = this;
-
-      // Insert data from query            
-      if (data != null && data.status == "OK") {
-        clearTimeout(this.updateStartRegistrationTimer);
-        if (this.Time4oServer)
-          data = this.Time4oEntryListToLiveres(data, this.activeClasses);
-        else
-          this.lastRadioPassingsUpdateHash = data.hash;
-
-        data.runners.forEach(function (runner) {
-          runner.show = 'true';
-          runner.timeToStart = 0;
-          if (_this.Time4oServer) {
-            runner.starttime = runner.start;
-            runner.start = _this.formatTime(runner.starttime, 0, false, true, false, true);
-          }
-        });
-        this.radioData = data.runners;
-        this.radioData.sort(this.startSorter);
-
-        // Modify data-table
-        if (this.currentTable != null) // Existing datatable
-        {
-          var scrollX = window.scrollX;
-          var scrollY = window.scrollY;
-          this.currentTable.clear();
-          this.currentTable.rows.add(this.radioData).draw();
-          this.filterTable();
-          window.scrollTo(scrollX, scrollY);
-        }
-        else if (this.currentTable == null) // New datatable
-        {
-          if (this.radioData != null && this.radioData.length > 0) {
-            var columns = Array();
-            var col = 0;
-            columns.push({
-              title: "Show", orderable: false, targets: [col++], data: "show", visible: false
-            });
-            columns.push({
-              title: "&#8470;", className: "dt-right", orderable: false, targets: [col++], data: "bib",
-              render: function (data, type) {
-                if (type === 'display') {
-                  if (data < 0) // Relay
-                    return "<span class=\"bib\">" + (-data / 100 | 0) + "-" + (-data % 100) + "</span>";
-                  else if (data > 0)    // Ordinary
-                    return "<span class=\"bib\">" + data + "</span>";
-                  else
-                    return "";
-                }
-                else
-                  return Math.abs(data);
-              }
-            });
-            columns.push({
-              title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
-              render: function (data, type) {
-                if (type === 'display') {
-                  var name = (data.length > _this.maxNameLength ? _this.nameShort(data) : data);
-                  return name;
-                }
-                else
-                  return data;
-              }
-            });
-            columns.push({
-              title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
-              render: function (data, type) {
-                if (type === 'display') {
-                  var club = (data.length > _this.maxClubLength ? _this.clubShort(data) : data);
-                  return club;
-                }
-                else
-                  return data;
-              }
-            });
-            columns.push({
-              title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
-              render: function (data, type, row) {
-                var link = "<a href=\"followfull.php?comp=" + _this.competitionId + (_this.Time4oServer ? "&time4o" : "");
-                link += "#" + encodeURIComponent(row.class);
-                link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
-                return link;
-              }
-            });
-            columns.push({
-              title: "Brikke", className: "dt-left", orderable: false, targets: [col++], data: "ecard1",
-              render: function (data, type, row) {
-                var ecards = "";
-                if (row.ecard1 > 0) {
-                  ecards += row.ecard1;
-                  if (row.ecard2 > 0) ecards += " / " + row.ecard2;
-                }
-                else
-                  if (row.ecard2 > 0) ecards += row.ecard2;
-                var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
-                var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards + "', " + row.checked + ");\">";
-                if (row.checked == 1 || row.status == 9)
-                  ecardstr += "&#9989; "; // Green checkmark
-                else
-                  ecardstr += "&#11036; "; // Empty checkbox
-                ecardstr += ecards;
-                ecardstr += "</div>";
-                return ecardstr;
-              }
-            });
-            columns.push({
-              title: "Starttid", className: "dt-right", orderable: false, targets: [col++], data: "start",
-              render: function (data) {
-                return data;
-              }
-            });
-            if (!openStart) {
-              columns.push({
-                title: "Diff", className: "dt-right", orderable: false, targets: [col++], data: "timeToStart",
-                render: function (data) {
-                  timeToStartStr = "<span style=\"color:" + (data < 0 ? "black" : "red") + "\">";
-                  timeToStartStr += (data < 0 ? "-" : "+") + _this.formatTime(Math.abs(data), 0, false);
-                  timeToStartStr += "<\span>";
-                  return timeToStartStr;
-                }
-              });
-            }
-
-            var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
-            columns.push({
-              title: message, className: "dt-left", orderable: false, targets: [col++], data: "start",
-              render: function (data, type, row) {
-                var defaultDNS = (row.dbid > 0 ? 1 : 0);
-                var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
-                var link = "<button onclick=\"res.popupDialog('" + name + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";
-                return link;
-              }
-            });
-
-            this.currentTable = $('#' + this.radioPassingsDiv).DataTable({
-              fixedHeader: true,
-              fixedColumns: {
-                leftColumns: 2,
-                rightColumns: 2
-              },
-              scrollX: true,
-              paging: false,
-              lengthChange: false,
-              searching: true,
-              info: false,
-              data: this.radioData,
-              ordering: false,
-              columns: columns,
-              destroy: true,
-              dom: 'lrtip'
-            });
-          }
-        }
-        this.filterStartRegistration(openStart);
-      };
-      this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(openStart); }, this.radioUpdateInterval);
-    };
-
-    AjaxViewer.prototype.startSorter = function (a, b) {
-      var diffStart = b.starttime - a.starttime;
-      if (a.dbid < 0 && b.dbid > 0)
-        return -1;
-      else if (a.dbid > 0 && b.dbid < 0)
-        return 1;
-      else if (diffStart != 0)
-        return diffStart;
-      else if (a.starttime == -999)
-        return a.bib - b.bib;
-      else
-        return b.bib - a.bib;
-    }
-
-    AjaxViewer.prototype.startListSorter = function (a, b) {
-      if (a.start - b.start != 0)
-        return a.start - b.start;
-      else if (a.bib - b.bib != 0)
-        return a.bib - b.bib;
-      else
-        return a.dbid - b.dbid;
-    }
-
-    // Update start list
-    AjaxViewer.prototype.filterStartRegistration = function (openStart) {
-      if (this.radioData != null) {
-        try {
-          var _this = this;
-          var dt = new Date();
-          var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
-          var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
-          var timeZoneDiff = eventZoneOffset - currentTimeZoneOffset;
-          var time = dt.getSeconds() + 60 * dt.getMinutes() + 3600 * dt.getHours() + 60 * timeZoneDiff;
-          this.updateStartClock(dt);
-          var preTime = parseInt($('#preTime')[0].value) * 60;
-          var callTime = parseInt($('#callTime')[0].value) * 60;
-          var postTime = parseInt($('#postTime')[0].value) * 60;
-          var minBib = parseInt($('#minBib')[0].value);
-          var maxBib = parseInt($('#maxBib')[0].value);
-
-          var firstUnknown = true;
-          var firstOpen = true;
-          var firstInCallTime = true;
-          var firstInPostTime = true;
-          var lastStartTime = -1000;
-          var shownId = Array(0);
-          var timeBeforeStartMakeSound = 4;
-          var startBeep = 0; // 0: no, 1: short, 2: long
-
-          var data = this.radioData;
-          // *** Hide or highlight rows ***
-          for (var i = 0; i < data.length; i++) {
-            var row = this.currentTable.row(i).node();
-            data[i].show = 'false';
-            $(row).removeClass();
-
-            const showStatus = [1, 9, 10]; // DNS, Started, Entered
-            if (data[i].bib < minBib || data[i].bib > maxBib || !showStatus.includes(data[i].status)) {
-              continue;
-            }
-
-            if (data[i].dbid < 0) {
-              data[i].show = 'true';
-              shownId.push({ dbid: data[i].dbid });
-              if (firstUnknown) {
-                $(row).addClass('firstnonqualifier');
-                firstUnknown = false;
-              }
-              $(row).addClass('red_row');
-              continue;
-            }
-
-            if (openStart) {
-              if (data[i].starttime == -999) {
-                data[i].show = 'true';
-                shownId.push({ dbid: data[i].dbid });
-                if (firstOpen) {
-                  $(row).addClass('firstnonqualifier');
-                  firstOpen = false;
-                }
-              }
-            }
-            else { // Timed start
-              var startTimeSeconds = data[i].starttime / 100;
-              var timeToStart = startTimeSeconds - time;
-              data[i].timeToStart = -timeToStart * 100;
-
-              if (timeToStart == 0)
-                startBeep = 2;
-              else if (startBeep == 0 && timeToStart > 0 && timeToStart <= timeBeforeStartMakeSound)
-                startBeep = 1;
-
-              if (timeToStart <= -postTime)
-                continue;
-              else if (timeToStart <= 0) {
-                data[i].show = 'true';
-                shownId.push({ dbid: data[i].dbid });
-                $(row).addClass('pre_post_start')
-                if (firstInPostTime) {
-                  $(row).addClass('firststarter');
-                  firstInPostTime = false;
-                }
-              }
-              else if (timeToStart <= callTime) {
-                data[i].show = 'true';
-                shownId.push({ dbid: data[i].dbid });
-                if (firstInCallTime) {
-                  $(row).addClass('firststarter yellow_row');
-                  firstInCallTime = false;
-                }
-                else if (lastStartTime - startTimeSeconds > 29)
-                  $(row).addClass('yellow_row_new');
-                else
-                  $(row).addClass('yellow_row');
-              }
-              else if (timeToStart <= callTime + preTime) {
-                data[i].show = 'true';
-                shownId.push({ dbid: data[i].dbid });
-                $(row).addClass('pre_post_start');
-              }
-              lastStartTime = startTimeSeconds;
-            }
-            if (data[i].status == 1 || this.messageBibs.indexOf(data[i].dbid) > -1)
-              $(row).addClass('dns');
-          }
-          this.currentTable.rows().invalidate();
-          this.currentTable.column(0).search('true').draw();
-
-          this.animateTable(_this.prewShownId, shownId, _this.animTime);
-          this.prewShownId = shownId;
-          if (startBeep > 0 && !this.audioMute)
-            window.makeStartBeep(startBeep == 2); // 2 : long beep
-
-          var dt = new Date();
-          var ms = dt.getMilliseconds();
-          var timer = (ms > 800 ? 2000 - ms : 1000 - ms);
-          this.updateStartRegistrationTimer = setTimeout(function () { _this.filterStartRegistration(openStart); }, timer);
-        }
-        catch { }
-      }
-    }
-
-    AjaxViewer.prototype.updateStartClock = function (dt) {
-      var currTime = new Date(Math.round(dt.getTime() / 1000) * 1000);
-      var timeID = document.getElementById("time");
-      var HTMLstringCur = currTime.toLocaleTimeString('en-GB');
-      timeID.innerHTML = HTMLstringCur;
-
-      var callTime = document.getElementById("callTime").value;
-      var callClockID = document.getElementById("callClock");
-      if (callClockID != null) {
-        var preTime = new Date(currTime.valueOf() + callTime * 60 * 1000);
-        var HTMLstringPre = preTime.toLocaleTimeString('en-GB');
-        callClockID.innerHTML = HTMLstringPre;
-      }
-    }
 
     // Runner name shortener
     AjaxViewer.prototype.nameShort = function (name) {
@@ -2189,162 +1572,10 @@ var LiveResults;
       return shortName + num;
     };
 
-    //Request data for start list
-    AjaxViewer.prototype.updateStartList = function () {
-      var _this = this;
-      if (true) {
-        $.ajax({
-          url: this.apiURL,
-          data: "comp=" + this.competitionId + "&method=getrunners",
-          success: function (data) {
-            _this.handleUpdateStartList(data);
-          },
-          error: function () { },
-          dataType: "json"
-        });
-      }
-    };
-    //Handle response for updating start list
-    AjaxViewer.prototype.handleUpdateStartList = function (data) {
-      var _this = this;
-      // Insert data from query
-      if (data != null && data.status == "OK" && data.runners != null) {
-        if (data.runners.length == 0) return;
-        var columns = Array();
-        var col = 0;
-        columns.push({
-          title: "St.no", visible: false, className: "dt-right", orderable: false, targets: [col++], data: "bib",
-          render: function (data) {
-            return Math.abs(data);
-          }
-        });
-        columns.push({
-          title: "St.no", className: "dt-right", orderable: false, targets: [col++], data: "bib",
-          render: function (data, type, row) {
-            if (type === 'display') {
-              var res;
-              if (data < 0) // Relay
-                res = (-data / 100 | 0) + "-" + (-data % 100);
-              else if (data > 0)    // Ordinary
-                res = data;
-              else
-                res = "";
-              if (row.status == 1) // DNS
-                return ("<del>" + res + "</del>");
-              else
-                return res;
-            }
-            else
-              return Math.abs(data);
-          }
-        });
-        columns.push({
-          title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
-          render: function (data, type, row) {
-            if (type === 'display') {
-              var res;
-              if (data.length > _this.maxNameLength)
-                res = _this.nameShort(data);
-              else
-                res = data;
-              if (row.status == 1) // DNS
-                return ("<del>" + res + "</del>");
-              else
-                return res;
-            }
-            else
-              return data;
-          }
-        });
-        columns.push({
-          title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
-          render: function (data, type, row) {
-            if (type === 'display') {
-              var res;
-              if (data.length > _this.maxClubLength)
-                res = _this.clubShort(data);
-              else
-                res = data;
-              if (row.status == 1) // DNS
-                return ("<del>" + res + "</del>");
-              else
-                return res;
-            }
-            else
-              return data;
-          }
-        });
-        columns.push({
-          title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
-          render: function (data, type, row) {
-            className = row.class;
-            var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "#" + encodeURIComponent(row.class);
-            link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
-            if (row.status == 1) // DNS
-              return ("<del>" + link + "</del>");
-            else
-              return link;
-          }
-        });
-
-        columns.push({
-          title: "Starttid", className: "dt-right", orderable: false, targets: [col++], data: "start",
-          render: function (data, type, row) {
-            if (type === 'display') {
-              if (row.status == 1) // DNS
-                return ("<del>" + data + "</del>");
-              else
-                return data;
-            }
-            else
-              return data;
-          }
-        });
-
-        columns.push({
-          title: "Brikke#1", className: "dt-center", orderable: false, targets: [col++], data: "ecard1",
-          render: function (data, type, row) {
-            var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib / 100 | 0) + "-" + (-row.bib % 100) : row.bib) + ") ");
-            var ecardStr = (row.ecard1 == 0 ? "-" : row.ecard1);
-            var runnerName = bibStr + row.name;
-            var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 1 fra "
-              + ecardStr + " til '," + row.dbid + ",0,1);\">" + ecardStr + "</button>";
-            return link;
-          }
-        });
-        columns.push({
-          title: "Brikke#2", className: "dt-center", orderable: false, targets: [col++], data: "ecard2",
-          render: function (data, type, row) {
-            var bibStr = (row.bib == 0 ? "" : "(" + (row.bib < 0 ? (-row.bib / 100 | 0) + "-" + (-row.bib % 100) : row.bib) + ") ");
-            var ecardStr = (row.ecard2 == 0 ? "-" : row.ecard2);
-            var runnerName = bibStr + row.name;
-            var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 2 fra "
-              + ecardStr + " til '," + row.dbid + ",0,1);\">" + ecardStr + "</button>";
-            return link;
-          }
-        });
-
-        this.currentTable = $('#startList').DataTable({
-          fixedHeader: true,
-          paging: false,
-          lengthChange: false,
-          searching: true,
-          info: false,
-          data: data.runners,
-          order: [[0, "asc"]],
-          columnDefs: columns,
-          destroy: true,
-          dom: 'lrtip',
-          orderCellsTop: true
-        });
-      }
-
-    };
-
 
     // Club name shortener
     AjaxViewer.prototype.clubShort = function (club) {
-      _this = this;
+      var _this = this;
       if (!club)
         return false;
       var shortClub = club.replace('Orienterings', 'O.');
@@ -2390,6 +1621,7 @@ var LiveResults;
       return shortClub;
     };
 
+
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
       var table = this.currentTable;
@@ -2401,6 +1633,7 @@ var LiveResults;
       $('#searchBib').val(bib);
       this.searchRunner();
     }
+
 
     // Search runner in speaker view
     AjaxViewer.prototype.searchRunner = function () {
@@ -2435,9 +1668,10 @@ var LiveResults;
       }
     };
 
+
     //Popup window for setting ecard to checked
     AjaxViewer.prototype.popupCheckedEcard = function (dbid, name, ecards, checked) {
-      _this = this;
+      var _this = this;
       var message;
       if (checked)
         message = "Ta bort markering for " + name + "?";
@@ -2461,9 +1695,10 @@ var LiveResults;
       });
     }
 
+
     //Popup window for messages to message center
     AjaxViewer.prototype.popupDialog = function (promptText, dbid, defaultDNS, startListChange = -1) {
-      _this = this;
+      var _this = this;
       var defaultText = "";
       if (defaultDNS == 1)
         defaultText = "ikke startet";
@@ -2501,6 +1736,7 @@ var LiveResults;
       }, defaultText);
     };
 
+
     //Popup window for requesting RaceSplitter file
     AjaxViewer.prototype.raceSplitterDialog = function () {
       var error = true;
@@ -2535,6 +1771,7 @@ var LiveResults;
       if (error)
         window.alert("Feil input!");
     };
+
 
     // Check for updates in class
     AjaxViewer.prototype.checkForChanges = function () {
@@ -2573,6 +1810,7 @@ var LiveResults;
         }
       }
     };
+
 
     //handle response from class-change-update
     AjaxViewer.prototype.handleUpdateChanges = function (data, expTime) {
@@ -2671,8 +1909,8 @@ var LiveResults;
           dataType: "json"
         });
       }
-
     };
+
 
     //handle response from class-results-update
     AjaxViewer.prototype.handleUpdateClassResults = function (newData, expTime) {
@@ -2779,6 +2017,7 @@ var LiveResults;
           this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, _this.updateInterval);
       }
     };
+
 
     AjaxViewer.prototype.animateTable = function (oldData, newData, animTime, predRank = false, clubTable = false) {
       // Animate an update to date table
@@ -2950,6 +2189,7 @@ var LiveResults;
       }
     };
 
+
     // Reset settings after animation is completed
     AjaxViewer.prototype.endAnimateTable = function (table, predRank, clubTable) {
       $(table).find('tr td, tr th').each(function () { $(this).css('min-width', ''); });
@@ -2967,6 +2207,7 @@ var LiveResults;
       else if (clubTable)
         this.updateClubTimes();
     };
+
 
     //Check for update in clubresults
     AjaxViewer.prototype.checkForClubUpdate = function () {
@@ -3016,6 +2257,7 @@ var LiveResults;
         }
       });
     };
+
 
     //handle the response on club-results update
     AjaxViewer.prototype.handleUpdateClubResults = function (data, expTime) {
@@ -3072,6 +2314,7 @@ var LiveResults;
       }
     };
 
+
     AjaxViewer.prototype.updateClubOrder = function () {
       const table = this.currentTable;
       table.rows({ order: 'applied' }).every(function (rowIdx, tableLoop, rowLoop) {
@@ -3079,6 +2322,7 @@ var LiveResults;
         rowData.virtual_position = rowLoop;
       });
     }
+
 
     AjaxViewer.prototype.chooseClass = function (className) {
       if (className.length == 0)
@@ -3165,6 +2409,7 @@ var LiveResults;
       if (!this.isSingleClass)
         window.location.hash = className;
     };
+
 
     AjaxViewer.prototype.updateClassResults = function (data, expTime) {
       if (this.curClassName == null)
@@ -4060,6 +3305,7 @@ var LiveResults;
       }
     };
 
+
     AjaxViewer.prototype.setHighlight = function (results, highlightID) {
       for (var j = 0; j < results.length; j++) {
         if (results[j].dbid == highlightID) {
@@ -4103,6 +3349,7 @@ var LiveResults;
         }
       }
     };
+
 
     AjaxViewer.prototype.formatTime = function (time, status, showTenthOs, showHours, padZeros, clockTime) {
       if (arguments.length == 2 || arguments.length == 3) {
@@ -4344,6 +3591,7 @@ var LiveResults;
       data.push(result);
     };
 
+
     AjaxViewer.prototype.resultSorter = function (a, b) {
       var aStatus = a.status;
       var bStatus = b.status;
@@ -4390,6 +3638,7 @@ var LiveResults;
       }
     };
 
+
     AjaxViewer.prototype.newWin = function () {
       var url = "";
       if (this.EmmaServer)
@@ -4404,6 +3653,7 @@ var LiveResults;
         url += '&club=' + encodeURIComponent(this.curClubName);
       window.open(url, '', 'status=0,toolbar=0,location=0,menubar=0,directories=0,scrollbars=1,resizable=1');
     };
+
 
     AjaxViewer.prototype.viewClubResults = function (clubName) {
       var _this = this;
@@ -4812,11 +4062,12 @@ var LiveResults;
       }
     };
 
+
     AjaxViewer.prototype.updateClubTimes = function (startTimer = true) {
       if (this.currentTable == null || this.curClubName == null || !this.isCompToday())
         return;
       try {
-        _this = this;
+        var _this = this;
         var dt = new Date();
         var currentTimeZoneOffset = -1 * new Date().getTimezoneOffset();
         var eventZoneOffset = ((dt.dst() ? 2 : 1) + this.eventTimeZoneDiff) * 60;
@@ -4936,6 +4187,7 @@ var LiveResults;
         this.updatePredictedTimeTimer = setTimeout(function () { _this.updateClubTimes(); }, 1000);
     }
 
+
     AjaxViewer.prototype.viewRelayResults = function (className) {
       var _this = this;
       clearTimeout(this.resUpdateTimeout);
@@ -4990,6 +4242,7 @@ var LiveResults;
       });
       window.location.hash = "relay::" + className;
     };
+
 
     AjaxViewer.prototype.updateRelayResults = function (data, expTime, className) {
       if (this.curRelayView == null)
@@ -5159,6 +4412,7 @@ var LiveResults;
       };
     };
 
+
     AjaxViewer.prototype.resetSorting = function () {
       if (this.curClubName != null) {
         this.currentTable.order([1, 'asc'], [7, 'asc'], [5, 'asc']).draw();
@@ -5181,9 +4435,9 @@ var LiveResults;
         if (courses != undefined && courses.length > 0)
           link = this.splitTimesLink(this.curClassName, courses);
       }
-
       $("#" + this.txtResetSorting).html(link);
     };
+
 
     //Make link for split times
     AjaxViewer.prototype.splitTimesLink = function (className, courses) {
@@ -5248,6 +4502,7 @@ var LiveResults;
       });
       window.location.hash = "splits::" + className + "::course::" + course;
     };
+
 
     AjaxViewer.prototype.updateSplitTimeResults = function (data, course, expTime) {
       if (this.curSplitView == null)
@@ -5585,430 +4840,6 @@ var LiveResults;
       return sumVal / nValues;
     };
 
-    // Converters from Time4o format to LiveRes format
-
-    AjaxViewer.prototype.Time4oClassesToLiveres = function (payload) {
-      const classes = (payload?.data ?? []).map(classEntry =>
-        this.normalizeClasses(classEntry)).flatMap(c => Array.isArray(c) ? c : [c]);;
-      return {
-        status: "OK",
-        classes: classes ?? "",
-        hash: ""
-      };
-    }
-
-    AjaxViewer.prototype.normalizeClasses = function (classEntry) {
-      if (!classEntry) return null;
-      _this = this;
-
-      const isRelay = (classEntry.eventForm == "Relay");
-      const isUnordered = (classEntry.resultListMode == "Unordered");
-      const isChaseStart = (classEntry.startType == "Chasing");
-      const showLapTimes = classEntry.showLapTimes ?? false;
-      const firstStart = classEntry.firstStart ?? null
-      const resultListMode = classEntry.resultListMode ?? null;
-      const startType = classEntry.startType ?? null;
-      const timingResolution = classEntry.timingResolution ?? null;
-      const timingStartTimeSource = classEntry.timingStartTimeSource ?? null;
-      const legs = (classEntry.legs ? Object.keys(classEntry.legs).length : 1);
-      var intermediateControls;
-      classInfo = [];
-
-      for (var i = 1; i <= legs; i++) {
-        var legNo = i;
-        var className = classEntry.name ?? "NoName";
-        var id = classEntry.id ?? "NoId";
-
-        // Relay specific fields
-        if (isRelay) {
-          legNo = classEntry.legs[i].number ?? 1;
-          if (!className.endsWith("-"))
-            className += "-";
-          className += String(legNo);
-          id = id + "." + String(legNo);
-          intermediateControls = classEntry.legs[i]?.intermediateControls;
-        }
-        else {
-          intermediateControls = classEntry.intermediateControls;
-        }
-
-        const splitcontrols = _this.normalizeIntermediateControls(intermediateControls, classEntry.resultListMode);
-
-        // Add control for exchange times
-        if (isChaseStart || (isRelay && legNo >= 2)) {
-          splitcontrols.forEach(ctrl => {
-            splitcontrols.push({
-              code: ctrl.code + 100000,
-              order: (2 * ctrl.order - 1),
-              name: ctrl.name + "PassTime",
-              updated: true
-            });
-            ctrl.order = 2 * ctrl.order;
-          });
-          splitcontrols.push({
-            code: 0,
-            order: 0,
-            name: "Exchange",
-            updated: true
-          });
-          splitcontrols.push({
-            code: 999,
-            order: 999,
-            name: "Leg",
-            updated: false
-          });
-          splitcontrols.sort((a, b) => a.order - b.order);
-        }
-
-        // Add control for showing time of unordered classes
-        if (isUnordered)
-          splitcontrols.push({
-            code: -999,
-            order: 999,
-            name: "Time",
-            updated: false
-          });
-
-        // Show lap times
-        if (showLapTimes && splitcontrols.length > 0) {
-          splitcontrols.forEach(ctrl => {
-            splitcontrols.push({
-              code: ctrl.code + 100000,
-              order: (2 * ctrl.order - 1),
-              name: ctrl.name + "PassTime",
-              updated: true
-            });
-            ctrl.order = 2 * ctrl.order;
-          });
-          splitcontrols.push({
-            code: 999,
-            order: 999,
-            name: "Leg",
-            updated: true
-          });
-          splitcontrols.sort((a, b) => a.order - b.order);
-        }
-
-        classInfo.push(
-          {
-            className: className,
-            showLapTimes: classEntry.showLapTimes ?? false,
-            isRelay: isRelay,
-            legs: legs,
-            firstStart: firstStart ? firstStart : -999,
-            resultListMode: resultListMode,
-            startType: startType,
-            timingResolution: timingResolution,
-            id: id,
-            splitcontrols: splitcontrols,
-            timingStartTimeSource: timingStartTimeSource,
-            updatedSplits: splitcontrols.map(ctrl => !!ctrl.updated)
-          });
-      }
-      return classInfo;
-    }
-
-    AjaxViewer.prototype.normalizeIntermediateControls = function (intermediateControl, resultListMode) {
-      if (!intermediateControl) return [];
-      const unordered = ["Unordered", "UnorderedNoTimes"].includes(resultListMode);
-      return Object.values(intermediateControl)
-        .map((ctrl, idx) => ({
-          order: ctrl?.order ?? idx + 1,
-          code: (Number(ctrl?.id) + (ctrl?.counter ?? 1) * 1000) * (unordered ? -1 : 1),
-          name: ctrl?.name ?? `Split ${idx + 1}`,
-          updated: false
-        }))
-        .sort((a, b) => a.order - b.order);
-    }
-
-    AjaxViewer.prototype.Time4oRelayResultsToLiveres = function (payload, className, classes) {
-
-      const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry,
-        classes.find(c => c.id === entry?.raceClassId)));
-      const currentClass = classes.find(c => c.className === className);
-      const classNameClean = className.replace(/-[0-9]{1,2}$/, '');
-
-      let legResults = [];
-      for (let leg = 1; leg <= currentClass.legs; leg++) {
-        legResults[leg - 1] = {
-          leg: leg,
-          results: entries.filter(e => e.leg == leg)
-        };
-      }
-
-      return {
-        status: "OK",
-        className: classNameClean,
-        legs: currentClass.legs,
-        relayresults: legResults,
-      };
-    }
-
-    AjaxViewer.prototype.Time4oClubResultsToLiveres = function (payload, classes) {
-      const entries = (payload?.data ?? []).map(entry => this.normalizeEntry(entry,
-        classes.find(c => c.id === entry?.raceClassId)));
-
-      return {
-        status: "OK",
-        clubName: entries[0]?.club ?? "",
-        results: entries,
-        lastchanged: false,
-        infotext: "",
-        active: 0
-      };
-    }
-
-    AjaxViewer.prototype.Time4oResultsToLiveres = function (payload, classInfo) {
-      if (payload.type === "startList" || payload.type === "plainResults") {
-        const entries = (payload?.data ?? []).map(entry =>
-          this.normalizeEntry(entry, classInfo.find(c => c.id === entry?.raceClassId)));
-        const classEntries = this.groupEntriesByClass(entries, payload.type);
-        return {
-          status: "OK",
-          className: payload.type === "startList" ? "startlist" : "plainresults",
-          results: classEntries,
-          numEntries: entries.length,
-          numResults: (classEntries || []).reduce(
-            (sum, c) => sum + (Array.isArray(c.results) ? c.results.length : 0),
-            0)
-        };
-      }
-      else {
-        const entries = (payload?.data ?? []).map(entry =>
-          this.normalizeEntry(entry, classInfo));
-        return {
-          status: "OK",
-          className: classInfo?.className ?? "",
-          distance: "",
-          splitcontrols: classInfo?.splitcontrols ?? [],
-          results: entries,
-          lastchanged: false,
-          infotext: "",
-          updatedSplits: classInfo?.updatedSplits ?? [],
-          active: 0
-        };
-      }
-    }
-
-    AjaxViewer.prototype.groupEntriesByClass = function (entries, type) {
-      const groups = new Map();
-      for (const e of (entries || [])) {
-        if (type === "plainResults" && (e.status == 9 || e.status == 10))
-          continue;
-        const name = e.class || "Unknown";
-        if (!groups.has(name))
-          groups.set(name, []);
-        groups.get(name).push(e);
-      }
-
-      var sortType = (type === "startList") ? this.startListSorter : this.resultSorter;
-      const grouped = Array.from(groups, ([className, results]) => ({
-        className,
-        results: results.slice().sort(sortType),
-        distance: ""
-      }));
-
-      return this.sortClasses(grouped);
-    };
-
-    AjaxViewer.prototype.Time4oEntryListToLiveres = function (payload, classes) {
-      const entries = (payload?.data ?? []).map(entry =>
-        this.normalizeEntry(entry, classes.find(c => c.id === entry?.raceClassId)));
-      return {
-        status: "OK",
-        runners: entries,
-        active: 0
-      };
-    }
-
-    AjaxViewer.prototype.Time4oStatusMap = function (statusKey, unordered) {
-      const statusMap = {
-        "OK": 0,
-        "DidNotStart": 1,
-        "DidNotFinish": 2,
-        "MissingPunch": 3,
-        "Disqualified": 4,
-        "OverTime": 5,
-        "NotClassified": 6,
-        "Overtime": 11,
-        "Walkover": 12,
-        "Finished": 13
-        // runnerStatus[9] = "";
-        // runnerStatus[10] = "";
-      };
-      if (statusKey == "OK" && unordered)
-        statusKey = "Finished";
-      return statusMap[statusKey] ?? 10;
-    }
-
-    AjaxViewer.prototype.normalizeEntry = function (entry, classInfo) {
-      if (!entry || !classInfo) return null;
-      var _this = this;
-
-      // Start time
-      const timingStartTimeSource = entry.timingStartTimeSource ?? classInfo.timingStartTimeSource ?? "Timing";
-      const startListStartTime = entry.start?.startTime ?? classInfo.firstStart ?? null;
-      let rawStartIso = null;
-      if (classInfo.startType === "Free") {
-        rawStartIso = entry.time?.startTime ?? null;
-      } else if (timingStartTimeSource === "Timing") {
-        rawStartIso = entry.time?.startTime ?? startListStartTime;
-      }
-      else {
-        rawStartIso = startListStartTime;
-      }
-      const startTime = rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : -999;
-      var timeFromClassStart = 0;
-      if (startTime > 0 && classInfo.firstStart) {
-        timeFromClassStart = startTime - _this.toHundredthsSinceMidnight(classInfo.firstStart);
-      }
-
-      const unordered = ["Unordered", "UnorderedNoTimes"].includes(classInfo.resultListMode);
-      const chaseStart = (classInfo.startType == "Chasing");
-      var splits = {};
-      var rawResult, rawBehind, place, statusKey, statusValue;
-      var startTotalTime = 0;
-      var restart = false;
-
-      // Chase start or relay leg >= 2
-      if (chaseStart || (classInfo.isRelay && entry.leg?.number >= 2)) {
-        restart = entry.time?.restart ?? false;
-        statusKey = entry.overallStatus?.status ?? "Unknown";
-        statusValue = _this.Time4oStatusMap(statusKey, unordered);
-        place = entry.overallResult?.position != null ? String(entry.overallResult.position) : "";
-        rawResult = entry.overallResult?.time ?? null;
-        rawBehind = entry.overallResult?.behind ?? null;
-        if (restart) {
-          rawResult += _this.restartTimeOffset * 10;
-          rawBehind += _this.restartTimeOffset * 10;
-        }
-
-        if (entry.startOverallResult?.time) {
-          startTotalTime = Math.floor(entry.startOverallResult.time / 10);
-        }
-        else if (timeFromClassStart > 0) {
-          startTotalTime = timeFromClassStart;
-        }
-        if (startTotalTime > 0) {
-          splits["0"] = startTotalTime + (restart ? _this.restartTimeOffset : 0);
-        }
-
-        // Leg result
-        if (entry.time?.time != null) {
-          let legStatusKey = entry.status?.status ?? "Unknown";
-          let legStatusValue = _this.Time4oStatusMap(legStatusKey, unordered);
-          let rawLegResult = entry.time?.time ?? null;
-          let rawLegBehind = entry.time?.behind ?? null;
-          let legResult = rawLegResult != null ? Math.floor(rawLegResult / 10) : -3;
-          let legBehind = rawLegBehind != null ? Math.floor(rawLegBehind / 10) : null;
-          splits["999"] = legResult > 0 ? legResult : "";
-          splits["999_status"] = legStatusValue;
-          splits["999_timeplus"] = legBehind >= 0 ? legBehind : "";
-          splits["999_place"] = entry.position != null ? String(entry.position) : "-";
-        }
-      }
-      // Individual class
-      else {
-        statusKey = entry.status?.status ?? "Unknown";
-        statusValue = _this.Time4oStatusMap(statusKey, unordered);
-        rawResult = entry.time?.time ?? null;
-        rawBehind = entry.time?.behind ?? null;
-        place = entry.position != null ? String(entry.position) : "";
-      }
-
-      let result = rawResult != null ? Math.floor(rawResult / 10) : -3;
-      if (statusValue != 0 && statusValue != 9 && statusValue != 10) {
-        place = "-";
-      }
-
-      // Intermediate times
-      const intermediates = entry.intermediateTimes ?? {};
-      var prevSplitTime = 0;
-      for (const [key, val] of Object.entries(intermediates)) {
-        const changedSplit = val?.updated ? Math.floor(Date.parse(val.updated) / 1000) : 0;
-        const code = (Number(key.split('-')[1]) * 1000 + Number(key.split('-')[0])) * (unordered ? -1 : 1);
-        var timeHundredths = val?.time != null ? Math.floor(val.time / 10) : "";
-        var behindHundredths = val?.behind != null ? Math.floor(val.behind / 10) : "";
-
-        // Leg times relay
-        if (classInfo.isRelay && entry.leg?.number >= 2) {
-          const legTime = timeHundredths !== "" ? timeHundredths - timeFromClassStart : "";
-          splits[code + 100000] = legTime;
-        }
-
-        // Leg times chase start
-        if (chaseStart) {
-          const legTime = timeHundredths !== "" ? timeHundredths - startTotalTime : "";
-          splits[code + 100000] = legTime;
-        }
-
-        if (restart && timeHundredths !== "") {
-          timeHundredths += _this.restartTimeOffset;
-          behindHundredths += _this.restartTimeOffset;
-        }
-        splits[code] = timeHundredths;
-        splits[`${code}_status`] = statusValue;
-        splits[`${code}_changed`] = changedSplit;
-        splits[`${code}_timeplus`] = behindHundredths;
-        splits[`${code}_place`] = val?.position ?? "-";
-
-        // Lap times
-        if (classInfo.showLapTimes) {
-          const lapTime = timeHundredths !== "" ? timeHundredths - prevSplitTime : "";
-          splits[code + 100000] = lapTime;
-          prevSplitTime = val?.time != null ? Math.floor(val.time / 10) : prevSplitTime;
-        }
-      }
-
-      // Final lap time
-      if (classInfo.showLapTimes && result > 0 && result > prevSplitTime) {
-        const lapTime = result - prevSplitTime;
-        splits[999] = lapTime;
-      }
-
-      const changedIso = entry.time?.updated ?? entry.status?.updated ?? entry.updated_at ?? null;
-      const changed = changedIso ? Math.floor(Date.parse(changedIso) / 1000) : 0;
-
-      if (statusKey == "Finished") {
-        splits["-999"] = result > 0 ? result : "";
-        splits["-999_status"] = statusValue;
-        splits["-999_changed"] = changed;
-        splits["-999_timeplus"] = 0;
-        splits["-999_place"] = "F";
-        result = entry.person?.id != null ? entry.person.id : 100;
-        place = "F";
-      }
-
-      // Club
-      const clubName = classInfo.isRelay ? (entry.team?.name ?? "") : (entry.organisation?.name ?? "");
-
-      return {
-        place: place,
-        dbid: entry.person?.id ?? 0,
-        bib: entry.start?.bibNo ?? 0,
-        name: entry.person?.name ?? "",
-        club: clubName,
-        clubId: entry.organisation?.id ?? 0,
-        class: classInfo.className ?? "",
-        leg: classInfo.isRelay ? entry.leg?.number ?? 1 : 0,
-        pace: -1,
-        status: statusValue,
-        splits: splits,
-        start: startTime,
-        result: result,
-        timeplus: rawBehind != null ? Math.floor(rawBehind / 10) : "",
-        changed: changed,
-        progress: (place != "" ? 100 : 0)
-      };
-    }
-
-    AjaxViewer.prototype.toHundredthsSinceMidnight = function (isoString) {
-      const d = new Date(isoString);
-      if (Number.isNaN(d.getTime()))
-        return -999;
-      const ms = (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) * 1000 + d.getMilliseconds();
-      return Math.round(ms / 10);
-    }
 
     AjaxViewer.prototype.sortClasses = function (classes) {
       if (!Array.isArray(classes))
