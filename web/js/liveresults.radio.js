@@ -768,16 +768,6 @@
   }
 
 
-  AjaxViewer.prototype.startListSorter = function (a, b) {
-    if (a.start - b.start != 0)
-      return a.start - b.start;
-    else if (a.bib - b.bib != 0)
-      return a.bib - b.bib;
-    else
-      return a.dbid - b.dbid;
-  }
-
-
   AjaxViewer.prototype.updateStartClock = function (dt) {
     var currTime = new Date(Math.round(dt.getTime() / 1000) * 1000);
     var timeID = document.getElementById("time");
