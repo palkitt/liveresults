@@ -396,9 +396,9 @@
     const changedIso = entry.time?.updated ?? entry.status?.updated ?? entry.updated_at ?? null;
     const changed = changedIso ? Math.floor(Date.parse(changedIso) / 1000) : 0;
 
-    if (statusKey == "Finished") {
+    if (statusValue == 13) { // Finished OK in unordered class
       splits["-999"] = result > 0 ? result : "";
-      splits["-999_status"] = statusValue;
+      splits["-999_status"] = 13;
       splits["-999_changed"] = changed;
       splits["-999_timeplus"] = 0;
       splits["-999_place"] = "F";
