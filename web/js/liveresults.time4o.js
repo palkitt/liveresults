@@ -20,21 +20,24 @@
     if (!classEntry) return null;
     var _this = this;
 
-    const isRelay = (classEntry.eventForm == "Relay");
-    const isUnordered = (classEntry.resultListMode == "Unordered");
-    const isChaseStart = (classEntry.startType == "Chasing");
-    const showLapTimes = classEntry.showLapTimes ?? false;
-    const legs = (classEntry.legs ? Object.keys(classEntry.legs).length : 1);
+    const relay = (classEntry.eventForm == "Relay");
+    const resultListMode = classEntry.resultListMode ?? null;
+    const chaseStart = (classEntry.startType == "Chasing");
+    const unordered = (resultListMode == "Unordered");
+    const ordered = !["Unordered", "UnorderedNoTimes"].includes(resultListMode);
+    const showLapTimes = (classEntry.showLapTimes && ordered) ?? false;
 
     var intermediateControls = [];
     var classInfo = [];
+    const legs = (classEntry.legs ? Object.keys(classEntry.legs).length : 1);
+
     for (var i = 1; i <= legs; i++) {
-      var legNo = i;
+      var legNo = 0;
       var className = classEntry.name ?? "NoName";
       var id = classEntry.id ?? "NoId";
 
       // Relay specific fields
-      if (isRelay) {
+      if (relay) {
         legNo = classEntry.legs[i].number ?? 1;
         if (!className.endsWith("-"))
           className += "-";
@@ -46,10 +49,10 @@
         intermediateControls = classEntry.intermediateControls;
       }
 
-      const splitcontrols = _this.normalizeIntermediateControls(intermediateControls, classEntry.resultListMode);
+      const splitcontrols = _this.normalizeIntermediateControls(intermediateControls, resultListMode);
 
       // Add control for exchange times
-      if (isChaseStart || (isRelay && legNo >= 2)) {
+      if (chaseStart || (relay && legNo >= 2)) {
         splitcontrols.forEach(ctrl => {
           splitcontrols.push({
             code: ctrl.code + 100000,
@@ -75,7 +78,7 @@
       }
 
       // Add control for showing time of unordered classes
-      if (isUnordered)
+      if (unordered)
         splitcontrols.push({
           code: -999,
           order: 999,
@@ -108,13 +111,13 @@
           id: id,
           className: className,
           showLapTimes: classEntry.showLapTimes ?? false,
-          resultListMode: classEntry.resultListMode ?? null,
           startType: classEntry.startType ?? null,
           timingResolution: classEntry.timingResolution ?? null,
           timingStartTimeSource: classEntry.timingStartTimeSource ?? null,
           firstStart: classEntry.firstStart ?? -999,
           cards: classEntry.cardTypes ?? [],
-          isRelay: isRelay,
+          resultListMode: resultListMode,
+          isRelay: relay,
           legs: legs,
           splitcontrols: splitcontrols,
           updatedSplits: splitcontrols.map(ctrl => !!ctrl.updated)
