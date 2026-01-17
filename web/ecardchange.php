@@ -179,10 +179,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			if (isNaN(ecardNumber) || ecardNumber < 1 || ecardNumber > 9999999) {
 				ecardOK = false;
 				$('#ecardverification').html('Brikkenummeret er ikke gyldig. Prøv på nytt.');
+				$('#ecardlastuse').html('<small>...</small>');
 				$('#ecardImage').hide();
 			} else if (ecards.includes(ecardNumber)) {
 				ecardOK = false;
 				$('#ecardverification').html('Brikkenummeret er allerede i bruk. Prøv på nytt.');
+				$('#ecardlastuse').html('<small>...</small>');
 				$('#ecardImage').hide();
 				// Future: Ask if the user wants to exchange the ecard in the database
 			} else {
