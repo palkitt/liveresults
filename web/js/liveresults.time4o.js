@@ -24,15 +24,10 @@
     const isUnordered = (classEntry.resultListMode == "Unordered");
     const isChaseStart = (classEntry.startType == "Chasing");
     const showLapTimes = classEntry.showLapTimes ?? false;
-    const firstStart = classEntry.firstStart ?? null
-    const resultListMode = classEntry.resultListMode ?? null;
-    const startType = classEntry.startType ?? null;
-    const timingResolution = classEntry.timingResolution ?? null;
-    const timingStartTimeSource = classEntry.timingStartTimeSource ?? null;
     const legs = (classEntry.legs ? Object.keys(classEntry.legs).length : 1);
-    var intermediateControls;
-    var classInfo = [];
 
+    var intermediateControls = [];
+    var classInfo = [];
     for (var i = 1; i <= legs; i++) {
       var legNo = i;
       var className = classEntry.name ?? "NoName";
@@ -110,17 +105,18 @@
 
       classInfo.push(
         {
+          id: id,
           className: className,
           showLapTimes: classEntry.showLapTimes ?? false,
+          resultListMode: classEntry.resultListMode ?? null,
+          startType: classEntry.startType ?? null,
+          timingResolution: classEntry.timingResolution ?? null,
+          timingStartTimeSource: classEntry.timingStartTimeSource ?? null,
+          firstStart: classEntry.firstStart ?? -999,
+          cards: classEntry.cardTypes ?? [],
           isRelay: isRelay,
           legs: legs,
-          firstStart: firstStart ? firstStart : -999,
-          resultListMode: resultListMode,
-          startType: startType,
-          timingResolution: timingResolution,
-          id: id,
           splitcontrols: splitcontrols,
-          timingStartTimeSource: timingStartTimeSource,
           updatedSplits: splitcontrols.map(ctrl => !!ctrl.updated)
         });
     }
@@ -409,10 +405,16 @@
     // Club
     const clubName = classInfo.isRelay ? (entry.team?.name ?? "") : (entry.organisation?.name ?? "");
 
+    // Ecard references
+    const ecard1no = classInfo.cards[0]?.id ?? "";
+    const ecard2no = classInfo.cards[1]?.id ?? "";
+
     return {
       place: place,
       dbid: entry.person?.id ?? 0,
       bib: entry.start?.bibNo ?? 0,
+      ecard1: entry.cards?.["card" + ecard1no]?.cardNo ?? "",
+      ecard2: entry.cards?.["card" + ecard2no]?.cardNo ?? "",
       name: entry.person?.name ?? "",
       club: clubName,
       clubId: entry.organisation?.id ?? 0,
