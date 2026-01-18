@@ -378,7 +378,7 @@ var Messages;
 
       var tooLong = (shortClub.length > this.maxClubLength);
       var lastDiv = shortClub.lastIndexOf("-");
-      var legNoStr = (lastDiv >= 0 ? shortClub.slice(lastDiv) : "");
+      var legNoStr = (isNaN(legNoStr) || lastDiv < 0 ? "" : shortClub.slice(lastDiv));
       var stringLength = Math.min(this.maxClubLength, (isNaN(legNoStr) || lastDiv < 0 ? 999 : lastDiv));
       shortClub = shortClub.substring(0, stringLength) + legNoStr;
       if (tooLong)
