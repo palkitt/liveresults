@@ -359,35 +359,30 @@ var Messages;
     AjaxViewer.prototype.clubShort = function (club) {
       if (!club)
         return false;
-      var shortClub = club.replace('Orienterings', 'O.');
-      shortClub = shortClub.replace('Orientering', 'O.');
-      shortClub = shortClub.replace('Orienteering', 'O.');
-      shortClub = shortClub.replace('Orienteer', 'O.');
-      shortClub = shortClub.replace('Skiklubb', 'Sk.');
-      shortClub = shortClub.replace('og Omegn IF', 'OIF');
-      shortClub = shortClub.replace('og omegn', '');
-      shortClub = shortClub.replace(/national team/i, 'NT');
-      shortClub = shortClub.replace('Sportklubb', 'Spk.');
-      shortClub = shortClub.replace('Sportsklubb', 'Spk.');
-      shortClub = shortClub.replace('Idrettslaget', '');
-      shortClub = shortClub.replace('Idrettslag', '');
-      shortClub = shortClub.replace(' - Ski', '');
-      shortClub = shortClub.replace('OL', '');
-      shortClub = shortClub.replace('OK', '');
-      shortClub = shortClub.replace('SK', '');
-      shortClub = shortClub.replace('IL', '');
-      shortClub = shortClub.trim();
 
-      var del = (shortClub.substring(0, 5) == "<del>");
-      shortClub = shortClub.replace("<del>", "");
-      shortClub = shortClub.replace("</del>", "");
+      var del = /^<del>/i.test(club);
+      var shortClub = club.replace(/<\/?del>/gi, '')
+        .replace(/orient[a-z]*/i, 'O.')
+        .replace(/ski(?:klub|lag)[a-z]*/i, 'Sk.')
+        .replace(/(?:og|&) omegn if/i, 'OIF')
+        .replace(/(?:og|&) omegn il/i, 'OIL')
+        .replace(/(?:og|&) omegn/i, '')
+        .replace(/national team/i, 'NT')
+        .replace(/sports?klubb[a-z]*/i, 'Spk.')
+        .replace(/idretts?(?:forening|lag)[a-z]*/i, '')
+        .replace(/skiskytt(?:e|a)r(?:forening|lag)[a-z]*/i, '')
+        .replace(/university (?:of|college) /i, 'Un. ')
+        .replace(/ ?- ?ski/i, '')
+        .replace(/OL|OK|SK|IL/, '')
+        .trim();
 
+      var tooLong = (shortClub.length > this.maxClubLength);
       var lastDiv = shortClub.lastIndexOf("-");
-      var legNoStr = shortClub.substr(lastDiv);
-      if (!isNaN(legNoStr) && lastDiv > 0)
-        shortClub = shortClub.substring(0, Math.min(lastDiv, this.maxClubLength)) + legNoStr;
-      else
-        shortClub = shortClub.substring(0, this.maxClubLength)
+      var legNoStr = (lastDiv >= 0 ? shortClub.slice(lastDiv) : "");
+      var stringLength = Math.min(this.maxClubLength, (isNaN(legNoStr) || lastDiv < 0 ? 999 : lastDiv));
+      shortClub = shortClub.substring(0, stringLength) + legNoStr;
+      if (tooLong)
+        shortClub = shortClub + "..";
       if (del)
         shortClub = "<del>" + shortClub + "</del>";
 
