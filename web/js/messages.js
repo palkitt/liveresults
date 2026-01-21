@@ -380,8 +380,9 @@ var Messages;
 
       var match = shortClub.match(/(-?\d+)$/); // Match trailing numbers
       var suffix = match ? match[0] : "";
-      if (shortClub.length > this.maxClubLength)
-        shortClub = shortClub.slice(0, this.maxClubLength) + "…" + suffix;
+      var clubNameOnly = match ? shortClub.slice(0, match.index).trim() : shortClub;
+      if (clubNameOnly.length > this.maxClubLength)
+        shortClub = clubNameOnly.slice(0, this.maxClubLength) + "…" + suffix;
       if (del)
         shortClub = "<del>" + shortClub + "</del>";
       return shortClub;
