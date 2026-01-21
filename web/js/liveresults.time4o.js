@@ -170,7 +170,7 @@
 
     return {
       status: "OK",
-      clubName: entries[0]?.club ?? "",
+      clubName: entries[0]?.organisation ?? "",
       results: entries,
       lastchanged: false,
       infotext: "",
@@ -420,6 +420,7 @@
       ecard2: entry.cards?.["card" + ecard2no]?.cardNo ?? "",
       name: entry.person?.name ?? "",
       club: clubName,
+      organisation: entry.organisation?.name ?? "",
       clubId: entry.organisation?.id ?? 0,
       class: classInfo.className ?? "",
       leg: classInfo.isRelay ? entry.leg?.number ?? 1 : 0,
