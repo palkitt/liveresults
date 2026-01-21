@@ -359,10 +359,12 @@ var Messages;
     AjaxViewer.prototype.clubShort = function (club) {
       if (!club)
         return false;
-
       var del = /^<del>/i.test(club);
-      var shortClub = club.replace(/<\/?del>/gi, '')
-        .replace(/orient[a-z]*/i, 'O.')
+      var shortClub = club.replace(/<\/?del>/gi, '');
+      if (shortClub.length <= this.maxClubLength)
+        return club;
+
+      shortClub = shortClub.replace(/orient[a-z]*/i, 'O.')
         .replace(/ski(?:klub|lag)[a-z]*/i, 'Sk.')
         .replace(/(?:og|&) omegn if/i, 'OIF')
         .replace(/(?:og|&) omegn il/i, 'OIL')
@@ -376,19 +378,14 @@ var Messages;
         .replace(/OL|OK|SK|IL/, '')
         .trim();
 
-      var tooLong = (shortClub.length > this.maxClubLength);
-      var lastDiv = shortClub.lastIndexOf("-");
-      var legNoStr = (isNaN(legNoStr) || lastDiv < 0 ? "" : shortClub.slice(lastDiv));
-      var stringLength = Math.min(this.maxClubLength, (isNaN(legNoStr) || lastDiv < 0 ? 999 : lastDiv));
-      shortClub = shortClub.substring(0, stringLength) + legNoStr;
-      if (tooLong)
-        shortClub = shortClub + "..";
+      var match = shortClub.match(/(-?\d+)$/); // Match trailing numbers
+      var suffix = match ? match[0] : "";
+      if (shortClub.length > this.maxClubLength)
+        shortClub = shortClub.slice(0, this.maxClubLength) + "…" + suffix;
       if (del)
         shortClub = "<del>" + shortClub + "</del>";
-
       return shortClub;
     };
-
 
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
