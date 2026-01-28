@@ -39,6 +39,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<link rel="stylesheet" type="text/css" href="css/style-liveres.css">
 	<script src="<?= $DataTablesURL ?>datatables.min.js"></script>
 	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
+	<script language="javascript" type="text/javascript" src="js/liveresults.common.js"></script>
 	<script language="javascript" type="text/javascript">
 		var Resources = {
 			_TITLE: "<?= $_TITLE ?>",

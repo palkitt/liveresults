@@ -40,6 +40,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
 	<script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
 	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
+	<script language="javascript" type="text/javascript" src="js/liveresults.common.js"></script>
 	<script language="javascript" type="text/javascript" src="js/liveresults.radio.js"></script>
 	<script language="javascript" type="text/javascript">
 		var res = null;

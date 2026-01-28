@@ -58,6 +58,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
   <script language="javascript" type="text/javascript" src="js/jquery.prompt.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.common.js"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.radio.js"></script>
   <?php if ($isTime4oComp) { ?>
     <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js"></script>
@@ -83,7 +84,19 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     var Resources = {
       _FREESTART: "<?= $_FREESTART ?>"
     };
-    var runnerStatus = null;
+    var runnerStatus = Array();
+    runnerStatus[0] = "<?= $_STATUSOK ?>";
+    runnerStatus[1] = "<?= $_STATUSDNS ?>";
+    runnerStatus[2] = "<?= $_STATUSDNF ?>";
+    runnerStatus[3] = "<?= $_STATUSMP ?>";
+    runnerStatus[4] = "<?= $_STATUSDSQ ?>";
+    runnerStatus[5] = "<?= $_STATUSOT ?>";
+    runnerStatus[6] = "<?= $_STATUSNC ?>";
+    runnerStatus[9] = "";
+    runnerStatus[10] = "";
+    runnerStatus[11] = "<?= $_STATUSWO ?>";
+    runnerStatus[12] = "<?= $_STATUSMOVEDUP ?>";
+    runnerStatus[13] = "<?= $_STATUSFINISHED ?>";
     var preTime = 1;
     var callTime = 3;
     var postTime = 5;

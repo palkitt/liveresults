@@ -29,7 +29,7 @@
 
   // Handle response for updating the last radio passings
   AjaxViewer.prototype.handleUpdateRadioPassings = function (data, expTime, code) {
-
+    var _this = this;
     if (data.rt != undefined && data.rt > 0)
       this.radioUpdateInterval = data.rt * 1000;
     $('#updateinterval').html(this.radioUpdateInterval / 1000);
@@ -46,7 +46,6 @@
       $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
 
     const maxLines = 40;
-    var _this = this;
     var leftInForest = false;
     var updated = false;
 
@@ -63,7 +62,6 @@
             this.radioData.pop();
         }
       }
-
       if (this.radioData != null && this.radioData.length > 0 && this.radioData[0].timeDiff == -2) {
         leftInForest = true;
         $('#numberOfRunners').html(this.radioData.length);
@@ -82,7 +80,6 @@
           var row = _this.currentTable.row(idx).node();
           $(row).addClass('dns');
         }
-
         var hms = passing.passtime.split(':');
         var passTime = (+hms[0]) * 60 * 60 + (+hms[1]) * 60 + (+hms[2]);
         var age = time - passTime;
@@ -148,12 +145,8 @@
         columns.push({
           title: "Navn", className: "dt-left", orderable: leftInForest, targets: [col++], data: "runnerName",
           render: function (data, type) {
-            if (type === 'display') {
-              if (data.length > _this.maxNameLength)
-                return _this.nameShort(data);
-              else
-                return data;
-            }
+            if (type === 'display' && data.length > _this.maxNameLength)
+              return _this.nameShort(data);
             else
               return data;
           }
@@ -161,13 +154,8 @@
         columns.push({
           title: "Klubb", className: "dt-left", orderable: leftInForest, targets: [col++], data: "club",
           render: function (data, type) {
-            if (type === 'display') {
-              if (data.length > _this.maxClubLength) {
-                return _this.clubShort(data);
-              }
-              else
-                return data;
-            }
+            if (type === 'display' && data.length > _this.maxClubLength)
+              return _this.clubShort(data);
             else
               return data;
           }
@@ -256,7 +244,6 @@
       this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateRadioPassings(code); }, this.radioUpdateInterval);
     else
       $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
-
   };
 
 
@@ -305,6 +292,7 @@
 
   // Handle response for updating the start registration
   AjaxViewer.prototype.handleUpdateStartRegistration = function (data, expTime, openStart) {
+    var _this = this;
     if (data.rt != undefined && data.rt > 0)
       this.radioUpdateInterval = data.rt * 1000;
     $('#updateinterval').html(this.radioUpdateInterval / 1000);
@@ -319,8 +307,6 @@
       $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
     if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
       $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
-
-    var _this = this;
 
     // Insert data from query            
     if (data != null && data.status == "OK") {
@@ -421,8 +407,7 @@
                 ecardstr += "&#9989; "; // Green checkmark
               else
                 ecardstr += "&#11036; "; // Empty checkbox
-              ecardstr += ecards;
-              ecardstr += "</div>";
+              ecardstr += ecards + "</div>";
               return ecardstr;
             }
           });
@@ -448,7 +433,7 @@
           columns.push({
             title: message, className: "dt-left", orderable: false, targets: [col++], data: "start",
             render: function (data, type, row) {
-              var defaultDNS = (row.dbid > 0 ? 1 : 0);
+              var defaultDNS = (row.status == 1 ? -1 : row.dbid > 0 ? 1 : 0);
               var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
               var link = "<button onclick=\"res.popupDialog('" + name + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";
               return link;
@@ -783,5 +768,64 @@
     }
   }
 
+
+  // Popup window for setting ecard to checked
+  AjaxViewer.prototype.popupCheckedEcard = function (dbid, name, ecards, checked) {
+    var _this = this;
+    var message = (checked ? "Ta bort markering for " + name + "?" :
+      "Bekrefte: " + name + (ecards.length > 0 ? ", brikke " + ecards : "") + "?");
+    $('<p>' + message + '</p>').confirm(function (e) {
+      if (e.response) {
+        var url = _this.messageURL + "?method=" + (checked ? "setecardnotchecked" :
+          "setecardchecked");
+        $.ajax({
+          url: url,
+          data: "&comp=" + _this.competitionId + "&dbid=" + dbid,
+          error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
+        });
+      }
+    });
+  }
+
+
+  //Popup window for messages to message center
+  AjaxViewer.prototype.popupDialog = function (promptText, dbid, defaultDNS, startListChange = -1) {
+    var _this = this;
+    var defaultText = "";
+    if (defaultDNS == 1)
+      defaultText = "ikke startet";
+    else if (defaultDNS == -1)
+      defaultText = "startet";
+    else if (dbid < 0)
+      defaultText = "startnummer:";
+    $('<p>' + promptText + '</p>').prompt(function (e) {
+      var message = e.response;
+      if (message != null && message != "") {
+        message = message.substring(0, 250); // limit number of characters
+        var DNS = (message == "ikke startet" ? 1 : 0);
+        var ecardChange = (dbid < 0 && message.match(/\d+/g) != null);
+        var sendOK = true;
+        if (startListChange > 0) {
+          var senderName = prompt("Innsenders navn og mobilnummer");
+          if (senderName == null || senderName == "") {
+            alert("Innsender må registreres!");
+            sendOK = false;
+          }
+          else {
+            message = senderName + " registrerte: " + promptText + message;
+            alert("Ønsket endring av brikkenummer er registrert\n" + message);
+          }
+        }
+        if (sendOK)
+          $.ajax({
+            url: _this.messageURL + "?method=sendmessage",
+            data: "&comp=" + _this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
+            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
+          });
+        if (DNS)
+          _this.messageBibs.push(dbid);
+      }
+    }, defaultText);
+  };
 
 })(LiveResults || (LiveResults = {}));

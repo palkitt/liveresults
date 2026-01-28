@@ -331,63 +331,6 @@ var Messages;
       });
     }
 
-    // Runner name shortener
-    AjaxViewer.prototype.nameShort = function (name) {
-      if (!name)
-        return false;
-      var array = name.split(' ');
-      if (array.length == 1)
-        return name;
-      var shortName = array[0] + ' ';
-      for (var i = 1; i < array.length - 1; i++)
-        shortName += array[i].charAt(0) + '.';
-      if (shortName.length + array[array.length - 1].length < this.maxNameLength)
-        shortName += ' ' + array[array.length - 1];
-      else {
-        var arrayLast = array[array.length - 1].split('-');
-        var lastName = '';
-        if (arrayLast.length > 1)
-          lastName = arrayLast[arrayLast.length - 2].charAt(0) + '-' + arrayLast[arrayLast.length - 1];
-        else
-          lastName = arrayLast[0];
-        shortName += ' ' + lastName;
-      }
-      return shortName;
-    };
-
-    // Club name shortener
-    AjaxViewer.prototype.clubShort = function (club) {
-      if (!club)
-        return false;
-      var del = /^<del>/i.test(club);
-      var shortClub = club.replace(/<\/?del>/gi, '');
-      if (shortClub.length <= this.maxClubLength)
-        return club;
-
-      shortClub = shortClub.replace(/orient[a-z]*/i, 'O.')
-        .replace(/ski(?:klub|lag)[a-z]*/i, 'Sk.')
-        .replace(/(?:og|&) omegn if/i, 'OIF')
-        .replace(/(?:og|&) omegn il/i, 'OIL')
-        .replace(/(?:og|&) omegn/i, '')
-        .replace(/national team/i, 'NT')
-        .replace(/sports?klubb[a-z]*/i, 'Spk.')
-        .replace(/idretts?(?:forening|lag)[a-z]*/i, '')
-        .replace(/skiskytt(?:e|a)r(?:forening|lag)[a-z]*/i, '')
-        .replace(/university (?:of|college) /i, 'Un. ')
-        .replace(/ ?- ?ski/i, '')
-        .replace(/OL|OK|SK|IL/, '')
-        .trim();
-
-      var match = shortClub.match(/(-?\d+)$/); // Match trailing numbers
-      var suffix = match ? match[0] : "";
-      var clubNameOnly = match ? shortClub.slice(0, match.index).trim() : shortClub;
-      if (clubNameOnly.length > this.maxClubLength)
-        shortClub = clubNameOnly.slice(0, this.maxClubLength) + "…" + suffix;
-      if (del)
-        shortClub = "<del>" + shortClub + "</del>";
-      return shortClub;
-    };
-
     // Filter rows in table
     AjaxViewer.prototype.filterTable = function () {
       var table = this.currentTable;

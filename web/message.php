@@ -32,8 +32,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
 	<link rel="stylesheet" href="css/style-liveres.css?a">
 
-	<script src="<?= $DataTablesURL ?>datatables.min.js"></script>
-	<script src="js/messages.js"></script>
+	<script language="javascript" type="text/javascript" src="<?= $DataTablesURL ?>datatables.min.js"></script>
+	<script language="javascript" type="text/javascript" src="js/messages.js"></script>
+	<script language="javascript" type="text/javascript" src="js/liveresults.common.js"></script>
 
 	<script language="javascript" type="text/javascript">
 		var runnerStatus = Array();
