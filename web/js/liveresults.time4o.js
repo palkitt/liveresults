@@ -412,6 +412,23 @@
     const ecard1no = classInfo.cards[0]?.id ?? "";
     const ecard2no = classInfo.cards[1]?.id ?? "";
 
+    // Calculate progress
+    let progress = 0;
+    if (statusValue == 9 || statusValue == 10) {
+      if (Object.keys(splits).length > 0) {
+        let passedSplits = 0;
+        let splitCnt = 0;
+        for (const split of classInfo.splitcontrols) {
+          splitCnt++;
+          if (splits[split['code']] != undefined)
+            passedSplits = splitCnt;
+        }
+        progress = (passedSplits * 100.0) / (splitCnt + 1);
+      }
+    } else if (place != "") {
+      progress = 100;
+    }
+
     return {
       place: place,
       dbid: entry.person?.id ?? 0,
@@ -431,7 +448,7 @@
       result: result,
       timeplus: rawBehind != null ? Math.floor(rawBehind / 10) : "",
       changed: changed,
-      progress: (place != "" ? 100 : 0)
+      progress: progress
     };
   }
 
