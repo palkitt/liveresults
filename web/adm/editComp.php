@@ -4,6 +4,7 @@ include_once("../templates/classEmma.class.php");
 if (isset($_POST['btnSave'])) {
   $ok = Emma::UpdateCompetition(
     $_GET['compid'],
+    $_POST['time4oid'],
     $_POST['name'],
     $_POST['org'],
     $_POST['date'],
@@ -145,6 +146,12 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                     <tr>
                       <td>Competition ID</td>
                       <td>&nbsp;<input type="text" name="id" style="width: 120px;" disabled="true" value="<?= $comp['tavid'] ?>" /></td>
+                    </tr>
+
+                    <tr>
+                      <td>Time4o ID</td>
+                      <td>&nbsp;<input type="text" name="time4oid" style="width: 120px;" value="<?= $comp['time4oid'] ?>" /></td>
+                      <td>ID for Time4o competition to be linked to this competition</td>
                     </tr>
 
                     <tr>

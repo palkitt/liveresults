@@ -35,7 +35,19 @@ include_once("../templates/emmalang_en.php");
 include_once("../templates/emmalang_$lang.php");
 include_once("../templates/classEmma.class.php");
 
-$RunnerStatus = array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUSWO, "12" => $_STATUSMOVEDUP, "9" => $_STATUSNOTSTARTED, "0" => $_STATUSOK, "3" => $_STATUSMP, "4" => $_STATUSDSQ, "5" => $_STATUSOT, "9" => "", "10" => "", "13" => $_STATUSFINISHED);
+$RunnerStatus = array(
+	"0" => $_STATUSOK,
+	"1" => $_STATUSDNS,
+	"2" => $_STATUSDNF,
+	"3" => $_STATUSMP,
+	"4" => $_STATUSDSQ,
+	"5" => $_STATUSOT,
+	"9" => $_STATUSNOTSTARTED,
+	"10" => "",
+	"11" => $_STATUSWO,
+	"12" => $_STATUSMOVEDUP,
+	"13" => $_STATUSFINISHED
+);
 
 $pretty = isset($_GET['pretty']);
 $br = $pretty ? "\n" : "";
@@ -49,7 +61,7 @@ if ($_GET['method'] == 'getcompetitions') {
 	foreach ((array)$comps as $comp) {
 		if (!$first)
 			echo (",");
-		echo ("{\"id\": " . $comp["tavid"] . ", \"name\": \"" . $comp["compName"] . "\", \"organizer\": \"" . $comp["organizer"] . "\"");
+		echo ("{\"id\": " . $comp["tavid"] . ", \"time4oid\": \"" . $comp["time4oid"] . "\", \"name\": \"" . $comp["compName"] . "\", \"organizer\": \"" . $comp["organizer"] . "\"");
 		echo (", \"date\": \"" . date("Y-m-d", strtotime($comp['compDate'])) . "\", \"timediff\": " . $comp["timediff"]);
 		echo (", \"sport\": \"" . $comp["sport"] . "\", \"livecenterurl\": \"" . $comp["livecenterurl"] . "\"");
 		echo (", \"lastactive\": \"" . $comp["changed"] . "\"");
@@ -62,7 +74,7 @@ if ($_GET['method'] == 'getcompetitions') {
 } else if ($_GET['method'] == 'setcompetitioninfo') {
 	$tenths = 0;
 	$compid = $_POST['comp'];
-	Emma::UpdateCompetition($compid, $_POST["compName"], $_POST["organizer"], $_POST["date"], $tenths, $_POST["public"], $_POST["timediff"]);
+	Emma::UpdateCompetition($compid, $_POST["time4oid"], $_POST["compName"], $_POST["organizer"], $_POST["date"], $tenths, $_POST["public"], $_POST["timediff"]);
 	insertHeader($refreshTime, false);
 	echo ("{\"status\": \"OK\"}");
 } else if ($_GET['method'] == 'setlastactive') {

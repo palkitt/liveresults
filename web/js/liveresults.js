@@ -262,16 +262,15 @@ var LiveResults;
       if (data.rt != undefined && data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
-
         if (this.Time4oServer) {
           data = this.Time4oClassesToLiveres(data);
           this.activeClasses = data.classes;
         }
         else
           this.lastClassListHash = data.hash;
-
         this.courseNames = data.courses;
-        $('#divInfoText').html(data.infotext);
+        if (!this.Time4oServer)
+          $('#divInfoText').html(data.infotext);
         if (!data.classes || !Array.isArray(data.classes) || data.classes.length == 0)
           $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
         if (data.classes != null) {
@@ -1756,8 +1755,8 @@ var LiveResults;
             return;
           }
           if (table != null && newData.results != null && newData.results.length > 0) {
-            $('#divInfoText').html(newData.infotext);
-
+            if (!this.Time4oServer)
+              $('#divInfoText').html(newData.infotext);
             var oldResults = $.extend(true, [], table.data().toArray());
             var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
             var scrollX = window.scrollX;
@@ -2053,7 +2052,9 @@ var LiveResults;
               this.updateSplitPlaces(data, data.updatedSplits);
           }
         }
-        $('#divInfoText').html(data.infotext);
+        if (!this.Time4oServer) { // LiveRes server
+          $('#divInfoText').html(data.infotext);
+        }
         if (data.className != null) {
           var courseResults = data.className.indexOf("course::") == 0;
           if (data.className == "plainresults") {

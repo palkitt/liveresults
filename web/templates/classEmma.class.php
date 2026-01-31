@@ -6,6 +6,7 @@ class Emma
 {
 	public static $MYSQL_CHARSET = "utf8";
 	var $m_CompId;
+	var $m_Time4oID;
 	var $m_CompName;
 	var $m_CompDate;
 	var $m_Organizer;
@@ -88,7 +89,7 @@ class Emma
 	public static function GetCompetitions()
 	{
 		$conn = self::openConnection();
-		$result = mysqli_query($conn, "SELECT L.compName, L.compDate, L.tavid, L.organizer, L.timediff, L.multidaystage,
+		$result = mysqli_query($conn, "SELECT L.compName, L.compDate, L.tavid, L.time4oid, L.organizer, L.timediff, L.multidaystage,
     L.multidayparent, L.livecenterurl, L.sport, A.changed FROM login L LEFT JOIN lastactive A ON L.tavid = A.tavid
     WHERE public = 1 ORDER BY compDate DESC, compName");
 		$ret = array();
@@ -101,7 +102,7 @@ class Emma
 	public static function GetCompetitionsToday()
 	{
 		$conn = self::openConnection();
-		$result = mysqli_query($conn, "SELECT L.compName, L.compDate, L.tavid, L.organizer, L.timediff, L.multidaystage,
+		$result = mysqli_query($conn, "SELECT L.compName, L.compDate, L.tavid, L.time4oid, L.organizer, L.timediff, L.multidaystage,
      L.multidayparent, L.livecenterurl, L.sport, A.changed FROM login L LEFT JOIN lastactive A ON L.tavid = A.tavid
      WHERE public = 1 AND compDate = '" . date("Y-m-d") . "' ORDER BY compName");
 		$ret = array();
@@ -148,9 +149,9 @@ class Emma
 		list($id) = mysqli_fetch_row($res);
 		if ($id < 10000)
 			$id = 10000;
-		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
+		mysqli_query($conn, "insert into login(tavid,time4oid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
 		hightime,liveloxid,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,showtimesinsprint,livecenterurl,sport)
-		values($id,'" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','$name','$org','$date',1,0,0,0,1,$hightime,0,'',
+		values($id,'','" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','$name','$org','$date',1,0,0,0,1,$hightime,0,'',
 		'',0,0,0,'',$showecardtimes,0,'','$sport')") or die(mysqli_error($conn));
 		return $id;
 	}
@@ -162,7 +163,9 @@ class Emma
 		list($id) = mysqli_fetch_row($res);
 		if ($id < 10000)
 			$id = 10000;
-		mysqli_query($conn, "insert into login(tavid,user,pass,compName,organizer,compDate,public, country) values(" . $id . ",'" . $email . "','" . md5($password) . "','" . $name . "','" . $org . "','" . $date . "',0,'" . $country . "')") or die(mysqli_error($conn));
+		mysqli_query($conn, "insert into login(tavid,time4oid,user,pass,compName,organizer,compDate,public, country) 
+		values(" . $id . ",'','" . $email . "','" . md5($password) . "','" . $name . "','" . $org . "',
+		'" . $date . "',0,'" . $country . "')") or die(mysqli_error($conn));
 		return $id;
 	}
 
@@ -209,6 +212,7 @@ class Emma
 
 	public static function UpdateCompetition(
 		$id,
+		$time4oid,
 		$name,
 		$org,
 		$date,
@@ -235,7 +239,8 @@ class Emma
 		$sport
 	) {
 		$conn = self::openConnection();
-		$sql = "update login set compName = '$name'
+		$sql = "update login set time4oid = '$time4oid'
+			, compName = '$name'
 			, organizer='$org'
 			, compDate ='$date'
 			, timediff=$timediff
@@ -277,7 +282,7 @@ class Emma
 	public static function GetCompetition($compid)
 	{
 		$conn = self::openConnection();
-		$result = mysqli_query($conn, "select compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, 
+		$result = mysqli_query($conn, "select time4oid, compName, compDate, tavid, organizer, public, timediff, massstartsort, tenthofseconds, 
 				fullviewdefault, rankedstartlist, hightime, liveloxid, quallimits, qualclasses, timezone, videourl, videotype, multidaystage, 
 				multidayparent, showinfo, infotext, showecardtimes, showtimesinsprint, noecardentry, allownewclub, livecenterurl, showcourseresults, sport 
 				from login WHERE tavid=$compid");
@@ -464,6 +469,7 @@ class Emma
 		$this->m_Conn = self::openConnection();
 		$result = mysqli_query($this->m_Conn, "select * from login where tavid = $compID");
 		if ($tmp = mysqli_fetch_array($result)) {
+			$this->m_Time4oID = $tmp["time4oid"];
 			$this->m_CompName = $tmp["compName"];
 			$this->m_Organizer = $tmp["organizer"];
 			$this->m_CompDate = date("Y-m-d", strtotime($tmp["compDate"]));
@@ -500,6 +506,11 @@ class Emma
 				}
 			}
 		}
+	}
+
+	function Time4oID()
+	{
+		return $this->m_Time4oID;
 	}
 
 	function IsMultiDayEvent()

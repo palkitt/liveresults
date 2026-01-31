@@ -39,6 +39,7 @@ if ($isEmmaComp) {
   $qualClasses = "";
   $infoText = "";
   $liveloxid = 0;
+  $time4oid = "";
   $indexRef = "index.php?emma&lang=" . $lang;
   $CHARSET = 'utf-8';
 } else if ($isTime4oComp) {
@@ -62,9 +63,10 @@ if ($isEmmaComp) {
   $qualClasses = "";
   $infoText = "";
   $liveloxid = 0;
-  $indexRef = "index.php?time4o&lang=" . $lang;
+  $time4oid = "";
+  $indexRef = "index.php?lang=" . $lang;
   $CHARSET = 'utf-8';
-} else {
+} else { // LiveRes competition
   include_once("templates/classEmma.class.php");
   $currentComp = new Emma($compID);
   $compName = $currentComp->CompName();
@@ -83,7 +85,13 @@ if ($isEmmaComp) {
   $qualClasses = $currentComp->QualClasses();
   $infoText = $currentComp->InfoText();
   $liveloxid = $currentComp->LiveloxId();
+  $time4oid = $currentComp->Time4oID();
   $indexRef = "index.php?lang=" . $lang;
+
+  if ($time4oid != "") {
+    $isTime4oComp = true;
+    $compID = $time4oid;
+  }
 }
 $image = "";
 
@@ -432,9 +440,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:var(--bkdark); padding: 5px">
                 <tr>
                   <?php
-                  if ($isTime4oComp)
-                    $image = "images/time4o_small.svg";
-                  else if (in_array($compID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
+                  if (in_array($compID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
                   else if (in_array($compID, array("10118", "10119", "10120", "10121")))  $image = "images/NM2021.jpg";
                   else if (in_array($compID, array("10215")))  $image = "images/Skien.png";
                   else if (in_array($compID, array("10532", "10533", "10534", "10535"))) $image = "images/HL2023.png";
@@ -500,7 +506,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                       $image = "images/lillomarka.png";
                       break;
                     default:
-                      $image = "images/LiveRes60.png";
+                      if ($isTime4oComp)
+                        $image = "images/time4o_small.svg";
+                      else
+                        $image = "images/LiveRes60.png";
                   }
                   if ($image != "") { ?> <td width="60"><img src="<?php echo ($image) ?>" height="60"></td> <?php } ?>
                   <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?= $_LASTPASSINGS ?></b><br>
