@@ -3143,7 +3143,7 @@ var LiveResults;
         if (this.curClassSplits != null) {
           for (var s = this.curClassSplits.length - 1; s >= 0; s--) {
             var splitCode = this.curClassSplits[s].code;
-            if (a.splits[splitCode + "_place"] != "") {
+            if (a.splits[splitCode + "_place"]) {
               var diff = a.splits[splitCode + "_place"] - b.splits[splitCode + "_place"];
               if (diff == 0 && a.bib != undefined && b.bib != undefined)
                 return Math.abs(a.bib) - Math.abs(b.bib);
@@ -3163,10 +3163,10 @@ var LiveResults;
       if (this.curClassSplits != null) {
         for (var s = this.curClassSplits.length - 1; s >= 0; s--) {
           var splitCode = this.curClassSplits[s].code;
-          if (result.splits[splitCode] != "") {
+          if (result.splits[splitCode]) {
             var numOthersAtSplit = 0;
             for (d = 0; d < data.length; d++) {
-              if (data[d].splits[splitCode] != "") {
+              if (data[d].splits[splitCode]) {
                 numOthersAtSplit++;
               }
               // insert result 
