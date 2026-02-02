@@ -372,8 +372,9 @@
         timeHundredths += _this.restartTimeOffset;
         behindHundredths += _this.restartTimeOffset;
       }
+      const splitStatus = (statusValue == 9 || statusValue == 10 ? 0 : statusValue);
       splits[code] = timeHundredths;
-      splits[`${code}_status`] = statusValue;
+      splits[`${code}_status`] = splitStatus;
       splits[`${code}_changed`] = changedSplit;
       splits[`${code}_timeplus`] = behindHundredths;
       splits[`${code}_place`] = val?.position ?? "-";
