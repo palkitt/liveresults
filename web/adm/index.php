@@ -39,92 +39,96 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 
 <body topmargin="0" leftmargin="0">
 
-  <!-- MAIN DIV -->
+  <table border="0" cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td class="submenu">
+        <div style="font-size: 20px; font-weight: bold; height: 50px; background-color: #555555; 
+  vertical-align: middle; line-height:45px; color: white; width: 100%; padding-left: 10px;">
+          LiveRes admin page
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td class="submenu" colspan="2">
+        <table style="border: 1px solid gray; width: 100%; padding: 0;">
+          <tr>
+            <td style="text-align: center; border: 1px solid gray;"><a href="createComp.php">New competition</a></td>
+            <td style="text-align: center; border: 1px solid gray;"><a href="./time4otolr.php">Connect Time4o competitions</a></td>
+            <td style="text-align: center; border: 1px solid gray;"><a href="../">LiveRes main page</a></td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td class="searchmenu" colspan="2" style="padding: 5px;">
+        <table border="0" cellpadding="0" cellspacing="0">
+          <tr>
+            <td>
+              <table style="border: 0; border-spacing: 5px 0px; width: 100%">
+                <tr style="font-weight: bold;">
+                  <td>Date</td>
+                  <td>Competition</td>
+                  <td>Organizer</td>
+                  <td>Id</td>
+                  <td>T4o</td>
+                  <td>Public</td>
+                  <td>URL</td>
+                </tr>
+                <?php
+                $comps = Emma::GetAllCompetitions();
 
-  <div class="maindiv">
-    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-      <tr>
-        <td valign="bottom">
-          <table border="0" cellpadding="0" cellspacing="0">
-            <tr>
-              <td colspan="4"><span class="mttop"></td>
-            </tr>
-          </table>
-        </td>
-        <td align="right" valign="bottom"></td>
-      </tr>
-      <tr>
-        <td class="submenu" colspan="2">
-          <table border="0" cellpadding="0" cellspacing="0" width="100%">
-            <tr>
-              <td>
-                <a href="createComp.php">Create new competition</a> | <a href="../">Show competitions</a>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-      <tr>
-        <td class="searchmenu" colspan="2" style="padding: 5px;">
-          <table border="0" cellpadding="0" cellspacing="0">
-            <tr>
-              <td>
-                <h1 class="categoriesheader">Existing competitions</h1>
-                <table border="0" cellpadding="0" cellspacing="2" width="100%">
-                  <tr>
-                    <td><b>Date</b></td>
-                    <td><b>&nbsp;&nbsp;Competition</b></td>
-                    <td><b>Organizer</b></td>
-                    <td><b>CompId</b></td>
-                    <td><b>Public</b></td>
-                    <td><b>LiveCenter</b></td>
-                  </tr>
-                  <?php
-                  $comps = Emma::GetAllCompetitions();
-
-                  foreach ($comps as $comp) {
-                  ?>
-                    <tr id="row<?= $comp["tavid"] ?>">
-                      <td><?= date("Y-m-d", strtotime($comp['compDate'])) ?></td>
-                      <td>
-                        <div class="dropdownAdm">
-                          <button class="dropbtnAdm"><?= $comp["compName"] ?></button>
-                          <div class="dropdownAdm-content">
-                            <a href="/adm/editComp.php?compid=<?= $comp["tavid"] ?>">Edit competition</a>
-                            <a href="/followfull.php?comp=<?= $comp['tavid'] ?>">Results page</a>
-                            <a href="/followfull.php?speaker&comp=<?= $comp["tavid"] ?>">Speaker view</a>
-                            <a href="/message.php?comp=<?= $comp["tavid"] ?>">Messages</a>
-                            <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=0">Start registration</a>
+                foreach ($comps as $comp) {
+                  $time4o = $comp["time4oid"] != "";
+                ?>
+                  <tr id="row<?= $comp["tavid"] ?>">
+                    <td><?= date("Y-m-d", strtotime($comp['compDate'])) ?></td>
+                    <td>
+                      <div class="dropdownAdm">
+                        <button class="dropbtnAdm"><?= $comp["compName"] ?></button>
+                        <div class="dropdownAdm-content">
+                          <a href="/adm/editComp.php?compid=<?= $comp["tavid"] ?>">Edit competition</a>
+                          <a href="/followfull.php?comp=<?= $comp['tavid'] ?>">Results page</a>
+                          <a href="/followfull.php?speaker&comp=<?= $comp["tavid"] ?>">Speaker view</a>
+                          <a href="/message.php?comp=<?= $comp["tavid"] ?>">Messages</a>
+                          <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=0">Start registration</a>
+                          <?php if (!$time4o) { ?>
                             <a href="/adm/radiolinks.php?comp=<?= $comp["tavid"] ?>">Radio links</a>
                             <a href="/adm/runners.php?compid=<?= $comp["tavid"] ?>">Edit runners</a>
                             <a href="/adm/radiocontrols.php?comp=<?= $comp["tavid"] ?>">Radio control editor</a>
                             <a href="/adm/ecardcopy.php?comp=<?= $comp["tavid"] ?>">Copy ecard numbers</a>
                             <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=-2">Remaining runners</a>
-                          </div>
+                          <?php } ?>
                         </div>
-                      </td>
-                      <td><?= $comp["organizer"] ?></td>
-                      <td><?= $comp["tavid"] ?></td>
-                      <td><?= $comp["public"] == "1" ? "yes" : "no" ?></td>
-                      <?php if (strlen($comp['livecenterurl']) > 0) { ?>
-                        <td><a href="../<?= $comp['livecenterurl'] ?>">LC</a></td>
+                      </div>
+                    </td>
+                    <td><?= $comp["organizer"] ?></td>
+                    <td><?= $comp["tavid"] ?></td>
+                    <td>
+                      <?php if ($time4o) { ?>
+                        <img src="../images/time4o_small.svg" height="12px" style="vertical-align: bottom">
+                      <?php } else { ?>
+                        &nbsp;
                       <?php } ?>
-                    </tr>
-                  <?php
-                  }
-                  ?>
-                </table>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  </div>
-  <br />
+                    </td>
+                    <td><?= $comp["public"] == "1" ? "yes" : "no" ?></td>
+                    <?php if (strlen($comp['livecenterurl']) > 0) { ?>
+                      <td><a href="../<?= $comp['livecenterurl'] ?>">URL</a></td>
+                    <?php } ?>
+                  </tr>
+                <?php
+                }
+                ?>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+  <br>
   <a href="/api/api.php?method=getnumconnect">#Connections</a>
   <p>
-    <br />
+  <p>
 </body>
 
 </html>

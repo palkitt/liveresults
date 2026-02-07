@@ -135,7 +135,7 @@ class Emma
 		mysqli_query($conn, "delete from splitcontrols where tavid=$compid");
 	}
 
-	public static function CreateCompetition($name, $org, $date, $sport)
+	public static function CreateCompetition($name, $org, $date, $sport, $time4oid = "")
 	{
 		$conn = self::openConnection();
 		$res = mysqli_query($conn, "select max(tavid)+1 from login");
@@ -151,7 +151,7 @@ class Emma
 			$id = 10000;
 		mysqli_query($conn, "insert into login(tavid,time4oid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
 		hightime,liveloxid,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,showtimesinsprint,livecenterurl,sport)
-		values($id,'','" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','$name','$org','$date',1,0,0,0,1,$hightime,0,'',
+		values($id,'$time4oid','" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','$name','$org','$date',1,0,0,0,1,$hightime,0,'',
 		'',0,0,0,'',$showecardtimes,0,'','$sport')") or die(mysqli_error($conn));
 		return $id;
 	}
@@ -271,7 +271,7 @@ class Emma
 	public static function GetAllCompetitions()
 	{
 		$conn = self::openConnection();
-		$result = mysqli_query($conn, "select compName,compDate,tavid,timediff,organizer,public,livecenterurl,sport from login order by compDate desc, compName");
+		$result = mysqli_query($conn, "select compName,compDate,tavid,time4oid,timediff,organizer,public,livecenterurl,sport from login order by compDate desc, compName");
 		$ret = array();
 		while ($tmp = mysqli_fetch_array($result))
 			$ret[] = $tmp;
