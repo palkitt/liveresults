@@ -254,7 +254,7 @@
       return;
     var URLextra, headers;
     if (this.Time4oServer) {
-      URLextra = "race/" + this.competitionId + "/entry";
+      URLextra = "race/" + this.Time4oId + "/entry";
       headers = this.lastRadioPassingsUpdateHash ? { 'If-None-Match': this.lastRadioPassingsUpdateHash } : {};
     }
     else {
@@ -384,7 +384,7 @@
           columns.push({
             title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
             render: function (data, type, row) {
-              var link = "<a href=\"followfull.php?comp=" + _this.competitionId + (_this.Time4oServer ? "&time4o" : "");
+              var link = "<a href=\"followfull.php?comp=" + _this.competitionId;
               link += "#" + encodeURIComponent(row.class);
               link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
               return link;
@@ -803,6 +803,8 @@
         message = message.substring(0, 250); // limit number of characters
         var DNS = (message == "ikke startet" ? 1 : 0);
         var ecardChange = (dbid < 0 && message.match(/\d+/g) != null);
+        if (_this.Time4oServer)
+          message += ": " + promptText;
         var sendOK = true;
         if (startListChange > 0) {
           var senderName = prompt("Innsenders navn og mobilnummer");
@@ -818,7 +820,7 @@
         if (sendOK)
           $.ajax({
             url: _this.messageURL + "?method=sendmessage",
-            data: "&comp=" + _this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
+            data: "comp=" + _this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
             error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
           });
         if (DNS)

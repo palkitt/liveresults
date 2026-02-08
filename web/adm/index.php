@@ -90,10 +90,8 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                           <a href="/followfull.php?comp=<?= $comp['tavid'] ?>">Results page</a>
                           <a href="/followfull.php?speaker&comp=<?= $comp["tavid"] ?>">Speaker view</a>
                           <a href="/message.php?comp=<?= $comp["tavid"] ?>">Messages</a>
-                          <?php if ($time4o) { ?>
-                            <a href="/radio.php?time4o&comp=<?= $comp["time4oid"] ?>&code=0">Start view</a>
-                          <?php } else { ?>
-                            <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=0">Start view</a>
+                          <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=0">Start view</a>
+                          <?php if (!$time4o) { ?>
                             <a href="/adm/radiolinks.php?comp=<?= $comp["tavid"] ?>">Radio links</a>
                             <a href="/adm/runners.php?compid=<?= $comp["tavid"] ?>">Edit runners</a>
                             <a href="/adm/radiocontrols.php?comp=<?= $comp["tavid"] ?>">Radio control editor</a>

@@ -6,8 +6,6 @@ if (isset($_GET['lang']))
   $lang = $_GET['lang'];
 $compID = $_GET['comp'];
 
-$isTime4oComp = isset($_GET['time4o']) ? 1 : 0;
-
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
 include_once("templates/classEmma.class.php");
@@ -17,24 +15,13 @@ $isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == '
 
 header('Content-Type: text/html; charset=' . $CHARSET);
 
-if ($isTime4oComp) {
-  $url = "https://center.time4o.com/api/v1/race/" . $compID;
-  $json = file_get_contents($url);
-  $data = json_decode($json, true);
-  $currentComp = $data["data"];
-  if (isset($currentComp["raceNumber"])) {
-    $compName = $currentComp['event']['name'] . " - " . $currentComp["racenumber"];
-  } else
-    $compName = $currentComp["name"];
-  $compDate = $currentComp["date"];
-  $eventTimeZoneDiff = 0;
-} else {
-  include_once("templates/classEmma.class.php");
-  $currentComp = new Emma($compID);
-  $compName = $currentComp->CompName();
-  $compDate = $currentComp->CompDate();
-  $eventTimeZoneDiff = $currentComp->TimeZoneDiff();
-}
+include_once("templates/classEmma.class.php");
+$currentComp = new Emma($compID);
+$compName = $currentComp->CompName();
+$compDate = $currentComp->CompDate();
+$eventTimeZoneDiff = $currentComp->TimeZoneDiff();
+$Time4oId = $currentComp->Time4oID();
+$isTime4oComp = (is_string($Time4oId) && strlen($Time4oId) ? " true " : "false");
 
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
@@ -112,11 +99,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         "&pretime=" + preTime + "&minbib=" + minBib + "&maxbib=" + maxBib;
       if (open)
         url += "&openstart";
-      if (<?= $isTime4oComp ?>)
-        url += "&time4o";
       window.location = url;
     }
-
     var audioContext = null
 
     function switchSound() {
@@ -171,6 +155,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       res.compName = "<?= $compName ?>";
       res.compDate = "<?= $compDate ?>";
       res.eventTimeZoneDiff = <?= $eventTimeZoneDiff ?>;
+      res.Time4oId = "<?= $Time4oId ?>";
 
       function updateClock() {
         var time = document.getElementById("time");
@@ -229,7 +214,6 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       $('#maxBib').on('keyup', function() {
         maxBib = document.getElementById("maxBib").value;
       });
-
     });
   </script>
 </head>

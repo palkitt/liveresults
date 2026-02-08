@@ -135,24 +135,25 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                   <tr>
                     <td>Time4o ID</td>
                     <td>&nbsp;<input type="text" name="time4oid" style="width: 120px;" value="<?= $comp['time4oid'] ?>" /></td>
-                    <td>ID for linked Time4o competition</td>
+                    <td>Leave empty if eTiming or Brikkesys event</td>
                   </tr>
 
                   <tr>
                     <td>Competition name</td>
                     <td>&nbsp;<input type="text" name="name" style="width: 120px;" value="<?= $comp['compName'] ?>" /></td>
+                    <td></td>
                   </tr>
 
                   <tr>
                     <td>Organizer</td>
                     <td>&nbsp;<input type="text" name="org" style="width: 120px;" value="<?= $comp['organizer'] ?>" /></td>
-                    <td>Note: Must match organizer in eTiming</td>
+                    <td>If eTiming event this must match organizer set in eTiming</td>
                   </tr>
 
                   <tr>
                     <td>Date</td>
                     <td>&nbsp;<input type="text" name="date" style="width: 120px;" value="<?= date("Y-m-d", strtotime($comp['compDate'])) ?>" /></td>
-                    <td>Format: yyyy-mm-dd. Must match date in eTiming</td>
+                    <td>Format: yyyy-mm-dd. If eTiming event this must match date set in eTiming</td>
                   </tr>
 
                   <tr>
@@ -207,22 +208,25 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                   </tr>
 
                   <tr>
-                    <td>Show course results</td>
-                    <td><input type="checkbox" name="showcourseresults" <?= $comp['showcourseresults'] == 1 ? "checked" : "" ?> /></td>
-                    <td>Display listing of all courses with links to results</td>
-                  </tr>
-
-                  <tr>
                     <td>Show tenths of seconds</b></td>
                     <td><input type="checkbox" name="tenthofseconds" <?= $comp['tenthofseconds'] == 1 ? "checked" : "" ?> /></td>
                     <td>Display times with tenths of seconds</td>
                   </tr>
 
-                  <tr>
-                    <td>Show times in sprint heats</td>
-                    <td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?> /></td>
-                    <td>Show times in addition to places in sprint heats</td>
-                  </tr>
+                  <?php if (!$time4o) { ?>
+                    <tr>
+                      <td>Show course results</td>
+                      <td><input type="checkbox" name="showcourseresults" <?= $comp['showcourseresults'] == 1 ? "checked" : "" ?> /></td>
+                      <td>Display listing of all courses with links to results</td>
+                    </tr>
+
+                    <tr>
+                      <td>Show times in sprint heats</td>
+                      <td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?> /></td>
+                      <td>Show times in addition to places in sprint heats</td>
+                    </tr>
+                  <?php } ?>
+
                   <tr>
                     <td>Use dynamic ranking from start</td>
                     <td><input type="checkbox" name="rankedstartlist" <?= $comp['rankedstartlist'] == 1 ? "checked" : "" ?> /></td>
@@ -260,7 +264,6 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                   </tr>
 
                   <?php if (!$time4o) { ?>
-
                     <tr>
                       <td colspan=3>
                         <h2>Online entry</h2>

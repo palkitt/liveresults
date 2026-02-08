@@ -9,6 +9,7 @@ var LiveResults;
       var _this = this;
       this.local = local;
       this.competitionId = competitionId;
+      this.Time4oId = null;
       this.LiveloxID = 0;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -107,7 +108,10 @@ var LiveResults;
         this.radioUpdateInterval = 15000;
         this.apiURL = "https://center.time4o.com/api/v1/";
         this.radioURL = "https://center.time4o.com/api/v1/"
-        this.messageURL = "//api.liveres.live/messageapi.php";
+        if (this.local)
+          this.messageURL = "api/messageapi.php";
+        else
+          this.messageURL = "//api.liveres.live/messageapi.php";
       }
       else if (EmmaServer) {
         this.updateInterval = 15000;
@@ -249,7 +253,8 @@ var LiveResults;
       this.inactiveTimer += this.classUpdateInterval / 1000;
       var URLextra, headers;
       if (this.Time4oServer) {
-        URLextra = "race/" + this.competitionId + "/raceClass";
+        let id = this.Time4oId ? this.Time4oId : this.competitionId;
+        URLextra = "race/" + id + "/raceClass";
         headers = this.lastClassListHash ? { 'If-None-Match': this.lastClassListHash } : {};
       }
       else {
