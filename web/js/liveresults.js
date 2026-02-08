@@ -192,27 +192,50 @@ var LiveResults;
     // Update list of runners
     AjaxViewer.prototype.updateRunnerList = function () {
       var _this = this;
-      if (this.updateAutomatically) {
-        $.ajax({
-          url: this.apiURL,
-          data: "comp=" + this.competitionId + "&method=getrunners&last_hash=" + this.lastRunnerListHash,
-          success: function (data) {
-            _this.handleUpdateRunnerListResponse(data);
-          },
-          error: function () {
-            _this.runnerListTimer = setTimeout(function () { _this.updateRunnerList(); }, _this.classUpdateInterval);
-          },
-          dataType: "json"
-        });
+      if (!this.updateAutomatically)
+        return;
+      var URLextra, headers;
+      if (this.Time4oServer) {
+        URLextra = "race/" + this.competitionId + "/entry";
+        headers = this.lastRunnerListHash ? { 'If-None-Match': this.lastRunnerListHash } : {};
       }
+      else {
+        URLextra = "?comp=" + this.competitionId + "&method=getrunners&last_hash=" + this.lastRunnerListHash
+        headers = {};
+      }
+      $.ajax({
+        url: this.apiURL + URLextra,
+        headers: headers,
+        dataType: "json",
+        success: function (data, status, resp) {
+          if (_this.Time4oServer) {
+            if (resp.status == 200) {
+              _this.lastRunnerListHash = resp.getResponseHeader("etag").slice(1, -1);
+              data.status = "OK";
+            }
+            else if (resp.status == 304) {
+              data = { status: "NOT MODIFIED" };
+            }
+            else
+              data.rt = _this.classUpdateInterval / 1000;
+          }
+          _this.handleUpdateRunnerListResponse(data);
+        },
+        error: function () {
+          _this.runnerListTimer = setTimeout(function () { _this.updateRunnerList(); }, _this.classUpdateInterval);
+        }
+      });
     };
 
 
     AjaxViewer.prototype.handleUpdateRunnerListResponse = function (data) {
       var _this = this;
       if (data != null && data.status == "OK") {
+        if (this.Time4oServer)
+          data = this.Time4oEntryListToLiveres(data, this.activeClasses);
+        else
+          this.lastRunnerListHash = data.hash;
         this.runnerList = data;
-        this.lastRunnerListHash = data.hash;
       }
       this.runnerListTimer = setTimeout(function () { _this.updateRunnerList(); }, this.classUpdateInterval);
     }

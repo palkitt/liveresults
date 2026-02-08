@@ -284,8 +284,7 @@
       },
       error: function () {
         _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateStartRegistration(); }, _this.radioUpdateInterval);
-      },
-      dataType: "json"
+      }
     });
   };
 
