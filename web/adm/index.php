@@ -53,7 +53,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
         <table style="border: 1px solid gray; width: 100%; padding: 0;">
           <tr>
             <td style="text-align: center; border: 1px solid gray;"><a href="createComp.php">New competition</a></td>
-            <td style="text-align: center; border: 1px solid gray;"><a href="./time4otolr.php">Connect Time4o competitions</a></td>
+            <td style="text-align: center; border: 1px solid gray;"><a href="./time4otolr.php">Connect Time4o events</a></td>
             <td style="text-align: center; border: 1px solid gray;"><a href="../">LiveRes main page</a></td>
           </tr>
         </table>
@@ -105,7 +105,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                     <td><?= $comp["tavid"] ?></td>
                     <td>
                       <?php if ($time4o) { ?>
-                        <img src="../images/time4o_small.svg" height="12px" style="vertical-align: bottom">
+                        <img src="../images/time4o_small.svg" height="12px" style="vertical-align: center">
                       <?php } else { ?>
                         &nbsp;
                       <?php } ?>

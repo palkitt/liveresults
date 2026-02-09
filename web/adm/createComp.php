@@ -93,12 +93,12 @@ if (isset($_GET['date'])) {
                       <td><b>Date (yyyy-mm-dd)</b></td>
                       <td><input type="text" name="date" style="width: 120px;" value="<?= htmlspecialchars($date) ?>"></td>
                     </tr>
-                    <? if ($time4oid != "") { ?>
+                    <?php if ($time4oid != "") { ?>
                       <tr>
                         <td><b>Time4o ID</b></td>
                         <td><input type="text" name="time4oid" style="width: 120px;" value="<?= htmlspecialchars($time4oid) ?>"></td>
                       </tr>
-                    <? } ?>
+                    <?php } ?>
                     <tr>
                       <td><b>Sport</b></td>
                       <td>
