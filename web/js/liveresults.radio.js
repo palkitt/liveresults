@@ -803,8 +803,6 @@
         message = message.substring(0, 250); // limit number of characters
         var DNS = (message == "ikke startet" ? 1 : 0);
         var ecardChange = (dbid < 0 && message.match(/\d+/g) != null);
-        if (_this.Time4oServer)
-          message += ": " + promptText;
         var sendOK = true;
         if (startListChange > 0) {
           var senderName = prompt("Innsenders navn og mobilnummer");

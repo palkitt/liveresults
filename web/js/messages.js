@@ -3,17 +3,25 @@ var Messages;
   // ReSharper disable once InconsistentNaming
   Messages.Instance = null;
   var AjaxViewer = /** @class */ (function () {
-    function AjaxViewer(local, competitionId) {
+    function AjaxViewer(local, competitionId, time4oid) {
       this.local = local;
       this.competitionId = competitionId;
+      this.time4oid = time4oid;
+      this.Time4oServer = time4oid.length > 0;
       this.compName = "";
       this.compDate = "";
       this.messagesUpdateInterval = 5000;
       this.messagesUpdateTimer = null;
       this.lastMessagesUpdateHash = "";
+      this.runnerListUpdateInterval = 60000;
+      this.runnerListTimer = null;
+      this.lastRunnerListHash = "";
+      this.lastClassListHash = "";
       this.runnerStatus = [];
       this.currentTable = null;
       this.messagesData = null;
+      this.runnerList = null;
+      this.activeClasses = null;
       this.showAllMessages = true;
       this.timeOrdered = false;
       this.audioMute = true;
@@ -24,27 +32,6 @@ var Messages;
       this.URL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
       Messages.Instance = this;
     }
-
-    //Detect if the browser is a mobile phone or iPad: 1 = mobile, 2 = iPad, 0 = PC/other
-    AjaxViewer.prototype.isMobile = function () {
-      if (navigator.userAgent.match(/iPad/i) || navigator.maxTouchPoints > 1)
-        return 2;
-      if (navigator.userAgent.match(/Mobi/))
-        return 1;
-      if ('screen' in window && window.screen.width < 1366)
-        return 1;
-      var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      if (connection && connection.type === 'cellular')
-        return 1;
-      return 0;
-    }
-
-    // Function to detect if comp date is today
-    AjaxViewer.prototype.isCompToday = function () {
-      var dt = new Date();
-      var compDay = new Date(this.compDate);
-      return (dt.getDate() == compDay.getDate() || this.local ? true : false)
-    };
 
     //Request data for messages
     AjaxViewer.prototype.updateMessages = function (refresh = false) {
@@ -82,9 +69,23 @@ var Messages;
 
       // Insert data from query
       if (data != null && data.status == "OK" && data.messages != null) {
+
         // Make list of group times for each bib
         var groupTimes = new Object();
         for (var i = 0; i < data.messages.length; i++) {
+          if (this.Time4oServer) {
+            var msg = data.messages[i];
+            var runner = this.runnerList ? this.runnerList.get(String(msg.dbid)) : null;
+            var runnerInfo = runner ?? {};
+            msg.bib = runnerInfo.bib ?? 0;
+            msg.name = runnerInfo.name ?? "";
+            msg.club = runnerInfo.club ?? "";
+            msg.class = runnerInfo.class ?? "";
+            msg.ecard1 = runnerInfo.ecard1 ?? 0;
+            msg.ecard2 = runnerInfo.ecard2 ?? 0;
+            msg.start = runnerInfo.start ?? 0;
+            msg.status = runnerInfo.status ?? 0;
+          }
           var bib = Math.abs(data.messages[i].bib);
           if (groupTimes[bib] != undefined) continue
           groupTimes[bib] = data.messages[i].groupchanged;
@@ -140,7 +141,10 @@ var Messages;
           });
 
           columns.push({
-            title: "&#8470;", className: "dt-left", orderable: false, targets: [col++], data: "bib",
+            title: "&#8470;",
+            className: "dt-left",
+            orderable: false,
+            targets: [col++], data: "bib",
             "render": function (data, type) {
               if (type === 'display') {
                 if (data < 0) // Relay
@@ -156,7 +160,11 @@ var Messages;
           });
 
           columns.push({
-            title: "Navn", className: "dt-left", orderable: false, targets: [col++], data: "name",
+            title: "Navn",
+            className: "dt-left",
+            orderable: false,
+            targets: [col++],
+            data: "name",
             "render": function (data, type, row) {
               if (type === 'display') {
                 var ret = "";
@@ -171,7 +179,11 @@ var Messages;
             }
           });
           columns.push({
-            title: "Klubb", className: "dt-left", orderable: false, targets: [col++], data: "club",
+            title: "Klubb",
+            className: "dt-left",
+            orderable: false,
+            targets: [col++],
+            data: "club",
             "render": function (data, type) {
               if (type === 'display') {
                 if (data.length > _this.maxClubLength)
@@ -183,26 +195,53 @@ var Messages;
                 return data;
             }
           });
-          columns.push({ title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class" });
+          columns.push({
+            title: "Klasse",
+            className: "dt-left",
+            orderable: false,
+            targets: [col++],
+            data: "class"
+          });
 
           columns.push({
-            title: "Brikke", className: "dt-left", orderable: false, targets: [col++], data: "ecard1",
+            title: "Brikke",
+            className: "dt-left",
+            orderable: false,
+            targets: [col++],
+            data: "ecard1",
             "render": function (data, type, row) {
               var ecardstr = "";
               if (row.ecard1 > 0) {
                 ecardstr = row.ecard1;
-                if (row.ecard2 > 0) ecardstr += " / " + row.ecard2;
+                if (row.ecard2 > 0)
+                  ecardstr += " / " + row.ecard2;
               }
-              else
-                if (row.ecard2 > 0) ecardstr = row.ecard2;
+              else if (row.ecard2 > 0)
+                ecardstr = row.ecard2;
               return "<div class=\"wrapok\">" + ecardstr + "</div>";
             }
           });
 
-          columns.push({ title: "Start", className: "dt-left", orderable: false, targets: [col++], data: "start" });
+          columns.push({
+            title: "Start",
+            className: "dt-left",
+            orderable: false,
+            targets: [col++],
+            data: "start",
+            "render": function (data) {
+              if (typeof data === 'string')
+                return data;
+              else
+                return _this.formatTime(data, 0, false, true, true, true, true)
+            }
+          });
 
           columns.push({
-            title: "Status", className: "dt-left", orderable: false, targets: [col++], data: "status",
+            title: "Status",
+            className: "dt-left",
+            orderable: false,
+            targets: [col++],
+            data: "status",
             "render": function (data, type, row) {
               if (row.dbid <= 0)
                 return ""
@@ -216,7 +255,11 @@ var Messages;
           });
 
           columns.push({
-            title: "Tidsp.", className: "dt-left", orderable: false, targets: [col++], data: "changed",
+            title: "Tidsp.",
+            className: "dt-left",
+            orderable: false,
+            targets: [col++],
+            data: "changed",
             "render": function (data, type) {
               if (type === 'display')
                 return "<div class=\"tooltip\">" + data.substring(11, 19) + "<span class=\"tooltiptext\">" + data.substring(2, 10) + "</span></div>";
@@ -227,7 +270,11 @@ var Messages;
 
           var messageTitle = "Melding <a href=\"javascript:;\" onclick=\"mess.popupDialog('Generell melding',0)\">(generell)</a>";
           columns.push({
-            title: messageTitle, className: "dt-left", orderable: false, targets: [col++], data: "message",
+            title: messageTitle,
+            className: "dt-left",
+            orderable: false,
+            targets: [col++],
+            data: "message",
             "render": function (data, type, row) {
               try {
                 var jsonData = JSON.parse(data);
@@ -240,7 +287,11 @@ var Messages;
           });
 
           columns.push({
-            title: "Utført", className: "dt-center", orderable: false, targets: [col++], data: "completed",
+            title: "Utført",
+            className: "dt-center",
+            orderable: false,
+            targets: [col++],
+            data: "completed",
             "render": function (data, type, row) {
               if (data == 1)
                 return '<input type="checkbox" onclick="mess.setMessageCompleted(' + row.messid + ',0);" checked>';
@@ -351,6 +402,87 @@ var Messages;
         this.updateMessages();
       }
     };
+
+
+    AjaxViewer.prototype.updateClassList = function () {
+      var _this = this;
+      clearTimeout(this.classUpdateTimer);
+      const URLextra = "race/" + this.time4oid + "/raceClass";
+      const headers = this.lastClassListHash ? { 'If-None-Match': this.lastClassListHash } : {};
+      const apiURL = "https://center.time4o.com/api/v1/";
+      $.ajax({
+        url: apiURL + URLextra,
+        headers: headers,
+        success: function (data, status, resp) {
+          if (resp.status == 200) {
+            _this.lastClassListHash = resp.getResponseHeader("etag").slice(1, -1);
+            data.status = "OK";
+          }
+          else
+            data = { status: "NOT MODIFIED" };
+          _this.handleUpdateClassListResponse(data);
+        },
+        error: function () {
+          _this.runnerListTimer = setTimeout(function () { _this.updateClassList(); }, _this.runnerListUpdateInterval);
+        },
+        dataType: "json"
+      });
+    };
+
+
+    AjaxViewer.prototype.handleUpdateClassListResponse = function (data) {
+      if (data != null && data.status == "OK") {
+        data = this.Time4oClassesToLiveres(data);
+        this.activeClasses = data.classes;
+      }
+      this.updateRunnerList();
+    };
+
+
+    // Update list of runners from time4o server
+    AjaxViewer.prototype.updateRunnerList = function () {
+      var _this = this;
+      const URLextra = "race/" + this.time4oid + "/entry";
+      const headers = this.lastRunnerListHash ? { 'If-None-Match': this.lastRunnerListHash } : {};
+      const apiURL = "https://center.time4o.com/api/v1/";
+      $.ajax({
+        url: apiURL + URLextra,
+        headers: headers,
+        dataType: "json",
+        success: function (data, status, resp) {
+          if (resp.status == 200) {
+            _this.lastRunnerListHash = resp.getResponseHeader("etag").slice(1, -1);
+            data.status = "OK";
+          }
+          else
+            data = { status: "NOT MODIFIED" };
+
+          _this.handleUpdateRunnerListResponse(data);
+        },
+        error: function () {
+          _this.runnerListTimer = setTimeout(function () { _this.updateClassList(); }, _this.runnerListUpdateInterval);
+        }
+      });
+    };
+
+
+    AjaxViewer.prototype.handleUpdateRunnerListResponse = function (time4odata) {
+      var _this = this;
+      if (time4odata != null && time4odata.status == "OK") {
+        let data = this.Time4oEntryListToLiveres(time4odata, this.activeClasses);
+        // Build a fast lookup for runner info (can be null early during startup)
+        if (this.Time4oServer && Array.isArray(data.runners)) {
+          this.runnerList = new Map();
+          for (var j = 0; j < data.runners.length; j++) {
+            var runner = data.runners[j];
+            if (runner && runner.dbid != null)
+              this.runnerList.set(String(runner.dbid), runner);
+          }
+        }
+      }
+      this.runnerListTimer = setTimeout(function () { _this.updateClassList(); }, _this.runnerListUpdateInterval);
+    }
+
 
     // ReSharper disable once InconsistentNaming
     AjaxViewer.VERSION = "2016-08-06-01";

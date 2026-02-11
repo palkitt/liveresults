@@ -1,8 +1,9 @@
 // Functions for converting from Time4o format to LiveRes format
-
-(function (LiveResults) {
+(function (Namespace) {
   "use strict";
-  let AjaxViewer = LiveResults.AjaxViewer;
+  if (Namespace === undefined || Namespace.AjaxViewer === undefined)
+    return;
+  let AjaxViewer = Namespace.AjaxViewer;
 
 
   AjaxViewer.prototype.Time4oClassesToLiveres = function (payload) {
@@ -463,4 +464,4 @@
   }
 
 
-})(LiveResults || (LiveResults = {}));
+})(window.LiveResults || window.Messages || {});

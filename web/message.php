@@ -13,6 +13,8 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 
 $currentComp = new Emma($_GET['comp']);
 $isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
+$Time4oId = $currentComp->Time4oID();
+$isTime4oComp = (is_string($Time4oId) && strlen($Time4oId) ? " true " : "false");
 
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
@@ -35,6 +37,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<script language="javascript" type="text/javascript" src="<?= $DataTablesURL ?>datatables.min.js"></script>
 	<script language="javascript" type="text/javascript" src="js/messages.js"></script>
 	<script language="javascript" type="text/javascript" src="js/liveresults.common.js"></script>
+	<?php if ($isTime4oComp) { ?>
+		<script language="javascript" type="text/javascript" src="js/liveresults.time4o.js"></script>
+	<?php } ?>
 
 	<script language="javascript" type="text/javascript">
 		var runnerStatus = Array();
@@ -110,12 +115,19 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		var mess = null;
 
 		$(document).ready(function() {
-			mess = new Messages.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, <?= $_GET['comp'] ?>);
+			mess = new Messages.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, <?= $_GET['comp'] ?>, '<?= $Time4oId ?>');
 			mess.compName = "<?= $currentComp->CompName() ?>";
 			mess.compDate = "<?= $currentComp->CompDate() ?>";
 			mess.runnerStatus = runnerStatus;
 
-			mess.updateMessages();
+			<?php if ($isTime4oComp) { ?>
+				mess.updateClassList();
+				setTimeout(function() {
+					mess.updateMessages();
+				}, 500);
+			<?php } else { ?>
+				mess.updateMessages();
+			<?php } ?>
 			$('#filterText').on('keyup', function() {
 				mess.filterTable();
 			});
