@@ -320,14 +320,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       // Add no screen sleep
       document.addEventListener("click", enableNoSleep);
 
+      // Set class column height
+      setTimeout(function() {
+        setClassColumnHeight();
+      }, 500);
+
       // Show/hide class column
       $('#dropbtnClass').on('mouseover', function() {
         if ($('#classColumnContent').hasClass('closed')) {
           $('#classColumnContent').removeClass('closed').addClass('open');
-          var windowHeight = $(window).height();
-          var elementOffsetTop = $('#classColumnContent').offset().top;
-          var newHeight = windowHeight - elementOffsetTop - 10;
-          $('#classColumnContent').css('max-height', newHeight);
+          setClassColumnHeight();
         }
       });
 
@@ -357,6 +359,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       } catch (err) {
         console.error("Failed to acquire wake lock:", err);
       }
+    }
+
+    function setClassColumnHeight() {
+      var windowHeight = $(window).height();
+      var elementOffsetTop = $('#classColumnContent').offset().top;
+      var newHeight = windowHeight - elementOffsetTop - 10;
+      $('#classColumnContent').css('max-height', newHeight);
     }
 
     function togglelocked() {
