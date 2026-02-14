@@ -356,7 +356,7 @@ var LiveResults;
                 relayNext = false;
                 var classNameNext = (i < (nClass - 1) ? classes[i + 1].className : "");
                 if (/\|\s*(Prolog|Kvart|Semi|Finale)/.test(classNameURL)) {
-                  const sprintSuffixRe = /\|\s*(Prolog|Kvart|Semi|Finale) \d+/g;
+                  const sprintSuffixRe = /\|\s*(Prolog|Kvart|Semi|Finale)\s*\d*/g;
                   var classNameCleanSprint = classNameURL.replace(sprintSuffixRe, '');
 
                   if (!sprint) // First class in sprint or new class
