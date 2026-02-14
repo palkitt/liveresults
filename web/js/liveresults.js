@@ -352,30 +352,50 @@ var LiveResults;
                 relay = true;
                 relayNext = true;
               }
-              else {
+              else { // Check for sprint
                 relayNext = false;
-                // Sprint
-                if (classNameURL.includes('| Prolog') || classNameURL.includes('| Kvart') || classNameURL.includes('| Semi') || classNameURL.includes('| Finale')) {
-                  var classNameCleanSprint = classNameURL
-                    .replace(' | ', '')
-                    .replace(/Prolog|(Kvart|Semi|Finale) \d+/, '');
-
-                  var classNameCleanSprintNext = "";
-                  if (i < (nClass - 1)) {
-                    classNameCleanSprintNext = classes[i + 1].className.replace('\'', '\\\'');
-                    classNameCleanSprintNext = classNameCleanSprintNext.replace(' | ', '');
-                  }
-                  classNameCleanSprintNext = classNameCleanSprintNext.replace(/(Kvart|Semi|Finale) \d+/, '');
+                var classNameNext = (i < (nClass - 1) ? classes[i + 1].className : "");
+                if (/\|\s*(Prolog|Kvart|Semi|Finale)/.test(classNameURL)) {
+                  const sprintSuffixRe = /\|\s*(Prolog|Kvart|Semi|Finale) \d+/g;
+                  var classNameCleanSprint = classNameURL.replace(sprintSuffixRe, '');
 
                   if (!sprint) // First class in sprint or new class
                     str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
                       "')\" style=\"text-decoration: none\"><b>" + this.classShort(classNameCleanSprint) + "</b></a><br>&nbsp;";
                   sprint = true;
+
+                  var classNameCleanSprintNext = classNameNext.replace('\'', '\\\'').
+                    replace(sprintSuffixRe, '');
                   sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
 
-                  if (i < (nClass - 1) && (className.includes('| Prolog') ||
-                    className.includes('| Kvart') && !classes[i + 1].className.includes('| Kvart') ||
-                    className.includes('| Semi') && !classes[i + 1].className.includes('| Semi')))
+                  const sprintPrologRe = /\|\s*Prolog/;
+                  const sprintKvartRe = /\|\s*Kvart/;
+                  const sprintSemiRe = /\|\s*Semi/;
+                  if (i < (nClass - 1) && (sprintPrologRe.test(className) ||
+                    sprintKvartRe.test(className) && !sprintKvartRe.test(classNameNext) ||
+                    sprintSemiRe.test(className) && !sprintSemiRe.test(classNameNext)))
+                    shiftHeat = true;
+                  else
+                    shiftHeat = false;
+                }
+                // Time4o sprint format
+                const sprintTailRe = /\b(?:KV|SE)\s*\d+|Finale|NM KO Tot(?:al|alt)/;
+                if (this.Time4oServer && (sprintTailRe.test(classNameNext) || sprintTailRe.test(className))) {
+                  if (!sprint) // First class in sprint or new class
+                    str += "<hr>" + this.classShort(className) + "<br>&nbsp;";
+                  sprint = true;
+
+                  const sprintSuffixRe = /[\s-]+|(KV|SE)\s*\d+|Finale$|NM KO Tot(al|alt)$/g;
+                  var classNameCleanSprint = className.replace(sprintSuffixRe, '');
+                  var classNameCleanSprintNext = classNameNext.replace(sprintSuffixRe, '');
+                  sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
+
+                  const sprintHeatKv = /\bKV\s*\d+$/;
+                  const sprintHeatSe = /\bSE\s*\d+$/;
+                  if (i < (nClass - 1) && (
+                    !sprintHeatKv.test(className) && sprintHeatKv.test(classNameNext) ||
+                    sprintHeatKv.test(className) && !sprintHeatKv.test(classNameNext) ||
+                    sprintHeatSe.test(className) && !sprintHeatSe.test(classNameNext)))
                     shiftHeat = true;
                   else
                     shiftHeat = false;
@@ -397,18 +417,27 @@ var LiveResults;
                   str += "<br>";
               }
               else if (sprint) {
+                var sprintHeatReg = /(?:\|\s*(Prolog|Kvart|Semi|Finale)\s*\d+)|(?:\b(KV|SE)\s*\d+$)|(?:Finale$)|(?:NM KO Tot(?:al|alt)$)/g;
+                var isHeat = sprintHeatReg.test(className);
                 var heatStr = className.match(/ \d+$/);
                 var heat = parseInt((heatStr != null ? heatStr[0] : 0), 10);
-                if (heat > 1 && (heat - 1) % 3 == 0) // Line shift every 3 heat
+                if (isHeat && heat > 1 && (heat - 1) % 4 == 0) // Line shift every 4 heat
                   str += "<br>&nbsp;"
-                if (className.includes('| Prolog'))
-                  heatText = "Prolog";
-                else if (className.includes('| Kvart'))
-                  heatText = "K" + heat;
-                else if (className.includes('| Semi'))
-                  heatText = "S" + heat;
+                const isKvart = /\|\s*Kvart/.test(className) || /\bKV\s*\d*/.test(className);
+                const isSemi = /\|\s*Semi/.test(className) || /\bSE\s*\d*/.test(className);
+                const isFinal = /Finale/.test(className);
+                const isKoTotal = /NM KO Tot(?:al|alt)/.test(className);
+
+                if (isKvart)
+                  heatText = "K" + (heat > 0 ? heat : "");
+                else if (isSemi)
+                  heatText = "S" + (heat > 0 ? heat : "");
+                else if (isFinal)
+                  heatText = (this.Time4oServer ? "Finale" : "F") + (heat > 0 ? heat : "");
+                else if (isKoTotal)
+                  heatText = "Total";
                 else
-                  heatText = "F" + heat;
+                  heatText = "Prolog";
                 str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\" style=\"text-decoration: none\"> " + heatText + "</a>";
                 if (!sprintNext)
                   str += "<br>";

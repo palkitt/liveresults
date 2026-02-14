@@ -260,7 +260,11 @@
       "Finished": 13
       // runnerStatus[9] = "";
       // runnerStatus[10] = "";
+      // Started = 9
+      // Active = Currently on course
+      // Checked  = ecard checked   
     };
+
     if (statusKey == "OK" && unordered)
       statusKey = "Finished";
     return statusMap[statusKey] ?? 10;

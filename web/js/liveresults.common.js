@@ -126,9 +126,10 @@
         .replace(/\s+/g, "")
         .replace(/[-+]/g, "")
         .replace(/prolog/gi, "a")
-        .replace(/kvart/gi, "b")
-        .replace(/semi/gi, "c")
-        .replace(/finale/gi, "d");
+        .replace(/(kvart|kv)/gi, "b")
+        .replace(/(semi|se)/gi, "c")
+        .replace(/finale/gi, "d")
+        .replace(/nmko(total|talt)?/gi, "e");
     };
 
     return classes.slice().sort((a, b) => {
