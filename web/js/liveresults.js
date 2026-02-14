@@ -1026,52 +1026,55 @@ var LiveResults;
 
     // Update qualification markings
     AjaxViewer.prototype.updateQualLimMarks = function (results, className) {
-      if (results != null && this.qualLimits != null) {
-        var qualIndex = -1;
-        if (this.qualClasses != null)
-          qualIndex = this.qualClasses.indexOf(className);
-        if (qualIndex == -1)
-          qualIndex = this.qualLimits.length - 1;
-        var qualLim = this.qualLimits[qualIndex];
-        if (qualLim < 0)
-          return
-        if (qualLim < 1) // If given as a fraction of started runners
-        {
-          var numDNS = 0;
-          for (var i = 0; i < results.length; i++) {
-            if (results[i].status == 1)
-              numDNS++;
-          }
-          qualLim = Math.ceil(qualLim * (results.length - numDNS));
-        }
-        var lastPos = -1;
-        var curPos = -1;
-        var instaRanked = false;
-        var limitSet = false;
+      if (results == null || this.qualLimits == null)
+        return;
+      var qualIndex = -1;
+      if (this.qualClasses != null) {
+        qualIndex = this.qualClasses.findIndex(pattern =>
+          className.includes(pattern)
+        );
+      }
+      if (qualIndex == -1)
+        qualIndex = this.qualLimits.length - 1;
+      var qualLim = this.qualLimits[qualIndex];
+      if (qualLim < 0)
+        return
+      if (qualLim < 1) // If given as a fraction of started runners
+      {
+        var numDNS = 0;
         for (var i = 0; i < results.length; i++) {
-          lastPos = curPos;
-          curPos = results[i].place;
-          if (results[i].virtual_position != i)
-            instaRanked = true;
-          if ((!limitSet) && (this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0) &&
-            (curPos == "-" && results[i].virtual_position <= qualLim - 1 ||
-              !instaRanked && results[i].virtual_position > qualLim - 1 && curPos != lastPos ||
-              instaRanked && results[i].virtual_position == qualLim)) {
-            limitSet = true;
-            if (results[i].DT_RowClass == "yellow_row" || results[i].DT_RowClass == "yellow_row_fnq")
-              results[i].DT_RowClass = "yellow_row_fnq";
-            else
-              results[i].DT_RowClass = "firstnonqualifier";
-          }
-          else {
-            if (results[i].DT_RowClass == "yellow_row" || results[i].DT_RowClass == "yellow_row_fnq")
-              results[i].DT_RowClass = "yellow_row";
-            else
-              results[i].DT_RowClass = "nostyle";
-          }
-          if (curPos == "" || curPos == '<span class="pulsing">◉</span>')
-            curPos = "-";
+          if (results[i].status == 1)
+            numDNS++;
         }
+        qualLim = Math.ceil(qualLim * (results.length - numDNS));
+      }
+      var lastPos = -1;
+      var curPos = -1;
+      var instaRanked = false;
+      var limitSet = false;
+      for (var i = 0; i < results.length; i++) {
+        lastPos = curPos;
+        curPos = results[i].place;
+        if (results[i].virtual_position != i)
+          instaRanked = true;
+        if ((!limitSet) && (this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0) &&
+          (curPos == "-" && results[i].virtual_position <= qualLim - 1 ||
+            !instaRanked && results[i].virtual_position > qualLim - 1 && curPos != lastPos ||
+            instaRanked && results[i].virtual_position == qualLim)) {
+          limitSet = true;
+          if (results[i].DT_RowClass == "yellow_row" || results[i].DT_RowClass == "yellow_row_fnq")
+            results[i].DT_RowClass = "yellow_row_fnq";
+          else
+            results[i].DT_RowClass = "firstnonqualifier";
+        }
+        else {
+          if (results[i].DT_RowClass == "yellow_row" || results[i].DT_RowClass == "yellow_row_fnq")
+            results[i].DT_RowClass = "yellow_row";
+          else
+            results[i].DT_RowClass = "nostyle";
+        }
+        if (curPos == "" || curPos == '<span class="pulsing">◉</span>')
+          curPos = "-";
       }
     };
 
