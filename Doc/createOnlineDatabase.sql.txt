@@ -2,6 +2,7 @@
   `user` varchar(50) NOT NULL DEFAULT '',
   `pass` varchar(50) DEFAULT NULL,
   `tavid` int(11) DEFAULT NULL,
+  `time4oid` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
   `compName` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
   `compDate` datetime DEFAULT NULL,
   `public` tinyint(1) DEFAULT NULL,

@@ -133,3 +133,6 @@ alter table login add column liveloxid int(11) NOT NULL DEFAULT '0';
 
 -- addition 2025-09-28
 alter table coursedata add column controls varchar(255) NOT NULL DEFAULT '';
+
+-- addition 2026-01-29
+alter table login add column time4oid varchar(50) CHARACTER SET utf8 DEFAULT null;

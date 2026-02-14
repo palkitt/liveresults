@@ -27,6 +27,7 @@ function renderCompRow($comp, $emma, $lang, $isMobile, $isToday, $todayDiv = fal
 {
   $compName = substr($comp["name"], 0, ($isMobile ? 30 : 60));
   $time4oComp = ($comp['time4ocomp'] ?? false);
+  $liveres4oComp = isset($comp['time4oid']) && strlen($comp['time4oid']) > 0;
   $linkPrefix = ($emma ? "emma&" : ($time4oComp ? "time4o&" : ""));
   $isActive = false;
   if (!$emma && isset($comp["lastactive"]) && $comp["lastactive"] != "") {
@@ -42,10 +43,12 @@ function renderCompRow($comp, $emma, $lang, $isMobile, $isToday, $todayDiv = fal
   echo "<td>" . date("Y-m-d", strtotime($comp['date'])) . "</td>";
   echo "<td>";
   if (!$emma) {
-    if ($time4oComp) {
-      echo "<img src=\"images/time4o_small.svg\" width=\"12px\" style=\"vertical-align: bottom\">";
+    if ($liveres4oComp) {
+      echo "<img src=\"images/LR4o.png\" height=\"12px\" style=\"vertical-align: bottom\">";
+    } else if ($time4oComp) {
+      echo "<img src=\"images/time4o_small.svg\" height=\"12px\" style=\"vertical-align: bottom\">";
     } else {
-      echo "<img src=\"images/LiveRes.png\" width=\"12px\" style=\"vertical-align: bottom\">";
+      echo "<img src=\"images/LiveRes.png\" height=\"12px\" style=\"vertical-align: bottom\">";
     }
   }
   echo "</td>";
@@ -167,11 +170,23 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       $comps = $data["competitions"];
 
       if (!$emma) {
+        $existingTime4oIds = array();
+        foreach ($comps as $comp) {
+          if (isset($comp['time4oid']) && strlen($comp['time4oid']) > 0) {
+            $existingTime4oIds[] = $comp['time4oid'];
+          }
+        }
+
         $url = "https://center.time4o.com/api/v1/race";
         $json = file_get_contents($url);
         $data = json_decode($json, true);
         $compsTime4o = $data["data"];
-        foreach ($compsTime4o as &$c) {
+
+        foreach ($compsTime4o as $key => &$c) {
+          if (in_array($c['id'], $existingTime4oIds)) {
+            unset($compsTime4o[$key]);
+            continue;
+          }
           $c['time4ocomp'] = true;
           $c['lastactive'] = null;
           $c['livecenterurl'] = '';
