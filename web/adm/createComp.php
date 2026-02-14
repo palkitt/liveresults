@@ -2,12 +2,12 @@
 include_once("../templates/classEmma.class.php");
 
 if (isset($_POST['btnSubmit'])) {
-  $id = Emma::CreateCompetition($_POST['name'], $_POST['org'], $_POST['date'], $_POST['sport'], $_POST['time4oid']);
+  $id = Emma::CreateCompetition($_POST['name'], $_POST['org'], $_POST['date'], $_POST['sport'], $_POST['time4oid'] ?? '');
   header("Location: editComp.php?compid=$id");
   exit;
 }
 
-include_once("../templates/emmalang_no.php");
+include_once("../templates/emmalang_en.php");
 $lang = "no";
 if (isset($_GET['lang']) && $_GET['lang'] != "")
   $lang = $_GET['lang'];

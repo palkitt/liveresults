@@ -30,6 +30,7 @@ var Messages;
       this.maxNameLength = (this.browserType == 1 ? 15 : (this.browserType == 2 ? 22 : 30));
       this.maxClubLength = (this.browserType == 1 ? 12 : (this.browserType == 2 ? 15 : 20));
       this.URL = (this.local ? "api/messageapi.php" : "//api.liveres.live/messageapi.php");
+      this.Time4oApiURL = "https://center.time4o.com/api/v1/";
       Messages.Instance = this;
     }
 
@@ -57,7 +58,7 @@ var Messages;
     AjaxViewer.prototype.handleUpdateMessages = function (data, reqTime) {
       $('#lastupdate').html(new Date(reqTime).toLocaleTimeString());
       var _this = this;
-      if (data.rt != undefined && data.rt > 0)
+      if (data.rt > 0)
         this.messagesUpdateInterval = data.rt * 1000;
       $('#updateinterval').html(this.messagesUpdateInterval / 1000);
 
@@ -69,7 +70,6 @@ var Messages;
 
       // Insert data from query
       if (data != null && data.status == "OK" && data.messages != null) {
-
         // Make list of group times for each bib
         var groupTimes = new Object();
         for (var i = 0; i < data.messages.length; i++) {
@@ -406,21 +406,20 @@ var Messages;
 
     AjaxViewer.prototype.updateClassList = function () {
       var _this = this;
-      clearTimeout(this.classUpdateTimer);
-      const URLextra = "race/" + this.time4oid + "/raceClass";
-      const headers = this.lastClassListHash ? { 'If-None-Match': this.lastClassListHash } : {};
-      const apiURL = "https://center.time4o.com/api/v1/";
+      clearTimeout(this.runnerListTimer);
       $.ajax({
-        url: apiURL + URLextra,
-        headers: headers,
+        url: _this.Time4oApiURL + "race/" + this.time4oid + "/raceClass",
+        headers: _this.lastClassListHash ? { 'If-None-Match': _this.lastClassListHash } : {},
         success: function (data, status, resp) {
           if (resp.status == 200) {
             _this.lastClassListHash = resp.getResponseHeader("etag").slice(1, -1);
             data.status = "OK";
+            data = _this.Time4oClassesToLiveres(data);
+            _this.activeClasses = data.classes;
           }
           else
             data = { status: "NOT MODIFIED" };
-          _this.handleUpdateClassListResponse(data);
+          _this.updateRunnerList();
         },
         error: function () {
           _this.runnerListTimer = setTimeout(function () { _this.updateClassList(); }, _this.runnerListUpdateInterval);
@@ -429,60 +428,33 @@ var Messages;
       });
     };
 
-
-    AjaxViewer.prototype.handleUpdateClassListResponse = function (data) {
-      if (data != null && data.status == "OK") {
-        data = this.Time4oClassesToLiveres(data);
-        this.activeClasses = data.classes;
-      }
-      this.updateRunnerList();
-    };
-
-
     // Update list of runners from time4o server
     AjaxViewer.prototype.updateRunnerList = function () {
       var _this = this;
-      const URLextra = "race/" + this.time4oid + "/entry";
-      const headers = this.lastRunnerListHash ? { 'If-None-Match': this.lastRunnerListHash } : {};
-      const apiURL = "https://center.time4o.com/api/v1/";
       $.ajax({
-        url: apiURL + URLextra,
-        headers: headers,
+        url: _this.Time4oApiURL + "race/" + _this.time4oid + "/entry",
+        headers: _this.lastRunnerListHash ? { 'If-None-Match': _this.lastRunnerListHash } : {},
         dataType: "json",
         success: function (data, status, resp) {
           if (resp.status == 200) {
             _this.lastRunnerListHash = resp.getResponseHeader("etag").slice(1, -1);
             data.status = "OK";
+            let dataLR = _this.Time4oEntryListToLiveres(data, _this.activeClasses);
+            _this.runnerList = new Map();
+            for (var j = 0; j < dataLR.runners.length; j++) {
+              var runner = dataLR.runners[j];
+              if (runner && runner.dbid != null)
+                _this.runnerList.set(String(runner.dbid), runner);
+            }
           }
           else
             data = { status: "NOT MODIFIED" };
-
-          _this.handleUpdateRunnerListResponse(data);
         },
-        error: function () {
+        complete: function () {
           _this.runnerListTimer = setTimeout(function () { _this.updateClassList(); }, _this.runnerListUpdateInterval);
         }
       });
     };
-
-
-    AjaxViewer.prototype.handleUpdateRunnerListResponse = function (time4odata) {
-      var _this = this;
-      if (time4odata != null && time4odata.status == "OK") {
-        let data = this.Time4oEntryListToLiveres(time4odata, this.activeClasses);
-        // Build a fast lookup for runner info (can be null early during startup)
-        if (this.Time4oServer && Array.isArray(data.runners)) {
-          this.runnerList = new Map();
-          for (var j = 0; j < data.runners.length; j++) {
-            var runner = data.runners[j];
-            if (runner && runner.dbid != null)
-              this.runnerList.set(String(runner.dbid), runner);
-          }
-        }
-      }
-      this.runnerListTimer = setTimeout(function () { _this.updateClassList(); }, _this.runnerListUpdateInterval);
-    }
-
 
     // ReSharper disable once InconsistentNaming
     AjaxViewer.VERSION = "2016-08-06-01";

@@ -264,6 +264,7 @@ var LiveResults;
       $.ajax({
         url: this.apiURL + URLextra,
         headers: headers,
+        dataType: "json",
         success: function (data, status, resp) {
           if (_this.Time4oServer) {
             if (resp.status == 200) {
@@ -279,15 +280,14 @@ var LiveResults;
         },
         error: function () {
           _this.classUpdateTimer = setTimeout(function () { _this.updateClassList(first); }, _this.classUpdateInterval);
-        },
-        dataType: "json"
+        }
       });
     };
 
 
     AjaxViewer.prototype.handleUpdateClassListResponse = function (data, first) {
       var _this = this;
-      if (data.rt != undefined && data.rt > 0)
+      if (data.rt > 0)
         this.classUpdateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
         if (this.Time4oServer) {
@@ -297,7 +297,7 @@ var LiveResults;
         else
           this.lastClassListHash = data.hash;
         this.courseNames = data.courses;
-        if (!this.Time4oServer)
+        if (data.infotext)
           $('#divInfoText').html(data.infotext);
         if (!data.classes || !Array.isArray(data.classes) || data.classes.length == 0)
           $('#resultsHeader').html("<b>" + this.resources["_NOCLASSESYET"] + "</b>");
@@ -1462,11 +1462,11 @@ var LiveResults;
         $.ajax({
           url: this.apiURL,
           data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language + "&last_hash=" + this.lastPassingsUpdateHash,
+          dataType: "json",
           success: function (data) { _this.handleUpdateLastPassings(data); },
           error: function () {
             _this.passingsUpdateTimer = setTimeout(function () { _this.updateLastPassings(); }, _this.updateInterval);
-          },
-          dataType: "json"
+          }
         });
       }
     };
@@ -1475,7 +1475,7 @@ var LiveResults;
     //Handle response for updating the last passings
     AjaxViewer.prototype.handleUpdateLastPassings = function (data) {
       var _this = this;
-      if (data.rt != undefined && data.rt > 0)
+      if (data.rt > 0)
         this.updateInterval = data.rt * 1000;
       if (data != null && data.status == "OK") {
         if (data.passings != null) {
@@ -1585,14 +1585,14 @@ var LiveResults;
               $.ajax({
                 url: this.apiURL + "?method=getracesplitter",
                 data: "&comp=" + this.competitionId + "&firststart=" + firstStartcs + "&interval=" + interval,
+                dataType: "html",
                 success: function (data) {
                   try {
                     var blob = new Blob([data], { type: "text/plain;charset=utf-8" });
                     saveAs(blob, "RaceSplitter.csv")
                   }
                   catch { }
-                },
-                dataType: "html"
+                }
               });
             }
           }
@@ -1616,6 +1616,7 @@ var LiveResults;
           $.ajax({
             url: this.apiURL,
             data: "comp=" + this.competitionId + "&method=getclasseslastchanged&last_hash=" + this.lastClassHash,
+            dataType: "json",
             success: function (data, status, resp) {
               var expTime = false;
               try {
@@ -1634,8 +1635,7 @@ var LiveResults;
             },
             error: function () {
               _this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
-            },
-            dataType: "json"
+            }
           });
         }
       }
@@ -1648,7 +1648,7 @@ var LiveResults;
         return;
       var _this = this;
       try {
-        if (data.rt != undefined && data.rt > 0)
+        if (data.rt > 0)
           this.updateInterval = data.rt * 1000;
         $('#updateinterval').html(this.updateInterval / 1000);
         if (expTime) {
@@ -1704,6 +1704,7 @@ var LiveResults;
         $.ajax({
           url: this.apiURL + URLextra,
           headers: headers,
+          dataType: "json",
           success: function (data, status, resp) {
             var expTime = false;
             try {
@@ -1735,8 +1736,7 @@ var LiveResults;
           },
           error: function () {
             _this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, _this.updateInterval);
-          },
-          dataType: "json"
+          }
         });
       }
     };
@@ -1747,7 +1747,7 @@ var LiveResults;
       if (this.curClassName == null)
         return;
       try {
-        if (newData.rt != undefined && newData.rt > 0)
+        if (newData.rt > 0)
           this.updateInterval = newData.rt * 1000;
         $('#updateinterval').html(this.updateInterval / 1000);
         if (expTime) {
@@ -1783,7 +1783,7 @@ var LiveResults;
             return;
           }
           if (table != null && newData.results != null && newData.results.length > 0) {
-            if (!this.Time4oServer)
+            if (newData.infotext)
               $('#divInfoText').html(newData.infotext);
             var oldResults = $.extend(true, [], table.data().toArray());
             var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
@@ -1904,7 +1904,7 @@ var LiveResults;
       var _this = this;
       if (this.curClubName == null)
         return;
-      if (data.rt != undefined && data.rt > 0)
+      if (data.rt > 0)
         this.clubUpdateInterval = data.rt * 1000;
       $('#updateinterval').html(this.clubUpdateInterval / 1000);
       if (expTime) {
@@ -2020,6 +2020,7 @@ var LiveResults;
       $.ajax({
         url: this.apiURL + URLextra,
         headers: {},
+        dataTable: "json",
         success: function (data, status, resp) {
           var expTime = false;
           try {
@@ -2043,8 +2044,7 @@ var LiveResults;
           }
           catch { }
           _this.updateClassResults(data, expTime);
-        },
-        dataType: "json"
+        }
       });
       if (!this.isSingleClass)
         window.location.hash = className;
@@ -2080,9 +2080,8 @@ var LiveResults;
               this.updateSplitPlaces(data, data.updatedSplits);
           }
         }
-        if (!this.Time4oServer) { // LiveRes server
+        if (data.infotext)
           $('#divInfoText').html(data.infotext);
-        }
         if (data.className != null) {
           var courseResults = data.className.indexOf("course::") == 0;
           if (data.className == "plainresults") {
@@ -3297,7 +3296,7 @@ var LiveResults;
       if (this.curClubName == null)
         return;
       var _this = this;
-      if (data.rt != undefined && data.rt > 0)
+      if (data.rt > 0)
         this.clubUpdateInterval = data.rt * 1000;
       $('#updateinterval').html(this.clubUpdateInterval / 1000);
       $('#liveIndicator').html('');
@@ -3824,7 +3823,7 @@ var LiveResults;
       if (this.curRelayView == null)
         return;
       var _this = this;
-      if (data.rt != undefined && data.rt > 0)
+      if (data.rt > 0)
         this.updateInterval = data.rt * 1000;
       $('#updateinterval').html("- ");
       $('#liveIndicator').html('');
@@ -4069,12 +4068,12 @@ var LiveResults;
       $.ajax({
         url: this.apiURL,
         data: "comp=" + this.competitionId + "&method=getclasscoursesplits&class=" + encodeURIComponent(className) + "&course=" + course,
+        dataType: "json",
         success: function (data, status, resp) {
           var expTime = new Date();
           expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
           _this.updateSplitTimeResults(data, course, expTime);
-        },
-        dataType: "json"
+        }
       });
       window.location.hash = "splits::" + className + "::course::" + course;
     };
@@ -4085,7 +4084,7 @@ var LiveResults;
         return;
       var _this = this;
       var updateInterval = 0;
-      if (data.rt != undefined && data.rt > 0)
+      if (data.rt > 0)
         updateInterval = data.rt * 1000;
       $('#updateinterval').html("- ");
       $('#liveIndicator').html('');
