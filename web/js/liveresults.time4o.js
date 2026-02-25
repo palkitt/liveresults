@@ -115,6 +115,7 @@
           startType: classEntry.startType ?? null,
           timingResolution: classEntry.timingResolution ?? null,
           timingStartTimeSource: classEntry.timingStartTimeSource ?? null,
+          qualificationLimit: classEntry.qualificationLimit ?? null,
           firstStart: classEntry.firstStart ?? -999,
           cards: classEntry.cardTypes ?? [],
           resultListMode: resultListMode,

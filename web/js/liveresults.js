@@ -85,6 +85,7 @@ var LiveResults;
       this.compDate = "";
       this.qualLimits = null;
       this.qualClasses = null;
+      this.qualLim = -1;
       this.messageBibs = [];
       this.noSplits = false;
       this.filterDiv = filterDiv;
@@ -1024,43 +1025,58 @@ var LiveResults;
     }
 
 
-    // Update qualification markings
-    AjaxViewer.prototype.updateQualLimMarks = function (results, className) {
-      if (results == null || this.qualLimits == null)
-        return;
-      var qualIndex = -1;
-      if (this.qualClasses != null) {
-        qualIndex = this.qualClasses.findIndex(pattern =>
-          className.includes(pattern)
-        );
+    AjaxViewer.prototype.setQualLimit = function (className) {
+      const classInfo = this.activeClasses?.find(c => c.className === className) ?? null;
+      let qualLim = null;
+      if (this.qualLimits == null && (classInfo == null || classInfo.qualificationLimit == null)) {
+        qualLim = -1;
       }
-      if (qualIndex == -1)
-        qualIndex = this.qualLimits.length - 1;
-      var qualLim = this.qualLimits[qualIndex];
-      if (qualLim < 0)
-        return
-      if (qualLim < 1) // If given as a fraction of started runners
-      {
-        var numDNS = 0;
-        for (var i = 0; i < results.length; i++) {
-          if (results[i].status == 1)
-            numDNS++;
+      else if (classInfo != null && classInfo.qualificationLimit != null) {
+        qualLim = classInfo.qualificationLimit;
+      }
+      else {
+        let index = -1;
+        if (this.qualClasses != null) {
+          index = this.qualClasses.findIndex(pattern =>
+            className.includes(pattern)
+          );
         }
-        qualLim = Math.ceil(qualLim * (results.length - numDNS));
+        qualLim = this.qualLimits[(index == -1 ? this.qualLimits.length - 1 : index)];
       }
+      return qualLim;
+    }
+
+
+    // Update qualification markings
+    AjaxViewer.prototype.updateQualLimMarks = function (results, qualLim) {
+      if (qualLim == null || qualLim <= 0)
+        return;
+
       var lastPos = -1;
       var curPos = -1;
       var instaRanked = false;
       var limitSet = false;
-      for (var i = 0; i < results.length; i++) {
+      var qualNo = 0;
+
+      if (qualLim < 1) {// If given as a fraction of started runners
+        let numDNS = 0;
+        for (let i = 0; i < results.length; i++) {
+          if (results[i].status == 1)
+            numDNS++;
+        }
+        qualNo = Math.ceil(qualLim * (results.length - numDNS));
+      } else
+        qualNo = qualLim;
+
+      for (let i = 0; i < results.length; i++) {
         lastPos = curPos;
         curPos = results[i].place;
         if (results[i].virtual_position != i)
           instaRanked = true;
         if ((!limitSet) && (this.rankedStartlist || !this.rankedStartlist && results[i].progress > 0) &&
-          (curPos == "-" && results[i].virtual_position <= qualLim - 1 ||
-            !instaRanked && results[i].virtual_position > qualLim - 1 && curPos != lastPos ||
-            instaRanked && results[i].virtual_position == qualLim)) {
+          (curPos == "-" && results[i].virtual_position <= qualNo - 1 ||
+            !instaRanked && results[i].virtual_position > qualNo - 1 && curPos != lastPos ||
+            instaRanked && results[i].virtual_position == qualNo)) {
           limitSet = true;
           if (results[i].DT_RowClass == "yellow_row" || results[i].DT_RowClass == "yellow_row_fnq")
             results[i].DT_RowClass = "yellow_row_fnq";
@@ -1453,8 +1469,7 @@ var LiveResults;
 
           // Update table if required
           if (updatedVP) {
-            if (this.qualLimits != null && this.qualLimits.length > 0)
-              this.updateQualLimMarks(data, this.curClassName);
+            this.updateQualLimMarks(data, this.qualLim);
             table.rows().invalidate();
           }
 
@@ -1590,7 +1605,7 @@ var LiveResults;
       }
       $('#searchRunner').html(runnerText);
       if (ind == -1 && this.highlightID != null) {
-        this.highlightID = null;
+        this.highlightID = -1;
         var tableData = this.currentTable.data().toArray();
         this.setHighlight(tableData, this.highlightID);
         this.currentTable.clear();
@@ -1830,10 +1845,8 @@ var LiveResults;
             this.updateClassSplitsBest(newData);
             this.updateResultVirtualPosition(newData.results);
             this.predData = $.extend(true, [], newData.results);
-            if (this.highlightID != null)
-              this.setHighlight(newData.results, this.highlightID);
-            if (this.qualLimits != null && this.qualLimits.length > 0)
-              this.updateQualLimMarks(newData.results, newData.className);
+            this.setHighlight(newData.results, this.highlightID);
+            this.updateQualLimMarks(newData.results, this.qualLim);
 
             table.clear();
             table.rows.add(newData.results).draw();
@@ -2335,11 +2348,9 @@ var LiveResults;
           this.updateClassSplitsBest(data);
           this.updateResultVirtualPosition(data.results);
           this.predData = $.extend(true, [], data.results);
-          if (this.highlightID != null)
-            this.setHighlight(data.results, this.highlightID);
-          if (this.qualLimits != null && this.qualLimits.length > 0)
-            this.updateQualLimMarks(data.results, data.className);
-
+          this.setHighlight(data.results, this.highlightID);
+          this.qualLim = this.setQualLimit(this.curClassName);
+          this.updateQualLimMarks(data.results, this.qualLim);
           this.curClassNumberOfRunners = data.results.length;
           $('#numberOfRunners').html(this.curClassNumberOfRunners);
 
@@ -2980,6 +2991,8 @@ var LiveResults;
 
 
     AjaxViewer.prototype.setHighlight = function (results, highlightID) {
+      if (highlightID == null)
+        return;
       for (var j = 0; j < results.length; j++) {
         if (results[j].dbid == highlightID) {
           if (results[j].DT_RowClass == "firstnonqualifier" || results[j].DT_RowClass == "yellow_row_fnq")
