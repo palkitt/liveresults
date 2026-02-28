@@ -250,24 +250,24 @@
   AjaxViewer.prototype.Time4oStatusMap = function (statusKey, unordered) {
     const statusMap = {
       "OK": 0,
+      "Finished": 0, // Finished but not yet validated
       "DidNotStart": 1,
       "DidNotFinish": 2,
       "MissingPunch": 3,
       "Disqualified": 4,
       "OverTime": 5,
       "NotClassified": 6,
+      "Checked": 9, // Ecard check done
+      "Active": 9, // Currently on course
+      "Inactive": 10, // Entered, but not yet started
+      "Empty": 10, // Empty status same as not started
       "Overtime": 11,
       "Walkover": 12,
-      "Finished": 13
-      // runnerStatus[9] = "";
-      // runnerStatus[10] = "";
-      // Started = 9
-      // Active = Currently on course
-      // Checked  = ecard checked   
+      "FinishedUnordered": 13, // Finished OK in unordered class
     };
 
-    if (statusKey == "OK" && unordered)
-      statusKey = "Finished";
+    if ((statusKey == "OK" || statusKey == "Finished") && unordered)
+      statusKey = "FinishedUnordered";
     return statusMap[statusKey] ?? 10;
   }
 
