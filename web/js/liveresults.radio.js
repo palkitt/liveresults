@@ -5,25 +5,45 @@
   let AjaxViewer = LiveResults.AjaxViewer;
 
   // Request data for the last radio passings div
-  AjaxViewer.prototype.updateRadioPassings = function (code) {
+  AjaxViewer.prototype.updateRadioPassings = function (code = -2) {
     var _this = this;
     clearTimeout(this.radioPassingsUpdateTimer);
-    if (this.updateAutomatically) {
-      $.ajax({
-        url: this.radioURL,
-        data: "comp=" + this.competitionId + "&method=getradiopassings&code=" + code +
-          "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash,
-        success: function (data, status, resp) {
-          var expTime = new Date();
-          expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
-          _this.handleUpdateRadioPassings(data, expTime, code);
-        },
-        error: function () {
-          _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateRadioPassings(); }, _this.radioUpdateInterval);
-        },
-        dataType: "json"
-      });
+    if (!this.updateAutomatically)
+      return;
+    var URL, headers;
+    if (this.Time4oServer) {
+      URL = this.apiURL + "race/" + this.Time4oId + "/entry";
+      headers = this.lastRadioPassingsUpdateHash ? { 'If-None-Match': this.lastRadioPassingsUpdateHash } : {};
     }
+    else {
+      URL = this.radioURL + "?comp=" + this.competitionId + "&method=getradiopassings&code=" + code +
+        "&lang=" + this.language + "&last_hash=" + this.lastRadioPassingsUpdateHash;
+      headers = {};
+    }
+    $.ajax({
+      url: URL,
+      headers: headers,
+      dataType: "json",
+      success: function (data, status, resp) {
+        var expTime = new Date();
+        if (_this.Time4oServer) {
+          expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.radioUpdateInterval;
+          if (resp.status == 200) {
+            _this.lastRadioPassingsUpdateHash = resp.getResponseHeader("etag").slice(1, -1);
+            data.status = "OK";
+          }
+          else
+            data = { status: "NOT MODIFIED" };
+          data.rt = _this.radioUpdateInterval / 1000;
+        }
+        else
+          expTime.setTime(new Date(resp.getResponseHeader("expires")).getTime());
+        _this.handleUpdateRadioPassings(data, expTime, code);
+      },
+      error: function () {
+        _this.radioPassingsUpdateTimer = setTimeout(function () { _this.updateRadioPassings(); }, _this.radioUpdateInterval);
+      }
+    });
   };
 
 
@@ -46,15 +66,24 @@
       $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
 
     const maxLines = 40;
-    var leftInForest = false;
+    var leftInForest = (code == -2);
     var updated = false;
 
     // Insert data from query            
     if (data != null && data.status == "OK") {
-      this.lastRadioPassingsUpdateHash = data.hash;
+      if (this.Time4oServer) {
+        data = this.Time4oEntryListToLiveres(data, this.activeClasses);
+        // Left in forest type
+        data.passings = data.runners.filter(function (runner) {
+          return runner.status == 9 || runner.status == 10;
+        });
+        data.passings.sort(this.sortLeftInForest);
+      }
+      else
+        this.lastRadioPassingsUpdateHash = data.hash;
       updated = true;
       if (data.passings != null) {
-        if (this.radioData == null || data.passings.length == 0 || data.passings[0].control == 100 || data.passings[0].timeDiff == -2)
+        if (leftInForest || this.radioData == null || data.passings.length == 0)
           this.radioData = data.passings;
         else {
           Array.prototype.unshift.apply(this.radioData, data.passings);
@@ -62,8 +91,7 @@
             this.radioData.pop();
         }
       }
-      if (this.radioData != null && this.radioData.length > 0 && this.radioData[0].timeDiff == -2) {
-        leftInForest = true;
+      if (leftInForest && this.radioData != null && this.radioData.length > 0) {
         $('#numberOfRunners').html(this.radioData.length);
       }
     }
@@ -80,28 +108,30 @@
           var row = _this.currentTable.row(idx).node();
           $(row).addClass('dns');
         }
-        var hms = passing.passtime.split(':');
-        var passTime = (+hms[0]) * 60 * 60 + (+hms[1]) * 60 + (+hms[2]);
-        var age = time - passTime;
-        if (passing.status >= 1 && passing.status <= 6) {
-          if (passing.DT_RowClass != "yellow_row") {
-            passing.DT_RowClass = "yellow_row";
+        if (!leftInForest) {
+          var hms = passing.passtime.split(':');
+          var passTime = (+hms[0]) * 60 * 60 + (+hms[1]) * 60 + (+hms[2]);
+          var age = time - passTime;
+          if (passing.status >= 1 && passing.status <= 6) {
+            if (passing.DT_RowClass != "yellow_row") {
+              passing.DT_RowClass = "yellow_row";
+              updated = true;
+            }
+          }
+          else if (age >= 0 && age <= _this.radioHighTime) {
+            if (passing.rank == 1 && passing.DT_RowClass != "green_row") {
+              passing.DT_RowClass = "green_row";
+              updated = true;
+            }
+            else if (passing.rank > 1 && passing.DT_RowClass != "red_row") {
+              passing.DT_RowClass = "red_row";
+              updated = true;
+            }
+          }
+          else if (passing.DT_RowClass != "") {
+            passing.DT_RowClass = "";
             updated = true;
           }
-        }
-        else if (age >= 0 && age <= _this.radioHighTime) {
-          if (passing.rank == 1 && passing.DT_RowClass != "green_row") {
-            passing.DT_RowClass = "green_row";
-            updated = true;
-          }
-          else if (passing.rank > 1 && passing.DT_RowClass != "red_row") {
-            passing.DT_RowClass = "red_row";
-            updated = true;
-          }
-        }
-        else if (passing.DT_RowClass != "") {
-          passing.DT_RowClass = "";
-          updated = true;
         }
       });
     }
@@ -143,7 +173,7 @@
           }
         });
         columns.push({
-          title: "Navn", className: "dt-left", orderable: leftInForest, targets: [col++], data: "runnerName",
+          title: "Navn", className: "dt-left", orderable: leftInForest, targets: [col++], data: "name",
           render: function (data, type) {
             if (type === 'display' && data.length > _this.maxNameLength)
               return _this.nameShort(data);
@@ -181,7 +211,14 @@
         var timeTitle = "Tid";
         if (leftInForest)
           timeTitle = "Starttid";
-        columns.push({ title: timeTitle, className: "dt-right", orderable: leftInForest, targets: [col++], data: "time" });
+        columns.push({
+          title: timeTitle, className: "dt-right", orderable: leftInForest, targets: [col++], data: "time",
+          render: function (data, type, row) {
+            if (_this.Time4oServer && leftInForest)
+              return _this.formatTime(row.start, 0, false, true, false, true);
+            else return data;
+          }
+        });
 
         if (!leftInForest && this.radioData.length > 0 && this.radioData[0].timeDiff != null)
           columns.push({
@@ -210,8 +247,8 @@
           columns.push({
             title: "DNS", className: "dt-left", orderable: false, targets: [col++], data: "controlName",
             render: function (data, type, row) {
-              var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.runnerName;
-              var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + ",1);\">&#128172;</button>";
+              var runnerName = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
+              var link = "<button onclick=\"res.popupDialog('" + runnerName + "'," + row.dbid + ",1,1);\">&#128172;</button>";
               return link;
             }
           });
@@ -246,6 +283,25 @@
       $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
   };
 
+  AjaxViewer.prototype.sortLeftInForest = function (a, b) {
+    var clubA = (a.club || "").toString();
+    var clubB = (b.club || "").toString();
+    var clubDiff = clubA.localeCompare(clubB);
+    if (clubDiff != 0)
+      return clubDiff;
+
+    var startA = a.start;
+    var startB = b.start;
+    var startDiff = (startA || 0) - (startB || 0);
+    if (startDiff != 0)
+      return startDiff;
+
+    var nameA = (a.name || "").toString();
+    var nameB = (b.name || "").toString();
+    return nameA.localeCompare(nameB);
+  }
+
+
 
   AjaxViewer.prototype.updateStartRegistration = function (openStart) {
     var _this = this;
@@ -273,13 +329,12 @@
             _this.lastRadioPassingsUpdateHash = resp.getResponseHeader("etag").slice(1, -1);
             data.status = "OK";
           }
-          else if (resp.status == 304) {
-            data = { status: "NOT MODIFIED" };
-          }
           else
-            expTime = new Date(resp.getResponseHeader("expires")).getTime();
+            data = { status: "NOT MODIFIED" };
           data.rt = _this.radioUpdateInterval / 1000;
         }
+        else
+          expTime = new Date(resp.getResponseHeader("expires")).getTime();
         _this.handleUpdateStartRegistration(data, expTime, openStart);
       },
       error: function () {
@@ -428,13 +483,13 @@
             });
           }
 
-          var message = "<button onclick=\"res.popupDialog('Generell melding',0,0);\">&#128172;</button>";
+          var message = "<button onclick=\"res.popupDialog('Generell melding',0,2);\">&#128172;</button>";
           columns.push({
             title: message, className: "dt-left", orderable: false, targets: [col++], data: "start",
             render: function (data, type, row) {
               var defaultDNS = (row.status == 1 ? -1 : row.dbid > 0 ? 1 : 0);
               var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
-              var link = "<button onclick=\"res.popupDialog('" + name + "'," + row.dbid + "," + defaultDNS + ");\">&#128172;</button>";
+              var link = "<button onclick=\"res.popupDialog('" + name + "'," + row.dbid + "," + defaultDNS + ",2);\">&#128172;</button>";
               return link;
             }
           });
@@ -704,7 +759,7 @@
           var ecardStr = (row.ecard1 == 0 ? "-" : row.ecard1);
           var runnerName = bibStr + row.name;
           var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 1 fra "
-            + ecardStr + " til '," + row.dbid + ",0,1);\">" + ecardStr + "</button>";
+            + ecardStr + " til '," + row.dbid + ",0,0,1);\">" + ecardStr + "</button>";
           return link;
         }
       });
@@ -715,7 +770,7 @@
           var ecardStr = (row.ecard2 == 0 ? "-" : row.ecard2);
           var runnerName = bibStr + row.name;
           var link = "<button style=\"width:50px\" onclick=\"res.popupDialog('" + runnerName + ". Endre brikke 2 fra "
-            + ecardStr + " til '," + row.dbid + ",0,1);\">" + ecardStr + "</button>";
+            + ecardStr + " til '," + row.dbid + ",0,0,1);\">" + ecardStr + "</button>";
           return link;
         }
       });
@@ -788,7 +843,8 @@
 
 
   //Popup window for messages to message center
-  AjaxViewer.prototype.popupDialog = function (promptText, dbid, defaultDNS, startListChange = -1) {
+  AjaxViewer.prototype.popupDialog = function (promptText, dbid, defaultDNS, method = 0, startListChange = -1) {
+    // Method: 1 = radioPassing, 2 = startRegistration,  0 = otherwise
     var _this = this;
     var defaultText = "";
     if (defaultDNS == 1)
@@ -815,14 +871,21 @@
             alert("Ønsket endring av brikkenummer er registrert\n" + message);
           }
         }
-        if (sendOK)
+        if (sendOK) {
           $.ajax({
             url: _this.messageURL + "?method=sendmessage",
             data: "comp=" + _this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
-            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
+            error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); },
+            success: function () {
+              if (DNS)
+                _this.messageBibs.push(dbid);
+              if (method == 1)
+                _this.updateRadioPassings();
+              else if (method == 2)
+                _this.updateStartRegistration();
+            }
           });
-        if (DNS)
-          _this.messageBibs.push(dbid);
+        }
       }
     }, defaultText);
   };

@@ -108,11 +108,14 @@ var LiveResults;
         this.updateInterval = 3000;
         this.radioUpdateInterval = 15000;
         this.apiURL = "https://center.time4o.com/api/v1/";
-        this.radioURL = "https://center.time4o.com/api/v1/"
-        if (this.local)
+        if (this.local) {
+          this.radioURL = "api/radioapi.php";
           this.messageURL = "api/messageapi.php";
-        else
+        }
+        else {
+          this.radioURL = "//api.liveres.live/radioapi.php"
           this.messageURL = "//api.liveres.live/messageapi.php";
+        }
       }
       else if (EmmaServer) {
         this.updateInterval = 15000;

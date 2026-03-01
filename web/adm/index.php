@@ -91,12 +91,12 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                           <a href="/followfull.php?speaker&comp=<?= $comp["tavid"] ?>">Speaker view</a>
                           <a href="/message.php?comp=<?= $comp["tavid"] ?>">Messages</a>
                           <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=0">Start view</a>
+                          <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=-2">Runners in forest</a>
                           <?php if (!$time4o) { ?>
                             <a href="/adm/radiolinks.php?comp=<?= $comp["tavid"] ?>">Radio links</a>
                             <a href="/adm/runners.php?compid=<?= $comp["tavid"] ?>">Edit runners</a>
                             <a href="/adm/radiocontrols.php?comp=<?= $comp["tavid"] ?>">Radio control editor</a>
                             <a href="/adm/ecardcopy.php?comp=<?= $comp["tavid"] ?>">Copy ecard numbers</a>
-                            <a href="/radio.php?comp=<?= $comp["tavid"] ?>&code=-2">Remaining runners</a>
                           <?php } ?>
                         </div>
                       </div>

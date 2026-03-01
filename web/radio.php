@@ -175,6 +175,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           updateClock();
         }, 1000);
 
+      var delay = 0;
+      if (<?= $isTime4oComp ?>) {
+        res.updateClassList();
+        var delay = 500;
+      }
+
       if (<?= $_GET['code'] ?> == 0) {
         document.getElementById("callTime").value = callTime;
         document.getElementById("postTime").value = postTime;
@@ -184,17 +190,15 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         if (maxBib != null)
           document.getElementById("maxBib").value = maxBib;
 
-        var delay = 0;
-        if (<?= $isTime4oComp ?>) {
-          res.updateClassList();
-          var delay = 500;
-        }
         setTimeout(function() {
           res.updateStartRegistration(<?= (isset($_GET['openstart']) ? 1 : 0) ?>);
         }, delay);
 
-      } else
-        res.updateRadioPassings(<?= $_GET['code'] ?>);
+      } else {
+        setTimeout(function() {
+          res.updateRadioPassings(<?= $_GET['code'] ?>);
+        }, delay);
+      }
 
       $('#filterText').on('keyup', function() {
         res.filterTable();
