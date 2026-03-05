@@ -67,7 +67,7 @@ function renderCompRow($comp, $emma, $lang, $isMobile, $isToday, $todayDiv = fal
     if (isset($comp['livecenterurl']) && strlen($comp['livecenterurl']) > 0) {
       echo "<a onmouseover=\"colorRow('$rowId')\" onmouseout=\"resetRow('$rowId')\" href=\"{$comp['livecenterurl']}\">Livesenter</a>";
     } else if ($time4oComp && isset($comp['eventorid']) && strlen($comp['eventorid']) > 0) {
-      echo "<a onmouseover=\"colorRow('$rowId')\" onmouseout=\"resetRow('$rowId')\" href=\"https://eventor.orientering.no/Events/Show/{$comp['eventorid']}\">Eventor</a>";
+      echo "<a onmouseover=\"colorRow('$rowId')\" onmouseout=\"resetRow('$rowId')\" href=\"https://eventor-norway.orientering.se/Events/Show/{$comp['eventorid']}\">Eventor</a>";
     }
   }
   echo "</td>";
