@@ -10,6 +10,8 @@ $isTime4oComp = isset($_GET['time4o']);
 $isLiveResComp = (!$isEmmaComp && !$isTime4oComp);
 $isSpeaker = isset($_GET['speaker']);
 $compID = $_GET['comp'];
+$time4oid = "";
+$LRcompID = "";
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
@@ -39,7 +41,6 @@ if ($isEmmaComp) {
   $qualClasses = "";
   $infoText = "";
   $liveloxid = 0;
-  $time4oid = "";
   $indexRef = "index.php?emma&lang=" . $lang;
   $CHARSET = 'utf-8';
 } else if ($isTime4oComp) {
@@ -63,7 +64,6 @@ if ($isEmmaComp) {
   $qualClasses = "";
   $infoText = "";
   $liveloxid = 0;
-  $time4oid = "";
   $indexRef = "index.php?lang=" . $lang;
   $CHARSET = 'utf-8';
 } else { // LiveRes competition
@@ -86,8 +86,8 @@ if ($isEmmaComp) {
   $infoText = $currentComp->InfoText();
   $liveloxid = $currentComp->LiveloxId();
   $time4oid = $currentComp->Time4oID();
+  $LRcompID = $compID;
   $indexRef = "index.php?lang=" . $lang;
-
   if ($time4oid != "") {
     $isTime4oComp = true;
     $compID = $time4oid;
@@ -444,18 +444,18 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           <td align="center">
             <div id="topBar" style="overflow: hidden">
               <?php if ($organizer == "Freidig/Wing/Malvik") { ?> <img src="images/NMSponsWeb.jpg" height="50"><br> <?php } ?>
-              <?php if (in_array($compID, array("10118", "10119", "10120", "10121"))) { ?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
-              <?php if (in_array($compID, array("10110", "10111", "10112"))) { ?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
+              <?php if (in_array($LRcompID, array("10118", "10119", "10120", "10121"))) { ?> <img src="images/NM2021top.jpg" height="50"><br> <?php } ?>
+              <?php if (in_array($LRcompID, array("10110", "10111", "10112"))) { ?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
               <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:var(--bkdark); padding: 5px">
                 <tr>
                   <?php
-                  if (in_array($compID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
-                  else if (in_array($compID, array("10118", "10119", "10120", "10121")))  $image = "images/NM2021.jpg";
-                  else if (in_array($compID, array("10215")))  $image = "images/Skien.png";
-                  else if (in_array($compID, array("10532", "10533", "10534", "10535"))) $image = "images/HL2023.png";
-                  else if (in_array($compID, array("10606")))  $image = "images/Blodslitet.jpg";
-                  else if (in_array($compID, array("10836", "10837", "10838")))  $image = "images/HL_logo_200.png";
-                  else if (in_array($compID, array("11140", "11141", "11142", "11143")))  $image = "images/nmuka25.jpg";
+                  if (in_array($LRcompID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
+                  else if (in_array($LRcompID, array("10118", "10119", "10120", "10121")))  $image = "images/NM2021.jpg";
+                  else if (in_array($LRcompID, array("10215")))  $image = "images/Skien.png";
+                  else if (in_array($LRcompID, array("10532", "10533", "10534", "10535"))) $image = "images/HL2023.png";
+                  else if (in_array($LRcompID, array("10606")))  $image = "images/Blodslitet.jpg";
+                  else if (in_array($LRcompID, array("10836", "10837", "10838")))  $image = "images/HL_logo_200.png";
+                  else if (in_array($LRcompID, array("11140", "11141", "11142", "11143")))  $image = "images/nmuka25.jpg";
                   else switch (strtolower($organizer)) {
                     case "larvik ok":
                       $image = "images/larvikok.png";
@@ -565,8 +565,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                     <input type="text" id="searchBib" placeholder="Startno..." size="3em"> <span id="searchRunner">Ukjent startnummer</span>
                   </td>
                   <td align="right">
-                    <a href="startlist.php?comp=<?= $compID ?>"><?= $_START ?></a> | <a href="radio.php?code=-1&comp=<?= $compID ?>">Melde</a> |
-                    <a href="radio.php?code=1000&comp=<?= $compID ?>"><?= $_CONTROLFINISH ?></a> |
+                    <a href="radio.php?code=0&posttime=999&pretime=999&comp=<?= $LRcompID ?>"><?= $_START ?></a> |
+                    <a href=" radio.php?code=-1&comp=<?= $LRcompID ?>">Melde</a> |
+                    <a href="radio.php?code=1000&comp=<?= $LRcompID ?>"><?= $_CONTROLFINISH ?></a> |
                     <a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF"></a><span id="Oslo_z71e"></span>
                   </td>
                 </tr>

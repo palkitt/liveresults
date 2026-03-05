@@ -1592,9 +1592,13 @@ var LiveResults;
       if (bib != null) {
         var ind = this.runnerList.runners.findIndex(x => Math.abs(x.bib) == bib);
         if (ind > -1) {
-          runnerText = "(" + bib + ") " + this.runnerList.runners[ind].name + ", "
-            + this.runnerList.runners[ind].club + ", " + this.runnerList.runners[ind].class + ", "
-            + this.runnerList.runners[ind].start;
+          var name = this.nameShort(this.runnerList.runners[ind].name);
+          var club = this.clubShort(this.runnerList.runners[ind].club);
+          var className = this.classShort(this.runnerList.runners[ind].class);
+          var start = this.runnerList.runners[ind].start;
+          if (this.Time4oServer)
+            start = this.formatTime(start, 0, false, true, false, true);
+          runnerText = "(" + bib + ") " + name + ", " + club + ", " + className + ", " + start;
           this.highlightID = this.runnerList.runners[ind].dbid;
           if (this.curClassName == this.runnerList.runners[ind].class) {
             var tableData = this.currentTable.data().toArray();
