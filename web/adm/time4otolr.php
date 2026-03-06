@@ -7,20 +7,20 @@ include_once("../templates/datatablesURL.php");
 
 // Fetch LiveRes competitions and extract already-mapped Time4o IDs
 $existingTime4oIds = array();
-$url = (($_SERVER['HTTP_HOST'] ?? '') == 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') == 'localhost')
+$url = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
   ? "http://localhost/api/api.php?method=getcompetitions"
   : "https://api.liveres.live/api.php?method=getcompetitions";
-$json = @file_get_contents($url);
-if ($json !== false) {
-  $data = json_decode($json, true);
-  $comps = $data["competitions"] ?? array();
-  foreach ($comps as $comp) {
-    $time4oid = $comp['time4oid'] ?? "";
-    if (is_string($time4oid) && strlen($time4oid) > 0) {
-      $existingTime4oIds[] = $time4oid;
-    }
+$json = file_get_contents($url);
+$json = preg_replace('/[[:cntrl:]]/', '', $json);
+$data = json_decode($json, true);
+$comps = $data["competitions"];
+foreach ($comps as $comp) {
+  $time4oid = $comp["time4oid"];
+  if (is_string($time4oid) && strlen($time4oid) > 0) {
+    $existingTime4oIds[] = $time4oid;
   }
 }
+
 $existingTime4oIds = array_values(array_unique($existingTime4oIds));
 
 header('Content-Type: text/html; charset=' . $CHARSET);
