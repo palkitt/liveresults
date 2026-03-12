@@ -8,6 +8,7 @@ if (isset($_GET['lang']) && $_GET['lang'] != "")
   $lang = $_GET['lang'];
 include_once("templates/emmalang_$lang.php");
 $emma = isset($_GET['emma']);
+$local = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
 $linkPrefix = ($emma ? "emma&" : "");
 
 function renderHeaderRow($DATE, $EVENTNAME, $SPORT, $ORGANIZER, $emma)
@@ -159,7 +160,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       <?php
       if ($emma)
         $url = "https://liveresultat.orientering.se/api.php?method=getcompetitions";
-      else if ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost')
+      else if ($local)
         $url = "http://localhost/api/api.php?method=getcompetitions";
       else
         $url = "https://api.liveres.live/api.php?method=getcompetitions";
@@ -176,33 +177,35 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             $existingTime4oIds[] = $comp['time4oid'];
           }
         }
+        if (!$local) {
+          $url = "https://center.time4o.com/api/v1/race";
+          $json = file_get_contents($url);
+          $data = json_decode($json, true);
+          $compsTime4o = $data["data"];
 
-        $url = "https://center.time4o.com/api/v1/race";
-        $json = file_get_contents($url);
-        $data = json_decode($json, true);
-        $compsTime4o = $data["data"];
 
-        foreach ($compsTime4o as $key => &$c) {
-          if (in_array($c['id'], $existingTime4oIds)) {
-            unset($compsTime4o[$key]);
-            continue;
-          }
-          $c['time4ocomp'] = true;
-          $c['lastactive'] = null;
-          $c['livecenterurl'] = '';
-          $c['sport'] = '';
-          $c['name'] = $c['title'];
-          if (!isset($c['organizer'])) {
-            $c['organizer'] = $c['event']['organisers'][0]['name'] ?? "";
-          }
-          if (isset($c["identifierType"]) && $c["identifierType"] == "Norway") {
-            $c['eventorid'] = $c["identifier"];
-          } else {
-            $c['eventorid'] = "";
+          foreach ($compsTime4o as $key => &$c) {
+            if (in_array($c['id'], $existingTime4oIds)) {
+              unset($compsTime4o[$key]);
+              continue;
+            }
+            $c['time4ocomp'] = true;
+            $c['lastactive'] = null;
+            $c['livecenterurl'] = '';
+            $c['sport'] = '';
+            $c['name'] = $c['title'];
+            if (!isset($c['organizer'])) {
+              $c['organizer'] = $c['event']['organisers'][0]['name'] ?? "";
+            }
+            if (isset($c["identifierType"]) && $c["identifierType"] == "Norway") {
+              $c['eventorid'] = $c["identifier"];
+            } else {
+              $c['eventorid'] = "";
+            }
           }
         }
+        $comps = array_merge($comps, $compsTime4o ?? []);
       }
-      $comps = array_merge($comps, $compsTime4o ?? []);
       usort($comps, function ($a, $b) {
         return strtotime($b['date']) <=> strtotime($a['date']);
       });
