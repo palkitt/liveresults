@@ -91,6 +91,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
           ret += "&title=" + encodeURIComponent(row.title);
           ret += "&date=" + encodeURIComponent(row.date);
           ret += "&org=" + encodeURIComponent(row.event.organisers[0].name);
+          ret += "&eventorid=" + encodeURIComponent(row.identifier);
           ret += "\">" + data + "</a>";
           return ret;
         }

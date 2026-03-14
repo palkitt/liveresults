@@ -135,7 +135,7 @@ class Emma
 		mysqli_query($conn, "delete from splitcontrols where tavid=$compid");
 	}
 
-	public static function CreateCompetition($name, $org, $date, $sport, $time4oid = "")
+	public static function CreateCompetition($name, $org, $date, $sport, $time4oid = "", $eventorid = "")
 	{
 		$conn = self::openConnection();
 		$res = mysqli_query($conn, "select max(tavid)+1 from login");
@@ -149,10 +149,14 @@ class Emma
 		list($id) = mysqli_fetch_row($res);
 		if ($id < 10000)
 			$id = 10000;
+		$URL = "";
+		if ($eventorid != "")
+			$URL = "https://eventor.orientering.no/Events/Show/$eventorid";
+
 		mysqli_query($conn, "insert into login(tavid,time4oid,user,pass,compName,organizer,compDate,public,massstartsort,tenthofseconds,fullviewdefault,rankedstartlist,
 		hightime,liveloxid,quallimits,qualclasses,multidaystage,multidayparent,showinfo,infotext,showecardtimes,showtimesinsprint,livecenterurl,sport)
 		values($id,'$time4oid','" . md5($name . $org . $date) . "','" . md5("liveresultat") . "','$name','$org','$date',1,0,0,0,1,$hightime,0,'',
-		'',0,0,0,'',$showecardtimes,0,'','$sport')") or die(mysqli_error($conn));
+		'',0,0,0,'',$showecardtimes,0,'$URL','$sport')") or die(mysqli_error($conn));
 		return $id;
 	}
 

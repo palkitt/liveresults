@@ -2,7 +2,7 @@
 include_once("../templates/classEmma.class.php");
 
 if (isset($_POST['btnSubmit'])) {
-  $id = Emma::CreateCompetition($_POST['name'], $_POST['org'], $_POST['date'], $_POST['sport'], $_POST['time4oid'] ?? '');
+  $id = Emma::CreateCompetition($_POST['name'], $_POST['org'], $_POST['date'], $_POST['sport'], $_POST['time4oid'] ?? '', $_POST['eventorid'] ?? '');
   header("Location: editComp.php?compid=$id");
   exit;
 }
@@ -17,6 +17,10 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 $time4oid = "";
 if (isset($_GET['time4oid'])) {
   $time4oid = $_GET['time4oid'];
+}
+$eventorid = "";
+if (isset($_GET['eventorid'])) {
+  $eventorid = $_GET['eventorid'];
 }
 $org = "";
 if (isset($_GET['org'])) {
@@ -97,6 +101,12 @@ if (isset($_GET['date'])) {
                       <tr>
                         <td><b>Time4o ID</b></td>
                         <td><input type="text" name="time4oid" style="width: 120px;" value="<?= htmlspecialchars($time4oid) ?>"></td>
+                      </tr>
+                    <?php } ?>
+                    <?php if ($eventorid != "") { ?>
+                      <tr>
+                        <td><b>Eventor ID</b></td>
+                        <td><input type="text" name="eventorid" style="width: 120px;" value="<?= htmlspecialchars($eventorid) ?>"></td>
                       </tr>
                     <?php } ?>
                     <tr>

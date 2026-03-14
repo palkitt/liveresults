@@ -72,7 +72,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                   <td>Id</td>
                   <td>T4o</td>
                   <td>Public</td>
-                  <td>URL</td>
+                  <td>Link</td>
                 </tr>
                 <?php
                 $comps = Emma::GetAllCompetitions();
@@ -112,7 +112,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                     </td>
                     <td><?= $comp["public"] == "1" ? "yes" : "no" ?></td>
                     <?php if (strlen($comp['livecenterurl']) > 0) { ?>
-                      <td><a href="../<?= $comp['livecenterurl'] ?>">URL</a></td>
+                      <td><a href="<?= $comp['livecenterurl'] ?>">Link</a></td>
                     <?php } ?>
                   </tr>
                 <?php
