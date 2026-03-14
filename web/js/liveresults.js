@@ -3045,49 +3045,31 @@ var LiveResults;
 
 
     AjaxViewer.prototype.updateResultVirtualPosition = function (data, updateIdx = true) {
-      var _this = this;
-      var i;
-      data.sort(this.resultSorter);
-      /* move down runners that have not finished to the correct place*/
-      var firstFinishedIdx = -1;
-      for (i = 0; i < data.length; i++) {
-        if (data[i].place != "") {
-          firstFinishedIdx = i;
-          break;
-        }
-      }
-
-      if (firstFinishedIdx == -1)
-        firstFinishedIdx = data.length;
-
       if (this.curClassIsMassStart) {
-        /*append results from splits backwards (by place on actual split)*/
-        data.sort(function (a, b) { return _this.sortByDistAndSplitPlace(a, b); });
+        // Append results from splits backwards (by place on actual split)
+        data.sort((a, b) => this.sortByDistAndSplitPlace(a, b));
       }
-      else {
-        var tmp = Array();
-        for (i = 0; i < firstFinishedIdx; i++) {
-          tmp.push(data[i]);
-        }
-        data.splice(0, firstFinishedIdx);
-        //advanced virtual-sorting for individual races
-        tmp.sort(this.sortByDist);
-        for (i = 0; i < tmp.length; i++) {
-          if (data.length == 0)
-            data.push(tmp[i]);
-          else
-            this.insertIntoResults(tmp[i], data);
+      else { // Advanced virtual-sorting for individual races
+        data.sort((a, b) => this.resultSorter(a, b));
+        // Move down runners that have not finished to the correct place
+        var firstFinishedIdx = data.findIndex(item => item.place != "");
+        if (firstFinishedIdx == -1)
+          firstFinishedIdx = data.length;
+        var notFinished = data.splice(0, firstFinishedIdx);
+        notFinished.sort(this.sortByDist);
+        for (var i = 0; i < notFinished.length; i++) {
+          this.insertIntoResults(notFinished[i], data);
         }
       }
-
-      for (i = 0; i < data.length; i++) {
+      // Update virtual positions
+      for (var i = 0; i < data.length; i++) {
         data[i].virtual_position = i;
         if (updateIdx)
           data[i].idx = i;
       }
     };
 
-    //Sorts results by the one that have run longest on the course
+    // Sort results by the one that have run longest on the course
     AjaxViewer.prototype.sortByDist = function (a, b) {
       if (a.progress == 0 && b.progress == 0) {
         if (a.start && !b.start)
@@ -3108,20 +3090,16 @@ var LiveResults;
         return b.progress - a.progress;
     };
 
-    //Sorts results by the one that have run longest on the course, and if they are on the same split, place on that split
-    //"MassStart-Sorting"
+    // Sort results by the one that have run longest on the course, and if they are on the same split, place on that split
+    // "MassStart-Sorting"
     AjaxViewer.prototype.sortByDistAndSplitPlace = function (a, b) {
-      var sortStatusA = a.status;
-      var sortStatusB = b.status;
-      if (sortStatusA == 9 || sortStatusA == 10 || sortStatusA == 13)
-        sortStatusA = 0;
-      if (sortStatusB == 9 || sortStatusB == 10 || sortStatusB == 13)
-        sortStatusB = 0;
+      var sortStatusA = a.status == 9 || a.status == 10 || a.status == 13 ? 0 : a.status;
+      var sortStatusB = b.status == 9 || b.status == 10 || b.status == 13 ? 0 : b.status;
       if (sortStatusA != sortStatusB) {
         if (sortStatusA == 0)
-          return -1
+          return -1;
         else if (sortStatusB == 0)
-          return 1
+          return 1;
         else
           return sortStatusB - sortStatusA;
       }
@@ -3143,7 +3121,7 @@ var LiveResults;
           return a.start - b.start;
       }
       if (a.progress == b.progress && a.progress > 0 && a.progress < 100) {
-        //Both have reached the same split
+        // Both have reached the same split
         if (this.curClassSplits != null) {
           for (var s = this.curClassSplits.length - 1; s >= 0; s--) {
             var splitCode = this.curClassSplits[s].code;
@@ -3160,30 +3138,27 @@ var LiveResults;
       return b.progress - a.progress;
     };
 
-    //Inserts a result in the array of results.
-    //The result to be inserted is assumed to have same or worse progress than all other results already in the array
+    // Inserts a result in the array of results.
+    // The result to be inserted is assumed to have same or less progress than all other results already in the array
     AjaxViewer.prototype.insertIntoResults = function (result, data) {
-      var d;
       if (this.curClassSplits != null) {
         for (var s = this.curClassSplits.length - 1; s >= 0; s--) {
-          var splitCode = this.curClassSplits[s].code;
-          if (result.splits[splitCode]) {
-            var numOthersAtSplit = 0;
-            for (d = 0; d < data.length; d++) {
-              if (data[d].splits[splitCode]) {
-                numOthersAtSplit++;
+          var splitTime = result.splits[this.curClassSplits[s].code];
+          if (splitTime) {
+            var othersAtSplit = false;
+            for (var i = 0; i < data.length; i++) {
+              var splitTimeOther = data[i].splits[this.curClassSplits[s].code];
+              if (splitTimeOther) {
+                othersAtSplit = true;
               }
-              // insert result 
-              // * before results with - as placemark
-              // * before the first result with worse time at this split 
-              if (data[d].place == "-" || (data[d].splits[splitCode] != "" && data[d].splits[splitCode] > result.splits[splitCode])) {
-                data.splice(d, 0, result);
+              // Insert result before results with "-"" as placemark and before the first result with worse time  
+              if (data[i].place == "-" || (splitTimeOther != "" && splitTimeOther > splitTime)) {
+                data.splice(i, 0, result);
                 return;
               }
             }
-            //If numothersatsplit there exists results at this split, but all are better than this one..
-            //Append last
-            if (numOthersAtSplit > 0) {
+            // If othersAtSplit there exists results at this split, but all are better than this one -> append last
+            if (othersAtSplit) {
               data.push(result);
               return;
             }
@@ -3192,15 +3167,13 @@ var LiveResults;
       }
       if (result.start != "") {
         var startTime = (result.start == -999 ? 8640000 : result.start);
-        for (d = 0; d < data.length; d++) {
-          if (data[d].place == "-") {
-            data.splice(d, 0, result);
-            return;
-          }
-          if (result.place == "" && data[d].place != "") {
-          }
-          else if (data[d].start != "" && data[d].start > startTime && result.progress == 0 && data[d].progress == 0) {
-            data.splice(d, 0, result);
+        for (var i = 0; i < data.length; i++) {
+
+          if (result.place == "" && data[i].place != "-" && data[i].place != "")
+            continue;
+
+          if (data[i].place == "-" || data[i].start != "" && data[i].start > startTime && result.progress == 0 && data[i].progress == 0) {
+            data.splice(i, 0, result);
             return;
           }
         }
@@ -3209,15 +3182,9 @@ var LiveResults;
     };
 
 
-    AjaxViewer.prototype.resultSorter = function (a, b) {
-      var aStatus = a.status;
-      var bStatus = b.status;
-      if (a.place == "F") {
-        aStatus = 0;
-      }
-      else if (b.place == "F") {
-        bStatus = 0;
-      }
+    AjaxViewer.prototype.compareResults = function (a, b, unfinishedFirst) {
+      var aStatus = (a.status == 13 ? 0 : a.status);
+      var bStatus = (b.status == 13 ? 0 : b.status);
       if (a.place != "" && b.place != "") {
         if (aStatus != bStatus)
           if (aStatus == 0)
@@ -3244,17 +3211,26 @@ var LiveResults;
           }
         }
       }
-      else if (a.place == "-" || a.place != "") {
-        return 1;
+      else if (a.place != "") {
+        return unfinishedFirst ? 1 : -1;
       }
-      else if (b.place == "-" || b.place != "") {
-        return -1;
+      else if (b.place != "") {
+        return unfinishedFirst ? -1 : 1;
       }
       else {
         return 0;
       }
     };
 
+
+    AjaxViewer.prototype.resultSorter = function (a, b) {
+      return this.compareResults(a, b, true);
+    };
+
+    // Same as resultSorter, but keeps not finshed runners between completed ones and diqualified ones
+    AjaxViewer.prototype.resultListSorter = function (a, b) {
+      return this.compareResults(a, b, false);
+    };
 
     AjaxViewer.prototype.startListSorter = function (a, b) {
       if (a.start - b.start != 0)
