@@ -182,13 +182,13 @@
 
 
   AjaxViewer.prototype.Time4oResultsToLiveres = function (payload, classInfo) {
-    if (payload.type === "startList" || payload.type === "plainResults") {
+    if (payload.type === "startlist" || payload.type.includes("plainresults")) {
       const entries = (payload?.data ?? []).map(entry =>
         this.normalizeEntry(entry, classInfo.find(c => c.id === entry?.raceClassId)));
-      const classEntries = this.groupEntriesByClass(entries, payload.type);
+      const classEntries = this.groupEntriesByClass(entries, payload.type, classInfo);
       return {
         status: "OK",
-        className: payload.type === "startList" ? "startlist" : "plainresults",
+        className: payload.type,
         results: classEntries,
         numEntries: entries.length,
         numResults: (classEntries || []).reduce(
@@ -214,10 +214,10 @@
   }
 
 
-  AjaxViewer.prototype.groupEntriesByClass = function (entries, type) {
+  AjaxViewer.prototype.groupEntriesByClass = function (entries, type, classInfo) {
     const groups = new Map();
     for (const e of (entries || [])) {
-      if (type === "plainResults" && (e.status == 9 || e.status == 10))
+      if (type === "plainresults" && (e.status == 9 || e.status == 10))
         continue;
       const name = e.class || "Unknown";
       if (!groups.has(name))
@@ -225,11 +225,14 @@
       groups.get(name).push(e);
     }
 
-    var sortType = (type === "startList") ? this.startListSorter : this.resultSorter;
+    const sortType = type === "startlist"
+      ? (a, b) => this.startListSorter(a, b)
+      : (a, b) => this.resultListSorter(a, b);
     const grouped = Array.from(groups, ([className, results]) => ({
       className,
       results: results.slice().sort(sortType),
-      distance: ""
+      distance: "",
+      qualificationLimit: classInfo.find(c => c.className === className)?.qualificationLimit ?? null
     }));
 
     return this.sortClasses(grouped);

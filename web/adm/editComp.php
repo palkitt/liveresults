@@ -213,6 +213,12 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                     <td>Display times with tenths of seconds</td>
                   </tr>
 
+                  <tr>
+                    <td>Show times in sprint heats</td>
+                    <td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?> /></td>
+                    <td>Show times in addition to places in sprint heats</td>
+                  </tr>
+
                   <?php if (!$time4o) { ?>
                     <tr>
                       <td>Show course results</td>
@@ -220,11 +226,6 @@ header('Content-Type: text/html; charset=' . $CHARSET);
                       <td>Display listing of all courses with links to results</td>
                     </tr>
 
-                    <tr>
-                      <td>Show times in sprint heats</td>
-                      <td><input type="checkbox" name="showtimesinsprint" <?= $comp['showtimesinsprint'] == 1 ? "checked" : "" ?> /></td>
-                      <td>Show times in addition to places in sprint heats</td>
-                    </tr>
                   <?php } ?>
 
                   <tr>

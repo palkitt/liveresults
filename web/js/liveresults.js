@@ -318,32 +318,41 @@ var LiveResults;
           var shiftHeat = false;
           var elitLast = false;
 
+          const sprintRe = this.Time4oServer ? /\b(KV|SE)\s*\d+|Finale|NM KO Tot(al|alt)/ :
+            /\|\s*(Prolog|Kvart|Semi|Finale)/; "";
+          const sprintCleanRe = this.Time4oServer ? /[\s-]+|(KV|SE)\s*\d+|Finale$|NM KO Tot(al|alt)$/g :
+            /\|\s*(Prolog|Kvart|Semi|Finale)\s*\d*/g;
+          const sprintURLRe = this.Time4oServer ? /(KV|SE)\s*\d+|Finale$|NM KO Tot(al|alt)$/g :
+            /\|\s*(Prolog|Kvart|Semi|Finale)\s*\d*/g;
+          const sprintPrRe = this.Time4oServer ? /\bPR\s*\d+$/ : /\|\s*Prolog/;
+          const sprintKvRe = this.Time4oServer ? /\bKV\s*\d+$/ : /\|\s*Kvart/;
+          const sprintSeRe = this.Time4oServer ? /\bSE\s*\d+$/ : /\|\s*Semi/;
+          const sprintFiRe = this.Time4oServer ? /\bFinale$/ : /\|\s*Finale/;
+
           for (var i = 0; i < nClass; i++) {
             var className = classes[i].className;
+            var classNameNext = (i < nClass - 1 ? classes[i + 1].className : "");
             this.courses[className] = (classes[i].courses != undefined ? classes[i].courses : []);
             var relay = relayNext;
             var sprint = sprintNext;
             var classNameURL = className.replace('\'', '\\\'');
             if (className && className.length > 0) {
               className = this.classShort(className);
-              var classNameClean = className.replace(/-[0-9]{1,2}$/, '');
-              classNameClean = classNameClean.replace(/-All$/, '');
+              var classNameClean = className.replace(/-[0-9]{1,2}$|-All$/, '');
               var LegNoStr = className.match(/-[0-9]{1,2}$/);
               var LegNo = parseInt((LegNoStr != null ? -LegNoStr[0] : 0), 10);
               var classNameCleanNext = "";
               var LegNoNext = 0;
 
               if (i < (nClass - 1)) { // Relay
-                classNameCleanNext = this.classShort(classes[i + 1].className);
-                classNameCleanNext = classNameCleanNext.replace(/-[0-9]{1,2}$/, '');
-                LegNoStr = classes[i + 1].className.match(/-[0-9]{1,2}$/);
+                classNameCleanNext = classNameNext.replace(/-[0-9]{1,2}$/, '');
+                LegNoStr = classNameNext.match(/-[0-9]{1,2}$/);
                 LegNoNext = parseInt((LegNoStr != null ? -LegNoStr[0] : 0), 10);
               }
 
-              if (classNameClean == classNameCleanNext && LegNoNext == LegNo + 1) // Relay trigger
-              {
-                if (!relay) // First class in relay  
-                {
+              // Relay
+              if (classNameClean == classNameCleanNext && LegNoNext == LegNo + 1) {
+                if (!relay) { // First class in relay 
                   if (this.EmmaServer)
                     str += "<b> " + classNameClean + "</b><br>&nbsp;";
                   else {
@@ -358,54 +367,30 @@ var LiveResults;
               }
               else { // Check for sprint
                 relayNext = false;
-                var classNameNext = (i < (nClass - 1) ? classes[i + 1].className : "");
-                if (/\|\s*(Prolog|Kvart|Semi|Finale)/.test(classNameURL)) {
-                  const sprintSuffixRe = /\|\s*(Prolog|Kvart|Semi|Finale)\s*\d*/g;
-                  var classNameCleanSprint = classNameURL.replace(sprintSuffixRe, '');
+                if (sprintRe.test(className) || sprintRe.test(classNameNext)) {
+                  var classNameCleanSprint = classNameURL.replace(sprintCleanRe, '');
+                  var classNameURLSprint = classNameURL.replace(sprintURLRe, ' ');
 
                   if (!sprint) // First class in sprint or new class
                     str += "<a href=\"javascript:LiveResults.Instance.chooseClass('plainresultsclass_" + classNameCleanSprint +
-                      "')\" style=\"text-decoration: none\"><b>" + this.classShort(classNameCleanSprint) + "</b></a><br>&nbsp;";
+                      "')\" style=\"text-decoration: none\"><b>" + this.classShort(classNameURLSprint) + "</b></a><br>&nbsp;";
                   sprint = true;
 
-                  var classNameCleanSprintNext = classNameNext.replace('\'', '\\\'').
-                    replace(sprintSuffixRe, '');
+                  var classNameCleanSprintNext = classNameNext.replace(sprintCleanRe, '');
                   sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
 
-                  const sprintPrologRe = /\|\s*Prolog/;
-                  const sprintKvartRe = /\|\s*Kvart/;
-                  const sprintSemiRe = /\|\s*Semi/;
-                  if (i < (nClass - 1) && (sprintPrologRe.test(className) ||
-                    sprintKvartRe.test(className) && !sprintKvartRe.test(classNameNext) ||
-                    sprintSemiRe.test(className) && !sprintSemiRe.test(classNameNext)))
-                    shiftHeat = true;
-                  else
-                    shiftHeat = false;
-                }
-                // Time4o sprint format
-                const sprintTailRe = /\b(?:KV|SE)\s*\d+|Finale|NM KO Tot(?:al|alt)/;
-                if (this.Time4oServer && (sprintTailRe.test(classNameNext) || sprintTailRe.test(className))) {
-                  if (!sprint) // First class in sprint or new class
-                    str += "<hr>" + this.classShort(className) + "<br>&nbsp;";
-                  sprint = true;
-
-                  const sprintSuffixRe = /[\s-]+|(KV|SE)\s*\d+|Finale$|NM KO Tot(al|alt)$/g;
-                  var classNameCleanSprint = className.replace(sprintSuffixRe, '');
-                  var classNameCleanSprintNext = classNameNext.replace(sprintSuffixRe, '');
-                  sprintNext = (classNameCleanSprintNext == classNameCleanSprint);
-
-                  const sprintHeatKv = /\bKV\s*\d+$/;
-                  const sprintHeatSe = /\bSE\s*\d+$/;
                   if (i < (nClass - 1) && (
-                    !sprintHeatKv.test(className) && sprintHeatKv.test(classNameNext) ||
-                    sprintHeatKv.test(className) && !sprintHeatKv.test(classNameNext) ||
-                    sprintHeatSe.test(className) && !sprintHeatSe.test(classNameNext)))
+                    sprintPrRe.test(className) ||
+                    !sprintKvRe.test(className) && sprintKvRe.test(classNameNext) ||
+                    sprintKvRe.test(className) && !sprintKvRe.test(classNameNext) ||
+                    sprintSeRe.test(className) && !sprintSeRe.test(classNameNext)))
                     shiftHeat = true;
                   else
                     shiftHeat = false;
                 }
               }
 
+              // Relay view
               if (relay) {
                 this.relayClasses.push(classes[i].className);
                 var legText = "";
@@ -421,15 +406,14 @@ var LiveResults;
                   str += "<br>";
               }
               else if (sprint) {
-                var sprintHeatReg = /(?:\|\s*(Prolog|Kvart|Semi|Finale)\s*\d+)|(?:\b(KV|SE)\s*\d+$)|(?:Finale$)|(?:NM KO Tot(?:al|alt)$)/g;
-                var isHeat = sprintHeatReg.test(className);
+                var isHeat = sprintRe.test(className);
                 var heatStr = className.match(/ \d+$/);
                 var heat = parseInt((heatStr != null ? heatStr[0] : 0), 10);
                 if (isHeat && heat > 1 && (heat - 1) % 4 == 0) // Line shift every 4 heat
                   str += "<br>&nbsp;"
-                const isKvart = /\|\s*Kvart/.test(className) || /\bKV\s*\d*/.test(className);
-                const isSemi = /\|\s*Semi/.test(className) || /\bSE\s*\d*/.test(className);
-                const isFinal = /Finale/.test(className);
+                const isKvart = sprintKvRe.test(className);
+                const isSemi = sprintSeRe.test(className);
+                const isFinal = sprintFiRe.test(className);
                 const isKoTotal = /NM KO Tot(?:al|alt)/.test(className);
 
                 if (isKvart)
@@ -2015,6 +1999,18 @@ var LiveResults;
       });
     }
 
+    AjaxViewer.prototype.getSprintStage = function (className) {
+      const sprintClass = (className || "").toUpperCase();
+      if (/\|\s*PROLOG/.test(sprintClass))
+        return 0;
+      if (/(\|\s*KVART\b|\bKV\s*\d+)/.test(sprintClass))
+        return 1;
+      if (/(\|\s*SEMI\b|\bSE\s*\d+)/.test(sprintClass))
+        return 2;
+      if (/\s*FINALE\b|F\s*\d+/.test(sprintClass))
+        return 3;
+      return -1;
+    };
 
     AjaxViewer.prototype.chooseClass = function (className) {
       if (className.length == 0)
@@ -2040,35 +2036,34 @@ var LiveResults;
       this.curRelayView = null;
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
       var preTime = new Date().getTime();
-      var callStr;
-      if (className == "plainresults")
-        callStr = "&method=getplainresults&unformattedTimes=true";
-      else if (className == "plainresultstotal")
-        callStr = "&method=getplainresults&unformattedTimes=true&includetotal=true";
-      else if (className.includes("plainresultsclass_"))
-        callStr = "&method=getplainresults&unformattedTimes=true&classmask=" + className.replace("plainresultsclass_", "");
-      else if (className == "startlist")
-        callStr = "&method=getstartlist";
-      else { // Normal class
-        var includeTotal = (this.isMultiDayEvent && className.indexOf("course::") != 0);
-        callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className) + "&nosplits=" + this.noSplits + (includeTotal ? "&includetotal=true" : "");
-        if (className.indexOf("course::") != 0 && this.LiveloxID > 0) {
-          let LiveloxLink = 'https://www.livelox.com/Viewer?eventId=' + this.LiveloxID + '&className=' + encodeURIComponent(className);
-          $('#divLivelox').html('<a href="' + LiveloxLink + '">Livelox <img src="images/livelox32x32.png" style="height:1em;"></a>');
-        }
-      }
+      var URLextra = "";
 
-      var URLextra;
-      if (this.Time4oServer) {
-        URLextra = "race/" + this.competitionId + "/entry";
-        if (className != "startlist" && className != "plainresults")
-          URLextra += "?raceClassId=" +
-            this.activeClasses?.find(c => c.className === this.curClassName).id;
-      }
-      else {
+      if (!this.Time4oServer) {
+        var callStr = "";
+        if (className == "plainresults")
+          callStr = "&method=getplainresults&unformattedTimes=true";
+        else if (className == "plainresultstotal")
+          callStr = "&method=getplainresults&unformattedTimes=true&includetotal=true";
+        else if (className.includes("plainresultsclass_"))
+          callStr = "&method=getplainresults&unformattedTimes=true&classmask=" + className.replace("plainresultsclass_", "");
+        else if (className == "startlist")
+          callStr = "&method=getstartlist";
+        else { // Normal class
+          var includeTotal = (this.isMultiDayEvent && className.indexOf("course::") != 0);
+          callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className)
+            + "&nosplits=" + this.noSplits + (includeTotal ? "&includetotal=true" : "");
+          if (className.indexOf("course::") != 0 && this.LiveloxID > 0) {
+            let LiveloxLink = 'https://www.livelox.com/Viewer?eventId=' + this.LiveloxID + '&className=' + encodeURIComponent(className);
+            $('#divLivelox').html('<a href="' + LiveloxLink + '">Livelox <img src="images/livelox32x32.png" style="height:1em;"></a>');
+          }
+        }
         URLextra = "?comp=" + this.competitionId + callStr;
       }
-
+      else {
+        URLextra = "race/" + this.competitionId + "/entry";
+        if (className != "startlist" && !className.includes("plainresults"))
+          URLextra += "?raceClassId=" + this.activeClasses?.find(c => c.className === this.curClassName).id;
+      }
       $.ajax({
         url: this.apiURL + URLextra,
         headers: {},
@@ -2088,7 +2083,10 @@ var LiveResults;
               expTime = new Date(resp.getResponseHeader("date")).getTime() - _this.updateInterval;
               _this.lastClassHash = resp.getResponseHeader("etag").slice(1, -1);
               data.status = "OK";
-              data.type = (className === "startlist" ? "startList" : className === "plainresults" ? "plainResults" : "classResults");
+              if (className == "startlist" || className.includes("plainresults"))
+                data.type = className;
+              else
+                data.type = "classresults";
               data.rt = _this.updateInterval / 1000;
             }
             else
@@ -2120,7 +2118,7 @@ var LiveResults;
       var _this = this;
       if (data != null && data.status == "OK") {
         if (this.Time4oServer) {
-          if (data.type == 'startList' || data.type == 'plainResults') {
+          if (data.type == 'startlist' || data.type.includes('plainresults')) {
             data = this.Time4oResultsToLiveres(data, this.activeClasses);
           }
           else {
@@ -2175,6 +2173,7 @@ var LiveResults;
           $('#' + this.resultsControlsDiv).show();
         }
 
+        // Plain results for several classes
         if (data.className.includes("plainresults")) {
           $('#updateinterval').html("- ");
           $('#liveIndicator').html('');
@@ -2186,21 +2185,22 @@ var LiveResults;
             }
           });
           var res = "";
-          var isSprint = (data.className.includes("plainresultsclass"));
+          var isSprint = data.className.includes("plainresultsclass");
+          var classNamePlain = data.className.replace("plainresultsclass_", "").replace(/[\s-]+/g, "");
           if (isSprint)
             res += "<tr>";
           var sprintStageLast = -1;
           var first = true;
           for (var i = 0; i < data.results.length; i++) {
             var className = data.results[i].className;
+            if (isSprint && (!className.replace(/[\s-]+/g, "").includes(classNamePlain) ||
+              /NM KO Tot(al|alt)$/.test(className)))
+              continue;
+            var qualLim = data.results[i].qualificationLimit ?? null;
             var classNameHeader = className;
             var distance = (data.results[i].distance != "" ? "&emsp;" + data.results[i].distance + " km" : "");
-
-            var sprintStage = (className.includes('| Prolog') ? 0 : (
-              className.includes('| Kvart') ? 1 : (
-                className.includes('| Semi') ? 2 : (
-                  className.includes('| Finale') ? 3 : -1))));
-            var isSprintHeat = sprintStage > 0;
+            var sprintStage = this.getSprintStage(className);
+            var isSprintHeat = isSprint && sprintStage > 0;
 
             if (isSprint) {
               if (first)
@@ -2212,43 +2212,66 @@ var LiveResults;
               var classPre = data.className.replace("plainresultsclass_", "") + " | ";
               classNameHeader = className.replace(classPre, "");
             }
-
-            res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;" + classNameHeader + "</span>";
+            res += "<tr style=\"background-color:#E6E6E6;\"><td colspan=6><span style=\"font-weight:bold; font-size: 1.3em\">&nbsp;"
+              + classNameHeader + "</span>";
             res += distance + "</td></tr>";
-            res += "<tr style=\"font-weight:bold\"><td align=\"right\">#</td><td>" + this.resources["_NAME"] + "</td>"
-            if (!isSprintHeat)
+
+            if (!isSprint) {
+              res += "<tr style=\"font-weight:bold\"><td align=\"right\">#</td><td>" + this.resources["_NAME"] + "</td>"
               res += "<td>" + this.resources["_CLUB"] + "</td>";
-            res += "<td align=\"right\">Tid</td><td align=\"right\">Diff</td>";
-            if (!isSprintHeat && hasDistance)
-              res += "<td align=\"right\">m/km&nbsp;</td>";
-            res + "</tr>";
+              res += "<td align=\"right\">Tid</td>";
+              res += "<td align=\"right\">Diff</td>";
+              if (hasDistance)
+                res += "<td align=\"right\">m/km&nbsp;</td>";
+              res + "</tr>";
+            }
+
             for (var j = 0; j < data.results[i].results.length; j++) {
+              var name = this.nameShort(data.results[i].results[j].name);
+              var club = this.clubShort(data.results[i].results[j].club);
               var time = data.results[i].results[j].result;
+              var place = data.results[i].results[j].place;
+              var timeplus = data.results[i].results[j].timeplus;
+              var status = data.results[i].results[j].status;
               var kmTime = data.results[i].results[j].pace;
-              var name = data.results[i].results[j].name;
-              if (name.length > this.maxNameLength)
-                name = this.nameShort(name);
-              var club = data.results[i].results[j].club;
-              if (club.length > this.maxClubLength)
-                club = this.clubShort(club);
-              res += "<tr><td align=\"right\">" + data.results[i].results[j].place + "</td>";
+              var start = data.results[i].results[j].start;
+
+              res += "<tr><td align=\"right\"";
+              if (qualLim != null && place > 0 && place <= qualLim)
+                res += " style=\"background-color:lightgreen\"";
+              res += ">" + place + "</td>";
               res += "<td>" + name + "</td>";
               if (!isSprintHeat)
                 res += "<td>" + club + "</td>";
-              if (isSprintHeat && !this.showTimesInSprint)
-                res += "<td></td><td></td>";
-              else {
-                res += "<td align=\"right\">" + this.formatTime(time, data.results[i].results[j].status, _this.showTenthOfSecond) + "</td>";
-                res += "<td align=\"right\"><span class=plustime>"
-                if (data.results[i].results[j].status == 0)
-                  res += "+" + this.formatTime(data.results[i].results[j].timeplus, data.results[i].results[j].status, _this.showTenthOfSecond);
-                res += "</span></td>";
+              if (isSprint) {
+                res += "<td align=\"right\">"
+                if (this.showTimesInSprint || !isSprintHeat) {
+                  if (status == 9 || status == 10) {
+                    res += "<span class=\"small plustime\">";
+                    res += this.formatTime(start, 0, false, true, false, true);
+                    res += "</span>";
+                  }
+                  else if (place == 1 || status != 0) {
+                    res += this.formatTime(time, status, _this.showTenthOfSecond);
+                  }
+                  else {
+                    res += "+" + this.formatTime(timeplus, 0, _this.showTenthOfSecond);
+                  }
+                }
+                res += "</td>";
               }
-              if (!isSprintHeat && hasDistance) {
-                res += "<td align=\"right\"><span class=plustime>";
-                if (data.results[i].results[j].status == 0 && kmTime > 0)
-                  res += this.formatTime(kmTime, 0, _this.showTenthOfSecond);
-                res += "&nbsp;</span>";
+              else {
+                res += "<td align=\"right\">" + this.formatTime(time, status, _this.showTenthOfSecond) + "</td>";
+                res += "<td align=\"right\"><span class=plustime>"
+                if (status == 0)
+                  res += "+" + this.formatTime(timeplus, status, _this.showTenthOfSecond);
+                res += "</span></td>";
+                if (hasDistance) {
+                  res += "<td align=\"right\"><span class=plustime>";
+                  if (status == 0 && kmTime > 0)
+                    res += this.formatTime(kmTime, 0, _this.showTenthOfSecond);
+                  res += "&nbsp;</span>";
+                }
               }
               res += "</tr>";
             }
@@ -2262,6 +2285,7 @@ var LiveResults;
           else
             $('#numberOfRunners').html($("#numberOfRunnersTotal").html());
         }
+        // Start list 
         else if (data.className == "startlist") {
           $('#updateinterval').html("- ");
           $('#liveIndicator').html('');
@@ -2321,6 +2345,7 @@ var LiveResults;
         else if (data.results != null && data.results.length == 0) {
           $('#numberOfRunners').html('<span style=\"font-weight:bold; font-size: 2em\">Ingen løpere i klassen.</span>');
         }
+        // Normal class result view
         else if (data.results != null && data.results.length > 0) {
           $('#updateinterval').html(this.updateInterval / 1000);
           if (this.EmmaServer)
@@ -2364,7 +2389,7 @@ var LiveResults;
           var columns = Array();
           var col = 0;
           var isRelayClass = this.relayClasses.includes(data.className);
-          var isSprintHeat = (data.className.includes('| Kvart') || data.className.includes('| Semi') || data.className.includes('| Finale'));
+          var isSprintHeat = this.getSprintStage(data.className) > 0;
 
           columns.push({
             name: "place",
