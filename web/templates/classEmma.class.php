@@ -1294,12 +1294,18 @@ class Emma
 
 	function getEcardTimesForClassCourse($className, $course)
 	{
-		$common = ($course == -1); // All common controls
-		if ($common) {
+		$common = false;
+		if ($course == -1 || $course == -2)
 			$courses = $this->Courses($className);
+
+		if ($course == -1) { // All common controls
+			$common = true;
 			$ret = $this->getCommonCourseControls($courses);
 			$controls = $ret[0];
 			$courseArray = $ret[1];
+		} else if ($course == -2) { // First course for class
+			$courses = [$courses[0]];
+			$controls = $this->getCourseControls($courses[0]);
 		} else {
 			$courses = [$course];
 			$controls = $this->getCourseControls($course);
