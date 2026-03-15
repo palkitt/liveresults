@@ -705,7 +705,7 @@ div.dt-buttons>.dt-button:hover {
   padding-left: 3px;
   width: calc(100vw - 15em);
   box-sizing: border-box;
-  overflow-x: hidden;
+  overflow-x: auto;
 }
 
 /*-----------------------------------*/

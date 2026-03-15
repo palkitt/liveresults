@@ -566,7 +566,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   </td>
                   <td align="right">
                     <a href="radio.php?code=0&posttime=999&pretime=999&comp=<?= $LRcompID ?>"><?= $_START ?></a> |
-                    <a href=" radio.php?code=-1&comp=<?= $LRcompID ?>">Melde</a> |
+                    <a href="radio.php?code=-1&comp=<?= $LRcompID ?>">Melde</a> |
                     <a href="radio.php?code=1000&comp=<?= $LRcompID ?>"><?= $_CONTROLFINISH ?></a> |
                     <a href="https://time.is/Oslo" id="time_is_link" rel="nofollow" style="text-decoration: none; color: #FFF"></a><span id="Oslo_z71e"></span>
                   </td>
