@@ -3359,7 +3359,7 @@ var LiveResults;
       if (data != null && data.status == "OK") {
         if (this.Time4oServer)
           data = this.Time4oClubResultsToLiveres(data, _this.activeClasses);
-        if (data.clubName != null) {
+        if (data.clubName != null)
           $('#' + this.resultsHeaderDiv).html('<b>' + data.clubName + '</b>');
         if (data.results != null) {
           var hasPace = false;
@@ -3882,10 +3882,9 @@ var LiveResults;
         $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
       }
       if (data != null && data.status == "OK") {
-        if (this.Time4oServer) {
+        if (this.Time4oServer)
           data = this.Time4oRelayResultsToLiveres(data, className, this.activeClasses);
-        }
-        if (data.className != null) {
+        if (data.className != null)
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
         if (data.legs != null && data.relayresults != null) {
           var legs = data.legs;

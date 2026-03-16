@@ -1295,9 +1295,11 @@ class Emma
 	function getEcardTimesForClassCourse($className, $course)
 	{
 		$common = false;
-		if ($course == -1 || $course == -2)
+		if ($course == -1 || $course == -2) {
 			$courses = $this->Courses($className);
-
+			if (sizeof($courses) == 0)
+				return array();
+		}
 		if ($course == -1) { // All common controls
 			$common = true;
 			$ret = $this->getCommonCourseControls($courses);

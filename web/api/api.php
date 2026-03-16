@@ -432,6 +432,10 @@ if ($_GET['method'] == 'getcompetitions') {
 
 	$RT = insertHeader($refreshTime);
 	$res = courseSplitResults($class, $course);
+	if ($res == null) {
+		echo ("{ \"status\": \"Error\", \"message\": \"No results\"}");
+		return;
+	}
 	$ret = $res[0];
 	$splitJSON = $res[1];
 
@@ -1025,10 +1029,10 @@ function courseResults($course)
 
 function courseSplitResults($class, $course)
 {
-	global $RunnerStatus;
 	global $currentComp;
-
 	$ret = $currentComp->getEcardTimesForClassCourse($class, $course);
+	if (!$ret)
+		return null;
 	$results = $ret[0];
 	$controls = $ret[1];
 
@@ -1068,7 +1072,6 @@ function courseSplitResults($class, $course)
 
 			foreach ((array)$results as $key => $res) {
 				$sp_time = -1;
-				$raceTime = $res['Time'];
 				$raceStatus = $res['Status'];
 
 				if (isset($res[$split . $type . "_time"])) {
@@ -1099,7 +1102,6 @@ function courseSplitResults($class, $course)
 
 	usort($results, "sortByResult");
 	$first = true;
-	$keys = array_keys($results);
 	foreach ((array)$results as $res) {
 		if (!$first)
 			$ret .= ",";
