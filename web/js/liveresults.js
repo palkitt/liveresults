@@ -3,7 +3,7 @@ var LiveResults;
   // ReSharper disable once InconsistentNaming
   LiveResults.Instance = null;
   var AjaxViewer = /** @class */ (function () {
-    function AjaxViewer(local, competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsControlsDiv, resultsDiv, txtResetSorting,
+    function AjaxViewer(local, competitionId, language, classesDiv, lastPassingsDiv, resultsHeaderDiv, resultsDiv, txtResetSorting,
       resources, isMultiDayEvent, isSingleClass, setAutomaticUpdateText, setCompactViewText, runnerStatus, showTenthOfSecond, radioPassingsDiv,
       EmmaServer, Time4oServer, filterDiv = null, fixedTable = false) {
       var _this = this;
@@ -15,7 +15,6 @@ var LiveResults;
       this.classesDiv = classesDiv;
       this.lastPassingsDiv = lastPassingsDiv;
       this.resultsHeaderDiv = resultsHeaderDiv;
-      this.resultsControlsDiv = resultsControlsDiv;
       this.resultsDiv = resultsDiv;
       this.radioPassingsDiv = radioPassingsDiv;
       this.txtResetSorting = txtResetSorting;
@@ -2170,7 +2169,6 @@ var LiveResults;
             $('#' + this.resultsHeaderDiv).html(nameDistance);
             $("#" + this.txtResetSorting).html(link);
           }
-          $('#' + this.resultsControlsDiv).show();
         }
 
         // Plain results for several classes
@@ -3363,8 +3361,6 @@ var LiveResults;
           data = this.Time4oClubResultsToLiveres(data, _this.activeClasses);
         if (data.clubName != null) {
           $('#' + this.resultsHeaderDiv).html('<b>' + data.clubName + '</b>');
-          $('#' + this.resultsControlsDiv).show();
-        }
         if (data.results != null) {
           var hasPace = false;
           $.each(data.results, function (idx, res) {
@@ -3891,8 +3887,6 @@ var LiveResults;
         }
         if (data.className != null) {
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>');
-          $('#' + this.resultsControlsDiv).show();
-        }
         if (data.legs != null && data.relayresults != null) {
           var legs = data.legs;
           var numberOfTeams = data.relayresults[0].results.length;
@@ -4151,7 +4145,6 @@ var LiveResults;
         if (data.className != null) {
           var courseName = (course > 0 && _this.courseNames.length > 0 ? _this.courseNames.find(item => item.No === Number(course)).Name : 'Felles poster');
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>&nbsp;&nbsp;<small>' + courseName + '</small>');
-          $('#' + this.resultsControlsDiv).show();
         }
         if (data.results != null) {
           $.each(data.results, function (idx, res) {
@@ -4470,7 +4463,7 @@ var LiveResults;
 
 
     // ReSharper disable once InconsistentNaming
-    AjaxViewer.VERSION = "2016-08-06-01";
+    AjaxViewer.VERSION = "2016-08-01";
     return AjaxViewer;
   }());
 

@@ -155,7 +155,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							divR.style = "width: 100%";
 							divR.id = divResults;
 
-							res[j] = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, compID, "no", "divClasses", "divLastPassings", resultsHeader, "resultsControls", divResults,
+							res[j] = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, compID, "no", "divClasses", "divLastPassings", resultsHeader, divResults,
 								"txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "", false, "", true);
 							res[j].highTime = 0;
 							res[j].noSplits = true;

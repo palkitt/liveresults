@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "checkJs": false,
+        "maxNodeModuleJsDepth": 0
+    },
+    "exclude": [
+        "node_modules",
+        "packages",
+        ".vs",
+        "**/bin",
+        "**/obj",
+        "web/dt"
+    ]
+}

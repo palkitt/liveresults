@@ -49,7 +49,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 		$(document).ready(function() {
 			res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, <?= $_GET['comp'] ?>, "<?= $lang ?>",
-				"divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
+				"divClasses", "divLastPassings", "resultsHeader", "divResults", "txtResetSorting",
 				Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, true, "divRadioPassings",
 				false, false, "filterText");
 			res.updateStartList();

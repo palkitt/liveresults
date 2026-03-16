@@ -149,7 +149,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         echo 'maxBib = ', $_GET['maxbib'], ';';
       ?>
 
-      res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, "<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader", "resultsControls",
+      res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, "<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader",
         "divResults", "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "divRadioPassings",
         false, <?= ($isTime4oComp) ?>, "filterText");
       res.compName = "<?= $compName ?>";

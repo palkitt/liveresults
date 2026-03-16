@@ -214,7 +214,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       <?php } ?>
 
       res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, "<?= $compID ?>", "<?= $lang ?>",
-        "divClasses", "divLastPassings", "resultsHeader", "resultsControls", "divResults", "txtResetSorting",
+        "divClasses", "divLastPassings", "resultsHeader", "divResults", "txtResetSorting",
         Resources, <?= $isMultiDayEvent ?>, <?= (($isSingleClass || $isSingleClub) ? "true" : "false") ?>,
         "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "",
         <?= ($isEmmaComp ? "true" : "false") ?>, <?= ($isTime4oComp ? "true" : "false") ?>);
