@@ -9,7 +9,7 @@ var LiveResults;
       var _this = this;
       this.local = local;
       this.competitionId = competitionId;
-      this.Time4oId = null;
+      this.LiveResID = null;
       this.LiveloxID = 0;
       this.language = language;
       this.classesDiv = classesDiv;
@@ -108,10 +108,12 @@ var LiveResults;
         this.radioUpdateInterval = 15000;
         this.apiURL = "https://center.time4o.com/api/v1/";
         if (this.local) {
+          this.splitApiURL = "api/api.php";
           this.radioURL = "api/radioapi.php";
           this.messageURL = "api/messageapi.php";
         }
         else {
+          this.splitApiURL = "//api.liveres.live/api.php";
           this.radioURL = "//api.liveres.live/radioapi.php"
           this.messageURL = "//api.liveres.live/messageapi.php";
         }
@@ -256,8 +258,7 @@ var LiveResults;
       this.inactiveTimer += this.classUpdateInterval / 1000;
       var URLextra, headers;
       if (this.Time4oServer) {
-        let id = this.Time4oId ? this.Time4oId : this.competitionId;
-        URLextra = "race/" + id + "/raceClass";
+        URLextra = "race/" + this.competitionId + "/raceClass";
         headers = this.lastClassListHash ? { 'If-None-Match': this.lastClassListHash } : {};
       }
       else {
@@ -2160,7 +2161,7 @@ var LiveResults;
             }
             else {// Class results
               headerName = data.className;
-              var courses = this.courses[data.className];
+              var courses = (this.Time4oServer ? [-2] : this.courses[data.className]); // Code -2 for first course in class
               if (this.showEcardTimes && courses != undefined && courses.length > 0)
                 link = this.splitTimesLink(data.className, courses);
             }
@@ -4110,10 +4111,11 @@ var LiveResults;
       this.curClassName = null;
       this.curSplitView = [className, course];
       this.curRelayView = null;
-      $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+      var splitTimescompID = (this.Time4oServer ? this.LiveResID : this.competitionId);
       $.ajax({
-        url: this.apiURL,
-        data: "comp=" + this.competitionId + "&method=getclasscoursesplits&class=" + encodeURIComponent(className) + "&course=" + course,
+        url: (this.Time4oServer ? this.splitApiURL : this.apiURL),
+        data: "comp=" + splitTimescompID + "&method=getclasscoursesplits&class="
+          + encodeURIComponent(className) + "&course=" + course,
         dataType: "json",
         success: function (data, status, resp) {
           var expTime = new Date();
@@ -4139,10 +4141,15 @@ var LiveResults;
         lastUpdate.setTime(expTime - updateInterval + 1000);
         $('#lastupdate').html(new Date(lastUpdate).toLocaleTimeString());
       }
-
-      if (data != null && data.status == "OK") {
+      if (data == null || data.status != "OK")
+        $('#numberOfRunners').html('<span style=\"font-weight:bold; font-size: 2em\">Strekktider mangler.</span>');
+      else {
         if (data.className != null) {
-          var courseName = (course > 0 && _this.courseNames.length > 0 ? _this.courseNames.find(item => item.No === Number(course)).Name : 'Felles poster');
+          var courseName = "";
+          if (course == -1)
+            courseName = "Felles poster";
+          else if (course > 0 && _this.courseNames.length > 0)
+            courseName = _this.courseNames.find(item => item.No === Number(course)).Name;
           $('#' + this.resultsHeaderDiv).html('<b>' + data.className + '</b>&nbsp;&nbsp;<small>' + courseName + '</small>');
         }
         if (data.results != null) {
@@ -4208,15 +4215,7 @@ var LiveResults;
               for (var i = 0; i < data.splitcontrols.length; i++) {
                 var code = data.splitcontrols[i];
                 var title = "";
-                if (course > 0) {
-                  if (i == 0)
-                    title = "S-1<br>(" + code + ")";
-                  else if (code == 999)
-                    title = i + "-" + _this.resources["_CONTROLFINISH"];
-                  else
-                    title = i + "-" + (i + 1) + "<br>(" + code + ")";
-                }
-                else {
+                if (course == -1) { // Common controls
                   var codePre = (i > 0 ? data.splitcontrols[i - 1] : 0);
                   if (i == 0)
                     title = "S-" + code;
@@ -4224,6 +4223,14 @@ var LiveResults;
                     title = codePre + "-" + _this.resources["_CONTROLFINISH"];
                   else
                     title = codePre + "-" + code;
+                }
+                else {
+                  if (i == 0)
+                    title = "S-1<br>(" + code + ")";
+                  else if (code == 999)
+                    title = i + "-" + _this.resources["_CONTROLFINISH"];
+                  else
+                    title = i + "-" + (i + 1) + "<br>(" + code + ")";
                 }
 
                 columns.push({
@@ -4287,10 +4294,9 @@ var LiveResults;
                       // Second line
                       if (splitTime > 0) {
                         txt += "<br>";
+                        place = "";
                         if (splitMiss)
                           txt += "<div class = \"splitMiss\">";
-                        place = "";
-
                         if (splitPlace == 1) {
                           place += "<span class=\"place1\"> ";
                           txt += "<span class=\"time1\">";
@@ -4349,6 +4355,8 @@ var LiveResults;
 
 
     AjaxViewer.prototype.splitAnalyze = function (splitResults) {
+      if (splitResults.length === 0 || splitResults[0].split_time == undefined)
+        return;
       var nRunners = splitResults.length;
       var nSplits = splitResults[0].split_time.length;
       const bestFrac = 0.25; // Best time fraction
