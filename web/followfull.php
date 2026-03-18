@@ -219,7 +219,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "",
         <?= ($isEmmaComp ? "true" : "false") ?>, <?= ($isTime4oComp ? "true" : "false") ?>);
 
-      <?php if ($isTime4oComp) { ?>
+      <?php if ($isTime4oComp && $LiveResID) { ?>
         res.LiveResID = <?= $LiveResID ?>;
       <?php } ?>
 
