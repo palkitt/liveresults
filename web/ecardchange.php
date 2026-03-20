@@ -320,7 +320,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
 		<div class="maindiv" style="padding-left: 10px; width: 95%; font-size:larger">
 			<div id="inactiveinfo" style="color:red; font-size: 1.2em; font-weight:bold;"></div>
-			Søk opp deltager eller velg fra lista og legg inn nytt brikkenummer.
+			Søk opp deltager eller velg fra lista. Legg deretter inn nytt brikkenummer.
 
 			<h2>Søk</h2>
 			<div style="margin-bottom: 10px;">
@@ -360,7 +360,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				</div>
 			</div>
 			<br><br>
-			<button id="submit" type="submit" onclick="submit();">Send in</button>
+			<button id="submit" type="submit" onclick="submit();">Send inn</button>
 			<button id="cancel" type="button" onclick="cancel();">Avbryt</button>
 			<br><br>
 			<div id="entrydata">...</div>

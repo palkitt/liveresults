@@ -377,7 +377,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 				<h3><b>Navn på ny klubb</b></h3>
 				<input id="newclubname" type="text" style="width:95%">
 			</div>
-			<div id="clubverification">Kontakt løpskontor om din klubb ikke er i lista.</div>
+			<div id="clubverification">Kontakt løpskontoret om din klubb ikke er i lista.</div>
 
 			<h2>Velg klasse</h2>
 			<select id="classSelect" style="width:95%"></select>
@@ -411,7 +411,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			<input id="comment" type="text" style="width:95%">
 
 			<br><br>
-			<button id="submit" type="submit" onclick="submit();">Send in</button>
+			<button id="submit" type="submit" onclick="submit();">Send inn</button>
 			<button id="cancel" type="button" onclick="cancel();">Avbryt</button>
 
 			<br><br>
