@@ -1323,7 +1323,7 @@ class Emma
 		$q .= "results.Status, results.Changed, results.DbID, results.Control ";
 		$q .= "FROM runners, results WHERE results.DbID = runners.DbId AND results.TavId = " . $this->m_CompId . " ";
 		$q .= "AND runners.TavId = " . $this->m_CompId . " AND runners.course IN (" . implode(',', $courses) . ") ";
-		$q .= "AND results.Control IN (-999, 999, 1000) AND results.Status IN (0, 2, 3, 4, 6, 13) ";
+		$q .= "AND results.Control IN (-999, 100, 999, 1000) AND results.Status IN (0, 2, 3, 4, 6, 13) ";
 		$q .= $classQuery;
 		$q .= "ORDER BY results.Dbid, results.Control";
 
@@ -1332,15 +1332,18 @@ class Emma
 				$dbId = intval($row['DbID']);
 				if (!isset($ret[$dbId])) {
 					$ret[$dbId] = array();
-					$ret[$dbId]["DbId"]   = $dbId;
-					$ret[$dbId]["Name"]   = $row['Name'];
-					$ret[$dbId]["Bib"]    = intval($row['Bib']);
-					$ret[$dbId]["Club"]   = $row['Club'];
-					$ret[$dbId]["Length"] = $row['Length'];
+					$ret[$dbId]["DbId"]      = $dbId;
+					$ret[$dbId]["Name"]      = $row['Name'];
+					$ret[$dbId]["Bib"]       = intval($row['Bib']);
+					$ret[$dbId]["Club"]      = $row['Club'];
+					$ret[$dbId]["Length"]    = $row['Length'];
+					$ret[$dbId]["StartTime"] = 0;
 				}
 				$finishTime = 0;
 				$split = $row['Control'];
-				if ($split == -999) {
+				if ($split == 100) {
+					$ret[$dbId]["StartTime"] = intval($row['Time']);
+				} else if ($split == -999) {
 					$ret[$dbId]["Time"] = intval($row['Time']);
 					$finishTime = intdiv($row['Time'], 100);
 				} else if ($split == 999) {
@@ -1355,7 +1358,7 @@ class Emma
 					$ret[$dbId]["Status"] = intval($row['Status']);
 				}
 
-				if (!isset($ret[$dbId]["1_pass_time"])) {
+				if ($finishTime > 0 && !isset($ret[$dbId]["1_pass_time"])) {
 					$ecardtimes = explode(",", $row['ecardtimes']);
 					if ($common && sizeof($controls) != sizeof($ecardtimes)) {
 						$courseNo = $row['course'];

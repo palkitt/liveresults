@@ -1128,7 +1128,8 @@ function courseSplitResults($class, $course)
 		if ($time > 0 && $status == 0)
 			$timeplus = $time - $winnerTime;
 
-		$ret .= "{\"place\": \"$cp\", \"dbid\": " . $res['DbId'] . ", \"bib\": " . $res['Bib'] . ", \"name\": \"" . $res['Name'] . "\", \"club\": \"" . str_replace("\"", "'", $res['Club']) . "\", \"result\": \"" . $time . "\", \"status\" : " . $status . ", \"timeplus\": \"$timeplus\", \"pace\": " . $pace;
+		$startTime = isset($res['StartTime']) ? $res['StartTime'] : 0;
+		$ret .= "{\"place\": \"$cp\", \"dbid\": " . $res['DbId'] . ", \"bib\": " . $res['Bib'] . ", \"name\": \"" . $res['Name'] . "\", \"club\": \"" . str_replace("\"", "'", $res['Club']) . "\", \"result\": \"" . $time . "\", \"status\" : " . $status . ", \"timeplus\": \"$timeplus\", \"pace\": " . $pace . ", \"starttime\": " . $startTime;
 
 		if (count($controls) > 0) {
 			$first = true;

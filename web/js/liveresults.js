@@ -75,6 +75,7 @@ var LiveResults;
       this.curClassIsUnranked = false;
       this.curClassHasBibs = false;
       this.curClubSplits = null;
+      this.curSplitData = null;
       this.highlightID = null;
       this.currentTable = null;
       this.serverTimeDiff = 0;
@@ -4105,6 +4106,7 @@ var LiveResults;
       var courses = this.courses[className];
       if (courses != undefined && courses.length > 1)
         link += " " + this.splitTimesLink(className, courses);
+      link += " <a href=\"javascript:LiveResults.Instance.openHStrekk()\">HStrekk &#5125;</a>";
       $('#' + this.txtResetSorting).html(link);
 
       this.curClubName = null;
@@ -4130,6 +4132,7 @@ var LiveResults;
     AjaxViewer.prototype.updateSplitTimeResults = function (data, course, expTime) {
       if (this.curSplitView == null)
         return;
+      this.curSplitData = data;
       var _this = this;
       var updateInterval = 0;
       if (data.rt > 0)
@@ -4440,6 +4443,33 @@ var LiveResults;
       document.getElementById('myDropdown').classList.toggle("show");
     };
 
+
+    AjaxViewer.prototype.openHStrekk = function () {
+      var data = this.curSplitData;
+      if (!data || data.status != "OK" || !data.results || data.results.length == 0)
+        return;
+
+      var validResults = data.results.filter(function (r) {
+        return r.status == 0 && r.split_time && r.split_time.indexOf(-1) == -1;
+      });
+      if (validResults.length == 0)
+        return;
+
+      var IN_DATA = {
+        title: data.className,
+        mode: ["Startanimasjon", "Fellesanimasjon", "Vinner", "Bestestrekk", "Hvem møtte jeg"],
+        nLegs: data.splitcontrols.length,
+        legs: null,
+        posts: null,
+        names: validResults.map(function (r) { return r.name; }),
+        clubs: validResults.map(function (r) { return r.club; }),
+        splits: validResults.map(function (r) { return r.split_time.map(function (t) { return t; }); }),
+        starts: validResults.map(function (r) { return r.starttime / 100; }),
+        forks: null
+      };
+
+      strekk(IN_DATA);
+    };
 
     AjaxViewer.prototype.medianFrac = function (arr, fraction = 0) {
       // Sort values and return the average of values around the mid point
