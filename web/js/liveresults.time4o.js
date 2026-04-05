@@ -111,6 +111,7 @@
         {
           id: id,
           className: className,
+          order: classEntry.order ?? null,
           showLapTimes: classEntry.showLapTimes ?? false,
           startType: classEntry.startType ?? null,
           timingResolution: classEntry.timingResolution ?? null,

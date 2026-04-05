@@ -114,7 +114,10 @@
   AjaxViewer.prototype.sortClasses = function (classes) {
     if (!Array.isArray(classes))
       return [];
+
     const sortWeight = (cls) => {
+      if (cls.order != null)
+        return cls.order;
       const name = cls?.className ?? cls?.Class ?? "";
       let key = name.toLowerCase();
       if (/(åpen|open|gjest|dir|utv)/i.test(key))
@@ -237,8 +240,8 @@
       table.find('tr:first-child th').each(function () {
         column_widths.push($(this)[0].getBoundingClientRect().width);
       });
-      tableCells.each(function () { 
-        $(this).css('min-width', column_widths[$(this).index()]); 
+      tableCells.each(function () {
+        $(this).css('min-width', column_widths[$(this).index()]);
       });
 
       // Set table height and width
@@ -251,7 +254,7 @@
       var ind = -1; // -1:header; 0:first data
       rows.each(function () {
         var rowEl = this;
-        var rowHeight = rowEl.getBoundingClientRect().height;        
+        var rowHeight = rowEl.getBoundingClientRect().height;
         $(rowEl).css({
           top: top,
           height: rowHeight
@@ -310,14 +313,14 @@
         });
 
         // Force a single reflow to ensure the browser registers initial condition
-        rowEl.offsetHeight; 
+        rowEl.offsetHeight;
 
         // Set the new position with a transition
         row.css({
           'transition': transformTransition,
           'transform': translateNew,
         });
-        
+
         // Animate background color from old to new opacity for smaller updates
         if (changedCount < 10) {
           cells.each(function () {
@@ -347,8 +350,8 @@
     var rows = table.find('tr');
     var tableCells = table.find('tr td, tr th');
 
-    tableCells.each(function () { 
-      $(this).css('min-width', ''); 
+    tableCells.each(function () {
+      $(this).css('min-width', '');
     });
     rows.each(function () {
       $(this).css('position', '').css('height', '');
