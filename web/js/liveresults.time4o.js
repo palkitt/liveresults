@@ -287,12 +287,12 @@
     if (classInfo.startType === "Free") {
       rawStartIso = entry.time?.startTime ?? null;
     } else if (timingStartTimeSource === "Timing") {
-      rawStartIso = entry.time?.startTime ?? startListStartTime;
+      rawStartIso = entry.time?.startTime ?? (classInfo.isRelay ? null : startListStartTime);
     }
     else {
       rawStartIso = startListStartTime;
     }
-    const startTime = rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : -999;
+    const startTime = rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : (classInfo.isRelay ? 0 : -999);
     var timeFromClassStart = 0;
     if (startTime > 0 && classInfo.firstStart) {
       timeFromClassStart = startTime - _this.toHundredthsSinceMidnight(classInfo.firstStart);
