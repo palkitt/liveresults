@@ -132,7 +132,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js"></script>
   <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
-  <script type="module" src="https://ru-stad.name/strekk/Strekk-000/Strekk-000.js"></script>
+  <script type="module" src="https://hstrekk.ru-stad.name/hstrekk.js"></script>
   <?php if ($isSpeaker) { ?>
     <script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
   <?php } ?>
