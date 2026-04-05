@@ -953,13 +953,15 @@ var LiveResults;
           else
             status = data.results[j].status;
 
-          if (data.results[j].splits[classSplits[sp].code] != undefined && data.results[j].splits[classSplits[sp].code] != "") {
-            spTime = data.results[j].splits[classSplits[sp].code];
+          const spVal = data.results[j].splits[classSplits[sp].code];
+          if (spVal != undefined && spVal != "") {
+            spTime = spVal;
             if (bestSplitTime < 0 && (status == 0 || status == 9 || status == 10)) {
               bestSplitTime = spTime;
               bestSplitKey = j;
             }
           }
+
           if (spTime != "") {
             data.results[j].splits[classSplits[sp].code + "_timeplus"] = spTime - bestSplitTime;
             if (!secondBest && bestSplitKey > -1 && j != bestSplitKey && (status == 0 || status == 9 || status == 10)) {
@@ -974,13 +976,16 @@ var LiveResults;
             curSplitPlace = splitPlace;
 
           if (status == 0 || status == 9 || status == 10) {
-            data.results[j].splits[classSplits[sp].code + "_place"] = curSplitPlace;
-            splitPlace++;
-            if (data.results[j].splits[classSplits[sp].code] != undefined && data.results[j].splits[classSplits[sp].code] != "")
-              curSplitTime = data.results[j].splits[classSplits[sp].code];
+            if (spTime != "") {
+              curSplitTime = spTime;
+              data.results[j].splits[classSplits[sp].code + "_place"] = curSplitPlace;
+              splitPlace++;
+            }
           }
-          else if (status == 13)
-            data.results[j].splits[classSplits[sp].code + "_place"] = "F";
+          else if (status == 13) {
+            if (spTime != "")
+              data.results[j].splits[classSplits[sp].code + "_place"] = "F";
+          }
           else {
             data.results[j].splits[classSplits[sp].code + "_place"] = "-";
             data.results[j].splits[classSplits[sp].code + "_status"] = status;
