@@ -324,7 +324,7 @@
       else if (timeFromClassStart > 0) {
         startTotalTime = timeFromClassStart;
       }
-      if (startTotalTime > 0) {
+      if (startTotalTime > 0 && startTime > 0) {
         splits["0"] = startTotalTime + (restart ? _this.restartTimeOffset : 0);
       }
 
