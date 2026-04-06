@@ -2513,7 +2513,7 @@ var LiveResults;
             });
           }
 
-          if (_this.curClassHasBibs) {
+          if (this.curClassHasBibs) {
             columns.push({
               name: "bib",
               title: "&#8470",
@@ -2548,10 +2548,14 @@ var LiveResults;
             data: "start",
             width: (_this.fixedTable ? "10%" : null),
             render: function (data, type, row) {
-              if (row.start == "")
+              if (type == "sort") {
+                if (isNaN(parseInt(data)) || data == 0)
+                  return Number.MAX_SAFE_INTEGER;
+                else
+                  return parseInt(data);
+              }
+              else if (row.start == "")
                 return "";
-              else if (type == "sort")
-                return data;
               else {
                 var txt = "";
                 if (row.splits != undefined && row.splits["0_place"] >= 1) {
@@ -2604,10 +2608,16 @@ var LiveResults;
                   targets: [col],
                   data: "splits." + value.code,
                   render: function (data, type, row) {
-                    if (isNaN(parseInt(data)))
+                    if (type == "sort") {
+                      if (data == "")
+                        return Number.MAX_SAFE_INTEGER;
+                      else if (isNaN(parseInt(data)))
+                        return Number.MAX_SAFE_INTEGER - 1;
+                      else
+                        return parseInt(data);
+                    }
+                    else if (isNaN(parseInt(data)))
                       return data ?? "";
-                    else if (type == "sort")
-                      return parseInt(data);
                     else {
                       if (!row.splits[value.code + "_place"])
                         return "";
@@ -2732,10 +2742,17 @@ var LiveResults;
             data: "result",
             width: (_this.fixedTable ? "10%" : null),
             render: function (data, type, row) {
-              if (isNaN(parseInt(data)))
+              if (type == "sort") {
+                if (data < 0 || data == "")
+                  return Number.MAX_SAFE_INTEGER;
+                else if (isNaN(parseInt(data)))
+                  return Number.MAX_SAFE_INTEGER - 1;
+                else
+                  return parseInt(data);
+              }
+              else if (isNaN(parseInt(data)))
                 return data;
-              else if (type == "sort")
-                return parseInt(data);
+
               var res = "";
               if (row.place == "-" || row.place == "" || row.place == "F")
                 res += _this.formatTime(row.result, row.status, _this.showTenthOfSecond);
