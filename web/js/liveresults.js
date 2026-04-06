@@ -2353,7 +2353,7 @@ var LiveResults;
         // Normal class result view
         else if (data.results != null && data.results.length > 0) {
           $('#updateinterval').html(this.updateInterval / 1000);
-          if (this.EmmaServer)
+          if (this.EmmaServer || this.Time4oServer)
             $('#liveIndicator').html('');
           else if (data.active)
             $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
