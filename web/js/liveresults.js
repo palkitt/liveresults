@@ -2939,6 +2939,7 @@ var LiveResults;
 
           this.currentTable = $('#' + this.resultsDiv).DataTable({
             stateSave: true,
+            stateDuration: -1,
             stateSaveParams: function (settings, data) {
               delete data.order;
               data.compId = _this.competitionId;
@@ -3638,6 +3639,7 @@ var LiveResults;
           }
           this.currentTable = $('#' + this.resultsDiv).DataTable({
             stateSave: true,
+            stateDuration: -1,
             stateSaveParams: function (settings, data) {
               delete data.order;
               data.compId = _this.competitionId;
