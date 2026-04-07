@@ -1,10 +1,15 @@
 <?php
 date_default_timezone_set("Europe/Oslo");
+header('Content-Type: text/html; charset=utf-8');
+
 $lang = "no";
 
 if (isset($_GET['lang']))
   $lang = $_GET['lang'];
 $compID = $_GET['comp'];
+$Time4oID = "";
+$LiveResID = "";
+$isTime4oComp = "false";
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
@@ -13,9 +18,6 @@ include_once("templates/datatablesURL.php");
 
 $isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
 
-header('Content-Type: text/html; charset=' . $CHARSET);
-
-include_once("templates/classEmma.class.php");
 $currentComp = new Emma($compID);
 $compName = $currentComp->CompName();
 $compDate = $currentComp->CompDate();
@@ -25,10 +27,7 @@ $LiveResID = $compID;
 if ($Time4oID != "") {
   $isTime4oComp = "true";
   $compID = $Time4oID;
-} else {
-  $isTime4oComp = "false";
 }
-
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
