@@ -1,2 +1,2 @@
 ﻿using System.Reflection;
-[assembly: AssemblyMetadata("BuildDate", "2026-04-06")]
+[assembly: AssemblyMetadata("BuildDate", "2026-04-07")]
