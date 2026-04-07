@@ -20,8 +20,14 @@ $currentComp = new Emma($compID);
 $compName = $currentComp->CompName();
 $compDate = $currentComp->CompDate();
 $eventTimeZoneDiff = $currentComp->TimeZoneDiff();
-$Time4oId = $currentComp->Time4oID();
-$isTime4oComp = (is_string($Time4oId) && strlen($Time4oId) ? " true " : "false");
+$Time4oID = $currentComp->Time4oID();
+$LiveResID = $compID;
+if ($Time4oID != "") {
+  $isTime4oComp = "true";
+  $compID = $Time4oID;
+} else {
+  $isTime4oComp = "false";
+}
 
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
@@ -149,13 +155,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         echo 'maxBib = ', $_GET['maxbib'], ';';
       ?>
 
-      res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, "<?= $compID ?>", "<?= $lang ?>", "divClasses", "divLastPassings", "resultsHeader",
-        "divResults", "txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "divRadioPassings",
+      res = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, "<?= $compID ?>", "<?= $lang ?>",
+        "divClasses", "divLastPassings", "resultsHeader", "divResults", "txtResetSorting",
+        Resources, false, true,
+        "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "divRadioPassings",
         false, <?= ($isTime4oComp) ?>, "filterText");
+
       res.compName = "<?= $compName ?>";
       res.compDate = "<?= $compDate ?>";
       res.eventTimeZoneDiff = <?= $eventTimeZoneDiff ?>;
-      res.Time4oId = "<?= $Time4oId ?>";
+      res.Time4oId = "<?= $Time4oID ?>";
 
       function updateClock() {
         var time = document.getElementById("time");
