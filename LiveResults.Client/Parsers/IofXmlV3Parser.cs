@@ -333,7 +333,6 @@ namespace LiveResults.Client.Parsers
                                 courseDataList[courseDataList.Count - 1].Controls = string.Join(",", controls);
                             }
                         }
-
                         newClass = false;
                     }
                 }
@@ -444,7 +443,7 @@ namespace LiveResults.Client.Parsers
                 case "ok":
                     if (itime < 0 || resultListMode == "Unordered" || resultListMode == "UnorderedNoTimes")
                         istatus = 13;
-                    else 
+                    else
                         istatus = 0;
                     break;
                 case "didnotstart":
@@ -509,10 +508,14 @@ namespace LiveResults.Client.Parsers
                 int i = 0;
                 foreach (XmlNode splitNode in splitTimes)
                 {
+                    var splitStatus = splitNode.Attributes["status"];
+                    if (splitStatus != null && splitStatus.Value == "Additional")
+                        continue;
+
                     XmlNode splitcode = splitNode.SelectSingleNode("iof:ControlCode", nsMgr);
-                    XmlNode splittime = splitNode.SelectSingleNode("iof:Time", nsMgr);
                     if (splitcode == null)
                         continue;
+
                     i++;
                     int iSplitcode;
                     bool parseOK = int.TryParse(splitcode.InnerText, out iSplitcode);
@@ -527,10 +530,9 @@ namespace LiveResults.Client.Parsers
                         });
                     }
 
+                    XmlNode splittime = splitNode.SelectSingleNode("iof:Time", nsMgr);
                     if (parseOK && splittime == null)
-                    {
                         splitTimeList += "-1,";
-                    }
                     else
                     {
                         string sSplittime = splittime.InnerText;
@@ -554,9 +556,7 @@ namespace LiveResults.Client.Parsers
                             {
                                 iSplitcode += 1000;
                                 while (lsplitCodes.Contains(iSplitcode))
-                                {
                                     iSplitcode += 1000;
-                                }
 
                                 if (!string.IsNullOrEmpty(sSplittime))
                                 {
@@ -565,13 +565,11 @@ namespace LiveResults.Client.Parsers
                                     lsplitCodes.Add(iSplitcode);
                                     lsplitTimes.Add(iSplittime);
                                     if (isSplitRadioControl(iSplitcode, runner.Class, radioControls))
-                                       runner.SetSplitTime(iSplitcode, iSplittime);
+                                        runner.SetSplitTime(iSplitcode, iSplittime);
                                     splitTimeList += (iSplittime / 100) + ",";
                                 }
                                 else
-                                {
                                     splitTimeList += "-1,";
-                                }
                             }
                         }
                     }
