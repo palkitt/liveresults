@@ -3151,8 +3151,22 @@ var LiveResults;
         else
           return sortStatusB - sortStatusA;
       }
-      if (a.progress == 100 && b.progress == 100)
-        return a.result - b.result;
+      if (a.progress == 100 && b.progress == 100) {
+        if (a.result != b.result)
+          return a.result - b.result;
+        else if (a.place == "=" && b.place != "=")
+          return 1;
+        else if (b.place == "=" && a.place != "=")
+          return -1;
+        else if (a.place != b.place)
+          return a.place - b.place;
+        else if (a.bib != undefined && b.bib != undefined)
+          return Math.abs(a.bib) - Math.abs(b.bib);
+        else if (a.dbid != undefined && b.dbid != undefined)
+          return a.dbid - b.dbid;
+        else
+          return 0;
+      }
       if (a.progress == 0 && b.progress == 0) {
         if (a.start && !b.start)
           return -1;
@@ -3247,6 +3261,8 @@ var LiveResults;
               return 1;
             else if (b.place == "=" && a.place != "=")
               return -1;
+            else if (a.place != b.place)
+              return a.place - b.place;
             else if (a.bib != undefined && b.bib != undefined)
               return a.bib - b.bib;
             else if (a.dbid != undefined && b.dbid != undefined)
