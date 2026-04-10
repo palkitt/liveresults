@@ -1765,6 +1765,7 @@ var LiveResults;
                 if (resp.status == 200) {
                   _this.lastClassHash = resp.getResponseHeader("etag").slice(1, -1);
                   data.status = "OK";
+                  data.type = "classresults";
                 }
                 else if (resp.status == 304) {
                   data = { status: "NOT MODIFIED" };
