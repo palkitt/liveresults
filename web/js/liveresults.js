@@ -429,7 +429,7 @@ var LiveResults;
                   heatText = "Prolog";
                 str += "<a href=\"javascript:LiveResults.Instance.chooseClass('" + classNameURL + "')\" style=\"text-decoration: none\"> " + heatText + "</a>";
                 if (!sprintNext)
-                  str += "<br>";
+                  str += "<hr>";
                 else if (shiftHeat)
                   str += "<br>&nbsp;";
               }
