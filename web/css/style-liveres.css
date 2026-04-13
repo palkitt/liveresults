@@ -372,11 +372,6 @@ tr.yellow_row_fnq .relayclub {
   color: #000;
 }
 
-.legicon {
-  font-size: .6em;
-  vertical-align: .3em;
-}
-
 a.club,
 a.relayclub {
   color: var(--livered);

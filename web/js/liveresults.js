@@ -1282,7 +1282,7 @@ var LiveResults;
                   }
 
                   var timeDiffStr = "";
-                  var elapsedTimeStr = (this.curClassIsRelay ? "<i><span class=\"legicon\">&#8635; </span>" : "<i>") + this.formatTime(elapsedTime, 0, false) + "</i>";
+                  var elapsedTimeStr = "<i>" + this.formatTime(elapsedTime, 0, false) + "</i>";
                   if (this.curClassSplits == null || this.curClassSplits.length == 0) {
                     // No split controls
                     if (!this.curClassIsUnranked) {
@@ -2690,10 +2690,7 @@ var LiveResults;
                           if (_this.curClassNumberOfRunners >= 10 && (row.splits[(value.code + 100000) + "_place"] < 10 || row.splits[(value.code + 100000) + "_place"] == "-"))
                             legplace += "&numsp;"
                           legplace += "&#10072;" + row.splits[(value.code + 100000) + "_place"] + "&#10072;</span>";
-                          if (_this.curClassIsRelay)
-                            txt += "<span class=\"legicon\">&#8635; </span>" + _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
-                          else
-                            txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
+                          txt += _this.formatTime(row.splits[(value.code + 100000)], 0, _this.showTenthOfSecond);
                           txt += legplace + "</span>";
                         }
                         else if ((row.splits[value.code + "_timeplus"] != undefined) && fullView && !_this.curClassIsRelay && (value.code > 0) && row.splits[value.code + "_place"] > 1)
@@ -2795,8 +2792,6 @@ var LiveResults;
                     res += "\"legtime\">";
                     legplace += "<span class=\"place\"> ";
                   }
-                  if (_this.curClassIsRelay)
-                    res += "<span class=\"legicon\">&#8635; </span>";
                   if (_this.curClassNumberOfRunners >= 10 && (row.splits["999_place"] < 10 || row.splits["999_place"] == "-"))
                     legplace += "&numsp;"
                   legplace += "&#10072;" + row.splits["999_place"] + "&#10072;</span>";
@@ -2844,8 +2839,8 @@ var LiveResults;
           else
             if (_this.curClassIsRelay && fullView) {
               columns.push({
-                name: "total",
-                title: "Total<br><span class=\"legtime\"><span class=\"legicon\">&#8635; </span>Etp</span>",
+                name: "diff2",
+                title: "Diff",
                 className: "dt-right",
                 orderable: false,
                 targets: [col++],
