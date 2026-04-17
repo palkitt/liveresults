@@ -320,6 +320,8 @@
 
       if (entry.startOverallResult?.time) {
         startTotalTime = Math.floor(entry.startOverallResult.time / 10);
+        if (classInfo.isRelay && startTotalTime < timeFromClassStart)
+          startTotalTime = timeFromClassStart;
       }
       else if (timeFromClassStart > 0) {
         startTotalTime = timeFromClassStart;
