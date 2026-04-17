@@ -16,6 +16,7 @@ $LiveResID = "";
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
 include_once("templates/datatablesURL.php");
+include_once("templates/config.php");
 
 $isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
 
@@ -133,6 +134,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <script type="module" src="https://hstrekk.ru-stad.name/hstrekk.js"></script>
+  <?php if (SiteConfig::$fathom_site_id) { ?>
+    <script src="https://cdn.usefathom.com/script.js" data-site="<?= htmlspecialchars(SiteConfig::$fathom_site_id) ?>" defer></script>
+    <script>
+      window.addEventListener('load', function() {
+        if (typeof fathom !== 'undefined') {
+          fathom.trackEvent('<?= addslashes($compName) ?>' + ' [' + '<?= $compID ?>' + ']');
+        };
+      });
+    </script>
+  <?php } ?>
   <?php if ($isSpeaker) { ?>
     <script language="javascript" type="text/javascript" src="//widget.time.is/t.js"></script>
   <?php } ?>

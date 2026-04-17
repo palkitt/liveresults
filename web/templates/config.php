@@ -6,3 +6,8 @@ class DBConfig
 	public static $db_user = "root";
 	public static $db_pw = "";
 }
+
+class SiteConfig
+{
+	public static $fathom_site_id = "";
+}

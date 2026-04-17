@@ -91,6 +91,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" type="text/css" href="css/style-liveres.css">
+  <?php if (SiteConfig::$fathom_site_id) { ?>
+    <script src="https://cdn.usefathom.com/script.js" data-site="<?= htmlspecialchars(SiteConfig::$fathom_site_id) ?>" defer></script>
+    <script>
+      window.addEventListener('load', function() {
+        if (typeof fathom !== 'undefined') {
+          fathom.trackEvent('<?= $emma ? "EmmaIndex" : "LiveResIndex" ?>');
+        };
+      });
+    </script>
+  <?php } ?>
 
   <script language="javascript" type="text/javascript">
     function colorRow(row) {
