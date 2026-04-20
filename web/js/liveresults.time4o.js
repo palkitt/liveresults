@@ -331,7 +331,7 @@
       }
 
       // Leg result
-      if (entry.time?.time != null) {
+      if (entry.time?.time != null && entry.time?.behind != null) {
         let legStatusKey = entry.status?.status ?? "Unknown";
         let legStatusValue = _this.Time4oStatusMap(legStatusKey, unordered);
         let rawLegResult = entry.time?.time ?? null;
@@ -351,10 +351,11 @@
       statusValue = _this.Time4oStatusMap(statusKey, unordered);
       rawResult = entry.time?.time ?? null;
       rawBehind = entry.time?.behind ?? null;
-      place = entry.position != null ? String(entry.position) : "";
+      place = (entry.position != null && rawBehind != null) ? String(entry.position) : "";
     }
 
-    let result = rawResult != null ? Math.floor(rawResult / 10) : -3;
+    // Check rawBehind and place. These can be missed shortly after update of the results. 
+    let result = (rawResult != null && rawBehind != null && place != "") ? Math.floor(rawResult / 10) : -3;
     if (statusValue != 0 && statusValue != 9 && statusValue != 10) {
       place = "-";
     }
@@ -363,6 +364,8 @@
     const intermediates = entry.intermediateTimes ?? {};
     var prevSplitTime = 0;
     for (const [key, val] of Object.entries(intermediates)) {
+      if (val?.behind == null || val?.position == null)
+        continue;
       const changedSplit = val?.updated ? Math.floor(Date.parse(val.updated) / 1000) : 0;
       const code = (Number(key.split('-')[1]) * 1000 + Number(key.split('-')[0])) * (unordered ? -1 : 1);
       var timeHundredths = val?.time != null ? Math.floor(val.time / 10) : "";
@@ -427,7 +430,7 @@
 
     // Calculate progress
     let progress = 0;
-    if (statusValue == 9 || statusValue == 10) {
+    if (statusValue == 9 || statusValue == 10 || place == "") {
       if (Object.keys(splits).length > 0) {
         let passedSplits = 0;
         let splitCnt = 0;
