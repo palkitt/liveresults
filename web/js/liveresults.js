@@ -219,15 +219,16 @@ var LiveResults;
         dataType: "json",
         success: function (data, status, resp) {
           if (_this.Time4oServer) {
+            data = data || {};
             if (resp.status == 200) {
               _this.lastRunnerListHash = resp.getResponseHeader("etag").slice(1, -1);
               data.status = "OK";
             }
             else if (resp.status == 304) {
-              data = { status: "NOT MODIFIED" };
+              data.status = "NOT MODIFIED";
             }
-            else
-              data.rt = _this.classUpdateInterval / 1000;
+            data.lastChanged = false;
+            data.rt = _this.classUpdateInterval / 1000;
           }
           _this.handleUpdateRunnerListResponse(data);
         },
@@ -272,13 +273,15 @@ var LiveResults;
         dataType: "json",
         success: function (data, status, resp) {
           if (_this.Time4oServer) {
+            data = data || {};
             if (resp.status == 200) {
               _this.lastClassListHash = resp.getResponseHeader("etag").slice(1, -1);
               data.status = "OK";
             }
             else if (resp.status == 304) {
-              data = { status: "NOT MODIFIED", lastchanged: false };
+              data.status = "NOT MODIFIED";
             }
+            data.lastChanged = false;
             data.rt = _this.classUpdateInterval / 1000;
           }
           _this.handleUpdateClassListResponse(data, first);
@@ -1717,7 +1720,7 @@ var LiveResults;
       }
       catch { }
       if (this.isCompToday())
-        this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
+        this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
     };
 
 
@@ -1762,14 +1765,16 @@ var LiveResults;
               }
               if (_this.Time4oServer) {
                 expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.updateInterval;
+                data = data || {};
                 if (resp.status == 200) {
                   _this.lastClassHash = resp.getResponseHeader("etag").slice(1, -1);
                   data.status = "OK";
                   data.type = "classresults";
                 }
                 else if (resp.status == 304) {
-                  data = { status: "NOT MODIFIED" };
+                  data.status = "NOT MODIFIED";
                 };
+                data.lastChanged = false;
                 data.rt = _this.updateInterval / 1000;
               }
               else
@@ -1789,6 +1794,7 @@ var LiveResults;
 
     //handle response from class-results-update
     AjaxViewer.prototype.handleUpdateClassResults = function (newData, expTime) {
+      var _this = this;
       if (this.curClassName == null)
         return;
       try {
@@ -1808,7 +1814,6 @@ var LiveResults;
           if (!newData.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
             $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
         }
-        var _this = this;
         var table = this.currentTable;
         if (newData.status == "OK") {
           if (this.Time4oServer) {
@@ -1876,18 +1881,18 @@ var LiveResults;
             if (!newData.lastChanged && !this.Time4oServer)
               this.lastClassHash = newData.hash;
 
-            setTimeout(function () { _this.startPredictedTimeTimer(); }, _this.animTime + 200);
+            setTimeout(function () { _this.startPredictedTimeTimer(); }, this.animTime + 200);
           }
         }
       }
       catch { }
       if (this.isCompToday()) {
-        if (newData.lastchanged) {
+        if (newData?.lastchanged) {
           this.lastChanged = newData.lastchanged;
-          this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, _this.updateInterval);
+          this.resUpdateTimeout = setTimeout(function () { _this.checkForChanges(); }, this.updateInterval);
         }
         else
-          this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, _this.updateInterval);
+          this.resUpdateTimeout = setTimeout(function () { _this.checkForClassUpdate(); }, this.updateInterval);
       }
     };
 
@@ -1922,13 +1927,15 @@ var LiveResults;
           var expTime = new Date();
           if (_this.Time4oServer) {
             expTime.setTime(new Date(resp.getResponseHeader("date")).getTime() + _this.clubUpdateInterval);
+            data = data || {};
             if (resp.status == 200) {
               _this.lastClubHash = resp.getResponseHeader("etag").slice(1, -1);
               data.status = "OK";
             }
             else if (resp.status == 304) {
-              data = { status: "NOT MODIFIED" };
+              data.status = "NOT MODIFIED";
             };
+            data.lastchanged = false;
             data.rt = _this.clubUpdateInterval / 1000;
           }
           else
@@ -1992,8 +1999,8 @@ var LiveResults;
         if (!this.Time4oServer)
           this.lastClubHash = data.hash;
       }
-      if (_this.isCompToday()) {
-        this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
+      if (this.isCompToday()) {
+        this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, this.clubUpdateInterval);
       }
     };
 
@@ -2089,6 +2096,7 @@ var LiveResults;
             if (_this.Time4oServer && resp.status === 200) {
               expTime = new Date(resp.getResponseHeader("date")).getTime() - _this.updateInterval;
               _this.lastClassHash = resp.getResponseHeader("etag").slice(1, -1);
+              data = data || {};
               data.status = "OK";
               if (className == "startlist" || className.includes("plainresults"))
                 data.type = className;
@@ -3361,6 +3369,7 @@ var LiveResults;
           try {
             if (_this.Time4oServer) {
               expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.clubUpdateInterval;
+              data = data || {};
               if (resp.status == 200) {
                 _this.lastClubHash = resp.getResponseHeader("etag").slice(1, -1);
                 data.status = "OK";
@@ -3718,7 +3727,7 @@ var LiveResults;
         }
       }
       this.updateClubOrder(); // Update position in table
-      if (_this.isCompToday()) {
+      if (this.isCompToday()) {
         this.resUpdateTimeout = setTimeout(function () { _this.checkForClubUpdate(); }, _this.clubUpdateInterval);
         this.updateClubTimes();
       }
@@ -3889,6 +3898,7 @@ var LiveResults;
           try {
             if (_this.Time4oServer) {
               expTime = new Date(resp.getResponseHeader("date")).getTime() + _this.updateInterval;
+              data = data || {};
               if (resp.status == 200)
                 data.status = "OK";
               else
