@@ -351,7 +351,7 @@
       statusValue = _this.Time4oStatusMap(statusKey, unordered);
       rawResult = entry.time?.time ?? null;
       rawBehind = entry.time?.behind ?? null;
-      place = (entry.position != null && rawBehind != null) ? String(entry.position) : "";
+      place = entry.position != null ? String(entry.position) : "";
     }
 
     // Check rawBehind and place. These can be missed shortly after update of the results. 
