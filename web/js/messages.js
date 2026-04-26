@@ -13,7 +13,7 @@ var Messages;
       this.messagesUpdateInterval = 5000;
       this.messagesUpdateTimer = null;
       this.lastMessagesUpdateHash = "";
-      this.runnerListUpdateInterval = 60000;
+      this.runnerListUpdateInterval = 30000;
       this.runnerListTimer = null;
       this.lastRunnerListHash = "";
       this.lastClassListHash = "";
@@ -446,6 +446,7 @@ var Messages;
               if (runner && runner.dbid != null)
                 _this.runnerList.set(String(runner.dbid), runner);
             }
+            setTimeout(function () { _this.updateMessages(true); }, 500); // Refresh messages after updating runner list to get updated runner info for messages
           }
           else
             data = { status: "NOT MODIFIED" };

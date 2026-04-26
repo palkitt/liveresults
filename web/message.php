@@ -14,7 +14,7 @@ header('Content-Type: text/html; charset=' . $CHARSET);
 $currentComp = new Emma($_GET['comp']);
 $isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
 $Time4oId = $currentComp->Time4oID();
-$isTime4oComp = (is_string($Time4oId) && strlen($Time4oId) ? " true " : "false");
+$isTime4oComp = (is_string($Time4oId) && strlen($Time4oId) > 0 ? "true" : "false");
 
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 ?>
@@ -120,14 +120,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			mess.compDate = "<?= $currentComp->CompDate() ?>";
 			mess.runnerStatus = runnerStatus;
 
-			<?php if ($isTime4oComp) { ?>
+			if (<?= $isTime4oComp ?>) {
 				mess.updateClassList();
 				setTimeout(function() {
 					mess.updateMessages();
 				}, 500);
-			<?php } else { ?>
+			} else {
 				mess.updateMessages();
-			<?php } ?>
+			}
 			$('#filterText').on('keyup', function() {
 				mess.filterTable();
 			});
