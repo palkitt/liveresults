@@ -825,6 +825,7 @@
 
   // Popup window for setting ecard to checked
   AjaxViewer.prototype.popupCheckedEcard = function (dbid, name, ecards, checked) {
+    var compID = (this.Time4oServer ? this.LiveResID : this.competitionId);
     var _this = this;
     var message = (checked ? "Ta bort markering for " + name + "?" :
       "Bekrefte: " + name + (ecards.length > 0 ? ", brikke " + ecards : "") + "?");
@@ -834,7 +835,7 @@
           "setecardchecked");
         $.ajax({
           url: url,
-          data: "&comp=" + _this.competitionId + "&dbid=" + dbid,
+          data: "&comp=" + compID + "&dbid=" + dbid,
           error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
         });
       }
@@ -846,6 +847,7 @@
   AjaxViewer.prototype.popupDialog = function (promptText, dbid, defaultDNS, method = 0, startListChange = -1) {
     // Method: 1 = radioPassing, 2 = startRegistration,  0 = otherwise
     var _this = this;
+    var compID = (this.Time4oServer ? this.LiveResID : this.competitionId);
     var defaultText = "";
     if (defaultDNS == 1)
       defaultText = "ikke startet";
@@ -874,7 +876,7 @@
         if (sendOK) {
           $.ajax({
             url: _this.messageURL + "?method=sendmessage",
-            data: "comp=" + _this.competitionId + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
+            data: "comp=" + compID + "&dbid=" + dbid + "&message=" + message + "&dns=" + DNS + "&ecardchange=" + ecardChange,
             error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); },
             success: function () {
               if (DNS)

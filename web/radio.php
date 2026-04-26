@@ -164,6 +164,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       res.compDate = "<?= $compDate ?>";
       res.eventTimeZoneDiff = <?= $eventTimeZoneDiff ?>;
       res.Time4oId = "<?= $Time4oID ?>";
+      res.LiveResID = <?= $LiveResID ?>;
 
       function updateClock() {
         var time = document.getElementById("time");
