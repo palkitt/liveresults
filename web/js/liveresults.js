@@ -2049,6 +2049,12 @@ var LiveResults;
       this.curSplitView = null;
       this.curRelayView = null;
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+
+      if (this.LiveloxID > 0 && !/startlist|plainresults|course::/.test(className)) {
+        let LiveloxLink = 'https://www.livelox.com/Viewer?eventId=' + this.LiveloxID + '&className=' + encodeURIComponent(className);
+        $('#divLivelox').html('<a href="' + LiveloxLink + '">Livelox <img src="images/livelox32x32.png" style="height:1em;"></a>');
+      }
+
       var preTime = new Date().getTime();
       var URLextra = "";
 
@@ -2066,16 +2072,12 @@ var LiveResults;
           var includeTotal = (this.isMultiDayEvent && className.indexOf("course::") != 0);
           callStr = "&method=getclassresults&unformattedTimes=true&class=" + encodeURIComponent(className)
             + "&nosplits=" + this.noSplits + (includeTotal ? "&includetotal=true" : "");
-          if (className.indexOf("course::") != 0 && this.LiveloxID > 0) {
-            let LiveloxLink = 'https://www.livelox.com/Viewer?eventId=' + this.LiveloxID + '&className=' + encodeURIComponent(className);
-            $('#divLivelox').html('<a href="' + LiveloxLink + '">Livelox <img src="images/livelox32x32.png" style="height:1em;"></a>');
-          }
         }
         URLextra = "?comp=" + this.competitionId + callStr;
       }
       else {
         URLextra = "race/" + this.competitionId + "/entry";
-        if (className != "startlist" && !className.includes("plainresults"))
+        if (!/startlist|plainresults/.test(className))
           URLextra += "?raceClassId=" + this.activeClasses?.find(c => c.className === this.curClassName).id;
       }
       $.ajax({
