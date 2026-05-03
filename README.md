@@ -1,7 +1,7 @@
 # LiveRes
 LiveRes is a client-server system for publishing live results from sport events. The web frontend is published here: http://liveres.live. Admin page requires user/password. For questions and to get login information contact: Pål Kittilsen, pal.kittilsen@gmail.com
 
-[Norwegian user guide](https://raw.githubusercontent.com/palkitt/liveresults/master/docs/guide_no.md)
+[Norwegian user guide](https://github.com/palkitt/liveresults/blob/master/docs/guide_no.md)
 
 This project is forked from Peter Löfås's [liveresults](https://github.com/petlof/liveresults). 
 
