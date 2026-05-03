@@ -64,7 +64,7 @@ Last ned siste versjon fra [GitHub releases](https://github.com/palkitt/liveresu
 ## Admin siden
 Fra admin-siden [https://liveres.live/adm/](https://liveres.live/adm/) kan man nå en rekke funksjoner knyttet til løpet. Når man holder musepekeren over aktuelt løp, kommer det opp en meny (merk at det er en kortere meny for Time4o-løp):
 
-![](images/image25.png)
+<img src="images/image25.png" alt="Skjermbilde" width="360">
 
 Linkene er som følger:
 
@@ -135,7 +135,7 @@ Under denne overskriften følger det flere lenker for sletting, tillegg og redig
 - **Add radio control for all classes**: Legger til en meldepost for alle klasser. Velg "order" slik at den kommer inn før "Tid" for urangerte klasser. F.eks. 500 er en god verdi.
 - **Add single radio control**: Legger inn en ny meldepost i angitt klasse.
 
-![](images/image8.png)
+<img src="images/image8.png" alt="Skjermbilde" width="360">
 
 *Mellomtidseditoren*
 
@@ -145,7 +145,7 @@ Merk at for Time4o-løp kan disse grensene settes i Time4o.
 
 Bruk av kvalifiseringsgrenser (kan også brukes for premiegrenser) gir en linje i resultatlista på angitt plassering. Dersom denne funksjonen skal brukes, legges det inn hvilke klasser dette gjelder for, adskilt med komma. Klassene oppgis med anførselstegn rundt klassenavnet:
 
-![](images/image6.png)
+<img src="images/image6.png" alt="Skjermbilde" width="360">
 
 Dersom det ikke er angitt noen klasser, brukes samme grense for alle klasser i løpet. Dersom det oppgis én klasse mindre enn antall grenser, brukes den siste grensen for resterende klasser.
 
@@ -157,7 +157,7 @@ Start LiveRes-klienten ved å starte EXE-filen som ble pakket ut fra ZIP-filen (
 
 Du kan koble klienten til eTiming- eller Brikkesys-basen over det lokale nettet, eller kjøre klienten på samme PC som basen ligger. Fordelen med at klient og baser er på samme PC er at man ikke belaster det lokale nettverket ved spørringene som gjøres. PC med klienten må ha internett-tilkobling.
 
-![](images/image17.png)
+<img src="images/image17.png" alt="Skjermbilde" width="360">
 
 ## Tilkobling til Time4o (for strekktider)
 
@@ -167,24 +167,24 @@ Oppsett i Time4o:
 
 1. Under resultater trykker man på knappen med tre prikker og velger "Strekktider LiveRes" for å komme til innstillinger for denne oppgaven.
 
-![](images/image4.png)
+<img src="images/image4.png" alt="Skjermbilde" width="360">
 
 2. Nede på siden trykker man på "DELINGER" og deretter på pluss-knappen for å opprette en ny deling:
 
-![](images/image13.png)
+<img src="images/image13.png" alt="Skjermbilde" width="360">
 
 3. Ved oppsett av delinger krysser man av for "Kjør oppgave" og trykker deretter på LAGRE.
 
-![](images/image9.png)
+<img src="images/image9.png" alt="Skjermbilde" width="360">
 
 4. Kopier delingslenken som blir opprettet (den er på formatet `https://app.time4o.com/share/xxx...`.):
 
-![](images/image15.png)
+<img src="images/image15.png" alt="Skjermbilde" width="360">
 
 5. Start LiveRes klienten og velg IOF XML
 6. Lim inn delingslenken i feltet "Export URL". Fyll også inn løps-ID ("CompetitionID") og klubb ("Organizer") som må stemme med det som ble lagt inn da løpet ble opprettet på admin-siden av LiveRes. Sett refresh tid (oppdateringsfrekvens). Anbefalt oppdateringstid for strekktider er hver 60 til 120 sekunder.
 
-![](images/image7.png)
+<img src="images/image7.png" alt="Skjermbilde" width="360">
 
 7. Trykk på "Start upload", og data sendes til LiveRes sin webserver.
 8. For å spare mobildata kan gjerne PC-klienten kjøre på en PC som står med fast nett-tilkobling (og ikke trenger å være fysisk der løpet pågår). Pass da på at aktuell PC ikke går i dvale.
@@ -193,7 +193,7 @@ Oppsett i Time4o:
 
 Du kommer etter hvert til siden vist under. Forklaring følger.
 
-![](images/image5.png)
+<img src="images/image5.png" alt="Skjermbilde" width="360">
 
 - **Competition ID**: Her fyller du inn løpsnummeret du fikk ved opprettelsen av arrangementet.
 - **Client refresh time [s]**: Hvor lenge klienten skal gå i "dvale" mellom hver gang den sjekker etter nye resultater. Hele basen blir sjekket hver gang. Erfaringsmessig tar ett søk under ett tidels sekund. For Access-baser tar det 2-4 sekunder fra et resultat er endret til det er "synlig" for klienten. For SQL Server skjer det tilnærmet umiddelbart.
@@ -248,15 +248,15 @@ LiveRes støtter ulike tidtakingstyper som settes i klasseoppsettet:
 
 Løypelengder og løypenavn hentes fra løypetabellen i eTiming og Brikkesys dersom dette er angitt:
 
-![](images/image24.png)
+<img src="images/image24.png" alt="Skjermbilde" width="360">
 
 Løypelengden (angitt i kilometer) publiseres sammen med klassenavnet og brukes også for å beregne kilometertider (m/km):
 
-![](images/image16.png)
+<img src="images/image16.png" alt="Skjermbilde" width="360">
 
 Dersom flere løyper er i bruk i samme klasse (f.eks. i stafetter), vises korteste og lengste løypelengde:
 
-![](images/image23.png)
+<img src="images/image23.png" alt="Skjermbilde" width="360">
 
 I stafetter vil en løper få beregnet kilometertid basert på lengden på den gaflingsvarianten løperen har løpt.
 
@@ -278,17 +278,17 @@ Man setter opp meldeposter per løype. Alle klasser som benytter aktuell løype 
 - Feltet *kode* i eTiming består av kode\*100 + "passeringsteller". For eksempel blir passering av kode 121 for andre gang til koden: 121\*100 + 2 = 12102. Denne koden oversettes automatisk til LiveRes sin interne kode, som er noe annerledes.
 - Feltet *Live* angir om mellomtiden brukes i LiveRes.
 
-![](images/image12.png)
+<img src="images/image12.png" alt="Skjermbilde" width="360">
 
 Fra versjon 2023-08-13 kan man bruke tekstkodene "{dist}" og "{no}" for å hente ut data fra løypene i eTiming og beregne lengden og/eller postnummeret på aktuell meldepost. "{dist}" blir erstattet med teksten "xx,xkm", og "{no}" erstattes med postnummeret på formatet "#x". Tekstkodene kan brukes hver for seg eller sammen, og kan kombineres med fri tekst foran, mellom og/eller etter. Dersom man bruker "{dist}" og det ikke er fylt inn noe i Distanse-feltet for aktuell meldepost, settes beregnet distanse inn for bruk til verifisering av mellomtider (se forklaring over).
 
 Eksempel på oppsett:
 
-![](images/image11.png)
+<img src="images/image11.png" alt="Skjermbilde" width="360">
 
 Som gir dette resultatet:
 
-![](images/image10.png)
+<img src="images/image10.png" alt="Skjermbilde" width="360">
 
 ## Stafett
 
@@ -298,13 +298,13 @@ Stafetter behandles noe spesielt da etappetid vises ved meldeposter og i mål fo
 
 For stafetter brukes løypekoden/nummeret som klassen er satt opp med og ikke de enkelte løperne (som gjerne har forskjellig pga gafling). Klienten takler individuelle klasser sammen med stafettklasser i samme base/arrangement.
 
-![](images/image20.png)
+<img src="images/image20.png" alt="Skjermbilde" width="360">
 
 *Eksempel på oppsett for stafett i eTiming.*
 
 LiveRes støtter omstart i stafett. Når man registrerer at lag har gått ut på fellesstart i eTiming, vil disse lagene rangeres bak lag som har unngått omstart, selv om totaltiden er kortere. I web-visningen markeres sammenlagttider der det har vært omstart med en stjerne. Se eksempelet under.
 
-![](images/image19.png)
+<img src="images/image19.png" alt="Skjermbilde" width="360">
 
 *Indikasjon på omstart er vist for laget på 7. plass med en stjerne bak lagets tid.*
 
@@ -346,7 +346,7 @@ Teknisk fungerer funksjonen ved at klienten leser eTiming-basen og legger opp l�
 
 Det er link og QR-kode tilgjengelig fra admin-siden for aktuelt løp.
 
-![](images/image22.png)
+<img src="images/image22.png" alt="Skjermbilde" width="360">
 
 
 ## Brikkebytte
@@ -359,7 +359,7 @@ Endringen gjennomføres ved at man søker opp aktuell løper fra deltakerlista o
 
 Det er link og QR-kode tilgjengelig fra admin-siden for aktuelt løp.
 
-![](images/image1.png)
+<img src="images/image1.png" alt="Skjermbilde" width="360">
 
 # Brikkesjekk
 
@@ -375,7 +375,7 @@ Denne siden er lik den ordinære LiveRes-websiden, bortsett fra at den har et s�
 
 Siden har også ett døgns begrensning før den trenger bruker-interaksjon, mot 30 min for den vanlige web-siden.
 
-![](images/image2.png)
+<img src="images/image2.png" alt="Skjermbilde" width="360">
 
 ## Radiopost-visning
 
@@ -413,19 +413,19 @@ På denne siden vises løperne i en periode før de skal i oppropssone (*Før*),
 
 I denne visningen vises løpere innenfor oppropstid med gul bakgrunn. Det er en tykk, svart strek som markerer overgangen til de som har startet. Man kan sende meldinger knyttet til løperne ved å trykke på meldingsknappen til høyre. Dette er spesielt aktuelt dersom løpere ikke starter. Se neste avsnitt.
 
-![](images/image14.png)
+<img src="images/image14.png" alt="Skjermbilde" width="360">
 
 ## Meldinger
 
 LiveRes har en meldingstjeneste for kommunikasjon mellom start og tidtaker i målområdet. Ved å trykke på knappen ute til høyre på startsjekk-siden får man opp en dialog knyttet til aktuell løper (se bildet under). For registrerte løpere er standardteksten satt til *ikke startet*. 
 
-![](images/image18.png)
+<img src="images/image18.png" alt="Skjermbilde" width="360">
 
 I løpskontoret kan man lese loggen fra start på en egen side, for eksempel denne:
 
 [https://liveres.live/message.php?comp=10023](http://liveres.live/message.php?comp=10023).
 
-![](images/image3.png)
+<img src="images/image3.png" alt="Skjermbilde" width="360">
 
 Dersom *Vis alle* er valgt, er alle meldinger i løpet synlige. Når man tar bort valget, vises bare aktive meldinger og tidligere meldinger knyttet til samme person eller brikke.
 
