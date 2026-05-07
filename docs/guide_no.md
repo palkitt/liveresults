@@ -37,10 +37,10 @@ LiveRes-kildekoden finnes åpent på [GitHub](https://github.com/palkitt/liveres
 ## eTiming og Brikkesys 
 
 1. Kontakt Pål Kittilsen ([pal.kittilsen@gmail.com](mailto:pal.kittilsen@gmail.com)) for å få tilsendt brukernavn og passord til admin-siden, samt lenke til nedlasting av konfigurasjonsfil for LiveRes PC-klient.
-2. Opprett arrangementet på siden [https://liveres.live/adm/](https://liveres.live/adm/). Merk at "organizer" og "date" må være det samme som i eTiming. Noter deg "CompetitionID" som blir opprettet.
+2. Opprett arrangementet på siden [https://liveres.live/adm/](https://liveres.live/adm/). Merk at *organizer* og *date* må være det samme som i eTiming. Noter deg *CompetitionID* som blir opprettet.
 3. Last ned og pakk ut klientprogrammet herfra: [GitHub](https://github.com/palkitt/liveresults/releases). Erstatt config-filen med den du lastet ned via lenken i punkt 1.
 4. Start programmet `Liveresults.Client.exe`
-5. Velg eTiming, Brikkesys eller IOF XML (Time4o), og koble til en aktuell løpsdatabase. Skriv inn "CompetitionID" som ble notert under punkt 1.
+5. Velg eTiming, Brikkesys eller IOF XML (Time4o), og koble til en aktuell løpsdatabase. Skriv inn *CompetitionID* som ble notert under punkt 1.
 6. Start synkronisering, og resultatene publiseres på [https://liveres.live](https://liveres.live)
 
 ## Time4o
@@ -52,7 +52,7 @@ For Time4o-løp hentes resultatene direkte fra Time4o sine servere. Det gir lite
 
 Disse to stegene er tilstrekkelige for visning av Time4o-løp i LiveRes-format. Videre forklares det hvordan man registrerer løpet i LiveRes sin løpsbase og får tilgang til flere funksjoner som strekktider, speakervisning, meldinger, startregistrering, løpere i skogen, Livelox-kobling og justerbare visningsparametere. Gjør dette for å koble Time4o-løpet til et LiveRes-løp (forutsetter at punkt 1 og 2 er utført):
 
-3. Gå til admin-siden til LiveRes og trykk deretter på "Connect Time4o events" på øverste meny-linje.
+3. Gå til admin-siden til LiveRes og trykk deretter på *Connect Time4o events* på øverste meny-linje.
 4. Velg aktuelt løp fra listen over Time4o-arrangementer, og fyll deretter ut skjemaet som følger. Når man lagrer, får løpet en LiveRes-ID og er klart for visning i LiveRes.
 5. Fra admin-siden i LiveRes får man lenker til meldingstjenesten, startregistrering m.m.
 6. For å få online strekktider til løpet må disse hentes via en eksportfunksjon i Time4o og brukes sammen med LiveRes sin PC-klient. Se avsnittet under for forklaring.
@@ -74,7 +74,7 @@ Linkene er som følger:
 - **Results page**: Den "vanlige" resultatvisningen
 - **Speaker view**: Resultatvisning med speaker-funksjoner (se avsnitt under)
 - **Messages**: Meldingsloggen
-- **Start view**: Side som viser løpere til opprop og hvor man enkelt kan sette løpere som "ikke startet"
+- **Start view**: Side som viser løpere til opprop og hvor man enkelt kan sette løpere som *ikke startet*
 - **Runners in forest**: Side som viser gjenværende løpere
 - **Radio links**: Side som viser linker til utvalgte sider: mål-scroll, meldepost-scroll og løpere igjen i skogen (se avsnitt under)
 - **Edit runners**: Side der alle løpere er listet, og hvor man kan redigere utvalgte løper-data
@@ -84,8 +84,8 @@ Linkene er som følger:
 ## Opprette løpet
 
 - Gå inn på admin-sidene: [https://liveres.live/adm/](https://liveres.live/adm/). Denne siden krever brukernavn og passord som du får tilsendt.
-- For eTiming og Brikkesys: Velg "Create new competition". For å sikre at klienten kobler til riktig løp på serveren, sjekkes dato og arrangør mot det som står i eTiming eller Brikkesys. Sørg derfor for at disse to elementene er helt like både på liveres.live og i basene.
-- For Time4o: Velg "Connect Time4o events"
+- For eTiming og Brikkesys: Velg *Create new competition*. For å sikre at klienten kobler til riktig løp på serveren, sjekkes dato og arrangør mot det som står i eTiming eller Brikkesys. Sørg derfor for at disse to elementene er helt like både på liveres.live og i basene.
+- For Time4o: Velg *Connect Time4o events*
 - Notér CompetitionID som blir tildelt løpet.
 
 
@@ -128,11 +128,11 @@ Her finner man linker og QR-koder til resultatsiden, online påmelding og online
 
 ### Radio Controls
 
-Under denne overskriften følger det flere lenker for sletting, tillegg og redigering av meldepostoppsettet. Merk at dersom man redigerer meldeposter må man samtidig ta bort krysset for "Update radio controls" i klienten for å bevare endringene etter oppstart av klienten (se "Starte opplasting på nett" for dette valget).
+Under denne overskriften følger det flere lenker for sletting, tillegg og redigering av meldepostoppsettet. Merk at dersom man redigerer meldeposter må man samtidig ta bort krysset for *Update radio controls* i klienten for å bevare endringene etter oppstart av klienten (se [tilkobling til eTiming](#tilkobling-til-etiming) for dette valget).
 
 - Man kommer til en tabelloversikt med mulighet for manuell redigering av titler m.m. ved å følge lenken **Radio control editor**.
 - **Delete all radio controls**: Sletter alle meldeposter for aktuelt arrangement.
-- **Add radio control for all classes**: Legger til en meldepost for alle klasser. Velg "order" slik at den kommer inn før "Tid" for urangerte klasser. F.eks. 500 er en god verdi.
+- **Add radio control for all classes**: Legger til en meldepost for alle klasser. Velg *order* slik at den kommer inn før *Tid* for urangerte klasser. F.eks. 500 er en god verdi.
 - **Add single radio control**: Legger inn en ny meldepost i angitt klasse.
 
 <img src="images/image8.png" alt="Skjermbilde" width=500>
@@ -164,11 +164,11 @@ For å laste opp strekktider for Time4o bruker man fileksport via en URL. I Time
 
 Oppsett i Time4o:
 
-1. Under resultater trykker man på knappen med tre prikker og velger "Strekktider LiveRes" for å komme til innstillinger for denne oppgaven.  
+1. Under resultater trykker man på knappen med tre prikker og velger *Strekktider LiveRes* for å komme til innstillinger for denne oppgaven.  
   <img src="images/image4.png" alt="Skjermbilde" width="250">
-2. Nede på siden trykker man på "DELINGER" og deretter på pluss-knappen for å opprette en ny deling:  
+2. Nede på siden trykker man på *DELINGER* og deretter på pluss-knappen for å opprette en ny deling:  
   <img src="images/image13.png" alt="Skjermbilde" width="360">
-3. Ved oppsett av delinger krysser man av for "Kjør oppgave" og trykker deretter på LAGRE.  
+3. Ved oppsett av delinger krysser man av for *Kjør oppgave* og trykker deretter på LAGRE.  
   <img src="images/image9.png" alt="Skjermbilde" width="360">
 4. Kopier delingslenken som blir opprettet (den er på formatet `https://app.time4o.com/share/xxx...`.):  
   <img src="images/image15.png" alt="Skjermbilde" width="450">
@@ -190,11 +190,11 @@ Du kommer etter hvert til siden vist under. Forklaring følger.
 - **Open start time offset [min]**: For klasser med fri starttid og online 0-bukk på start vil denne parameteren sette faktisk starttid det angitte antallet minutter fram i tid (avrundet nedover). Setter man for eksempel 3 minutter her, vil løpere som leser brikken på ePost 0 på start få satt starttid mellom 2 og 3 minutter fram i tid, avrundet nedover til hele minutt. Ved 0 som verdi settes avlesningstidspunktet som starttid.
 - **Pace limit for radio times [min/km]**: Angi her en minimal kilometertid for løpet. Passeringer som er raskere enn dette blir ikke lastet opp. Krever angivelse av avstand til meldepost (se eget kapittel om dette). Bruk 0 om funksjonen ikke skal brukes.
 - **Update radio controls from eTiming**: Kryss av dersom man ønsker å oppdatere mellomtidsoppsettet fra eTiming. Dersom denne er krysset av, oppretter eller oppdaterer klienten mellomtider basert på oppsett i eTiming. Merk at rekkefølgen på meldepostene i livesystemet blir det samme som satt i eTiming. Ta bort krysset om man f.eks. har satt opp mellomtider i mellomtidseditoren og ikke ønsker at dette skal overskrives.
-- **Update eTiming from Messages**: Ved avkryssing på denne, vil LiveRes klienten oppdatere eTiming basen når det kommer meldinger fra start om "ikke startet", brikkenummer-endringer og direktepåmeldinger.
+- **Update eTiming from Messages**: Ved avkryssing på denne, vil LiveRes klienten oppdatere eTiming basen når det kommer meldinger fra start om *ikke startet*, brikkenummer-endringer og direktepåmeldinger.
 - **Add lap times (multi lap race).** Ved kryss her beregnes tiden mellom hver meldepost og skrives til server for å vises på linje 2 i online resultatene. Typisk bruk er dersom man løper runder og man vil oppgi **rundetider** i tillegg til passeringstiden. Se eksempler under.
 - **Upload ecard splits (strekktider) and course names:** Legger inn strekktider fra Emit-brikken (etter avlesning i mål) og laster opp navnet på løypene.
 - **Use ecard (strekktider) as backup for radio times**: Etter avlesning av brikken sjekker LiveRes klienten om det finnes brikketider for meldeposter som det ikke er registrert tider fra. Disse brukes da som backup. Krever at brikketid på siste post er mellom 0 og 5 minutter kortere enn sluttid for å unngå å sette inn feilaktige brikketider.
-- **Use Eventor IDs (multi day race)**: Bruker løper ID som følger med fra Eventor-import i stedet for eTiming ID. Feltet heter "kid" i eTiming. Dette er nyttig for flerdagers løp der man har uavhengige eTiming baser og ønsker å samle resultater via Eventor ID. Løpere uten Eventor ID i basen får generert alternativ ID som ikke overlapper med Eventor ID.
+- **Use Eventor IDs (multi day race)**: Bruker løper ID som følger med fra Eventor-import i stedet for eTiming ID. Feltet heter *kid* i eTiming. Dette er nyttig for flerdagers løp der man har uavhengige eTiming baser og ønsker å samle resultater via Eventor ID. Løpere uten Eventor ID i basen får generert alternativ ID som ikke overlapper med Eventor ID.
 - **eTiming database info**: Her kommer det opp info om den lokale basen man har koblet til slik at man kan være sikrere på at det er rett base for online resultat. Før oppkobling verifiseres dato og arrangør (organizer) herfra med det som er angitt på LiveRes-serveren. Ved avvik stoppes opplasting.
 
 ## Tilkobling til Brikkesys
@@ -216,7 +216,7 @@ Deretter får man opp en side hvor man skriver inn:
 - **Organizer**: Dette feltet må samsvare med det som ble oppgitt ved opprettelsen av løpet.
 - **Database ID offset:** Samme funksjon som tilsvarende felt for eTiming klienten. Denne offset legges til løper-ID som hentes fra Brikkesys-basen. Dette muliggjør opplasting fra flere lokale baser mot den samme LiveRes-basen uten fare for å overskrive løpere. Aktuelt f.eks. dersom man har elite og andre klasser i hver sin base og ønsker én felles LiveRes base for resultatvisning. Normalt står denne til 0. **Merk** at dersom ID offset står til 0 vil løpere på online basen som ikke har matchende ID i den lokale basen bli slettet. Bruk derfor ID offset større enn 0 på **alle** klienter som inngår i felles opplastning.
 
-For Brikkesys, må meldeposter legges inn manuelt via "Radio control editor". Formatet som brukes står øverst på siden i editoren. Meldeposter i klasser uten visning av tid eller urangerte får mellomtider inn på negative postkoder. F.eks. om en meldepost har kode 31, får vanlige klasser dette inn på kode 1031, mens de nevnte klassene får det på kode -1031.
+For Brikkesys, må meldeposter legges inn manuelt via *Radio control editor*. Formatet som brukes står øverst på siden i editoren. Meldeposter i klasser uten visning av tid eller urangerte får mellomtider inn på negative postkoder. F.eks. om en meldepost har kode 31, får vanlige klasser dette inn på kode 1031, mens de nevnte klassene får det på kode -1031.
 
 # Oppsett av tidtakings-database
 
@@ -230,7 +230,7 @@ LiveRes støtter ulike tidtakingstyper som settes i klasseoppsettet:
 
 - **Normal**: Viser tider og rangerer resultatene
 - **Ikke rangert**: Viser tider i tilfeldig rekkefølge uten plassering (eks. D/H 9-10, N2/B/C-åpen 10-16)
-- **Ikke vis tid**: Viser "Fullført" i stedet for anvendt tid. (eks. N-åpen)
+- **Ikke vis tid**: Viser *Fullført* i stedet for anvendt tid. (eks. N-åpen)
 - **Ikke ranger/ikke på nett**: Løpere/klasse vises ikke på nett (eks. arrangør, skygge, prøveløpere)
 
 ## Løypelengder og løypenavn
@@ -250,7 +250,7 @@ I stafetter vil en løper få beregnet kilometertid basert på lengden på den g
 
 I løp som bruker Time4o, leses mellomtidsoppsettet direkte fra Time4o.
 
-For Brikkesys, må meldeposter legges inn manuelt via [Radio control editor](#radio-controls)". Formatet som brukes i dette oppsettet står øverst på siden i editoren.
+For Brikkesys, må meldeposter legges inn manuelt via [Radio control editor](#radio-controls). Formatet som brukes i dette oppsettet står øverst på siden i editoren.
 
 Det som følger under gjelder for eTiming:
 
@@ -277,7 +277,7 @@ Som gir dette resultatet:
 
 Stafetter støttes i LiveRes for alle typer system: Time4o, eTiming og Brikkesys. Oppsettet i Time4o gjøres direkte der. Oppsett i Brikkesys gjøres via *Radio control editor*. Det følgende gjelder oppsett i eTiming:
 
-Stafetter behandles noe spesielt da etappetid vises ved meldeposter og i mål for etappe 2 og senere. Stafetter identifiseres automatisk ved at løpstype "orientering, stafett" eller "langrenn, stafett" er valgt i eTiming (løpstype 3 eller 6).
+Stafetter behandles noe spesielt da etappetid vises ved meldeposter og i mål for etappe 2 og senere. Stafetter identifiseres automatisk ved at løpstype *orientering, stafett* eller *langrenn, stafett* er valgt i eTiming (løpstype 3 eller 6).
 
 For stafetter brukes løypekoden/nummeret som klassen er satt opp med og ikke de enkelte løperne (som gjerne har forskjellig pga gafling). Klienten takler individuelle klasser sammen med stafettklasser i samme base/arrangement.
 
@@ -297,9 +297,9 @@ Oppsettet i Time4o gjøres direkte i Time4o. Det følgende gjelder eTiming og Br
 
 For klasser der det er krysset av for jaktstart, vil klienten laste opp passeringstider og totaltid/sammenlagttid for hver meldepost og i mål (samme oppsett som for stafetter).
 
-Sammenlagttiden er etappetid + grunnlagstid. I Brikkesys er grunnlagstid forskjellen mellom løperens starttid og klassens starttid. I eTiming er det to muligheter: Dersom det finnes en tid i feltet "Totaltid" brukes denne som grunnlagstid. Dette feltet oppdateres automatisk av eTiming ved bruk av flerdagers arrangement. Dersom feltet ikke er fylt inn, vil LiveRes klienten sette grunnlagstid lik forskjellen mellom løperens starttid og klassens starttid.
+Sammenlagttiden er etappetid + grunnlagstid. I Brikkesys er grunnlagstid forskjellen mellom løperens starttid og klassens starttid. I eTiming er det to muligheter: Dersom det finnes en tid i feltet *Totaltid* brukes denne som grunnlagstid. Dette feltet oppdateres automatisk av eTiming ved bruk av flerdagers arrangement. Dersom feltet ikke er fylt inn, vil LiveRes klienten sette grunnlagstid lik forskjellen mellom løperens starttid og klassens starttid.
 
-I eTiming sjekkes det også på hvor mange godkjente løp en løper har før jaktstarten. Dersom det mangler godkjente løp, settes status på løperen til "utenfor konk." og disse løperne rangeres nederst på resultatene. Det sjekkes på antall løp mot hvilket dagnummer løpet er. F.eks. dersom det er jaktstart dag 3, vil bare løpere som har 2 godkjente løp før jaktstarten få godkjent jaktstart. Merk da at dersom det arrangeres jaktstart på dag 1 (man oppretter jaktstart manuelt), må løpere som ikke skal telle i jaktstarten settes til -1 antall løp. Det er feltet "Ant løp" som brukes til dette.
+I eTiming sjekkes det også på hvor mange godkjente løp en løper har før jaktstarten. Dersom det mangler godkjente løp, settes status på løperen til *utenfor konk.* og disse løperne rangeres nederst på resultatene. Det sjekkes på antall løp mot hvilket dagnummer løpet er. F.eks. dersom det er jaktstart dag 3, vil bare løpere som har 2 godkjente løp før jaktstarten få godkjent jaktstart. Merk da at dersom det arrangeres jaktstart på dag 1 (man oppretter jaktstart manuelt), må løpere som ikke skal telle i jaktstarten settes til -1 antall løp. Det er feltet *Ant løp* som brukes til dette.
 
 Dersom man skal lage meldepostoppsettet manuelt for jaktstart (aktuelt for Brikkesys), må man passe på å opprette "meldepost" for starttid, etappetid og både passeringstider og etappetider for hver meldepost. Se dette [eksempelet](https://liveres.live/adm/radiocontrols.php?comp=10681).
 
@@ -428,7 +428,7 @@ Gjør følgende:
 - Ta med minst tjenestene Apache og MySQL. Du trenger også phpmyadmin
 - Start XAMPP og velg Admin knappen under MySQL
 - Opprett databasen: Velg Databaser
-- Opprett ny base med navn "liveres"
+- Opprett ny base med navn *liveres*
 - Opprett tabeller: Velg SQL
 - Lim inn innholdet som du finner i fila [doc\\createOnlineDatabase.sql.txt](https://github.com/palkitt/liveresults/blob/master/Doc/createOnlineDatabase.sql.txt)
 - Kjør spørringen
@@ -478,7 +478,7 @@ For å sette dette som utført:
 
 ## Brikke sjekket
 
-URL for å sette at en brikke er sjekket er gjengitt under. Man kan bruke database-ID (dbid) eller startnummer (bib) for å identifisere løperen. Endringen settes i LiveRes-databasen og ikke i eTiming. Når en løper er markert med sjekket brikke, får løperen en grønn sjekkboks i radio-startsiden og status "brikkesjekk" i listen over løpere som er igjen i skogen.
+URL for å sette at en brikke er sjekket er gjengitt under. Man kan bruke database-ID (dbid) eller startnummer (bib) for å identifisere løperen. Endringen settes i LiveRes-databasen og ikke i eTiming. Når en løper er markert med sjekket brikke, får løperen en grønn sjekkboks i radio-startsiden og status *brikkesjekk* i listen over løpere som er igjen i skogen.
 
 API-kall for å sette at brikke er sjekket med database id:  
 [https://api.liveres.live/messageapi.php?method=setecardchecked&comp=10002&dbid=1](https://api.liveres.live/messageapi.php?method=setecardchecked&comp=10002&dbid=1)
@@ -488,15 +488,15 @@ API-kall for å sette at brikke er sjekket med startnummer:
 
 ## Betingelser for endringer
 
-Betingelser for at en løper skal bli satt til "ikke startet":
+Betingelser for at en løper skal bli satt til *ikke startet*:
 
-- Meldingsteksten må være eksakt "ikke startet"
-- Status må være "I" = "påmeldt"
+- Meldingsteksten må være eksakt *ikke startet*"
+- Status må være *I* = *Påmeldt*
 
 Betingelser for å bytte brikkenummer:  
 - Må kun være ett treff på aktuelt startnummer
-- Status på løper med aktuelt startnummer må være "I", dvs. "Påmeldt"
-- Det nye brikkenummeret må ikke tilhøre noen andre løpere, eller tilhøre en ukjent løper: "U1 ukjent løper" (en løper som automatisk opprettes fra GPRS opplastinger i eTiming)
+- Status på løper med aktuelt startnummer må være *I*, dvs. *Påmeldt*
+- Det nye brikkenummeret må ikke tilhøre noen andre løpere, eller tilhøre en ukjent løper: *U1 ukjent løper* (en løper som automatisk opprettes fra GPRS opplastinger i eTiming)
 
 Hvilket brikkenummer oppdateres?  
 - Brikkenummer mellom 10 000 og 999 999 tolkes som o-brikker, andre som emiTag
