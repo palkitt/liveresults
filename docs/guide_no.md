@@ -91,7 +91,6 @@ Linkene er som følger:
 - **Competition ID**: Løpsnummeret du trenger i klienten for å laste opp til riktig online arrangement.
 - **Time4oID**: Dersom man har kobling mot et Time4o-arrangement, legges ID inn her (den legges inn automatisk når man kobler løp sammen som forklart over). For eTiming og Brikkesys skal denne stå tom.
 - **Date**: Arrangementets dato i formatet yyyy-mm-dd
-
 - **Time zone diff**: Brukes for å få løpende tid til å gå riktig i forhold til tidssonen hvor løpet arrangeres. Bruk 0 for løp i Norge. Sommertid tas det automatisk hensyn til.
 - **Sport**: Velg hvilken type idrett arrangementet har. Dette vises i oversikten.
 - **URL**: Link til f.eks. Eventor eller hjemmeside for arrangementet. Bruk komplett referanse slik som [https://www.abc.com](https://www.abc.com). Vises til høyre i arrangementslisten.
@@ -162,16 +161,16 @@ For å laste opp strekktider for Time4o bruker man fileksport via en URL. I Time
 
 Oppsett i Time4o:
 
-1. Under resultater trykker man på knappen med tre prikker og velger "Strekktider LiveRes" for å komme til innstillinger for denne oppgaven.
+1. Under resultater trykker man på knappen med tre prikker og velger "Strekktider LiveRes" for å komme til innstillinger for denne oppgaven.  
   <img src="images/image4.png" alt="Skjermbilde" width="250">
-2. Nede på siden trykker man på "DELINGER" og deretter på pluss-knappen for å opprette en ny deling:
+2. Nede på siden trykker man på "DELINGER" og deretter på pluss-knappen for å opprette en ny deling:  
   <img src="images/image13.png" alt="Skjermbilde" width="360">
-3. Ved oppsett av delinger krysser man av for "Kjør oppgave" og trykker deretter på LAGRE.
+3. Ved oppsett av delinger krysser man av for "Kjør oppgave" og trykker deretter på LAGRE.  
   <img src="images/image9.png" alt="Skjermbilde" width="360">
-4. Kopier delingslenken som blir opprettet (den er på formatet `https://app.time4o.com/share/xxx...`.):
+4. Kopier delingslenken som blir opprettet (den er på formatet `https://app.time4o.com/share/xxx...`.):  
   <img src="images/image15.png" alt="Skjermbilde" width="450">
 5. Start LiveRes klienten og velg IOF XML
-6. Lim inn delingslenken i feltet *Export URL*. Fyll også inn løps-ID (*CompetitionID*) og klubb (*Organizer*) som må stemme med det som ble lagt inn da løpet ble opprettet på admin-siden av LiveRes. Sett refresh tid (oppdateringsfrekvens). Anbefalt oppdateringstid for strekktider er hver 60 til 120 sekunder.
+6. Lim inn delingslenken i feltet *Export URL*. Fyll også inn løps-ID (*CompetitionID*) og klubb (*Organizer*) som må stemme med det som ble lagt inn da løpet ble opprettet på admin-siden av LiveRes. Sett refresh tid (oppdateringsfrekvens). Anbefalt oppdateringstid for strekktider er hver 60 til 120 sekunder.  
   <img src="images/image7.png" alt="Skjermbilde" width="450">
 7. Trykk på *Start upload*, og data sendes til LiveRes sin webserver.
 8. For å spare mobildata kan gjerne PC-klienten kjøre på en PC som står med fast nett-tilkobling (og ikke trenger å være fysisk der løpet pågår). Pass da på at aktuell PC ikke går i dvale.
@@ -233,13 +232,13 @@ LiveRes støtter ulike tidtakingstyper som settes i klasseoppsettet:
 
 ## Løypelengder og løypenavn
 
-Løypelengder og løypenavn hentes fra løypetabellen i eTiming og Brikkesys dersom dette er angitt:
+Løypelengder og løypenavn hentes fra løypetabellen i eTiming og Brikkesys dersom dette er angitt:  
 <img src="images/image24.png" alt="Skjermbilde" width="360">
 
-Løypelengden (angitt i kilometer) publiseres sammen med klassenavnet og brukes også for å beregne kilometertider (m/km):
+Løypelengden (angitt i kilometer) publiseres sammen med klassenavnet og brukes også for å beregne kilometertider (m/km):  
 <img src="images/image16.png" alt="Skjermbilde" width="450">
 
-Dersom flere løyper er i bruk i samme klasse (f.eks. i stafetter), vises korteste og lengste løypelengde:
+Dersom flere løyper er i bruk i samme klasse (f.eks. i stafetter), vises korteste og lengste løypelengde:  
 <img src="images/image23.png" alt="Skjermbilde" width="300">
 
 I stafetter vil en løper få beregnet kilometertid basert på lengden på den gaflingsvarianten løperen har løpt.
@@ -260,15 +259,15 @@ Man setter opp meldeposter per løype. Alle klasser som benytter aktuell løype 
 - Overskriften i LiveRes tabellen er angitt i kolonnen *Beskrivelse*. Gjør dette så kort som mulig for bedre visning på små skjermer som mobiltelefoner. Bruk f.eks. *FV* og *Pass* for forvarsling og passering. Og gjerne beskrivelser som *3,4km* for andre meldeposter.
 - Distanse (i meter) kan angis. Dersom det samtidig er angitt en verdi i klientens felt *Pace limit for radio times [min/km]*, kan klienten se bort fra feilaktige mellomtider. Dersom feltet ikke er fylt inn, vil alle mellomtider for denne koden bli brukt. Se eksempel under.
 - Feltet *kode* i eTiming består av kode\*100 + "passeringsteller". For eksempel blir passering av kode 121 for andre gang til koden: 121\*100 + 2 = 12102. Denne koden oversettes automatisk til LiveRes sin interne kode, som er noe annerledes.
-- Feltet *Live* angir om mellomtiden brukes i LiveRes.
+- Feltet *Live* angir om mellomtiden brukes i LiveRes.  
   <img src="images/image12.png" alt="Skjermbilde" width="450">
 
 Fra versjon 2023-08-13 kan man bruke tekstkodene "{dist}" og "{no}" for å hente ut data fra løypene i eTiming og beregne lengden og/eller postnummeret på aktuell meldepost. "{dist}" blir erstattet med teksten "xx,xkm", og "{no}" erstattes med postnummeret på formatet "#x". Tekstkodene kan brukes hver for seg eller sammen, og kan kombineres med fri tekst foran, mellom og/eller etter. Dersom man bruker "{dist}" og det ikke er fylt inn noe i Distanse-feltet for aktuell meldepost, settes beregnet distanse inn for bruk til verifisering av mellomtider (se forklaring over).
 
-Eksempel på oppsett:
+Eksempel på oppsett:  
 <img src="images/image11.png" alt="Skjermbilde" width="450">
 
-Som gir dette resultatet:
+Som gir dette resultatet:  
 <img src="images/image10.png" alt="Skjermbilde" width="450">
 
 ## Stafett
