@@ -1,6 +1,9 @@
-# Brukerguide for LiveRes
+---
+layout: default
+title: Brukerguide for LiveRes
+---
 
-## Innhold
+# Innhold
 
 - [Introduksjon](#introduksjon)
 - [Korte guider](#korte-guider)
@@ -449,41 +452,38 @@ Gjør følgende:
 
 ## Ikke startet
 
-For å lage en melding som fører til at en løper blir satt til ikke startet, settes dns-flagget når meldingen sendes:
-
+For å lage en melding som fører til at en løper blir satt til ikke startet, settes dns-flagget når meldingen sendes:  
 [https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=100&dns=1&message=ikke startet](https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=100&dns=1&message=ikke%20startet)
 
 I dette eksempelet er løps-ID = 10001 og løper-ID = 100.
 
-For å finne løpere og meldinger som skal behandles som ikke startet, kan metoden "getdns" brukes:
-
+For å finne løpere og meldinger som skal behandles som ikke startet, kan metoden "getdns" brukes:  
 [https://api.liveres.live/messageapi.php?method=getdns&comp=10001](https://api.liveres.live/messageapi.php?method=getdns&comp=10001)
 
-Når man skal kvittere ut at aktuell melding er behandlet, brukes metoden "setdns" med dns lik 0:
-
+Når man skal kvittere ut at aktuell melding er behandlet, brukes metoden "setdns" med dns lik 0:  
 [https://api.liveres.live/messageapi.php?method=setdns&messid=191&dns=0](https://api.liveres.live/messageapi.php?method=setdns&messid=191&dns=0)
 
 ## Brikkebytte
 
-For å lage en melding som genererer et brikkebytte, angir man database-ID med negativ verdi lik nytt brikkenummer, og startnummer som del av eller som hele meldingen. Samtidig settes parameteren ecardchange til 1:
+For å lage en melding som genererer et brikkebytte, angir man database-ID med negativ verdi lik nytt brikkenummer, og startnummer som del av eller som hele meldingen. Samtidig settes parameteren ecardchange til 1:  
 [https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=-12345&ecardchange=1&message=startnummer:123](https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=-12345&ecardchange=1&message=startnummer:123)
 
 I dette eksempelet ønskes brikkebytte for startnummer 123 til nytt brikkenummer 12345.
 
-Metoden for å finne de som skal bytte brikker er
+Metoden for å finne de som skal bytte brikker er:  
 [https://api.liveres.live/messageapi.php?method=getecardchange&comp=10001](https://api.liveres.live/messageapi.php?method=getecardchange&comp=10001)
 
-For å sette dette som utført:
+For å sette dette som utført:  
 [https://api.liveres.live/messageapi.php?method=setecardchange&messid=192&ecardchange=0](https://api.liveres.live/messageapi.php?method=setecardchange&messid=192&ecardchange=0)
 
 ## Brikke sjekket
 
 URL for å sette at en brikke er sjekket er gjengitt under. Man kan bruke database-ID (dbid) eller startnummer (bib) for å identifisere løperen. Endringen settes i LiveRes-databasen og ikke i eTiming. Når en løper er markert med sjekket brikke, får løperen en grønn sjekkboks i radio-startsiden og status "brikkesjekk" i listen over løpere som er igjen i skogen.
 
-API-kall for å sette at brikke er sjekket med database id:
+API-kall for å sette at brikke er sjekket med database id:  
 [https://api.liveres.live/messageapi.php?method=setecardchecked&comp=10002&dbid=1](https://api.liveres.live/messageapi.php?method=setecardchecked&comp=10002&dbid=1)
 
-API-kall for å sette at brikke er sjekket med startnummer:
+API-kall for å sette at brikke er sjekket med startnummer:  
 [https://api.liveres.livemessageapi.php?method=setecardchecked&comp=10002&bib=11](https://api.liveres.live/messageapi.php?method=setecardchecked&comp=10002&bib=11)
 
 ## Betingelser for endringer
@@ -493,21 +493,19 @@ Betingelser for at en løper skal bli satt til "ikke startet":
 - Meldingsteksten må være eksakt "ikke startet"
 - Status må være "I" = "påmeldt"
 
-Betingelser for å bytte brikkenummer:
-
+Betingelser for å bytte brikkenummer:  
 - Må kun være ett treff på aktuelt startnummer
 - Status på løper med aktuelt startnummer må være "I", dvs. "Påmeldt"
 - Det nye brikkenummeret må ikke tilhøre noen andre løpere, eller tilhøre en ukjent løper: "U1 ukjent løper" (en løper som automatisk opprettes fra GPRS opplastinger i eTiming)
 
-Hvilket brikkenummer oppdateres?
-
+Hvilket brikkenummer oppdateres?  
 - Brikkenummer mellom 10 000 og 999 999 tolkes som o-brikker, andre som emiTag
 - Dersom nytt brikkenummer er emiTag:
   - dersom det er satt en emiTag og en o-brikke, erstattes emiTag med nytt nummer
   - dersom det er satt en emiTag og en tom brikke, settes emiTag inn der det er tom brikke
   - begge eksisterende er emiTag eller o-brikker, settes nytt nummer inn som brikke nr 3
 
-- Dersom nytt brikkenummer er o-brikke:
+- Dersom nytt brikkenummer er o-brikke:  
   - dersom det er satt en o-brikke og en emiTag, eller en o-brikke og en tom brikke, erstattes o-brikke med nytt nummer
   - begge eksisterende er emiTag eller o-brikker, settes nytt nummer inn som brikke nr 3
 

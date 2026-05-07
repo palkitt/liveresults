@@ -1,4 +1,8 @@
-# LiveRes documentation
+---
+layout: default
+title: LiveRes documentation
+---
+# Links
 
 [User guide - Norwegian](guide_no.md)
 
