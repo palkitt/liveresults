@@ -9,13 +9,12 @@ title: Brukerguide for LiveRes
 - [Korte guider](#korte-guider)
   - [eTiming og Brikkesys](#etiming-og-brikkesys)
   - [Time4o](#time4o)
-- [Installasjon av klient](#installasjon-av-klient)
-- [Gjøre klart løpet på LiveRes admin siden](#gjøre-klart-løpet-på-liveres-admin-siden)
-- [Admin-siden](#admin-siden)
-- [Opplasting av resultater til nett](#opplasting-av-resultater-til-nett)
+- [Oppsett av løp på LiveRes admin](#oppsett-av-løp-på-liveres-admin)
+- [Opplasting av resultater](#opplasting-av-resultater)
+  - [Installasjon av klient](#installasjon-av-klient)
+  - [Tilkobling til Time4o (for strekktider)](#tilkobling-til-time4o-for-strekktider)
   - [Tilkobling til eTiming](#tilkobling-til-etiming)
   - [Tilkobling til Brikkesys](#tilkobling-til-brikkesys)
-  - [Tilkobling til Time4o (for strekktider)](#tilkobling-til-time4o-for-strekktider)
 - [Oppsett av tidtakings-database](#oppsett-av-tidtakings-database)
 - [Online påmelding og brikkebytte](#online-påmelding-og-brikkebytte)
 - [Brikkesjekk](#brikkesjekk)
@@ -55,13 +54,9 @@ Disse to stegene er tilstrekkelige for visning av Time4o-løp i LiveRes-format. 
 3. Gå til admin-siden til LiveRes og trykk deretter på *Connect Time4o events* på øverste meny-linje.
 4. Velg aktuelt løp fra listen over Time4o-arrangementer, og fyll deretter ut skjemaet som følger. Når man lagrer, får løpet en LiveRes-ID og er klart for visning i LiveRes.
 5. Fra admin-siden i LiveRes får man lenker til meldingstjenesten, startregistrering m.m.
-6. For å få online strekktider til løpet må disse hentes via en eksportfunksjon i Time4o og brukes sammen med LiveRes sin PC-klient. Se avsnittet under for forklaring.
+6. For å få online strekktider til løpet må disse hentes via en eksportfunksjon i Time4o og brukes sammen med LiveRes sin PC-klient. 
 
-# Installasjon av klient
-
-Last ned siste versjon fra [GitHub releases](https://github.com/palkitt/liveresults/releases). Pakk ut filene i en katalog du enkelt finner tilbake til. Config-fil må lastes ned via lenke (se punkt 1 i [eTiming og Brikkesys](#etiming-og-brikkesys)) og legges i samme katalog. Config-filen inneholder adresse, bruker og passord til SQL-databasen på nett. Klienten startes ved å åpne filen som ender på ".exe".
-
-# Sette opp løpet på LiveRes admin
+# Oppsett av løp på LiveRes admin
 
 ## Admin siden
 Fra admin-siden [https://liveres.live/adm/](https://liveres.live/adm/) kan man nå en rekke funksjoner knyttet til løpet. Når man holder musepekeren over aktuelt løp, kommer det opp en meny (merk at det er en kortere meny for Time4o-løp):
@@ -97,7 +92,8 @@ Linkene er som følger:
 - **Time zone diff**: Brukes for å få løpende tid til å gå riktig i forhold til tidssonen hvor løpet arrangeres. Bruk 0 for løp i Norge. Sommertid tas det automatisk hensyn til.
 - **Sport**: Velg hvilken type idrett arrangementet har. Dette vises i oversikten.
 - **URL**: Link til f.eks. Eventor eller hjemmeside for arrangementet. Bruk komplett referanse slik som [https://www.abc.com](https://www.abc.com). Vises til høyre i arrangementslisten.
-- **Livelox ID**: Oppgi ID-nummer til Livelox og få linker direkte fra resultatlista per klasse til tilsvarende på Livelox. ID (her: 170578) finnes fra URL som eksempelet under: `https://www.livelox.com/Events/Show/170578/Mitt:lop`
+- **Livelox ID**: Oppgi ID-nummer til Livelox og få linker direkte fra resultatlista per klasse til tilsvarende på Livelox. ID (her: 170578) finnes fra URL som eksempelet under:   
+`https://www.livelox.com/Events/Show/170578/Mitt:lop`
 
 ### Appearance
 
@@ -150,7 +146,13 @@ Dersom det ikke er angitt noen klasser, brukes samme grense for alle klasser i l
 
 Grense angitt som heltall tilsvarer grensen i plassering. -1 betyr at det ikke skal vises grense for klassen. Et tall mellom 0 og 1 angir grensen som en fraksjon av antall startende (ikke startet trekkes fra). F.eks. for å indikere ⅓ premiering angir man 0.333 for de aktuelle klassene. Antallet rundes av oppover.
 
-# Opplasting av resultater til nett
+# Opplasting av resultater
+
+## Installasjon av klient
+
+En PC-klient for opplasting av resultater er nødvendig for eTiming og Brikkesys. For Time4o trengs en slik klient for opplasting av strekktider.
+
+Last ned siste versjon fra [GitHub releases](https://github.com/palkitt/liveresults/releases). Pakk ut filene i en katalog du enkelt finner tilbake til. Config-fil må lastes ned via lenke (se punkt 1 i [eTiming og Brikkesys](#etiming-og-brikkesys)) og legges i samme katalog. Config-filen inneholder adresse, bruker og passord til SQL-databasen på nett. Klienten startes ved å åpne filen som ender på ".exe".
 
 Start LiveRes-klienten ved å starte EXE-filen som ble pakket ut fra ZIP-filen (se installasjon). Når man starter LiveRes-klienten, ledes man gjennom noen steg for å koble klienten mot Time4o (velg IOF XML) eller den lokale eTiming- eller Brikkesys-basen. For eTiming støttes både Access og Microsoft SQL Server (f.eks. MS SQL Express).
 
@@ -180,7 +182,7 @@ Oppsett i Time4o:
 
 ## Tilkobling til eTiming
 
-Du kommer etter hvert til siden vist under. Forklaring følger.
+Om man velger opplasting fra eTiming, kommer man etter hvert til siden vist under. 
 
 <img src="images/image5.png" alt="Skjermbilde" width="400">
 
@@ -453,9 +455,10 @@ Gjør følgende:
 ## Ikke startet
 
 For å lage en melding som fører til at en løper blir satt til ikke startet, settes dns-flagget når meldingen sendes:  
-[https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=100&dns=1&message=ikke startet](https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=100&dns=1&message=ikke%20startet)
+[https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001
+&dbid=100&dns=1&message=ikke startet](https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=100&dns=1&message=ikke%20startet)
 
-I dette eksempelet er løps-ID = 10001 og løper-ID = 100.
+I dette eksempelet er løpsID=10001 og løperID=100.
 
 For å finne løpere og meldinger som skal behandles som ikke startet, kan metoden "getdns" brukes:  
 [https://api.liveres.live/messageapi.php?method=getdns&comp=10001](https://api.liveres.live/messageapi.php?method=getdns&comp=10001)
@@ -466,7 +469,9 @@ Når man skal kvittere ut at aktuell melding er behandlet, brukes metoden "setdn
 ## Brikkebytte
 
 For å lage en melding som genererer et brikkebytte, angir man database-ID med negativ verdi lik nytt brikkenummer, og startnummer som del av eller som hele meldingen. Samtidig settes parameteren ecardchange til 1:  
-[https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=-12345&ecardchange=1&message=startnummer:123](https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=-12345&ecardchange=1&message=startnummer:123)
+[https://api.liveres.live/messageapi.php?
+method=sendmessage&comp=10001&dbid=-12345&
+ecardchange=1&message=startnummer:123](https://api.liveres.live/messageapi.php?method=sendmessage&comp=10001&dbid=-12345&ecardchange=1&message=startnummer:123)
 
 I dette eksempelet ønskes brikkebytte for startnummer 123 til nytt brikkenummer 12345.
 
@@ -514,6 +519,6 @@ Hvilket brikkenummer oppdateres?
 
 Ved spørsmål eller forslag til forbedring, ta kontakt med ansvarlig for LiveRes:
 
-Pål Kittilsen
-+47 957 45 855
+Pål Kittilsen  
++47 957 45 855  
 pal.kittilsen@gmail.com

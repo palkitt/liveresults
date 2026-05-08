@@ -8,3 +8,15 @@ img {
 main {
   max-width: 900px;
 }
+
+a,
+code,
+pre {
+  overflow-wrap: anywhere;
+  word-wrap: break-word;
+}
+
+pre,
+code {
+  white-space: pre-wrap;
+}

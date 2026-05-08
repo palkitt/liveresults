@@ -8,6 +8,6 @@ title: LiveRes documentation
 
 # Contact
 
-Pål Kittilsen
-+47 957 45 855
+Pål Kittilsen  
++47 957 45 855  
 pal.kittilsen@gmail.com
