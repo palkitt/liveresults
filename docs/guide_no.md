@@ -92,8 +92,7 @@ Linkene er som følger:
 - **Time zone diff**: Brukes for å få løpende tid til å gå riktig i forhold til tidssonen hvor løpet arrangeres. Bruk 0 for løp i Norge. Sommertid tas det automatisk hensyn til.
 - **Sport**: Velg hvilken type idrett arrangementet har. Dette vises i oversikten.
 - **URL**: Link til f.eks. Eventor eller hjemmeside for arrangementet. Bruk komplett referanse slik som [https://www.abc.com](https://www.abc.com). Vises til høyre i arrangementslisten.
-- **Livelox ID**: Oppgi ID-nummer til Livelox og få linker direkte fra resultatlista per klasse til tilsvarende på Livelox. ID (her: 170578) finnes fra URL som eksempelet under:   
-`https://www.livelox.com/Events/Show/170578/Mitt:lop`
+- **Livelox ID**: Oppgi ID-nummer til Livelox og få linker direkte fra resultatlista per klasse til tilsvarende på Livelox. ID finnes fra URL som eksempelet under (her: 12345): `livelox.com/Events/Show/12345/MyEvent`
 
 ### Appearance
 
