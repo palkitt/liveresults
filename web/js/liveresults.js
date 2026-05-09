@@ -957,7 +957,7 @@ var LiveResults;
             status = data.results[j].status;
 
           const spVal = data.results[j].splits[classSplits[sp].code];
-          if (spVal != undefined && spVal != "") {
+          if (spVal != undefined && spVal !== "") {
             spTime = spVal;
             if (bestSplitTime < 0 && (status == 0 || status == 9 || status == 10)) {
               bestSplitTime = spTime;
@@ -965,7 +965,7 @@ var LiveResults;
             }
           }
 
-          if (spTime != "") {
+          if (spTime !== "") {
             data.results[j].splits[classSplits[sp].code + "_timeplus"] = spTime - bestSplitTime;
             if (!secondBest && bestSplitKey > -1 && j != bestSplitKey && (status == 0 || status == 9 || status == 10)) {
               data.results[bestSplitKey].splits[classSplits[sp].code + "_timeplus"] = bestSplitTime - spTime;
@@ -975,18 +975,18 @@ var LiveResults;
           else
             data.results[j].splits[classSplits[sp].code + "_timeplus"] = -2;
 
-          if (curSplitTime != spTime)
+          if (curSplitTime !== spTime)
             curSplitPlace = splitPlace;
 
           if (status == 0 || status == 9 || status == 10) {
-            if (spTime != "") {
+            if (spTime !== "") {
               curSplitTime = spTime;
               data.results[j].splits[classSplits[sp].code + "_place"] = curSplitPlace;
               splitPlace++;
             }
           }
           else if (status == 13) {
-            if (spTime != "")
+            if (spTime !== "")
               data.results[j].splits[classSplits[sp].code + "_place"] = "F";
           }
           else {
@@ -1003,8 +1003,8 @@ var LiveResults;
       return function (a, b) {
         var aVal = a.splits[classSplits[split].code];
         var bVal = b.splits[classSplits[split].code];
-        var aUndefined = (aVal == undefined || aVal == "");
-        var bUndefined = (bVal == undefined || bVal == "");
+        var aUndefined = (aVal == undefined || aVal === "");
+        var bUndefined = (bVal == undefined || bVal === "");
         if (!aUndefined && !bUndefined) {
           if (aVal != bVal)
             return (aVal < bVal ? -1 : 1);

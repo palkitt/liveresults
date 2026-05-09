@@ -293,7 +293,7 @@
       rawStartIso = startListStartTime;
     }
     const startTime = rawStartIso ? _this.toHundredthsSinceMidnight(rawStartIso) : (classInfo.isRelay ? 0 : -999);
-    var timeFromClassStart = 0;
+    var timeFromClassStart = -1;
     if (startTime > 0 && classInfo.firstStart) {
       timeFromClassStart = startTime - _this.toHundredthsSinceMidnight(classInfo.firstStart);
     }
@@ -302,7 +302,7 @@
     const chaseStart = (classInfo.startType == "Chasing");
     var splits = {};
     var rawResult, rawBehind, place, statusKey, statusValue;
-    var startTotalTime = 0;
+    var startTotalTime = -1;
     var restart = false;
 
     // Chase start or relay leg >= 2
@@ -323,10 +323,10 @@
         if (classInfo.isRelay && startTotalTime < timeFromClassStart)
           startTotalTime = timeFromClassStart;
       }
-      else if (timeFromClassStart > 0) {
+      else if (timeFromClassStart >= 0) {
         startTotalTime = timeFromClassStart;
       }
-      if (startTotalTime > 0 && startTime > 0) {
+      if (startTotalTime >= 0 && startTime > 0) {
         splits["0"] = startTotalTime + (restart ? _this.restartTimeOffset : 0);
       }
 
