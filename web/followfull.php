@@ -601,13 +601,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             <table border="0" cellpadding="3 px" cellspacing="0" width="100%" style="table-layout:fixed;">
               <tr>
                 <td align="left">
-                  <span id="colSelector" style="display: inline-block;"></span>
-                  <button id="switchTopClick" class="navbtn" onclick="switchTop()" title="<?= $_LASTPASSINGS ?>"><span class="fa-solid fa-arrows-up-down"></span></button>
+                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'" title="<?= $_CHOOSECMP ?>"><span class="fa-solid fa-bars"></span></button>
+                  <button class="navbtn" id="switchTopClick" onclick="switchTop()" title="<?= $_LASTPASSINGS ?>"><span class="fa-solid fa-arrows-up-down"></span></button>
                   <button class="navbtn" onclick="changeFontSize(2)" title="<?= $_LARGER ?>"><span class="fa-solid fa-plus"></span></button>
                   <button class="navbtn" onclick="changeFontSize(-2)" title="<?= $_SMALLER ?>"><span class="fa-solid fa-minus"></span></button>
-                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'" title="<?= $_CHOOSECMP ?>"><span class="fa-solid fa-bars"></span></button>
-                  <button id="openInNewWindowBtn" class="navbtn" onclick="openInNewTab()" title="<?= $_OPENINNEWWINDOW ?>" style="display:none;"><span class="fa-solid fa-arrow-up-right-from-square"></span></button>&nbsp;
-                  <b><span id="compname">loading comp name...</b>
+                  <span id="colSelector" style="display: inline-block;"></span>
+                  <button class="navbtn" id="openInNewWindowBtn" onclick="openInNewTab()" title="<?= $_OPENINNEWWINDOW ?>" style="display:none;"><span class="fa-solid fa-arrow-up-right-from-square"></span></button>
+                  &nbsp;
+                  <span id="compname" style="font-weight: bold;">loading comp name...</span>
                 </td>
               </tr>
               <?php if ($isSpeaker) { ?>
@@ -635,6 +636,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <td align="left">
                 <div class="dropdownClass">
                   <button id="dropbtnClass" class="dropbtnClass">
+                    &nbsp;
                     <?php if (!$isSingleClass && !$isSingleClub) { ?>
                       <span class="fa-solid fa-bars"></span>&nbsp;
                     <?php } ?>
