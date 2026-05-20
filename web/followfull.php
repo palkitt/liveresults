@@ -474,7 +474,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       <?php if ($LiveResID != "") { ?>
         var url = 'followfull.php?comp=<?= $LiveResID ?>';
       <?php } else { ?>
-        var url = 'followfull.php?comp=<?= $compID ?>';
+        var url = 'followfull.php?time4o&comp=<?= $compID ?>';
       <?php } ?>
       <?php if ($lang != 'no') { ?>
         url += '&lang=<?= $lang ?>';
