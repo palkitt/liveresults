@@ -248,13 +248,18 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         });
       <?php } ?>
 
+      res.updateClassList(true);
+
       <?php if ($isSingleClass) { ?>
-        res.chooseClass('<?= $singleClass ?>');
+        setTimeout(function() {
+          res.chooseClass('<?= $singleClass ?>');
+        }, 500);
       <?php } else if ($isSingleClub) { ?>
-        res.viewClubResults('<?= $singleClub ?>');
+        setTimeout(function() {
+          res.viewClubResults('<?= $singleClub ?>');
+        }, 500);
       <?php } else { ?>
         $("#divClasses").html("<?= $_LOADINGCLASSES ?>...");
-        res.updateClassList(true);
       <?php } ?>
 
       <?php if ($showLastPassings) { ?>
