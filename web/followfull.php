@@ -343,19 +343,19 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
       // Show/hide class column
       $('#dropbtnClass').on('mouseover', function() {
-        if ($('#classColumnContent').hasClass('closed')) {
+        if ($('#classColumnContent').length && $('#classColumnContent').hasClass('closed')) {
           $('#classColumnContent').removeClass('closed').addClass('open');
           setClassColumnHeight();
         }
       });
 
       $('#divClassColumn').on('mouseleave', function() {
-        if ($('#classColumnContent').hasClass('open'))
+        if ($('#classColumnContent').length && $('#classColumnContent').hasClass('open'))
           $('#classColumnContent').removeClass('open').addClass('closed');
       });
 
       $(document).on('click', function(event) {
-        if ($('#classColumnContent').hasClass('open')) {
+        if ($('#classColumnContent').length && $('#classColumnContent').hasClass('open')) {
           if (!$(event.target).closest('#divClassColumn, #dropbtnClass').length) {
             $('#classColumnContent').removeClass('open').addClass('closed');
           }
@@ -378,6 +378,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     }
 
     function setClassColumnHeight() {
+      if (!$('#classColumnContent').length) return;
       var windowHeight = $(window).height();
       var elementOffsetTop = $('#classColumnContent').offset().top;
       var newHeight = windowHeight - elementOffsetTop - 10;
@@ -386,6 +387,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
     function togglelocked() {
       var content = document.querySelector('.class-column');
+      if (!content) return;
       if (content.classList.contains('unpinned')) {
         content.classList.remove('unpinned');
         $('#classColumnContent').removeClass('unpinned');
@@ -447,6 +449,33 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       }, 300);
       topBar = false;
       res.autoUpdateLastPassings = false;
+    }
+
+    function openInNewTab(type) {
+      if (!res) return;
+
+      var value, paramName;
+
+      if (res.curClassName) {
+        value = res.curClassName;
+        paramName = 'class';
+      } else if (res.curClubName) {
+        value = res.curClubName;
+        paramName = 'club';
+      } else {
+        return;
+      }
+
+      <?php if ($LiveResID != "") { ?>
+        var url = 'followfull.php?comp=<?= $LiveResID ?>';
+      <?php } else { ?>
+        var url = 'followfull.php?comp=<?= $compID ?>';
+      <?php } ?>
+      <?php if ($lang != 'no') { ?>
+        url += '&lang=<?= $lang ?>';
+      <?php } ?>
+      url += '&' + paramName + '=' + encodeURIComponent(value);
+      window.open(url, '_blank');
     }
   </script>
 </head>
@@ -568,10 +597,11 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <tr>
                 <td align="left">
                   <span id="colSelector" style="display: inline-block;"></span>
-                  <button id="switchTopClick" class="navbtn" onclick="switchTop()"><span class="fa-solid fa-arrows-up-down"></span></button>
-                  <button class="navbtn" onclick="changeFontSize(2)"><span class="fa-solid fa-plus"></span></button>
-                  <button class="navbtn" onclick="changeFontSize(-2)"><span class="fa-solid fa-minus"></span></button>
-                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'"><span class="fa-solid fa-bars"></span></button>&nbsp;
+                  <button id="switchTopClick" class="navbtn" onclick="switchTop()" title="<?= $_LASTPASSINGS ?>"><span class="fa-solid fa-arrows-up-down"></span></button>
+                  <button class="navbtn" onclick="changeFontSize(2)" title="<?= $_LARGER ?>"><span class="fa-solid fa-plus"></span></button>
+                  <button class="navbtn" onclick="changeFontSize(-2)" title="<?= $_SMALLER ?>"><span class="fa-solid fa-minus"></span></button>
+                  <button class="navbtn" onclick="location.href='<?= $indexRef ?>'" title="<?= $_CHOOSECMP ?>"><span class="fa-solid fa-bars"></span></button>
+                  <button id="openInNewWindowBtn" class="navbtn" onclick="openInNewTab()" title="<?= $_OPENINNEWWINDOW ?>" style="display:none;"><span class="fa-solid fa-arrow-up-right-from-square"></span></button>&nbsp;
                   <b><span id="compname">loading comp name...</b>
                 </td>
               </tr>
@@ -600,7 +630,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <td align="left">
                 <div class="dropdownClass">
                   <button id="dropbtnClass" class="dropbtnClass">
-                    <span class="fa-solid fa-bars"></span>&nbsp;
+                    <?php if (!$isSingleClass && !$isSingleClub) { ?>
+                      <span class="fa-solid fa-bars"></span>&nbsp;
+                    <?php } ?>
                     <?php if ($isLiveResComp) { ?>
                       <span id="liveIndicator"></span>
                     <?php } ?>
@@ -612,14 +644,16 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             </tr>
           </table>
           <div class="container">
-            <div class="class-column" id="divClassColumn">
-              <div id="classColumnContent" class="class-column-content">
-                <div class="lock" onclick="togglelocked()">
-                  <span id="locksymbol" class="fa-solid fa-lock"></span>
+            <?php if (!$isSingleClass && !$isSingleClub) { ?>
+              <div class="class-column" id="divClassColumn">
+                <div id="classColumnContent" class="class-column-content">
+                  <div class="lock" onclick="togglelocked()">
+                    <span id="locksymbol" class="fa-solid fa-lock"></span>
+                  </div>
+                  <div id="divClasses"></div>
                 </div>
-                <div id="divClasses"></div>
               </div>
-            </div>
+            <?php } ?>
             <div class="result-column">
               <table id="divResults" width="100%"></table>
               <?php if (!$isSingleClass && !$isSingleClub) { ?>

@@ -2051,6 +2051,7 @@ var LiveResults;
       this.curSplitView = null;
       this.curRelayView = null;
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+      $('#openInNewWindowBtn').show();
 
       if (this.LiveloxID > 0 && !/startlist|plainresults|course::/.test(className)) {
         let LiveloxLink = 'https://www.livelox.com/Viewer?eventId=' + this.LiveloxID + '&className=' + encodeURIComponent(className);
@@ -3353,6 +3354,7 @@ var LiveResults;
       this.curSplitView = null;
       this.curRelayView = null;
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+      $('#openInNewWindowBtn').show();
 
       var URLextra;
       var headers = {};
@@ -3382,7 +3384,7 @@ var LiveResults;
             }
             else
               expTime = new Date(resp.getResponseHeader("expires")).getTime();
-            if (!this.isSingleClass) {
+            if (!_this.isSingleClass) {
               window.location.hash = "club::" + clubName;
             }
             _this.updateClubResults(data, expTime);
@@ -3882,6 +3884,7 @@ var LiveResults;
       this.curSplitView = null;
       this.curRelayView = className;
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
+      $('#openInNewWindowBtn').hide();
 
       var URLextra;
       if (this.Time4oServer) {
@@ -4163,6 +4166,8 @@ var LiveResults;
       this.curClassName = null;
       this.curSplitView = [className, course];
       this.curRelayView = null;
+      $('#openInNewWindowBtn').hide();
+
       var splitTimescompID = (this.Time4oServer ? this.LiveResID : this.competitionId);
       $.ajax({
         url: (this.Time4oServer ? this.splitApiURL : this.apiURL),
