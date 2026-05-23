@@ -890,7 +890,7 @@ class Emma
 	{
 		$ret = array();
 		if ($code == -2) // Left in forest
-			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, runners.ecardchecked, runners.dbid,
+			$q = "SELECT runners.Name, runners.bib, runners.class, runners.Club, runners.ecardchecked, runners.ecard1, runners.ecard2, runners.dbid,
 			results2.Time, results.Status, results.Changed, results.Control, splitcontrols.name AS pname 
 			FROM results 
 			INNER JOIN runners ON results.DbId = runners.DbId 

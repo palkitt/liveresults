@@ -99,6 +99,8 @@ if ($_GET['method'] == 'getradiopassings') {
 			$timeDiff = -2;
 			$rank = -1;
 			$ret .= ",\"rank\": " . $rank . ",\"timeDiff\": " . $timeDiff;
+			$ret .= ",\"ecard1\": " . (isset($pass["ecard1"]) ? $pass["ecard1"] : 0);
+			$ret .= ",\"ecard2\": " . (isset($pass["ecard2"]) ? $pass["ecard2"] : 0);
 			$ret .= ",\"checked\": " . ($pass["ecardchecked"] == 1 ? 1 : 0);
 		}
 

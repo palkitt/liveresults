@@ -212,7 +212,10 @@
         if (leftInForest)
           timeTitle = "Starttid";
         columns.push({
-          title: timeTitle, className: "dt-right", orderable: leftInForest, targets: [col++], data: "time",
+          title: timeTitle,
+          className: (leftInForest ? "dt-left" : "dt-right"),
+          orderable: leftInForest,
+          targets: [col++], data: "time",
           render: function (data, type, row) {
             if (_this.Time4oServer && leftInForest)
               return _this.formatTime(row.start, 0, false, true, false, true);
@@ -234,14 +237,24 @@
           });
         if (leftInForest) {
           columns.push({
-            title: "Sjekk", className: "dt-center", orderable: true, targets: [col++], data: "status",
+            title: "Brikke", className: "dt-left", orderable: true, targets: [col++], data: "ecard1",
             render: function (data, type, row) {
-              var res = "";
-              if (row.checked == 1 || row.status == 9)
-                res += "&#9989; "; // Green checkmark
+              var ecards = "";
+              if (row.ecard1 > 0) {
+                ecards += row.ecard1;
+                if (row.ecard2 > 0) ecards += " / " + row.ecard2;
+              }
               else
-                res += "&#11036; "; // Empty checkbox
-              return res;
+                if (row.ecard2 > 0) ecards += row.ecard2;
+              var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
+              var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards
+                + "', " + row.checked + ", " + code + ");\">";
+              if (row.checked == 1 || row.status == 9)
+                ecardstr += "&#9989; "; // Green checkmark
+              else
+                ecardstr += "&#11036; "; // Empty checkbox
+              ecardstr += ecards + "</div>";
+              return ecardstr;
             }
           });
           columns.push({
@@ -456,7 +469,8 @@
               else
                 if (row.ecard2 > 0) ecards += row.ecard2;
               var name = (Math.abs(row.bib) > 0 ? "(" + Math.abs(row.bib) + ") " : "") + row.name;
-              var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','" + ecards + "', " + row.checked + ");\">";
+              var ecardstr = "<div onclick=\"res.popupCheckedEcard(" + row.dbid + ",'" + name + "','"
+                + ecards + "', " + row.checked + ", 0);\">";
               if (row.checked == 1 || row.status == 9)
                 ecardstr += "&#9989; "; // Green checkmark
               else
@@ -824,11 +838,11 @@
 
 
   // Popup window for setting ecard to checked
-  AjaxViewer.prototype.popupCheckedEcard = function (dbid, name, ecards, checked) {
+  AjaxViewer.prototype.popupCheckedEcard = function (dbid, name, ecards, checked, code) {
     var compID = (this.Time4oServer ? this.LiveResID : this.competitionId);
     var _this = this;
-    var message = (checked ? "Ta bort markering for " + name + "?" :
-      "Bekrefte: " + name + (ecards.length > 0 ? ", brikke " + ecards : "") + "?");
+    var nameEcards = name + (ecards.length > 0 ? ": " + ecards : "");
+    var message = nameEcards + (checked ? "&#11036;" : "&#9989;") + "?";
     $('<p>' + message + '</p>').confirm(function (e) {
       if (e.response) {
         var url = _this.messageURL + "?method=" + (checked ? "setecardnotchecked" :
@@ -836,6 +850,10 @@
         $.ajax({
           url: url,
           data: "&comp=" + compID + "&dbid=" + dbid,
+          success: function () {
+            if (code != 0)
+              _this.updateRadioPassings(code);
+          },
           error: function () { alert("Meldingen kunne ikke sendes. Ikke nett?"); }
         });
       }
