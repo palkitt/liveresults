@@ -233,6 +233,7 @@
       className,
       results: results.slice().sort(sortType),
       distance: "",
+      order: classInfo.find(c => c.className === className)?.order ?? null,
       qualificationLimit: classInfo.find(c => c.className === className)?.qualificationLimit ?? null
     }));
 
