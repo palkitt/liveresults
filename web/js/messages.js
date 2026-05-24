@@ -281,7 +281,14 @@ var Messages;
                 var star = (jsonData.rent != undefined && jsonData.rent == 1 ? "*" : "");
                 return `Påmelding: ${jsonData.firstName} ${jsonData.lastName}, ${jsonData.club}, ${jsonData.ecardNumber}${star}, ${jsonData.className}, ID:${row.dbid}, Melding: ${jsonData.comment}`;
               } catch {
-                return "<div class=\"wrapok\">" + data + "</div>";
+                // Extract alias if present
+                var extracted = _this.extractAlias(data);
+                var displayHtml = "<div class=\"wrapok\">";
+                if (extracted.alias) {
+                  displayHtml += "<b style=\"color:#6A0DAD;\">[" + extracted.alias + "]</b> ";
+                }
+                displayHtml += extracted.message + "</div>";
+                return displayHtml;
               }
             }
           });
@@ -394,6 +401,13 @@ var Messages;
       var message = prompt(promptText, defaultText);
       if (message != null && message != "") {
         message = message.substring(0, 250);
+
+        // Add user alias if set
+        var userAlias = this.getUserAlias();
+        if (userAlias) {
+          message = this.addAliasToMessage(message, userAlias);
+        }
+
         $.ajax({
           url: this.URL + "?method=sendmessage",
           data: "&comp=" + this.competitionId + "&dbid=" + dbid + "&message=" + message

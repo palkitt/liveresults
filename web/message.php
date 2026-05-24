@@ -120,6 +120,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			mess.compDate = "<?= $currentComp->CompDate() ?>";
 			mess.runnerStatus = runnerStatus;
 
+			// Load user alias from localStorage
+			var savedAlias = mess.getUserAlias();
+			if (savedAlias) {
+				$('#userAlias').val(savedAlias);
+			}
+
 			if (<?= $isTime4oComp ?>) {
 				mess.updateClassList();
 				setTimeout(function() {
@@ -160,7 +166,8 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 								<span style="cursor:pointer; color:#FFF; font-size:1.3em" onclick="switchSound()" id="audioOnOff"> &#128263; </span>
 								<b>Meldinger</b>
 							</td>
-							<td style="text-align: center"><input type="text" id="filterText" placeholder="filter..." size="5"></td>
+							<td style="text-align: center">Filter <input type="text" id="filterText" placeholder="filter..." style="width: 60px;"></td>
+							<td style="text-align: center">Bruker <input type="text" id="userAlias" placeholder="navn..." style="width: 60px;" onchange="mess.setUserAlias(this.value)"></td>
 							<td style="text-align: center"><b><?= $currentComp->CompName() ?> [<?= $currentComp->CompDate() ?>]</b></td>
 							<td style="text-align: center"><b><span id="clock"></span></b></td>
 							<td style="text-align: right"><b>Sorter tid<input type="checkbox" onclick="mess.timeOrdered = !(mess.timeOrdered); mess.updateMessageMarking();"></span></b></td>

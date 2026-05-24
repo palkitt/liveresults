@@ -877,8 +877,11 @@
       var message = e.response;
       if (message != null && message != "") {
         message = message.substring(0, 250); // limit number of characters
+        
+        // CRITICAL: Detect special patterns on RAW user input BEFORE any modifications
         var DNS = (message == "ikke startet" ? 1 : 0);
         var ecardChange = (dbid < 0 && message.match(/\d+/g) != null);
+        
         var sendOK = true;
         if (startListChange > 0) {
           var senderName = prompt("Innsenders navn og mobilnummer");
@@ -891,6 +894,15 @@
             alert("Ønsket endring av brikkenummer er registrert\n" + message);
           }
         }
+        
+        // Add user alias AFTER all other message modifications
+        if (sendOK) {
+          var userAlias = _this.getUserAlias();
+          if (userAlias) {
+            message = _this.addAliasToMessage(message, userAlias);
+          }
+        }
+        
         if (sendOK) {
           $.ajax({
             url: _this.messageURL + "?method=sendmessage",

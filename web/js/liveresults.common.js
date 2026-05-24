@@ -446,4 +446,57 @@
     return str;
   };
 
+  // Get user alias from localStorage
+  AjaxViewer.prototype.getUserAlias = function () {
+    if (typeof (Storage) === "undefined")
+      return "";
+    try {
+      var alias = localStorage.getItem("liveresUserAlias");
+      return alias ? alias.trim() : "";
+    } catch {
+      return "";
+    }
+  };
+
+  // Set user alias to localStorage
+  AjaxViewer.prototype.setUserAlias = function (alias) {
+    if (typeof (Storage) === "undefined")
+      return false;
+    try {
+      if (alias) {
+        // Sanitize and limit length
+        alias = alias.substring(0, 50).trim();
+        // Remove potentially problematic characters
+        alias = alias.replace(/[<>]/g, '');
+        localStorage.setItem("liveresUserAlias", alias);
+      } else {
+        localStorage.removeItem("liveresUserAlias");
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Extract alias from message text
+  AjaxViewer.prototype.extractAlias = function (message) {
+    if (!message)
+      return { alias: "", message: message };
+    var match = message.match(/^\[Alias:\s*([^\]]+)\]\s*/);
+    if (match) {
+      return {
+        alias: match[1].trim(),
+        message: message.substring(match[0].length)
+      };
+    }
+    return { alias: "", message: message };
+  };
+
+  // Add alias prefix to message
+  AjaxViewer.prototype.addAliasToMessage = function (message, alias) {
+    if (!alias || !message)
+      return message;
+    return "[Alias: " + alias + "] " + message;
+  };
+
 })(window.LiveResults || window.Messages || {});
