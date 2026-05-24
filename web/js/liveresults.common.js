@@ -117,7 +117,7 @@
 
     const sortWeight = (cls) => {
       if (cls.order != null)
-        return cls.order;
+        return String(cls.order).padStart(10, "0");
       const name = cls?.className ?? cls?.Class ?? "";
       let key = name.toLowerCase();
       if (/(åpen|open|gjest|dir|utv)/i.test(key))
