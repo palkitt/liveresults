@@ -60,10 +60,14 @@
     }
 
     // Make live blinker pulsing
-    if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
-      $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
-    if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
-      $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+    if (this.Time4oServer)
+      $('#liveIndicator').html('');
+    else {
+      if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
+        $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
+      if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
+        $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+    }
 
     const maxLines = 40;
     var leftInForest = (code == -2);
@@ -370,10 +374,14 @@
     }
 
     // Make live blinker pulsing
-    if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
-      $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
-    if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
-      $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+    if (this.Time4oServer)
+      $('#liveIndicator').html('');
+    else {
+      if (data.active && !$('#liveIndicator').find('span').hasClass('liveClient'))
+        $('#liveIndicator').html('<span class="liveClient" id="liveIndicator">◉</span>');
+      if (!data.active && !$('#liveIndicator').find('span').hasClass('notLiveClient'))
+        $('#liveIndicator').html('<span class="notLiveClient" id="liveIndicator">◉</span>');
+    }
 
     // Insert data from query            
     if (data != null && data.status == "OK") {
@@ -452,7 +460,7 @@
           columns.push({
             title: "Klasse", className: "dt-left", orderable: false, targets: [col++], data: "class",
             render: function (data, type, row) {
-              var link = "<a href=\"followfull.php?comp=" + _this.competitionId;
+              var link = "<a href=\"followfull.php?comp=" + _this.LiveResID;
               link += "#" + encodeURIComponent(row.class);
               link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
               return link;
@@ -877,11 +885,11 @@
       var message = e.response;
       if (message != null && message != "") {
         message = message.substring(0, 250); // limit number of characters
-        
+
         // CRITICAL: Detect special patterns on RAW user input BEFORE any modifications
         var DNS = (message == "ikke startet" ? 1 : 0);
         var ecardChange = (dbid < 0 && message.match(/\d+/g) != null);
-        
+
         var sendOK = true;
         if (startListChange > 0) {
           var senderName = prompt("Innsenders navn og mobilnummer");
@@ -894,7 +902,7 @@
             alert("Ønsket endring av brikkenummer er registrert\n" + message);
           }
         }
-        
+
         // Add user alias AFTER all other message modifications
         if (sendOK) {
           var userAlias = _this.getUserAlias();
@@ -902,7 +910,7 @@
             message = _this.addAliasToMessage(message, userAlias);
           }
         }
-        
+
         if (sendOK) {
           $.ajax({
             url: _this.messageURL + "?method=sendmessage",

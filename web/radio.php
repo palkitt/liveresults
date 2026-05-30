@@ -271,7 +271,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                 <td style="text-align: right"><span style="display:inline-block; width:50px; text-align:right;">
                     Min №</span> <input type="text" id="minBib" style="width: 40px;"></td>
                 <td style="text-align: right"><span style="display:inline-block; width:50px; text-align:right;">
-                    Opprop</span> <span id="callClock" style="display:inline-block; font-style:italic; color:yellow; width: 50px;">00:00:00</span></td>
+                    Opprop</span> <span id="callClock" style="display:inline-block; color:yellow; width: 50px;">00:00:00</span></td>
               </tr>
               <tr>
                 <td style="text-align: left">
