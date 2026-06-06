@@ -39,6 +39,7 @@ namespace LiveResults.Client
         private bool m_continue;
         private int m_compID;
         private int m_IdOffset;
+        private readonly TimeSpan? m_startTime;
 
         Thread m_monitorThread;
 
@@ -56,13 +57,14 @@ namespace LiveResults.Client
             public string name;
         }
 
-        public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID, int IdOffset)
+        public BrikkesysParser(IDbConnection conn, int BrikkesysID, int compID, int IdOffset, TimeSpan? startTime = null)
         {
             m_connection = conn;
             m_isRelay = false;
             m_raceID = BrikkesysID;
             m_compID = compID;
             m_IdOffset = IdOffset;
+            m_startTime = startTime;
         }
 
         private void Run()
@@ -118,6 +120,13 @@ namespace LiveResults.Client
                     {
                         try
                         {
+                            if (m_startTime.HasValue && DateTime.Now.TimeOfDay < m_startTime.Value)
+                            {
+                                FireLogMsg($"Waiting for upload start time: {m_startTime.Value:hh\\:mm\\:ss}.");
+                                Thread.Sleep(1000 * m_sleepTime);
+                                continue;
+                            }
+
                             CCTimer += m_sleepTime;
                             if (CCTimer >= maxCCTimer)
                             {

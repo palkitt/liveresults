@@ -1,4 +1,5 @@
 ﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -293,6 +294,16 @@ namespace LiveResults.Client
 
         ETimingComp cmp = new ETimingComp();
 
+        // Monitor page state
+        private ETimingParser m_parser;
+        private List<EmmaMysqlClient> m_clients = new List<EmmaMysqlClient>();
+        private int m_monitorCompID;
+        private bool m_useEventorID;
+        private bool m_deleteEmmaIDs;
+        private List<IDpar> m_clientIDpars;
+        private int m_IdOffset;
+        private int m_OsOffset;
+
         private void wizardPage5_ShowFromNext(object sender, EventArgs e)
         {
             lstDB.PreviousSelectedIndex = lstDB.SelectedIndex;
@@ -395,7 +406,7 @@ namespace LiveResults.Client
             {
                 DialogResult result = MessageBox.Show("Use offset > 0 only when you want to show results from multiple databases in one LiveRes event!",
                     "Database ID offset > 0", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
-                if (result == DialogResult.Cancel)            
+                if (result == DialogResult.Cancel)
                     return;
             }
             if (!Int32.TryParse(txtSleepTime.Text, out int SleepTime))
@@ -412,27 +423,203 @@ namespace LiveResults.Client
                 MessageBox.Show("Invalid compID value", "Invalid input", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-            bool MSSQL = (comboBox1.SelectedIndex == 1);
-            FrmETimingMonitor monForm = new FrmETimingMonitor();
-            this.Hide();
 
-            ETimingParser pars = new ETimingParser(GetDBConnection(lstDB.SelectedItem as string),
-                    SleepTime,
-                    chkUpdateRadioControls.Checked, MinPace, MSSQL, chkEcardAsBackup.Checked,
-                    chkLapTimes.Checked, chkEventorID.Checked, IdOffset,
-                    chkUpdateMessage.Checked, chkAddEcardSplits.Checked, CompID, OsOffset);
-            monForm.SetParser(pars as IExternalSystemResultParserEtiming);
-            monForm.CompetitionID = CompID;
-            monForm.Organizer = cmp.Organizer;
-            monForm.CompDate = cmp.CompDate;
-            monForm.useEventorID = chkEventorID.Checked;
-            monForm.deleteEmmaIDs = false;
-            monForm.clientIDpars = cmp.eTimingIDpars;
-            monForm.IdOffset = IdOffset;
-            monForm.OsOffset = OsOffset;
-            monForm.ShowDialog(this);
+            TimeSpan? ecardStartTime = null;
+            if (!string.IsNullOrWhiteSpace(txtEcardStartTime.Text))
+            {
+                if (TimeSpan.TryParseExact(txtEcardStartTime.Text.Trim(), @"hh\:mm\:ss", CultureInfo.InvariantCulture, out TimeSpan parsed))
+                    ecardStartTime = parsed;
+                else
+                    MessageBox.Show("Could not parse Start Time, ignoring (use hh:mm:ss)", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            bool MSSQL = (comboBox1.SelectedIndex == 1);
+            m_monitorCompID = CompID;
+            m_useEventorID = chkEventorID.Checked;
+            m_deleteEmmaIDs = false;
+            m_clientIDpars = cmp.eTimingIDpars;
+            m_IdOffset = IdOffset;
+            m_OsOffset = OsOffset;
+
+            m_parser = new ETimingParser(
+                GetDBConnection(lstDB.SelectedItem as string),
+                SleepTime,
+                chkUpdateRadioControls.Checked, MinPace, MSSQL, chkEcardAsBackup.Checked,
+                chkLapTimes.Checked, chkEventorID.Checked, IdOffset,
+                chkUpdateMessage.Checked, chkAddEcardSplits.Checked, CompID, OsOffset, ecardStartTime);
+
+            m_parser.OnLogMessage += MonitorLogMessage;
         }
 
+
+        private void wizardPage6_ShowFromNext(object sender, EventArgs e)
+        {
+            listBoxMonitor.Items.Clear();
+            btnMonitorStartStop.Text = "Start";
+        }
+
+        private void wizardPage6_CloseFromNext(object sender, Gui.Wizard.PageEventArgs e)
+        {
+            StopMonitor();
+        }
+
+        private void wizardPage6_CloseFromBack(object sender, Gui.Wizard.PageEventArgs e)
+        {
+            StopMonitor();
+        }
+
+        private void btnMonitorStartStop_Click(object sender, EventArgs e)
+        {
+            if (btnMonitorStartStop.Text == "Start")
+            {
+                EmmaMysqlClient.EmmaServer[] servers = EmmaMysqlClient.GetServersFromConfig();
+                bool dateOrganizerOK = true;
+                foreach (EmmaMysqlClient.EmmaServer srv in servers)
+                {
+                    EmmaMysqlClient cli = new EmmaMysqlClient(srv.Host, 3309, srv.User, srv.Pw, srv.DB, m_monitorCompID);
+                    m_clients.Add(cli);
+                    cli.OnLogMessage += MonitorLogMessage;
+                    cli.Start();
+
+                    string stringCompDate = cmp.CompDate.ToString("yyyy-MM-dd");
+                    string stringCliCompDate = cli.compDate.ToString("yyyy-MM-dd");
+                    if (!(String.Equals(stringCliCompDate, stringCompDate) && String.Equals(cli.organizer, cmp.Organizer)))
+                    {
+                        MonitorLogMessage(DateTime.Now.ToString("HH:mm:ss") + " eTiming date/organizer:\t" + stringCompDate + " / " + cmp.Organizer);
+                        MonitorLogMessage(DateTime.Now.ToString("HH:mm:ss") + " Server date/organizer:\t" + stringCliCompDate + " / " + cli.organizer);
+                        MonitorLogMessage(DateTime.Now.ToString("HH:mm:ss") + " Parser aborts! Server and eTiming data do NOT match.");
+                        MonitorLogMessage(DateTime.Now.ToString("HH:mm:ss") + " Check date, organizer, compID and network connection!");
+                        dateOrganizerOK = false;
+                        break;
+                    }
+                    else
+                    {
+                        MonitorLogMessage(DateTime.Now.ToString("HH:mm:ss") + " eTiming date/organizer:\t" + stringCompDate + " / " + cmp.Organizer);
+                        MonitorLogMessage(DateTime.Now.ToString("HH:mm:ss") + " Server date/organizer:\t" + stringCliCompDate + " / " + cli.organizer);
+                        MonitorLogMessage(DateTime.Now.ToString("HH:mm:ss") + " Server and eTiming data match!");
+                    }
+                }
+
+                if (dateOrganizerOK)
+                {
+                    m_parser.OnResult += MonitorOnResult;
+                    m_parser.OnDeleteID += MonitorOnDeleteID;
+                    m_parser.OnDeleteVacantID += MonitorOnDeleteVacantID;
+                    m_parser.OnDeleteUnusedID += MonitorOnDeleteUnusedID;
+                    m_parser.OnMergeRadioControls += MonitorOnMergeRadioControls;
+                    m_parser.OnMergeCourseData += MonitorOnMergeCourseData;
+                    m_parser.OnMergeVacants += MonitorOnMergeVacants;
+                    m_parser.OnRadioControl += (name, code, className, order) =>
+                    {
+                        foreach (EmmaMysqlClient client in m_clients)
+                            client.SetRadioControl(className, code, name, order);
+                    };
+                    m_parser.Start();
+                    btnMonitorStartStop.Text = "Stop";
+                }
+                else
+                {
+                    foreach (EmmaMysqlClient cli in m_clients) cli.Stop();
+                    m_clients.Clear();
+                }
+            }
+            else
+            {
+                StopMonitor();
+                btnMonitorStartStop.Text = "Start";
+            }
+        }
+
+        private void StopMonitor()
+        {
+            if (m_parser != null)
+            {
+                m_parser.Stop();
+                m_parser.OnLogMessage -= MonitorLogMessage;
+            }
+            foreach (EmmaMysqlClient cli in m_clients) cli.Stop();
+            m_clients.Clear();
+        }
+
+        private void MonitorLogMessage(string msg)
+        {
+            if (listBoxMonitor == null || listBoxMonitor.IsDisposed) return;
+            if (listBoxMonitor.InvokeRequired)
+                listBoxMonitor.BeginInvoke(new Action(() => listBoxMonitor.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " " + msg)));
+            else
+                listBoxMonitor.Items.Insert(0, DateTime.Now.ToString("HH:mm:ss") + " " + msg);
+        }
+
+        private void MonitorOnResult(Result newResult)
+        {
+            foreach (EmmaMysqlClient client in m_clients)
+            {
+                if (!client.IsRunnerAdded(newResult.ID))
+                    client.AddRunner(new Runner(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null, newResult.Course, newResult.Length, newResult.EcardTimes));
+                else
+                    client.UpdateRunnerInfo(newResult.ID, newResult.RunnerName, newResult.RunnerClub, newResult.Class, newResult.Ecard1, newResult.Ecard2, newResult.Bib, null, newResult.Course, newResult.Length, newResult.EcardTimes);
+
+                if (newResult.StartTime >= 0 || newResult.StartTime == -1 || newResult.StartTime == -999)
+                    client.SetRunnerStartTime(newResult.ID, newResult.StartTime);
+
+                if (newResult.Time != -2)
+                    client.SetRunnerResult(newResult.ID, newResult.Time, newResult.Status);
+
+                var controlCodes = new List<int>();
+                if (newResult.SplitTimes != null)
+                {
+                    foreach (ResultStruct str in newResult.SplitTimes)
+                    {
+                        client.SetRunnerSplit(newResult.ID, str.ControlCode, str.Time);
+                        controlCodes.Add(str.ControlCode);
+                    }
+                }
+                client.DeleteUnusedSplits(newResult.ID, controlCodes);
+            }
+        }
+
+        private void MonitorOnDeleteID(int runnerID)
+        {
+            foreach (EmmaMysqlClient client in m_clients)
+                client.DeleteID(runnerID);
+        }
+
+        private void MonitorOnDeleteVacantID(int runnerID)
+        {
+            foreach (EmmaMysqlClient client in m_clients)
+                client.DeleteVacantID(runnerID);
+        }
+
+        private void MonitorOnDeleteUnusedID(List<int> usedIds, bool first = false)
+        {
+            if (usedIds == null) return;
+            foreach (EmmaMysqlClient client in m_clients)
+            {
+                foreach (var dbRunner in client.m_runners.Values.ToList())
+                {
+                    if (!usedIds.Contains(dbRunner.ID) && (first || dbRunner.ID >= 0))
+                        client.DeleteID(dbRunner.ID);
+                }
+            }
+        }
+
+        private void MonitorOnMergeRadioControls(RadioControl[] radioControls, bool update)
+        {
+            foreach (EmmaMysqlClient client in m_clients)
+                if (radioControls != null) client.MergeRadioControls(radioControls, update);
+        }
+
+        private void MonitorOnMergeCourseData(CourseData[] courseData, bool deleteUnused)
+        {
+            foreach (EmmaMysqlClient client in m_clients)
+                if (courseData != null) client.MergeCourseData(courseData, deleteUnused);
+        }
+
+        private void MonitorOnMergeVacants(VacantRunner[] vacantRunners, bool deleteUnused)
+        {
+            foreach (EmmaMysqlClient client in m_clients)
+                if (vacantRunners != null) client.MergeVacantRunners(vacantRunners, deleteUnused);
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {

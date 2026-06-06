@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(OEForm));
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.txtStartTime = new System.Windows.Forms.TextBox();
+            this.label8 = new System.Windows.Forms.Label();
             this.txtRefresh = new System.Windows.Forms.TextBox();
             this.txtRefreshTitle = new System.Windows.Forms.Label();
             this.txtURL = new System.Windows.Forms.TextBox();
@@ -70,6 +72,8 @@
             // 
             this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox1.Controls.Add(this.txtStartTime);
+            this.groupBox1.Controls.Add(this.label8);
             this.groupBox1.Controls.Add(this.txtRefresh);
             this.groupBox1.Controls.Add(this.txtRefreshTitle);
             this.groupBox1.Controls.Add(this.txtURL);
@@ -86,25 +90,41 @@
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(12, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(311, 200);
+            this.groupBox1.Size = new System.Drawing.Size(311, 250);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Settings (set directory or URL)";
+            // 
+            // txtStartTime
+            // 
+            this.txtStartTime.Location = new System.Drawing.Point(159, 183);
+            this.txtStartTime.Name = "txtStartTime";
+            this.txtStartTime.Size = new System.Drawing.Size(146, 20);
+            this.txtStartTime.TabIndex = 17;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 186);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(139, 13);
+            this.label8.TabIndex = 18;
+            this.label8.Text = "Upload start time (hh:mm:ss)";
             // 
             // txtRefresh
             // 
             this.txtRefresh.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtRefresh.Location = new System.Drawing.Point(250, 150);
+            this.txtRefresh.Location = new System.Drawing.Point(274, 75);
             this.txtRefresh.Name = "txtRefresh";
-            this.txtRefresh.Size = new System.Drawing.Size(55, 20);
+            this.txtRefresh.Size = new System.Drawing.Size(31, 20);
             this.txtRefresh.TabIndex = 5;
             this.txtRefresh.Text = "15";
             // 
             // txtRefreshTitle
             // 
             this.txtRefreshTitle.AutoSize = true;
-            this.txtRefreshTitle.Location = new System.Drawing.Point(247, 136);
+            this.txtRefreshTitle.Location = new System.Drawing.Point(247, 59);
             this.txtRefreshTitle.Name = "txtRefreshTitle";
             this.txtRefreshTitle.Size = new System.Drawing.Size(58, 13);
             this.txtRefreshTitle.TabIndex = 16;
@@ -116,7 +136,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtURL.Location = new System.Drawing.Point(10, 149);
             this.txtURL.Name = "txtURL";
-            this.txtURL.Size = new System.Drawing.Size(229, 20);
+            this.txtURL.Size = new System.Drawing.Size(295, 20);
             this.txtURL.TabIndex = 4;
             // 
             // label6
@@ -130,7 +150,7 @@
             // 
             // txtZeroTime
             // 
-            this.txtZeroTime.Location = new System.Drawing.Point(159, 173);
+            this.txtZeroTime.Location = new System.Drawing.Point(159, 215);
             this.txtZeroTime.Name = "txtZeroTime";
             this.txtZeroTime.Size = new System.Drawing.Size(146, 20);
             this.txtZeroTime.TabIndex = 6;
@@ -138,11 +158,11 @@
             // lblZeroTime
             // 
             this.lblZeroTime.AutoSize = true;
-            this.lblZeroTime.Location = new System.Drawing.Point(7, 176);
+            this.lblZeroTime.Location = new System.Drawing.Point(7, 218);
             this.lblZeroTime.Name = "lblZeroTime";
-            this.lblZeroTime.Size = new System.Drawing.Size(146, 13);
+            this.lblZeroTime.Size = new System.Drawing.Size(136, 13);
             this.lblZeroTime.TabIndex = 13;
-            this.lblZeroTime.Text = "Event ZeroTime (HH:MM:SS)";
+            this.lblZeroTime.Text = "Event ZeroTime (hh:mm:ss)";
             // 
             // lblFormatInfo
             // 
@@ -166,7 +186,7 @@
             this.cmbFormat.FormattingEnabled = true;
             this.cmbFormat.Location = new System.Drawing.Point(10, 111);
             this.cmbFormat.Name = "cmbFormat";
-            this.cmbFormat.Size = new System.Drawing.Size(295, 21);
+            this.cmbFormat.Size = new System.Drawing.Size(77, 21);
             this.cmbFormat.TabIndex = 3;
             this.cmbFormat.SelectedIndexChanged += new System.EventHandler(this.cmbFormat_SelectedIndexChanged);
             // 
@@ -183,7 +203,7 @@
             // 
             this.txtExtension.Location = new System.Drawing.Point(10, 75);
             this.txtExtension.Name = "txtExtension";
-            this.txtExtension.Size = new System.Drawing.Size(112, 20);
+            this.txtExtension.Size = new System.Drawing.Size(77, 20);
             this.txtExtension.TabIndex = 2;
             this.txtExtension.Text = "*.xml";
             // 
@@ -204,7 +224,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtOEDirectory.Location = new System.Drawing.Point(10, 36);
             this.txtOEDirectory.Name = "txtOEDirectory";
-            this.txtOEDirectory.Size = new System.Drawing.Size(258, 20);
+            this.txtOEDirectory.Size = new System.Drawing.Size(246, 20);
             this.txtOEDirectory.TabIndex = 1;
             // 
             // label1
@@ -222,15 +242,15 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(12, 248);
+            this.listBox1.Location = new System.Drawing.Point(12, 300);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(576, 199);
+            this.listBox1.Size = new System.Drawing.Size(576, 147);
             this.listBox1.TabIndex = 98;
             this.listBox1.TabStop = false;
             // 
             // button2
             // 
-            this.button2.Location = new System.Drawing.Point(170, 212);
+            this.button2.Location = new System.Drawing.Point(170, 262);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(75, 31);
             this.button2.TabIndex = 11;
@@ -262,7 +282,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(9, 206);
+            this.label2.Location = new System.Drawing.Point(9, 256);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(73, 13);
             this.label2.TabIndex = 4;
@@ -270,14 +290,14 @@
             // 
             // txtCompID
             // 
-            this.txtCompID.Location = new System.Drawing.Point(12, 222);
+            this.txtCompID.Location = new System.Drawing.Point(12, 272);
             this.txtCompID.Name = "txtCompID";
             this.txtCompID.Size = new System.Drawing.Size(74, 20);
             this.txtCompID.TabIndex = 9;
             // 
             // button3
             // 
-            this.button3.Location = new System.Drawing.Point(252, 212);
+            this.button3.Location = new System.Drawing.Point(252, 262);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(73, 31);
             this.button3.TabIndex = 12;
@@ -306,9 +326,9 @@
             // button4
             // 
             this.button4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.button4.Location = new System.Drawing.Point(466, 212);
+            this.button4.Location = new System.Drawing.Point(474, 262);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(114, 33);
+            this.button4.Size = new System.Drawing.Size(114, 30);
             this.button4.TabIndex = 13;
             this.button4.Text = "Copy log to clipboard";
             this.button4.UseVisualStyleBackColor = true;
@@ -329,7 +349,7 @@
             // 
             // txtOrganizer
             // 
-            this.txtOrganizer.Location = new System.Drawing.Point(93, 222);
+            this.txtOrganizer.Location = new System.Drawing.Point(93, 272);
             this.txtOrganizer.Name = "txtOrganizer";
             this.txtOrganizer.Size = new System.Drawing.Size(74, 20);
             this.txtOrganizer.TabIndex = 10;
@@ -337,7 +357,7 @@
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(90, 206);
+            this.label7.Location = new System.Drawing.Point(90, 256);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(52, 13);
             this.label7.TabIndex = 13;
@@ -376,7 +396,7 @@
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "OEForm";
-            this.Text = "LiveResults Client, UploadClient";
+            this.Text = "LiveResults Client";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.OEForm_FormClosing);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
@@ -420,5 +440,7 @@
         private System.Windows.Forms.TextBox txtOrganizer;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.CheckBox chkDeleteUnused;
+        private System.Windows.Forms.TextBox txtStartTime;
+        private System.Windows.Forms.Label label8;
     }
 }

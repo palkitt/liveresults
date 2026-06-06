@@ -36,7 +36,13 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(NewETimingComp));
             this.wizard1 = new Gui.Wizard.Wizard();
+            this.wizardPage6 = new Gui.Wizard.WizardPage();
+            this.listBoxMonitor = new System.Windows.Forms.ListBox();
+            this.panelMonitorTop = new System.Windows.Forms.Panel();
+            this.btnMonitorStartStop = new System.Windows.Forms.Button();
             this.wizardPage5 = new Gui.Wizard.WizardPage();
+            this.txtEcardStartTime = new System.Windows.Forms.TextBox();
+            this.label19 = new System.Windows.Forms.Label();
             this.txtMinPace = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
             this.chkEcardAsBackup = new System.Windows.Forms.CheckBox();
@@ -82,6 +88,8 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.wizard1.SuspendLayout();
+            this.wizardPage6.SuspendLayout();
+            this.panelMonitorTop.SuspendLayout();
             this.wizardPage5.SuspendLayout();
             this.wizardPage2.SuspendLayout();
             this.wizardPage1.SuspendLayout();
@@ -90,9 +98,10 @@
             // 
             // wizard1
             // 
-            this.wizard1.Controls.Add(this.wizardPage1);
+            this.wizard1.Controls.Add(this.wizardPage6);
             this.wizard1.Controls.Add(this.wizardPage5);
             this.wizard1.Controls.Add(this.wizardPage2);
+            this.wizard1.Controls.Add(this.wizardPage1);
             this.wizard1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.wizard1.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.wizard1.Location = new System.Drawing.Point(0, 0);
@@ -100,12 +109,57 @@
             this.wizard1.Pages.AddRange(new Gui.Wizard.WizardPage[] {
             this.wizardPage1,
             this.wizardPage2,
-            this.wizardPage5});
-            this.wizard1.Size = new System.Drawing.Size(514, 277);
+            this.wizardPage5,
+            this.wizardPage6});
+            this.wizard1.Size = new System.Drawing.Size(514, 314);
             this.wizard1.TabIndex = 0;
+            // 
+            // wizardPage6
+            // 
+            this.wizardPage6.Controls.Add(this.listBoxMonitor);
+            this.wizardPage6.Controls.Add(this.panelMonitorTop);
+            this.wizardPage6.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.wizardPage6.IsFinishPage = false;
+            this.wizardPage6.Location = new System.Drawing.Point(0, 0);
+            this.wizardPage6.Name = "wizardPage6";
+            this.wizardPage6.Size = new System.Drawing.Size(514, 266);
+            this.wizardPage6.TabIndex = 6;
+            this.wizardPage6.CloseFromBack += new Gui.Wizard.PageEventHandler(this.wizardPage6_CloseFromBack);
+            this.wizardPage6.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage6_CloseFromNext);
+            this.wizardPage6.ShowFromNext += new System.EventHandler(this.wizardPage6_ShowFromNext);
+            // 
+            // listBoxMonitor
+            // 
+            this.listBoxMonitor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listBoxMonitor.FormattingEnabled = true;
+            this.listBoxMonitor.Location = new System.Drawing.Point(0, 35);
+            this.listBoxMonitor.Name = "listBoxMonitor";
+            this.listBoxMonitor.Size = new System.Drawing.Size(514, 231);
+            this.listBoxMonitor.TabIndex = 1;
+            // 
+            // panelMonitorTop
+            // 
+            this.panelMonitorTop.Controls.Add(this.btnMonitorStartStop);
+            this.panelMonitorTop.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panelMonitorTop.Location = new System.Drawing.Point(0, 0);
+            this.panelMonitorTop.Name = "panelMonitorTop";
+            this.panelMonitorTop.Size = new System.Drawing.Size(514, 35);
+            this.panelMonitorTop.TabIndex = 0;
+            // 
+            // btnMonitorStartStop
+            // 
+            this.btnMonitorStartStop.Location = new System.Drawing.Point(6, 6);
+            this.btnMonitorStartStop.Name = "btnMonitorStartStop";
+            this.btnMonitorStartStop.Size = new System.Drawing.Size(75, 23);
+            this.btnMonitorStartStop.TabIndex = 0;
+            this.btnMonitorStartStop.Text = "Start";
+            this.btnMonitorStartStop.UseVisualStyleBackColor = true;
+            this.btnMonitorStartStop.Click += new System.EventHandler(this.btnMonitorStartStop_Click);
             // 
             // wizardPage5
             // 
+            this.wizardPage5.Controls.Add(this.txtEcardStartTime);
+            this.wizardPage5.Controls.Add(this.label19);
             this.wizardPage5.Controls.Add(this.txtMinPace);
             this.wizardPage5.Controls.Add(this.label18);
             this.wizardPage5.Controls.Add(this.chkEcardAsBackup);
@@ -136,10 +190,26 @@
             this.wizardPage5.IsFinishPage = false;
             this.wizardPage5.Location = new System.Drawing.Point(0, 0);
             this.wizardPage5.Name = "wizardPage5";
-            this.wizardPage5.Size = new System.Drawing.Size(514, 229);
+            this.wizardPage5.Size = new System.Drawing.Size(514, 266);
             this.wizardPage5.TabIndex = 5;
             this.wizardPage5.CloseFromNext += new Gui.Wizard.PageEventHandler(this.wizardPage5_CloseFromNext);
             this.wizardPage5.ShowFromNext += new System.EventHandler(this.wizardPage5_ShowFromNext);
+            // 
+            // txtEcardStartTime
+            // 
+            this.txtEcardStartTime.Location = new System.Drawing.Point(178, 159);
+            this.txtEcardStartTime.Name = "txtEcardStartTime";
+            this.txtEcardStartTime.Size = new System.Drawing.Size(67, 21);
+            this.txtEcardStartTime.TabIndex = 29;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(12, 162);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(167, 13);
+            this.label19.TabIndex = 30;
+            this.label19.Text = "Ecard splits start time (hh:mm:ss)";
             // 
             // txtMinPace
             // 
@@ -161,7 +231,7 @@
             // chkEcardAsBackup
             // 
             this.chkEcardAsBackup.AutoSize = true;
-            this.chkEcardAsBackup.Location = new System.Drawing.Point(251, 187);
+            this.chkEcardAsBackup.Location = new System.Drawing.Point(251, 213);
             this.chkEcardAsBackup.Name = "chkEcardAsBackup";
             this.chkEcardAsBackup.Size = new System.Drawing.Size(258, 17);
             this.chkEcardAsBackup.TabIndex = 26;
@@ -171,7 +241,7 @@
             // chkAddEcardSplits
             // 
             this.chkAddEcardSplits.AutoSize = true;
-            this.chkAddEcardSplits.Location = new System.Drawing.Point(251, 163);
+            this.chkAddEcardSplits.Location = new System.Drawing.Point(251, 189);
             this.chkAddEcardSplits.Name = "chkAddEcardSplits";
             this.chkAddEcardSplits.Size = new System.Drawing.Size(268, 17);
             this.chkAddEcardSplits.TabIndex = 25;
@@ -215,7 +285,7 @@
             // chkUpdateMessage
             // 
             this.chkUpdateMessage.AutoSize = true;
-            this.chkUpdateMessage.Location = new System.Drawing.Point(12, 187);
+            this.chkUpdateMessage.Location = new System.Drawing.Point(12, 213);
             this.chkUpdateMessage.Name = "chkUpdateMessage";
             this.chkUpdateMessage.Size = new System.Drawing.Size(175, 17);
             this.chkUpdateMessage.TabIndex = 20;
@@ -225,7 +295,7 @@
             // chkEventorID
             // 
             this.chkEventorID.AutoSize = true;
-            this.chkEventorID.Location = new System.Drawing.Point(251, 211);
+            this.chkEventorID.Location = new System.Drawing.Point(251, 237);
             this.chkEventorID.Name = "chkEventorID";
             this.chkEventorID.Size = new System.Drawing.Size(177, 17);
             this.chkEventorID.TabIndex = 19;
@@ -253,7 +323,7 @@
             // chkLapTimes
             // 
             this.chkLapTimes.AutoSize = true;
-            this.chkLapTimes.Location = new System.Drawing.Point(12, 211);
+            this.chkLapTimes.Location = new System.Drawing.Point(12, 237);
             this.chkLapTimes.Name = "chkLapTimes";
             this.chkLapTimes.Size = new System.Drawing.Size(164, 17);
             this.chkLapTimes.TabIndex = 16;
@@ -337,7 +407,7 @@
             // chkUpdateRadioControls
             // 
             this.chkUpdateRadioControls.AutoSize = true;
-            this.chkUpdateRadioControls.Location = new System.Drawing.Point(12, 163);
+            this.chkUpdateRadioControls.Location = new System.Drawing.Point(12, 189);
             this.chkUpdateRadioControls.Name = "chkUpdateRadioControls";
             this.chkUpdateRadioControls.Size = new System.Drawing.Size(193, 17);
             this.chkUpdateRadioControls.TabIndex = 4;
@@ -389,7 +459,7 @@
             this.wizardPage2.IsFinishPage = false;
             this.wizardPage2.Location = new System.Drawing.Point(0, 0);
             this.wizardPage2.Name = "wizardPage2";
-            this.wizardPage2.Size = new System.Drawing.Size(514, 229);
+            this.wizardPage2.Size = new System.Drawing.Size(514, 266);
             this.wizardPage2.TabIndex = 2;
             this.wizardPage2.ShowFromBack += new System.EventHandler(this.wizardPage2_ShowFromBack);
             this.wizardPage2.ShowFromNext += new System.EventHandler(this.wizardPage2_ShowFromNext);
@@ -429,7 +499,7 @@
             this.wizardPage1.IsFinishPage = false;
             this.wizardPage1.Location = new System.Drawing.Point(0, 0);
             this.wizardPage1.Name = "wizardPage1";
-            this.wizardPage1.Size = new System.Drawing.Size(514, 229);
+            this.wizardPage1.Size = new System.Drawing.Size(514, 266);
             this.wizardPage1.TabIndex = 1;
             // 
             // panel1
@@ -558,12 +628,14 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(514, 277);
+            this.ClientSize = new System.Drawing.Size(514, 314);
             this.Controls.Add(this.wizard1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "NewETimingComp";
             this.Text = "New eTiming connection";
             this.wizard1.ResumeLayout(false);
+            this.wizardPage6.ResumeLayout(false);
+            this.panelMonitorTop.ResumeLayout(false);
             this.wizardPage5.ResumeLayout(false);
             this.wizardPage5.PerformLayout();
             this.wizardPage2.ResumeLayout(false);
@@ -624,5 +696,11 @@
         public System.Windows.Forms.CheckBox chkEcardAsBackup;
         private System.Windows.Forms.TextBox txtMinPace;
         private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.TextBox txtEcardStartTime;
+        private System.Windows.Forms.Label label19;
+        private Gui.Wizard.WizardPage wizardPage6;
+        private System.Windows.Forms.Panel panelMonitorTop;
+        private System.Windows.Forms.Button btnMonitorStartStop;
+        private System.Windows.Forms.ListBox listBoxMonitor;
     }
 }

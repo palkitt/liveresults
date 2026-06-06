@@ -60,10 +60,11 @@ namespace LiveResults.Client
         private Task _urlLoaderTask; // Task to track the running thread
         private readonly object _taskLock = new object(); // Lock to ensure thread safety
 
+        private TimeSpan? m_startTime = null;
+
         public OEForm(bool showCSVFormats = true)
         {
             InitializeComponent();
-            Text = Text + @", " + Encoding.Default.EncodingName + @"," + Encoding.Default.CodePage;
             fileSystemWatcher1.Changed += new FileSystemEventHandler(fileSystemWatcher1_Changed);
             m_clients = new List<EmmaMysqlClient>();
 
@@ -105,6 +106,7 @@ namespace LiveResults.Client
                         chkDeleteUnused.Checked = s.DeleteUnused;
                         txtRefresh.Text = s.Refresh.ToString();
                         txtURL.Text = s.URL;
+                        txtStartTime.Text = s.StartTime;
                         for (int i = 0; i < m_supportedFormats.Count; i++)
                         {
                             if (m_supportedFormats[i].Name == s.Format)
@@ -171,6 +173,14 @@ namespace LiveResults.Client
             m_URL = txtURL.Text;
             m_organizer = txtOrganizer.Text;
             m_parsedZeroTime = 0;
+            m_startTime = null;
+            if (!string.IsNullOrWhiteSpace(txtStartTime.Text))
+            {
+                if (TimeSpan.TryParseExact(txtStartTime.Text.Trim(), @"hh\:mm\:ss", CultureInfo.InvariantCulture, out TimeSpan parsedStart))
+                    m_startTime = parsedStart;
+                else
+                    Logit("WARN: Could not parse upload start time, ignoring (use HH:mm:ss)");
+            }
             listBox1.Items.Clear();
             button3.Enabled = false;
             m_clients.Clear();
@@ -335,6 +345,11 @@ namespace LiveResults.Client
 
         void fileSystemWatcher1_Changed(object sender, FileSystemEventArgs e)
         {
+            if (!IsUploadStartTimeReached())
+            {
+                Logit($"File change detected but upload start time {m_startTime.Value:hh\\:mm\\:ss} not yet reached, skipping.");
+                return;
+            }
             string filename = e.Name;
             string fullFilename = e.FullPath;
             if (!File.Exists(fullFilename))
@@ -390,6 +405,7 @@ namespace LiveResults.Client
 
         void URL_loader(string URL)
         {
+
             try
             {
                 RadioControl[] radioControls;
@@ -432,20 +448,23 @@ namespace LiveResults.Client
 
                 _urlLoaderTask = Task.Run(() =>
                 {
-                    int activeTimer = 0;
                     int maxActiveTimer = 60;
+                    int activeTimer = maxActiveTimer;
 
                     while (!_stopUrlLoader)
                     {
                         try
                         {
-                            URL_loader(m_URL);
+                            if (IsUploadStartTimeReached())
+                                URL_loader(m_URL);
 
                             activeTimer += m_refresh;
                             if (activeTimer >= maxActiveTimer)
                             {
                                 SendLiveActive(apiServer, webClient);
                                 activeTimer = 0;
+                                if (!IsUploadStartTimeReached())
+                                    Logit($"Waiting for upload start time: {m_startTime.Value:hh\\:mm\\:ss}.");
                             }
                         }
                         catch (Exception ex)
@@ -462,6 +481,11 @@ namespace LiveResults.Client
                     }
                 });
             }
+        }
+
+        private bool IsUploadStartTimeReached()
+        {
+            return !m_startTime.HasValue || DateTime.Now.TimeOfDay >= m_startTime.Value;
         }
 
         void Logit(string msg)
@@ -609,7 +633,8 @@ namespace LiveResults.Client
                     DeleteUnused = chkDeleteUnused.Checked,
                     Refresh = int.Parse(txtRefresh.Text),
                     URL = txtURL.Text,
-                    Organizer = txtOrganizer.Text
+                    Organizer = txtOrganizer.Text,
+                    StartTime = txtStartTime.Text
                 };
 
                 string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "EmmaClient");
@@ -640,6 +665,7 @@ namespace LiveResults.Client
             public int Refresh { get; set; }
             public string URL { get; set; }
             public string Organizer { get; set; }
+            public string StartTime { get; set; }
         }
 
         private void button4_Click(object sender, EventArgs e)

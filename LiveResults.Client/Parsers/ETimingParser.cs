@@ -49,11 +49,13 @@ namespace LiveResults.Client
         private readonly bool m_updateMessage;
         private readonly int m_compID;
         private readonly int m_OsOffset;
+        private readonly TimeSpan? m_ecardStartTime;
         private bool m_continue;
 
         public ETimingParser(IDbConnection conn, int sleepTime, bool UpdateRadioControls = true, double minPaceTime = 0,
             bool MSSQL = false, bool ecardAsBackup = false, bool lapTimes = false, bool EventorID = false, int IdOffset = 0,
-            bool updateMessage = false, bool addEcardSplits = false, int compID = 0, int OsOffset = 0)
+            bool updateMessage = false, bool addEcardSplits = false, int compID = 0, int OsOffset = 0,
+            TimeSpan? ecardStartTime = null)
         {
             m_connection = conn;
             m_updateRadioControls = UpdateRadioControls;
@@ -68,6 +70,7 @@ namespace LiveResults.Client
             m_updateEcardTimes = addEcardSplits;
             m_compID = compID;
             m_OsOffset = OsOffset;
+            m_ecardStartTime = ecardStartTime;
         }
 
         private void FireOnResult(Result newResult)
@@ -240,8 +243,11 @@ namespace LiveResults.Client
                                 CCTimer = 0;
                             }
 
-                            if (m_updateEcardTimes || m_ecardAsBackup)
+                            bool ecardStartTimeReached = !m_ecardStartTime.HasValue || DateTime.Now.TimeOfDay >= m_ecardStartTime.Value;
+                            if ((m_updateEcardTimes || m_ecardAsBackup) && ecardStartTimeReached)
                                 ParseReaderEcardTimes(cmdEcardTimes, out ecardTimesList, out lastRunner);
+                            else if (!ecardStartTimeReached)
+                                ecardTimesList = null;
                             ParseReaderSplits(cmdSplits, out splitList, out lastRunner);
                             ParseReader(cmdInd, ref splitList, ref ecardTimesList, ref courses, ref intermediates, false, isSprint, false, day, new List<int>(), out lastRunner, out usedID);
                             if (isRelay)
@@ -268,6 +274,8 @@ namespace LiveResults.Client
                             {
                                 SendLiveActive(apiServer, client);
                                 activeTimer = 0;
+                                if (m_updateEcardTimes && !ecardStartTimeReached)
+                                    FireLogMsg($"Waiting for ecard times upload start: {m_ecardStartTime.Value:hh\\:mm\\:ss}.");
                             }
 
                             Thread.Sleep(1000 * m_sleepTime);
@@ -1288,7 +1296,8 @@ namespace LiveResults.Client
                         }
 
                         // Add ecard times
-                        if ((m_ecardAsBackup || m_updateEcardTimes) && timingType != 2) // Skip if do not show times
+                        bool ecardStartTimeReached = !m_ecardStartTime.HasValue || DateTime.Now.TimeOfDay >= m_ecardStartTime.Value;
+                        if ((m_ecardAsBackup || m_updateEcardTimes) && timingType != 2 && ecardStartTimeReached) // Skip if do not show times or ecard start time not reached
                         {
                             var backupRadioTimes = new List<ResultStruct>();
                             var ecardTimes = new List<EcardTimesRawStruct>();

@@ -255,18 +255,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FrmBrikkesysMonitor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FrmBrikkesysMonitor.designer.cs">
-      <DependentUpon>FrmBrikkesysMonitor.cs</DependentUpon>
-    </Compile>
-    <Compile Include="FrmETimingMonitor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="FrmETimingMonitor.designer.cs">
-      <DependentUpon>FrmETimingMonitor.cs</DependentUpon>
-    </Compile>
     <Compile Include="FrmNewRacomComp.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -347,12 +335,6 @@
     <Compile Include="Parsers\OEParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="FrmBrikkesysMonitor.resx">
-      <DependentUpon>FrmBrikkesysMonitor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="FrmETimingMonitor.resx">
-      <DependentUpon>FrmETimingMonitor.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="FrmMonitor.resx">
       <SubType>Designer</SubType>
       <DependentUpon>FrmMonitor.cs</DependentUpon>
