@@ -346,18 +346,26 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
         setClassColumnHeight();
       }, 500);
 
+      // Set initial class list state
+      <?php if (!$isSingleClass && !$isSingleClub) { ?>
+        $('#classColumnContent').addClass('closed');
+      <?php } ?>
+
       // Show/hide class column
-      $('#dropbtnClass').on('mouseover', function() {
-        showClassList();
-      });
+      // Only use mouseover on desktop (browserType != 1)
+      if (res.browserType != 1) {
+        $('#dropbtnClass').on('mouseover', function() {
+          showClassList();
+        });
 
-      $('#classSelector').on('mouseover', function() {
-        showClassList();
-      });
+        $('#classSelector').on('mouseover', function() {
+          showClassList();
+        });
 
-      $('#divClassColumn').on('mouseleave', function() {
-        hideClassList();
-      });
+        $('#divClassColumn').on('mouseleave', function() {
+          hideClassList();
+        });
+      }
 
       $(document).on('click', function(event) {
         if (!$(event.target).closest('#divClassColumn, #dropbtnClass, #classSelector').length)
@@ -375,6 +383,19 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     function hideClassList() {
       if ($('#classColumnContent').length && $('#classColumnContent').hasClass('open'))
         $('#classColumnContent').removeClass('open').addClass('closed');
+    }
+
+    function toggleClassList(event) {
+      if (event) {
+        event.stopPropagation();
+      }
+      if ($('#classColumnContent').length) {
+        if ($('#classColumnContent').hasClass('open')) {
+          hideClassList();
+        } else {
+          showClassList();
+        }
+      }
     }
 
     let wakeLock = null;
@@ -647,13 +668,13 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <td align="left">
                 <div class="dropdownClass">
                   <?php if (!$isSingleClass && !$isSingleClub) { ?>
-                    <button id="classSelector" class="navbtn" onclick="showClassList()"><span class="fa-solid fa-bars"></span></button>
+                    <button id="classSelector" class="navbtn" onclick="toggleClassList(event)"><span class="fa-solid fa-bars"></span></button>
                   <?php } ?>
                   &nbsp;
                   <?php if ($isLiveResComp) { ?>
                     <span id="liveIndicator"></span>
                   <?php } ?>
-                  <button id="dropbtnClass" class="dropbtnClass">
+                  <button id="dropbtnClass" class="dropbtnClass" onclick="toggleClassList(event)">
                     <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b></span>
                   </button>
                 </div>
