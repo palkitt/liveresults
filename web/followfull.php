@@ -125,12 +125,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style-liveres.css?a">
+  <link rel="stylesheet" href="css/style-liveres.css?v=20260606">
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.common.js"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260606"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260606"></script>
   <?php if ($isTime4oComp) { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js"></script>
+    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260606"></script>
   <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <script type="module" src="https://hstrekk.ru-stad.name/hstrekk.js"></script>
@@ -579,9 +579,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                       else
                         $image = "images/LiveRes60.png";
                   }
-                  if ($image != "") { ?> <td width="60"><img src="<?php echo ($image) ?>" height="60"></td> <?php } ?>
-                  <td valign="top"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?= $_LASTPASSINGS ?></b><br>
-                      <div id="divLastPassings"></div>
+                  if ($image != "") { ?> <td width="60" class="topbar-image"><img src="<?php echo ($image) ?>" height="60"></td> <?php } ?>
+                  <td valign="top" class="lastpassings-cell"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?= $_LASTPASSINGS ?></b><br>
+                      <div id="divLastPassings" class="passings-container"></div>
                     </span></td>
                 </tr>
               </table>
@@ -617,7 +617,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   <span id="colSelector" style="display: inline-block;"></span>
                   <button class="navbtn" id="openInNewWindowBtn" onclick="openInNewTab()" title="<?= $_OPENINNEWWINDOW ?>" style="display:none;"><span class="fa-solid fa-arrow-up-right-from-square"></span></button>
                   &nbsp;
-                  <span id="compname" style="font-weight: bold;">loading comp name...</span>
+                  <span id="compname" class="text-truncate" style="font-weight: bold;">loading comp name...</span>
                 </td>
               </tr>
               <?php if ($isSpeaker) { ?>

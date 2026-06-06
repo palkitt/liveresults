@@ -1548,12 +1548,12 @@ var LiveResults;
 
             var placeStr = (code > 0 && place > 0 && status == 0 ? " (" + place + ")" : "");
 
-            str += value.passtime + ": " + bibStr + runnerName
+            str += "<div class='passing-line'>" + value.passtime + ": " + bibStr + runnerName
               + " (<a href=\"javascript:LiveResults.Instance.chooseClass('" + cl + "')\">" + value["class"] + "</a>) "
               + (code == 1000 && status > 0 && status < 7 ? _this.resources["_NEWSTATUS"] :
                 (code == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"])
                 + " " + (status == 13 ? _this.resources["_LASTPASSWITHSTATUS"] : _this.resources["_LASTPASSWITHTIME"])) + " "
-              + value["time"] + placeStr + "<br>";
+              + value["time"] + placeStr + "</div>";
           });
           $("#" + this.lastPassingsDiv).html(str);
           this.lastPassingsUpdateHash = data.hash;

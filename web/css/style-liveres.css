@@ -622,6 +622,47 @@ div.dt-buttons>.dt-button:hover {
   color: gray;
 }
 
+/* Competition name */
+.text-truncate {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: calc(100vw - 20em);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .text-truncate {
+    max-width: calc(100vw - 16em);
+  }
+
+  .topbar-image {
+    display: none;
+  }
+}
+
+/* Last passings topBar */
+.lastpassings-cell {
+  max-width: 1px;
+  width: 100%;
+}
+
+.passings-container {
+  overflow: hidden;
+  max-width: 100%;
+  max-height: 4.2em;
+  line-height: 1.4em;
+}
+
+.passing-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  display: block;
+}
+
 /* Class/results layout */
 .container {
   display: flex;
