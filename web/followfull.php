@@ -348,25 +348,34 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 
       // Show/hide class column
       $('#dropbtnClass').on('mouseover', function() {
-        if ($('#classColumnContent').length && $('#classColumnContent').hasClass('closed')) {
-          $('#classColumnContent').removeClass('closed').addClass('open');
-          setClassColumnHeight();
-        }
+        showClassList();
+      });
+
+      $('#classSelector').on('mouseover', function() {
+        showClassList();
       });
 
       $('#divClassColumn').on('mouseleave', function() {
-        if ($('#classColumnContent').length && $('#classColumnContent').hasClass('open'))
-          $('#classColumnContent').removeClass('open').addClass('closed');
+        hideClassList();
       });
 
       $(document).on('click', function(event) {
-        if ($('#classColumnContent').length && $('#classColumnContent').hasClass('open')) {
-          if (!$(event.target).closest('#divClassColumn, #dropbtnClass').length) {
-            $('#classColumnContent').removeClass('open').addClass('closed');
-          }
-        }
+        if (!$(event.target).closest('#divClassColumn, #dropbtnClass, #classSelector').length)
+          hideClassList();
       });
     });
+
+    function showClassList() {
+      if ($('#classColumnContent').length && $('#classColumnContent').hasClass('closed')) {
+        $('#classColumnContent').removeClass('closed').addClass('open');
+        setClassColumnHeight();
+      }
+    }
+
+    function hideClassList() {
+      if ($('#classColumnContent').length && $('#classColumnContent').hasClass('open'))
+        $('#classColumnContent').removeClass('open').addClass('closed');
+    }
 
     let wakeLock = null;
     async function enableNoSleep() {
@@ -635,14 +644,14 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             <tr>
               <td align="left">
                 <div class="dropdownClass">
+                  <?php if (!$isSingleClass && !$isSingleClub) { ?>
+                    <button id="classSelector" class="navbtn" onclick="showClassList()"><span class="fa-solid fa-bars"></span></button>
+                  <?php } ?>
+                  &nbsp;
+                  <?php if ($isLiveResComp) { ?>
+                    <span id="liveIndicator"></span>
+                  <?php } ?>
                   <button id="dropbtnClass" class="dropbtnClass">
-                    &nbsp;
-                    <?php if (!$isSingleClass && !$isSingleClub) { ?>
-                      <span class="fa-solid fa-bars"></span>&nbsp;
-                    <?php } ?>
-                    <?php if ($isLiveResComp) { ?>
-                      <span id="liveIndicator"></span>
-                    <?php } ?>
                     <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b></span>
                   </button>
                 </div>
