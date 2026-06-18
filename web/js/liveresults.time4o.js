@@ -218,6 +218,8 @@
   AjaxViewer.prototype.groupEntriesByClass = function (entries, type, classInfo) {
     const groups = new Map();
     for (const e of (entries || [])) {
+      if (e?.status == null || e?.class == null)
+        continue;
       if (type === "plainresults" && (e.status == 9 || e.status == 10))
         continue;
       const name = e.class || "Unknown";
