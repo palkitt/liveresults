@@ -391,15 +391,19 @@
       else
         this.lastRadioPassingsUpdateHash = data.hash;
 
-      data.runners.forEach(function (runner) {
-        runner.show = 'true';
+      var runners = Array.isArray(data.runners) ? data.runners.filter(function (runner) {
+        return runner != null;
+      }) : [];
+
+      runners.forEach(function (runner) {
+        runner.show = true;
         runner.timeToStart = 0;
         if (_this.Time4oServer) {
           runner.starttime = runner.start;
           runner.start = _this.formatTime(runner.starttime, 0, false, true, false, true);
         }
       });
-      this.radioData = data.runners;
+      this.radioData = runners;
       this.radioData.sort(this.startSorter);
 
       // Modify data-table
@@ -571,7 +575,7 @@
         // *** Hide or highlight rows ***
         for (var i = 0; i < data.length; i++) {
           var row = this.currentTable.row(i).node();
-          data[i].show = 'false';
+          data[i].show = false;
           $(row).removeClass();
 
           const showStatus = [1, 9, 10]; // DNS, Started, Entered
@@ -580,7 +584,7 @@
           }
 
           if (data[i].dbid < 0) {
-            data[i].show = 'true';
+            data[i].show = true;
             shownId.push({ dbid: data[i].dbid });
             if (firstUnknown) {
               $(row).addClass('firstnonqualifier');
@@ -592,7 +596,7 @@
 
           if (openStart) {
             if (data[i].starttime == -999) {
-              data[i].show = 'true';
+              data[i].show = true;
               shownId.push({ dbid: data[i].dbid });
               if (firstOpen) {
                 $(row).addClass('firstnonqualifier');
@@ -613,7 +617,7 @@
             if (timeToStart <= -postTime)
               continue;
             else if (timeToStart <= 0) {
-              data[i].show = 'true';
+              data[i].show = true;
               shownId.push({ dbid: data[i].dbid });
               $(row).addClass('pre_post_start')
               if (firstInPostTime) {
@@ -622,7 +626,7 @@
               }
             }
             else if (timeToStart <= callTime) {
-              data[i].show = 'true';
+              data[i].show = true;
               shownId.push({ dbid: data[i].dbid });
               if (firstInCallTime) {
                 $(row).addClass('firststarter yellow_row');
@@ -634,7 +638,7 @@
                 $(row).addClass('yellow_row');
             }
             else if (timeToStart <= callTime + preTime) {
-              data[i].show = 'true';
+              data[i].show = true;
               shownId.push({ dbid: data[i].dbid });
               $(row).addClass('pre_post_start');
             }
@@ -644,7 +648,7 @@
             $(row).addClass('dns');
         }
         this.currentTable.rows().invalidate();
-        this.currentTable.column(0).search('true').draw();
+        this.currentTable.column(0).search('^true$', true, false).draw();
 
         this.animateTable(_this.prewShownId, shownId, _this.animTime);
         this.prewShownId = shownId;
