@@ -125,12 +125,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style-liveres.css?v=20260606">
+  <link rel="stylesheet" href="css/style-liveres.css?v=20260619">
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260606"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260606"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260619"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260619"></script>
   <?php if ($isTime4oComp) { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260606"></script>
+    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260619"></script>
   <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <script type="module" src="https://hstrekk.ru-stad.name/hstrekk.js"></script>
@@ -720,6 +720,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   <?php if ($isTime4oComp) { ?>
                     <br>
                     Timing data from Time4o <img src="images/time4o_small.svg" height="10px">: https://time4o.com/
+                  <?php } ?>
+                  <?php if (in_array($LiveResID, array("11266", "11267", "11268"))) { ?>
+                    <br> <img src="images/OF2026.png" width="100%">
                   <?php } ?>
                 </div>
             </div>
