@@ -78,9 +78,9 @@
       if (this.Time4oServer) {
         data = this.Time4oEntryListToLiveres(data, this.activeClasses);
         // Left in forest type
-        data.passings = data.runners.filter(function (runner) {
-          return runner.status == 9 || runner.status == 10;
-        });
+        data.passings = Array.isArray(data.runners) ? data.runners.filter(function (runner) {
+          return runner != null && (runner.status == 9 || runner.status == 10);
+        }) : [];
         data.passings.sort(this.sortLeftInForest);
       }
       else
