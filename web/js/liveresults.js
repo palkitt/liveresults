@@ -1975,6 +1975,10 @@ var LiveResults;
         var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
         var scrollX = window.scrollX;
         var scrollY = window.scrollY;
+
+        data.results = Array.isArray(data.results)
+          ? data.results.filter(item => item != null) // removes null and undefined
+          : [];
         if (data && data.results) {
           $.each(data.results, function (idx, res) {
             res.placeSortable = res.place;
@@ -1996,7 +2000,7 @@ var LiveResults;
         this.updateClubOrder(); // Update position in table
         this.updateClubTimes(false); // Insert times and highlights only
         $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
-        window.scrollTo(scrollX, scrollY)
+        window.scrollTo(scrollX, scrollY);
         this.animateTable(oldData, data.results, this.animTime, false, true);
         if (!this.Time4oServer)
           this.lastClubHash = data.hash;
@@ -3413,6 +3417,10 @@ var LiveResults;
           data = this.Time4oClubResultsToLiveres(data, _this.activeClasses);
         if (data.clubName != null)
           $('#' + this.resultsHeaderDiv).html('<b>' + data.clubName + '</b>');
+
+        data.results = Array.isArray(data.results)
+          ? data.results.filter(item => item != null) // removes null and undefined
+          : [];
         if (data.results != null) {
           var hasPace = false;
           $.each(data.results, function (idx, res) {
