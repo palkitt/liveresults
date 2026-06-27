@@ -197,7 +197,8 @@
         columns.push({
           title: "Klasse", className: "dt-left", orderable: leftInForest, targets: [col++], data: "class",
           render: function (data, type, row) {
-            var link = "<a href=\"followfull.php?comp=" + _this.competitionId + "#" + encodeURIComponent(row.class);
+            var link = "<a href=\"followfull.php?comp=" + _this.LiveResID;
+            link += "#" + encodeURIComponent(row.class);
             link += "\" target=\"_blank\" style=\"text-decoration: none;\">" + row.class + "</a>";
             return link;
           }
