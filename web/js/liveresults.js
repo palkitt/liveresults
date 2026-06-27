@@ -2345,11 +2345,12 @@ var LiveResults;
 
               var delPre = (data.results[i].results[j].status == 1 ? "<del>" : "");
               var delPost = (data.results[i].results[j].status == 1 ? "</del>" : "");
-
+              var startTimeStr = (data.results[i].results[j].start == 0 ? "" :
+                this.formatTime(data.results[i].results[j].start, 0, false, true, true, true));
               res += "<tr><td align=\"right\">" + delPre + bib + delPost + "</td>";
               res += "<td>" + delPre + name + delPost + "</td>";
               res += "<td>" + delPre + club + delPost + "</td>";
-              res += "<td align=\"right\">" + delPre + _this.formatTime(data.results[i].results[j].start, 0, false, true, true, true) + delPost + "</td>";
+              res += "<td align=\"right\">" + delPre + startTimeStr + delPost + "</td>";
               res += "<td align=\"right\"><span class=small>" + delPre + ecards + delPost + "</span>&nbsp;</td>";
               res += "</tr>";
             }
