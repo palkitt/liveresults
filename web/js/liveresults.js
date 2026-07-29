@@ -474,6 +474,18 @@ var LiveResults;
     };
 
 
+    // Update runner count display in class header (e.g. "(14/21)")
+    AjaxViewer.prototype.updateClassRunnerCount = function (results) {
+      if (!results || results.length === 0) {
+        $('#classRunnerCount').html('');
+        return;
+      }
+      var total = results.length;
+      var finished = results.filter(function (r) { return r.status != 9 && r.status != 10; }).length;
+      $('#classRunnerCount').html('(' + finished + '/' + total + ')');
+    };
+
+
     // Update best split times
     AjaxViewer.prototype.updateClassSplitsBest = function (data) {
       if (data != null && data.status == "OK" && data.results != null) {
@@ -1846,6 +1858,7 @@ var LiveResults;
 
             this.curClassNumberOfRunners = newData.results.length;
             $('#numberOfRunners').html(this.curClassNumberOfRunners);
+            this.updateClassRunnerCount(newData.results);
             this.checkRadioControls(newData);
             this.updateClassSplitsBest(newData);
             this.updateResultVirtualPosition(newData.results);
@@ -2054,6 +2067,7 @@ var LiveResults;
       this.curClubName = null;
       this.curSplitView = null;
       this.curRelayView = null;
+      $('#classRunnerCount').html('');
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
       $('#openInNewWindowBtn').show();
 
@@ -3045,7 +3059,7 @@ var LiveResults;
 
           if (!this.Time4oServer)
             this.lastClassHash = data.hash;
-
+          this.updateClassRunnerCount(data.results);
           if (this.isCompToday()) {
             this.updatePredictedTimes(true); // Insert times only
             if (this.lastChanged)
@@ -3358,6 +3372,7 @@ var LiveResults;
       this.curClassName = null;
       this.curSplitView = null;
       this.curRelayView = null;
+      $('#classRunnerCount').html('');
       $('#resultsHeader').html(this.resources["_LOADINGRESULTS"]);
       $('#openInNewWindowBtn').show();
 
@@ -3438,6 +3453,7 @@ var LiveResults;
 
           var numberOfRunners = data.results.length;
           $('#numberOfRunners').html(numberOfRunners);
+          this.updateClassRunnerCount(data.results);
           this.curClubSplits = (data.numSplits == undefined ? 0 : data.numSplits);
 
           var columns = Array();

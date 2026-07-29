@@ -622,6 +622,48 @@ div.dt-buttons>.dt-button:hover {
   color: gray;
 }
 
+/* Info modal */
+.info-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding: 8px;
+  pointer-events: none;
+}
+
+.info-modal-content {
+  background: var(--bkdark, #444);
+  color: #ddd;
+  border-radius: 6px;
+  padding: 12px 14px 10px 14px;
+  max-width: min(420px, 96vw);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+  pointer-events: all;
+  position: relative;
+}
+
+.info-modal-content a {
+  color: #8cf;
+}
+
+.info-modal-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
+/* Runner count in class header */
+#classRunnerCount {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 4px;
+  font-size: 0.8em;
+  color: white;
+}
+
 /* Competition name */
 .text-truncate {
   display: inline-block;

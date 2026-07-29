@@ -125,12 +125,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style-liveres.css?v=20260619">
+  <link rel="stylesheet" href="css/style-liveres.css?v=20260724">
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260619"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260619"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260724"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260724"></script>
   <?php if ($isTime4oComp) { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260619"></script>
+    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260724"></script>
   <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <script type="module" src="https://hstrekk.ru-stad.name/hstrekk.js"></script>
@@ -420,6 +420,43 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       $('#classColumnContent').css('max-height', newHeight);
     }
 
+    function toggleInfoModal(event) {
+      if (event) event.stopPropagation();
+      var modal = document.getElementById('infoModal');
+      if (!modal) return;
+      if (modal.style.display === 'none') {
+        // Sync mirror spans into modal spans before showing
+        syncInfoModal();
+        modal.style.display = 'flex';
+      } else {
+        modal.style.display = 'none';
+      }
+    }
+
+    function hideInfoModal(event) {
+      var modal = document.getElementById('infoModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function syncInfoModal() {
+      var map = {
+        'infoRunners': 'numberOfRunners',
+        'infoRunnersTotal': 'numberOfRunnersTotal',
+        'infoRunnersStarted': 'numberOfRunnersStarted',
+        'infoRunnersFinished': 'numberOfRunnersFinished'
+      };
+      for (var dest in map) {
+        var src = document.getElementById(map[dest]);
+        var dst = document.getElementById(dest);
+        if (src && dst) dst.innerHTML = src.innerHTML;
+      }
+    }
+
+    $(window).on('resize', function() {
+      if (res && res.currentTable)
+        res.currentTable.columns.adjust();
+    });
+
     function togglelocked() {
       var content = document.querySelector('.class-column');
       if (!content) return;
@@ -639,6 +676,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   <button class="navbtn" onclick="changeFontSize(-2)" title="<?= $_SMALLER ?>"><span class="fa-solid fa-minus"></span></button>
                   <span id="colSelector" style="display: inline-block;"></span>
                   <button class="navbtn" id="openInNewWindowBtn" onclick="openInNewTab()" title="<?= $_OPENINNEWWINDOW ?>" style="display:none;"><span class="fa-solid fa-arrow-up-right-from-square"></span></button>
+                  <button class="navbtn" id="infoBtnTop" onclick="toggleInfoModal(event)" title="Info"><span class="fa-solid fa-circle-info"></span></button>
                   &nbsp;
                   <span id="compname" class="text-truncate" style="font-weight: bold;">loading comp name...</span>
                 </td>
@@ -677,6 +715,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   <button id="dropbtnClass" class="dropbtnClass" onclick="toggleClassList(event)">
                     <span id="resultsHeader"><b><?= $_NOCLASSCHOSEN ?></b></span>
                   </button>
+                  <span id="classRunnerCount"></span>
                 </div>
               </td>
               <td align="right"><span id="divLivelox" class="splitChooser"></span> &nbsp;<span id="txtResetSorting" class="splitChooser"></span></td>
@@ -695,42 +734,43 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
             <?php } ?>
             <div class="result-column">
               <table id="divResults" width="100%"></table>
-              <?php if (!$isSingleClass && !$isSingleClub) { ?>
-                <table class="numrunners">
-                  <tr>
-                    <td>Antall</td>
-                    <?php if ($isLiveResComp) { ?>
-                      <td>Totalt</td>
-                      <td><?= $_START ?></td>
-                      <td><?= $_CONTROLFINISH ?></td>
-                    <?php } ?>
-                  </tr>
-                  <tr>
-                    <td><span id="numberOfRunners"></span></td>
-                    <?php if ($isLiveResComp) { ?>
-                      <td><span id="numberOfRunnersTotal"></span></td>
-                      <td><span id="numberOfRunnersStarted"></span></td>
-                      <td><span id="numberOfRunnersFinished"></span></td>
-                    <?php } ?>
-                  </tr>
-                </table>
-                <div style="font-size: 0.7em; color:gray; line-height:1.3em;">
-                  Last update: <span id="lastupdate"></span>. Update interval: <span id="updateinterval"></span>s.<br>
-                  &copy;2012- Liveresults. Source code: https://github.com/palkitt/liveresults
-                  <?php if ($isTime4oComp) { ?>
-                    <br>
-                    Timing data from Time4o <img src="images/time4o_small.svg" height="10px">: https://time4o.com/
-                  <?php } ?>
-                  <?php if (in_array($LiveResID, array("11266", "11267", "11268"))) { ?>
-                    <br> <img src="images/OF2026.png" width="100%">
-                  <?php } ?>
-                </div>
             </div>
           </div>
           </td>
         </tr>
       </table>
-    <?php } ?>
+  </div>
+
+  <!-- Info modal -->
+
+  <!-- Hidden spans kept for JS updates; displayed in info modal -->
+  <span id="numberOfRunners" style="display:none"></span>
+  <?php if ($isLiveResComp) { ?>
+    <span id="numberOfRunnersTotal" style="display:none"></span>
+    <span id="numberOfRunnersStarted" style="display:none"></span>
+    <span id="numberOfRunnersFinished" style="display:none"></span>
+  <?php } ?>
+
+  <div id="infoModal" class="info-modal" style="display:none;" onclick="hideInfoModal(event)">
+    <div class="info-modal-content" onclick="event.stopPropagation()">
+      <button class="info-modal-close navbtn" onclick="toggleInfoModal()"><span class="fa-solid fa-xmark"></span></button>
+      <div style="font-size:0.85em; line-height:1.8em; padding-right:30px;">
+        <?php if ($isLiveResComp) { ?>
+          <b>Antall:</b> <span id="infoRunners"></span> &nbsp;|
+          <b>Totalt:</b> <span id="infoRunnersTotal"></span> &nbsp;|
+          <b><?= $_START ?>:</b> <span id="infoRunnersStarted"></span> &nbsp;|
+          <b><?= $_CONTROLFINISH ?>:</b> <span id="infoRunnersFinished"></span><br>
+        <?php } ?>
+        Last update: <span id="lastupdate"></span><br>
+        Update interval: <span id="updateinterval"></span>s<br>
+        <?php if ($isTime4oComp) { ?>
+          Timing data from Time4o:
+          <a href="https://time4o.com/" target="_blank"><img src="images/time4o_small.svg" height="10px"> time4o.com</a><br>
+        <?php } ?>
+        Organizer guide: <a href="https://palkitt.github.io/liveresults/guide_no" target="_blank">Guide</a><br>
+        &copy; Liveresults: <a href="https://github.com/palkitt/liveresults" target="_blank">Source code</a>
+      </div>
+    </div>
   </div>
 </body>
 
