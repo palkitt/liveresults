@@ -226,9 +226,6 @@
 
       // Prepare for animation
       this.animating = true;
-      // Turn off fixed header if not already applied
-      if ($('div[class^="dtfh-floatingparent dtfh-floatingparent-head"]').length === 0)
-        currentTable.fixedHeader.disable();
 
       var table = (isResTab ? $('#' + this.resultsDiv) : $('#' + this.radioPassingsDiv));
       var rows = table.find('tr');
@@ -266,6 +263,13 @@
         }
         ind++;
       });
+
+      // With scrollY the original <thead> is hidden (height 0, not :visible), so
+      // ensure the header sentinel entry exists for the +1 offset used below
+      if (rowIndArray.length === 0 || rowIndArray[0] !== -1) {
+        rowPosArray.unshift(0);
+        rowIndArray.unshift(-1);
+      }
 
       table.height(height).width('100%');
       table.css({ 'table-layout': 'fixed' });
@@ -335,9 +339,6 @@
     }
     catch {
       this.animating = false;
-      if (!currentTable.fixedHeader.enabled()) {
-        currentTable.fixedHeader.enable();
-      }
       if (predRank)
         this.startPredictedTimeTimer();
     }
@@ -346,7 +347,6 @@
 
   // Reset settings after animation is completed
   AjaxViewer.prototype.endAnimateTable = function (table, predRank, clubTable) {
-    var currentTable = this.currentTable;
     var rows = table.find('tr');
     var tableCells = table.find('tr td, tr th');
 
@@ -359,9 +359,6 @@
     table.height(0).width('100%');
     table.css({ 'table-layout': 'auto' });
     this.animating = false;
-    if (!currentTable.fixedHeader.enabled()) {
-      currentTable.fixedHeader.enable();
-    }
     if (predRank)
       this.startPredictedTimeTimer();
     else if (clubTable)

@@ -18,7 +18,6 @@ $currentComp = new Emma($_GET['comp']);
 
 $showPath = true;
 
-$RunnerStatus = array("1" =>  $_STATUSDNS, "2" => $_STATUSDNF, "11" =>  $_STATUSWO, "12" => $_STATUSMOVEDUP, "9" => $_STATUSNOTSTARTED, "0" => $_STATUSOK, "3" => $_STATUSMP, "4" => $_STATUSDSQ, "5" => $_STATUSOT, "9" => "", "10" => "");
 $showTimePrediction = true;
 
 echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
@@ -156,7 +155,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							divR.id = divResults;
 
 							res[j] = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, compID, "no", "divClasses", "divLastPassings", resultsHeader, divResults,
-								"txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "", false, "", true);
+								"txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "", false, "", null, true);
 							res[j].highTime = 0;
 							res[j].noSplits = true;
 							res[j].compDate = "<?= $currentComp->CompDate(); ?>";

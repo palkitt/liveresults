@@ -125,12 +125,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style-liveres.css?v=20260724">
+  <link rel="stylesheet" href="css/style-liveres.css?v=20260730">
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260724"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260724"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260730"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260730"></script>
   <?php if ($isTime4oComp) { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260724"></script>
+    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260730"></script>
   <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <script type="module" src="https://hstrekk.ru-stad.name/hstrekk.js"></script>
@@ -452,9 +452,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       }
     }
 
-    $(window).on('resize', function() {
-      if (res && res.currentTable)
-        res.currentTable.columns.adjust();
+    $(window).on('resize orientationchange', function() {
+      setClassColumnHeight();
+      if (res)
+        res.updateScrollY();
     });
 
     function togglelocked() {
@@ -509,7 +510,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       $("#topBar").height(0);
       $("#topBar").animate({
         'height': height
-      }, 300);
+      }, 300, function() {
+        if (res)
+          res.updateScrollY();
+      });
       topBar = true;
       res.autoUpdateLastPassings = true;
       res.updateLastPassings();
@@ -518,7 +522,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
     function closeTop() {
       $("#topBar").animate({
         'height': '0px'
-      }, 300);
+      }, 300, function() {
+        if (res)
+          res.updateScrollY();
+      });
       topBar = false;
       res.autoUpdateLastPassings = false;
     }

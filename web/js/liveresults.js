@@ -1464,7 +1464,7 @@ var LiveResults;
             }
           }
 
-          // Update virtal positions if predRank is on
+          // Update virtual positions if predRank is on
           var updatedVP = false;
           if (predRank && !this.curClassIsMassStart && !this.curClassIsRelay && !this.curClassIsUnranked && !this.curClassLapTimes) {
             oldData = $.extend(true, [], data); // Take a copy before updating VP
@@ -1483,8 +1483,13 @@ var LiveResults;
             table.rows().invalidate();
           }
 
-          if (updatedVP || timesOnly)
+          if (updatedVP || timesOnly) {
+            var dtScrollBody = $(table.table().container()).find('.dt-scroll-body');
+            var savedTop = dtScrollBody.scrollTop();
+            var savedLeft = dtScrollBody.scrollLeft();
             table.columns.adjust().draw();
+            dtScrollBody.scrollTop(savedTop).scrollLeft(savedLeft);
+          }
 
           if (!timesOnly) {
             if (updatedVP)
@@ -1509,6 +1514,33 @@ var LiveResults;
     //Set wether to display tenth of a second in results
     AjaxViewer.prototype.setShowTenth = function (val) {
       this.showTenthOfSecond = val;
+    };
+
+
+    // Returns available pixel height for the DataTable scroll body
+    AjaxViewer.prototype.calculateScrollY = function () {
+      var topOffset;
+      if (this.currentTable) {
+        var scrollBody = $(this.currentTable.table().container()).find('.dt-scroll-body');
+        topOffset = scrollBody.length ? scrollBody.offset().top : $(this.currentTable.table().container()).offset().top;
+      } else {
+        var col = $('#' + this.resultsDiv).closest('.result-column');
+        topOffset = col.length ? col.offset().top : 200;
+      }
+      // Reserve space for the horizontal scrollbar on desktop
+      var hScrollAllowance = (this.browserType !== 1 ? 10 : 4);
+      return Math.max(100, Math.floor(window.innerHeight - topOffset - hScrollAllowance));
+    };
+
+
+    // Update the DataTable scroll-body height to fill the remaining viewport
+    AjaxViewer.prototype.updateScrollY = function () {
+      if (!this.currentTable) return;
+      var h = this.calculateScrollY();
+      $(this.currentTable.table().container())
+        .find('.dt-scroll-body')
+        .css({ 'height': h + 'px', 'max-height': h + 'px' });
+      this.currentTable.columns.adjust();
     };
 
 
@@ -1850,7 +1882,9 @@ var LiveResults;
             if (newData.infotext)
               $('#divInfoText').html(newData.infotext);
             var oldResults = $.extend(true, [], table.data().toArray());
-            var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
+            var scrollBody = $(table.table().container()).find('.dt-scroll-body');
+            var posLeft = scrollBody.scrollLeft();
+            var posTop = scrollBody.scrollTop();
             var scrollX = window.scrollX;
             var scrollY = window.scrollY;
             var oldColumnVisibility = table.columns().visible().toArray();
@@ -1888,7 +1922,8 @@ var LiveResults;
             }
 
             this.updatePredictedTimes(true); // Insert times only
-            $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
+            scrollBody.scrollLeft(posLeft);
+            scrollBody.scrollTop(posTop);
             window.scrollTo(scrollX, scrollY);
             var newResults = table.data().toArray();
             this.animateTable(oldResults, newResults, this.animTime);
@@ -1985,7 +2020,9 @@ var LiveResults;
         var numberOfRunners = data.results.length;
         $('#numberOfRunners').html(numberOfRunners);
         var oldColumnVisibility = table.columns().visible().toArray();
-        var posLeft = $(table.table().container()).find('.dt-scroll-body').scrollLeft();
+        var clubScrollBody = $(table.table().container()).find('.dt-scroll-body');
+        var posLeft = clubScrollBody.scrollLeft();
+        var posTop = clubScrollBody.scrollTop();
         var scrollX = window.scrollX;
         var scrollY = window.scrollY;
 
@@ -2012,7 +2049,8 @@ var LiveResults;
         });
         this.updateClubOrder(); // Update position in table
         this.updateClubTimes(false); // Insert times and highlights only
-        $(table.table().container()).find('.dt-scroll-body').scrollLeft(posLeft);
+        clubScrollBody.scrollLeft(posLeft);
+        clubScrollBody.scrollTop(posTop);
         window.scrollTo(scrollX, scrollY);
         this.animateTable(oldData, data.results, this.animTime, false, true);
         if (!this.Time4oServer)
@@ -2155,6 +2193,8 @@ var LiveResults;
       }
       var _this = this;
       if (data != null && data.status == "OK") {
+        this.currentTable = null;
+
         if (this.Time4oServer) {
           if (data.type == 'startlist' || data.type.includes('plainresults')) {
             data = this.Time4oResultsToLiveres(data, this.activeClasses);
@@ -2381,7 +2421,7 @@ var LiveResults;
           $('#numberOfRunners').html(NumRunText);
         }
         else if (data.results != null && data.results.length == 0) {
-          $('#numberOfRunners').html('<span style=\"font-weight:bold; font-size: 2em\">Ingen løpere i klassen.</span>');
+          $('#divResults').html('<span style="font-size: 1em;"><span class="fa-solid fa-user-slash"></span> Ingen løpere i valgt klasse</span>');
         }
         // Normal class result view
         else if (data.results != null && data.results.length > 0) {
@@ -2994,10 +3034,7 @@ var LiveResults;
                 return false;
               return true;
             },
-            fixedHeader: {
-              header: true,
-              headerOffset: _this.fixedTable ? 20 : 0
-            },
+            ...(!_this.fixedTable && { scrollY: _this.calculateScrollY() + 'px', scrollCollapse: true }),
             fixedColumns: { leftColumns: 2 },
             scrollX: true,
             paging: false,
@@ -3032,6 +3069,8 @@ var LiveResults;
           });
           $('#colSelector').html('');
           this.currentTable.buttons(0, null).containers().appendTo($('#colSelector'));
+          if (!this.fixedTable)
+            this.updateScrollY();
 
           // Scroll to initial view 
           if (data.results[0].progress != undefined) {
@@ -3718,7 +3757,7 @@ var LiveResults;
                 return false;
               return true;
             },
-            fixedHeader: true,
+            ...(!_this.fixedTable && { scrollY: _this.calculateScrollY() + 'px', scrollCollapse: true }),
             fixedColumns: { leftColumns: 2 },
             scrollX: true,
             paging: false,
@@ -3753,6 +3792,8 @@ var LiveResults;
           });
           $('#colSelector').html('');
           this.currentTable.buttons(0, null).containers().appendTo($('#colSelector'));
+          if (!this.fixedTable)
+            this.updateScrollY();
           if (!this.Time4oServer)
             this.lastClubHash = data.hash;
         }
@@ -4097,7 +4138,7 @@ var LiveResults;
           columns.push({ title: "m/km", className: "dt-right", orderable: false, targets: [col++], data: "kmTime" });
 
           this.currentTable = $('#' + this.resultsDiv).DataTable({
-            fixedHeader: true,
+            ...(!this.fixedTable && { scrollY: this.calculateScrollY() + 'px', scrollCollapse: true }),
             fixedColumns: { leftColumns: 3 },
             scrollX: true,
             paging: false,
@@ -4109,6 +4150,8 @@ var LiveResults;
             columnDefs: columns,
             destroy: true
           });
+          if (!this.fixedTable)
+            this.updateScrollY();
         };
       };
     };
@@ -4414,7 +4457,7 @@ var LiveResults;
             };
 
             this.currentTable = $('#' + this.resultsDiv).DataTable({
-              fixedHeader: true,
+              ...(!this.fixedTable && { scrollY: this.calculateScrollY() + 'px', scrollCollapse: true }),
               fixedColumns: { leftColumns: 2 },
               scrollX: true,
               paging: false,
@@ -4431,6 +4474,8 @@ var LiveResults;
                   $("#" + _this.txtResetSorting).html("&nbsp;&nbsp;<a href=\"javascript:LiveResults.Instance.resetSorting()\">&#8635;" + _this.resources["_RESETTODEFAULT"] + "</a>");
               }
             });
+            if (!this.fixedTable)
+              this.updateScrollY();
           }
         }
       }
