@@ -855,7 +855,7 @@ namespace LiveResults.Client
                             sign = -1;
 
                         status = reader["status"] as string;
-                        if ((status == "V") || (status == "C")) // Skip if free or not entered  
+                        if ((status == "V") || (status == "C")) // Skip if vacant or not entered  
                             continue;
 
                         classN = reader["cclass"] as string;
@@ -1761,19 +1761,7 @@ namespace LiveResults.Client
                         }
 
                         if (bibOK)
-                        {
-                            CheckEcard(ecard, bib, out ecardOK, out sameBibEcard, out int dbidUnknown);
-
-                            if (dbidUnknown > 0)
-                            {
-                                cmd.CommandText = string.Format(@"UPDATE name SET ecard=NULL WHERE id={0}", dbidUnknown);
-                                var update = cmd.ExecuteNonQuery();
-                                if (update == 1)
-                                    ecardOK = true;
-                                else
-                                    ecardOK = false;
-                            }
-                        }
+                            ecardOK = CheckAndClearEcard(ecard, bib, out sameBibEcard);
 
                         if (bibOK && ecardOK)
                         {
@@ -1875,7 +1863,7 @@ namespace LiveResults.Client
 
                     try
                     {
-                        CheckEcard(ecard, 0, out bool ecardOK, out bool sameBibEcard, out int dbidUnknown);
+                        bool ecardOK = CheckAndClearEcard(ecard, 0, out bool sameBibEcard);
 
                         if (!ecardOK)
                         {
@@ -1969,17 +1957,16 @@ namespace LiveResults.Client
             }
         }
 
-        private void CheckEcard(int ecard, int bib, out bool ecardOK, out bool sameBibEcard, out int dbidUnknown)
+        private bool CheckAndClearEcard(int ecard, int bib, out bool sameBibEcard)
         {
-            ecardOK = true;
+            bool ecardOK = true;
             sameBibEcard = false;
-            dbidUnknown = 0;
-
+            int dbidClear = 0;
             int eTimingBib = 0;
             int dbid = 0;
 
             if (ecard < 0)
-                return;
+                return false;
 
             IDbCommand cmd = m_connection.CreateCommand();
             cmd.CommandText = string.Format(@"SELECT id, ename, name, startno, status FROM name WHERE ecard={0} OR ecard2={0} OR ecard3={0} OR ecard4={0}", ecard);
@@ -1999,7 +1986,9 @@ namespace LiveResults.Client
                         if (reader["startno"] != null && reader["startno"] != DBNull.Value)
                             eTimingBib = Convert.ToInt32(reader["startno"].ToString());
                         if ((status == "U" || status == "S") && famName == "U1 Ukjent løper")
-                            dbidUnknown = dbid;
+                            dbidClear = dbid;
+                        else if (status == "C") // ecard belongs to not entered runner
+                            dbidClear = dbid;
                         else // ecard belongs to existing runner
                         {
                             ecardOK = false;
@@ -2009,6 +1998,16 @@ namespace LiveResults.Client
                 }
                 reader.Close();
             }
+            
+
+            if (dbidClear > 0)
+            {
+                IDbCommand cmdClear = m_connection.CreateCommand();
+                cmdClear.CommandText = string.Format(@"UPDATE name SET ecard=NULL, ecard2=NULL, ecard3=NULL, ecard4=NULL WHERE id={0}", dbidClear);
+                ecardOK = (cmdClear.ExecuteNonQuery() == 1);
+            }
+
+            return ecardOK;
         }
 
         private void SendLiveActive(string apiServer, WebClient client)
