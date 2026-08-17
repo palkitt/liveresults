@@ -94,7 +94,39 @@ if ($isEmmaComp) {
     $compID = $Time4oID;
   }
 }
-$image = "";
+function getCompImage(string $LiveResID, string $organizer, bool $isTime4oComp)
+{
+  if (in_array($LiveResID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  return "images/SG.png";
+  if (in_array($LiveResID, array("10118", "10119", "10120", "10121")))  return "images/NM2021.jpg";
+  if (in_array($LiveResID, array("10215")))  return "images/Skien.png";
+  if (in_array($LiveResID, array("10532", "10533", "10534", "10535"))) return "images/HL2023.png";
+  if (in_array($LiveResID, array("10606")))  return "images/Blodslitet.jpg";
+  if (in_array($LiveResID, array("10836", "10837", "10838")))  return "images/HL_logo_200.png";
+  if (in_array($LiveResID, array("11140", "11141", "11142", "11143")))  return "images/nmuka25.jpg";
+  if (in_array($LiveResID, array("11358", "11359")))  return "images/midt_norsk_26.jpg";
+  if (in_array($LiveResID, array("11354", "11355", "11356", "11357")))  return "images/NMuka_2026.jpg";
+  $org = strtolower($organizer);
+  if (str_contains($org, "larvik"))              return "images/larvikok.png";
+  if (str_contains($org, "freidig/wing/malvik")) return "images/NM2020.png";
+  if (str_contains($org, "freidig"))             return "images/Freidig60.png";
+  if (str_contains($org, "porsgrunn"))           return "images/POL.png";
+  if (str_contains($org, "wing"))                return "images/Wing.png";
+  if (str_contains($org, "byåsen"))              return "images/BIL.png";
+  if (str_contains($org, "røros"))               return "images/roros.png";
+  if (str_contains($org, "eiker"))               return "images/Eiker.png";
+  if (str_contains($org, "stokke"))              return "images/stokke.png";
+  if (str_contains($org, "skien"))               return "images/Skien.png";
+  if (str_contains($org, "byaasen skiklub"))     return "images/BSK.png";
+  if (str_contains($org, "kristiansand"))        return "images/KOK_60.jpg";
+  if (str_contains($org, "moss"))                return "images/OKMoss.png";
+  if (str_contains($org, "halden"))              return "images/haldensk.png";
+  if (str_contains($org, "indre østfold"))       return "images/indereook.jpg";
+  if (str_contains($org, "bækkelagets"))         return "images/bakkelaget.png";
+  if (str_contains($org, "trøsken"))             return "images/trosken.png";
+  if (str_contains($org, "lillomarka"))          return "images/lillomarka.png";
+  return $isTime4oComp ? "images/time4o.svg" : "images/LiveRes60.png";
+}
+$image = getCompImage($LiveResID, $organizer, $isTime4oComp);
 
 $singleClass = "";
 $isSingleClass = isset($_GET['class']);
@@ -574,79 +606,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
               <?php if (in_array($LiveResID, array("10110", "10111", "10112"))) { ?> <img src="images/NMNC2021top.jpg" height="50"><br> <?php } ?>
               <table border="0" cellpadding="3px" cellspacing="0" width="100%" style="background-color:var(--bkdark); padding: 5px">
                 <tr>
-                  <?php
-                  if (in_array($LiveResID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  $image = "images/SG.png";
-                  else if (in_array($LiveResID, array("10118", "10119", "10120", "10121")))  $image = "images/NM2021.jpg";
-                  else if (in_array($LiveResID, array("10215")))  $image = "images/Skien.png";
-                  else if (in_array($LiveResID, array("10532", "10533", "10534", "10535"))) $image = "images/HL2023.png";
-                  else if (in_array($LiveResID, array("10606")))  $image = "images/Blodslitet.jpg";
-                  else if (in_array($LiveResID, array("10836", "10837", "10838")))  $image = "images/HL_logo_200.png";
-                  else if (in_array($LiveResID, array("11140", "11141", "11142", "11143")))  $image = "images/nmuka25.jpg";
-                  else switch (strtolower($organizer)) {
-                    case "larvik ok":
-                      $image = "images/larvikok.png";
-                      break;
-                    case "freidig":
-                      $image = "images/Freidig60.png";
-                      break;
-                    case "porsgrunn ol":
-                      $image = "images/POL.png";
-                      break;
-                    case "wing ok":
-                      $image = "images/Wing.png";
-                      break;
-                    case "byåsen i.l":
-                    case "byåsen il":
-                      $image = "images/BIL.png";
-                      break;
-                    case "røros il":
-                      $image = "images/roros.png";
-                      break;
-                    case "freidig/wing/malvik":
-                      $image = "images/NM2020.png";
-                      break;
-                    case "eiker o-lag":
-                      $image = "images/Eiker.png";
-                      break;
-                    case "stokke il":
-                      $image = "images/stokke.png";
-                      break;
-                    case "skien ok":
-                      $image = "images/Skien.png";
-                      break;
-                    case "byaasen skiklub":
-                      $image = "images/BSK.png";
-                      break;
-                    case "kristiansand ok":
-                      $image = "images/KOK_60.jpg";
-                      break;
-                    case "ok moss":
-                      $image = "images/OKMoss.png";
-                      break;
-                    case "halden sk":
-                      $image = "images/haldensk.png";
-                      break;
-                    case "indre Østfold ok":
-                      $image = "images/indereook.jpg";
-                      break;
-                    case "bækkelagets sk":
-                    case "bækkelagets sportsklub":
-                      $image = "images/bakkelaget.png";
-                      break;
-                    case "trøsken il":
-                      $image = "images/trosken.png";
-                      break;
-                    case "lillomarka":
-                    case "lillomarka OL":
-                      $image = "images/lillomarka.png";
-                      break;
-                    default:
-                      if ($isTime4oComp)
-                        $image = "images/time4o_small.svg";
-                      else
-                        $image = "images/LiveRes60.png";
-                  }
-                  if ($image != "") { ?> <td width="60" class="topbar-image"><img src="<?php echo ($image) ?>" height="60"></td> <?php } ?>
+                  <?php if (!$isTime4oComp && $image != "") { ?> <td width="60" class="topbar-image"><img src="<?php echo ($image) ?>" height="60"></td> <?php } ?>
                   <td valign="top" class="lastpassings-cell"><span style="color:#FFF; text-decoration: none; font-size: 1em;"><b><?= $_LASTPASSINGS ?></b><br>
                       <div id="divLastPassings" class="passings-container"></div>
                     </span></td>
@@ -735,6 +695,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
                   <div class="lock" onclick="togglelocked()">
                     <span id="locksymbol" class="fa-solid fa-lock"></span>
                   </div>
+                  <?php if ($isTime4oComp && $image != "") { ?>
+                    <div class="class-column-header-image"><img src="<?= $image ?>" style="max-width:100%; max-height:60px; display:block; margin: 5px auto;"></div>
+                    <hr>
+                  <?php } ?>
                   <div id="divClasses"></div>
                 </div>
               </div>
