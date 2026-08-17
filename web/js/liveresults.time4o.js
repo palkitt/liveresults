@@ -473,10 +473,15 @@
 
 
   AjaxViewer.prototype.toHundredthsSinceMidnight = function (isoString) {
-    // Convert ISO 8601 time string to source local time hundredths of seconds since midnight
     if (!isoString?.includes("T")) return -999;
-    const [hours, minutes, seconds] = isoString.split("T")[1].substring(0, 8).split(":").map(Number);
-    return (hours * 3600 + minutes * 60 + seconds) * 100;
+    const date = new Date(isoString);
+    if (isNaN(date)) return -999;
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: this.timeZone ?? "Europe/Oslo",
+      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+    }).formatToParts(date);
+    const get = type => Number(parts.find(p => p.type === type)?.value ?? 0);
+    return (get("hour") * 3600 + get("minute") * 60 + get("second")) * 100;
   }
 
 

@@ -80,6 +80,7 @@ var LiveResults;
       this.currentTable = null;
       this.serverTimeDiff = 0;
       this.eventTimeZoneDiff = 0;
+      this.timeZone = "Europe/Oslo";
       this.radioData = null;
       this.compName = "";
       this.compDate = "";

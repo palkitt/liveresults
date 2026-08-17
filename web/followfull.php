@@ -12,6 +12,7 @@ $isSpeaker = isset($_GET['speaker']);
 $compID = $_GET['comp'];
 $Time4oID = "";
 $LiveResID = "";
+$timeZone = "Europe/Oslo";
 
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
@@ -52,6 +53,7 @@ if ($isEmmaComp) {
   $compName = $currentComp["title"];
   $compDate = $currentComp["date"];
   $organizer = $currentComp["event"]["organisers"][0]["name"] ?? "";
+  $timeZone = $currentComp["timezone"];
   $eventTimeZoneDiff = 0;
   $showInfo = false;
   $showEcardTimes = false;
@@ -89,11 +91,45 @@ if ($isEmmaComp) {
   $Time4oID = $currentComp->Time4oID();
   $LiveResID = $compID;
   $indexRef = "index.php?lang=" . $lang;
+  $timeZone = getTimeZone($eventTimeZoneDiff);
   if ($Time4oID != "") {
     $isTime4oComp = true;
     $compID = $Time4oID;
   }
 }
+
+function getTimeZone(int $diff): string
+{
+  return match ($diff) {
+    -13 => "Etc/GMT+12",          // UTC-12
+    -12 => "Pacific/Pago_Pago",   // UTC-11
+    -11 => "Pacific/Honolulu",    // UTC-10
+    -10 => "America/Anchorage",   // UTC-9
+    -9  => "America/Los_Angeles", // UTC-8
+    -8  => "America/Denver",      // UTC-7
+    -7  => "America/Chicago",     // UTC-6
+    -6  => "America/New_York",    // UTC-5
+    -5  => "America/Halifax",     // UTC-4
+    -4  => "America/Sao_Paulo",   // UTC-3
+    -3  => "America/Noronha",     // UTC-2
+    -2  => "Atlantic/Azores",     // UTC-1
+    -1  => "Europe/London",       // UTC+0
+    0   => "Europe/Oslo",         // UTC+1 (CET)
+    1   => "Europe/Helsinki",     // UTC+2
+    2   => "Europe/Moscow",       // UTC+3
+    3   => "Asia/Dubai",          // UTC+4
+    4   => "Asia/Karachi",        // UTC+5
+    5   => "Asia/Dhaka",          // UTC+6
+    6   => "Asia/Bangkok",        // UTC+7
+    7   => "Asia/Shanghai",       // UTC+8
+    8   => "Asia/Tokyo",          // UTC+9
+    9   => "Australia/Sydney",    // UTC+10
+    10  => "Pacific/Guadalcanal", // UTC+11
+    11  => "Pacific/Auckland",    // UTC+12
+    default => "Europe/Oslo",
+  };
+}
+
 function getCompImage(string $LiveResID, string $organizer, bool $isTime4oComp)
 {
   if (in_array($LiveResID, array("10098", "10099", "10100", "10101", "10473", "10474", "10475", "10476")))  return "images/SG.png";
@@ -159,10 +195,10 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <link rel="stylesheet" href="css/style-liveres.css?v=20260730">
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260730"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260817"></script>
   <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260730"></script>
   <?php if ($isTime4oComp) { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260730"></script>
+    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260817"></script>
   <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <script type="module" src="https://hstrekk.ru-stad.name/hstrekk.js"></script>
@@ -313,6 +349,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       // Set date and time zone
       res.compDate = "<?= $compDate ?>";
       res.eventTimeZoneDiff = <?= $eventTimeZoneDiff ?>;
+      res.timeZone = "<?= $timeZone ?>";
 
       // Insert comp name
       var compName = "<?= addslashes($compName) ?>";
