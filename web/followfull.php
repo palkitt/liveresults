@@ -30,6 +30,7 @@ if ($isEmmaComp) {
   $compName = $currentComp["name"];
   $compDate = $currentComp["date"];
   $eventTimeZoneDiff = $currentComp["timediff"];
+  $timeZone = getTimeZone($eventTimeZoneDiff);
   $organizer = $currentComp["organizer"];
   $showInfo = false;
   $showEcardTimes = false;
@@ -53,7 +54,7 @@ if ($isEmmaComp) {
   $compName = $currentComp["title"];
   $compDate = $currentComp["date"];
   $organizer = $currentComp["event"]["organisers"][0]["name"] ?? "";
-  $timeZone = $currentComp["timezone"];
+  $timeZone = $currentComp["event"]["timezone"] ?? "Europe/Oslo";
   $eventTimeZoneDiff = 0;
   $showInfo = false;
   $showEcardTimes = false;
@@ -75,6 +76,7 @@ if ($isEmmaComp) {
   $compName = $currentComp->CompName();
   $compDate = $currentComp->CompDate();
   $eventTimeZoneDiff = $currentComp->TimeZoneDiff();
+  $timeZone = getTimeZone($eventTimeZoneDiff);
   $organizer = $currentComp->Organizer();
   $showInfo = $currentComp->ShowInfo();
   $showEcardTimes = $currentComp->ShowEcardTimes();
@@ -91,7 +93,6 @@ if ($isEmmaComp) {
   $Time4oID = $currentComp->Time4oID();
   $LiveResID = $compID;
   $indexRef = "index.php?lang=" . $lang;
-  $timeZone = getTimeZone($eventTimeZoneDiff);
   if ($Time4oID != "") {
     $isTime4oComp = true;
     $compID = $Time4oID;
