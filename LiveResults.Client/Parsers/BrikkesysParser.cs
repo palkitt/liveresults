@@ -405,7 +405,7 @@ namespace LiveResults.Client
                         // Add radio times
                         int calcStartTime = -2;
                         if (splitList.ContainsKey(ecard))
-                            AddSplits(ecard, iStartTime, time, startBehind, sign, noSort, chaseStart, freeStart, useEcardTime, allEcardTimesOK, splitList[ecard], ref SplitTimes, out calcStartTime);
+                            AddSplits(ecard, iStartTime, time, startBehind, teamTimePre, sign, noSort, leg, chaseStart, freeStart, useEcardTime, allEcardTimesOK, splitList[ecard], ref SplitTimes, out calcStartTime);
 
                         if (freeStart && (calcStartTime > 0) && (Math.Abs(calcStartTime - iStartTime) > 2000))  // Update starttime if deviation more than 20 sec
                             iStartTime = calcStartTime;
@@ -442,7 +442,7 @@ namespace LiveResults.Client
             }
         }
 
-        private void AddSplits(int ecard, int iStartTime, int time, int startBehind, int sign, int noSort, bool chaseStart, bool freeStart, bool useEcardTime, bool allEcardOK,
+        private void AddSplits(int ecard, int iStartTime, int time, int startBehind, int teamTimePre, int sign, int noSort, int leg, bool chaseStart, bool freeStart, bool useEcardTime, bool allEcardOK,
             List<SplitRawStruct> splits, ref List<ResultStruct> SplitTimes, out int calcStartTime)
         {
             var lsplitCodes = new List<int>();
@@ -457,20 +457,20 @@ namespace LiveResults.Client
 
                 int passTime = -2;    // Total time at passing
                 int passLegTime = -2; // Time used on leg at passing
+
                 if (split.netTime > 0 && (time < 0 || split.netTime < time) && (freeStart || useEcardTime) && allEcardOK)
                     passTime = split.netTime;
-                else if (m_isRelay)
+                else if (leg >= 2 && teamTimePre > 0 && iStartTime > 0) // Relay 2nd leg and later
                 {
-                    //Not implemented yet
-                    //passLegTime = splitPassTime - Math.Max(iStartTime, iStartClass); // In case ind. start time not set
-                    //passTime = passLegTime + Math.Max(TeamTimePre, iStartTime - iStartClass); // Absolute pass time
+                    passLegTime = splitPassTime - iStartTime;
+                    passTime = passLegTime + teamTimePre;
                 }
                 else if (chaseStart)
                 {
                     passLegTime = splitPassTime - iStartTime;
-                    passTime = splitPassTime - iStartTime + startBehind;
+                    passTime = passLegTime + startBehind;
                 }
-                else if (!freeStart)
+                else if (!freeStart && leg <= 1) // Not free start and relay 1st leg
                     passTime = splitPassTime - iStartTime;
 
                 if (passTime < 1000 || (time > 0 && passTime > time))  // Neglect pass times less than 10 s from start and pass times longer than finish time
@@ -490,6 +490,7 @@ namespace LiveResults.Client
 
                 if (noSort == 2) // Not show times
                     passTime = -10;
+
                 var SplitTime = new ResultStruct
                 {
                     ControlCode = iSplitcode,
@@ -497,7 +498,7 @@ namespace LiveResults.Client
                 };
                 SplitTimes.Add(SplitTime);
 
-                if (passLegTime > 0 && chaseStart)
+                if (passLegTime > 0)
                 {
                     var passLegTimeStruct = new ResultStruct
                     {
