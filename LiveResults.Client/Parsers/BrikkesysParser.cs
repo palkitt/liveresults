@@ -325,7 +325,7 @@ namespace LiveResults.Client
                         }
 
                         // *** Relay handling ***
-                        if (leg > 0)
+                        if (leg >= 1)
                         {
                             int teambib = bib;
                             bib = -(bib * 100 + leg);
@@ -334,7 +334,7 @@ namespace LiveResults.Client
                                 classN += "-";
                             classN += leg.ToString();
 
-                            if (team > 0)
+                            if (team >= 1)
                                 club += "-" + team.ToString();
 
                             bool restart = (status == "C");
@@ -348,12 +348,11 @@ namespace LiveResults.Client
                                 prevIntime = 0;
                             }
 
-
-                            if (leg > 1 && prevIntime > 0 && timeCalc == "R")
+                            if (leg >= 2 && prevIntime > 0 && timeCalc == "R" && !restart)
                                 iStartTime = prevIntime;
                             prevIntime = iIntime;
 
-                            if (leg > 1 && teamTimePre > 0 && iStartTime > 0)
+                            if (leg >= 2 && teamTimePre > 0 && iStartTime > 0)
                             {
                                 var ExchangeTime = new ResultStruct
                                 {
@@ -363,7 +362,7 @@ namespace LiveResults.Client
                                 SplitTimes.Add(ExchangeTime);
                             }
 
-                            if (leg > 1 && time > 0 && !(status == "H" || status == "I" || status == "W"))
+                            if (leg >= 2 && time > 0 && !(status == "H" || status == "I" || status == "W"))
                             {
                                 var LegTime = new ResultStruct
                                 {
