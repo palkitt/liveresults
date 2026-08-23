@@ -373,7 +373,10 @@ namespace LiveResults.Client
                             }
 
                             if (time > 0)
+                            {
                                 teamTime += time + (restart ? 100 * 3600 * 100 : 0);
+                                time = teamTime;
+                            }
 
                             if (teamOK && (status == "A" || status == "C"))
                                 teamStatus = status;
@@ -392,19 +395,16 @@ namespace LiveResults.Client
                                         teamStatus = "E";
                                 }
                             }
-
                             status = teamStatus;
-
-                            if (time > 0)
-                                time = teamTime;
-
-                            teamTimePre = teamTime;
                         }
 
                         // Add radio times
                         int calcStartTime = -2;
                         if (splitList.ContainsKey(ecard))
                             AddSplits(ecard, iStartTime, time, startBehind, teamTimePre, sign, noSort, leg, chaseStart, freeStart, useEcardTime, allEcardTimesOK, splitList[ecard], ref SplitTimes, out calcStartTime);
+
+                        if (leg >= 1)
+                            teamTimePre = teamTime;
 
                         if (freeStart && (calcStartTime > 0) && (Math.Abs(calcStartTime - iStartTime) > 2000))  // Update starttime if deviation more than 20 sec
                             iStartTime = calcStartTime;
