@@ -55,7 +55,9 @@ var LiveResults;
       this.updateStartRegistrationTimer = null;
       this.lastClassListHash = "";
       this.lastRunnerListHash = "";
-      this.lastPassingsUpdateHash = "";
+      this.lastPassingsSince = "";
+      this.passingsQueue = [];
+      this.isAnimatingPassings = false;
       this.lastRadioPassingsUpdateHash = "";
       this.lastClassHash = "";
       this.lastClubHash = "";
@@ -1551,7 +1553,7 @@ var LiveResults;
       if (this.updateAutomatically && this.autoUpdateLastPassings && !this.Time4oServer) {
         $.ajax({
           url: this.apiURL,
-          data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language + "&last_hash=" + this.lastPassingsUpdateHash,
+          data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language + "&since=" + encodeURIComponent(this.lastPassingsSince),
           dataType: "json",
           success: function (data) { _this.handleUpdateLastPassings(data); },
           error: function () {
@@ -1567,45 +1569,88 @@ var LiveResults;
       var _this = this;
       if (data.rt > 0)
         this.updateInterval = data.rt * 1000;
-      if (data != null && data.status == "OK") {
-        if (data.passings != null) {
-          var str = "";
+      if (data != null && data.status == "OK" && data.passings != null) {
+        var isInitial = (_this.lastPassingsSince === "");
+        _this.lastPassingsSince = data.since;
+        if (isInitial) {
+          // Static display for initial load (passings arrive in DESC order)
+          var container = $("#" + _this.lastPassingsDiv);
+          container.html("<div class='passings-inner'></div>");
+          var inner = container.find(".passings-inner")[0];
           $.each(data.passings, function (key, value) {
-            var runnerName = (value.runnerName.length > _this.maxNameLength ? _this.nameShort(value.runnerName) : value.runnerName);
-            var status = value["status"];
-            var place = value["place"];
-            var code = value["control"];
-            var cl = value["class"];
-
-            if (cl && cl.length > 0)
-              cl = cl.replace('\'', '\\\'');
-
-            var bibStr = "";
-            if (_this.speakerView) {
-              var bib = value["bib"];
-              var bibFormat = "";
-              if (bib < 0)
-                bibFormat = (-bib / 100 | 0) + "-" + (-bib % 100)
-              else
-                bibFormat = bib;
-              bibStr = " (<a href=\"javascript:LiveResults.Instance.searchBib(" + bib + ")\">" + bibFormat + "</a>) ";
-            }
-
-            var placeStr = (code > 0 && place > 0 && status == 0 ? " (" + place + ")" : "");
-
-            str += "<div class='passing-line'>" + value.passtime + ": " + bibStr + runnerName
-              + " (<a href=\"javascript:LiveResults.Instance.chooseClass('" + cl + "')\">" + value["class"] + "</a>) "
-              + (code == 1000 && status > 0 && status < 7 ? _this.resources["_NEWSTATUS"] :
-                (code == 1000 ? _this.resources["_LASTPASSFINISHED"] : _this.resources["_LASTPASSPASSED"] + " " + value["controlName"])
-                + " " + (status == 13 ? _this.resources["_LASTPASSWITHSTATUS"] : _this.resources["_LASTPASSWITHTIME"])) + " "
-              + value["time"] + placeStr + "</div>";
+            if (key < 3)
+              inner.insertAdjacentHTML("beforeend", _this._buildPassingLineHtml(value));
           });
-          $("#" + this.lastPassingsDiv).html(str);
-          this.lastPassingsUpdateHash = data.hash;
+        } else {
+          // Queue delta passings (arrive in ASC order = oldest first) for animation
+          $.each(data.passings, function (key, value) {
+            _this.passingsQueue.push(value);
+          });
+          if (!_this.isAnimatingPassings)
+            _this._processPassingsQueue();
         }
       }
       if (_this.isCompToday())
         this.passingsUpdateTimer = setTimeout(function () { _this.updateLastPassings(); }, _this.updateInterval);
+    };
+
+    AjaxViewer.prototype._buildPassingLineHtml = function (value) {
+      var runnerName = (value.runnerName.length > this.maxNameLength ? this.nameShort(value.runnerName) : value.runnerName);
+      var status = value["status"];
+      var place = value["place"];
+      var code = value["control"];
+      var cl = value["class"];
+      if (cl && cl.length > 0)
+        cl = cl.replace("'", "\\'");
+      var bibStr = "";
+      if (this.speakerView) {
+        var bib = value["bib"];
+        var bibFormat = bib < 0 ? ((-bib / 100 | 0) + "-" + (-bib % 100)) : bib;
+        bibStr = " (<a href=\"javascript:LiveResults.Instance.searchBib(" + bib + ")\">" + bibFormat + "</a>) ";
+      }
+      var placeStr = (code > 0 && place > 0 && status == 0 ? " (" + place + ")" : "");
+      return "<div class='passing-line'>" + value.passtime + ": " + bibStr + runnerName
+        + " (<a href=\"javascript:LiveResults.Instance.chooseClass('" + cl + "')\">" + value["class"] + "</a>) "
+        + (code == 1000 && status > 0 && status < 7 ? this.resources["_NEWSTATUS"] :
+          (code == 1000 ? this.resources["_LASTPASSFINISHED"] : this.resources["_LASTPASSPASSED"] + " " + value["controlName"])
+          + " " + (status == 13 ? this.resources["_LASTPASSWITHSTATUS"] : this.resources["_LASTPASSWITHTIME"])) + " "
+        + value["time"] + placeStr + "</div>";
+    };
+
+    AjaxViewer.prototype._processPassingsQueue = function () {
+      var _this = this;
+      if (_this.passingsQueue.length === 0) {
+        _this.isAnimatingPassings = false;
+        return;
+      }
+      _this.isAnimatingPassings = true;
+      var passing = _this.passingsQueue.shift();
+      var inner = document.querySelector("#" + _this.lastPassingsDiv + " .passings-inner");
+      if (!inner) {
+        // Ensure the inner wrapper exists if the container was empty on first delta
+        var container = document.getElementById(_this.lastPassingsDiv);
+        container.innerHTML = "<div class='passings-inner'></div>";
+        inner = container.querySelector(".passings-inner");
+      }
+      // Place new item above the viewport, then transition it into view
+      inner.style.transition = "none";
+      inner.style.transform = "translateY(-1.4em)";
+      inner.insertAdjacentHTML("afterbegin", _this._buildPassingLineHtml(passing));
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          inner.style.transition = "transform 0.4s ease";
+          inner.style.transform = "translateY(0)";
+        });
+      });
+      setTimeout(function () {
+        // Drop any lines beyond the 3 visible slots
+        var lines = inner.querySelectorAll(".passing-line");
+        for (var i = 3; i < lines.length; i++)
+          inner.removeChild(lines[i]);
+        inner.style.transition = "none";
+        inner.style.transform = "";
+        _this._processPassingsQueue();
+      }, 500);
     };
 
 

@@ -826,11 +826,14 @@ class Emma
 		return $this->getSplitsForClass($className, 1000);
 	}
 
-	function getLastPassings($num)
+	function getLastPassings($num, $since = null)
 	{
 		$ret = array();
+		$sinceClause = $since !== null ? "AND results.changed > '$since'" : "";
+		$orderDir = $since !== null ? "ASC" : "DESC";
 		$q = "SELECT 
-				runners.Name, 
+				runners.Name,
+				runners.dbid,
 				runners.bib, 
 				runners.class, 
 				runners.Club, 
@@ -869,8 +872,9 @@ class Emma
 				AND results.Control NOT IN (999, 0, -999)
 				AND results.Control < 100000
 				AND runners.class NOT LIKE '%-All'
+				$sinceClause
 				ORDER BY 
-				results.changed DESC, runners.name, results.Control
+				results.changed $orderDir, runners.dbid, results.Control
 				LIMIT {$num}";
 
 		if ($result = mysqli_query($this->m_Conn, $q)) {
