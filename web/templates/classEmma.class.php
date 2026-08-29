@@ -829,7 +829,11 @@ class Emma
 	function getLastPassings($num, $since = null)
 	{
 		$ret = array();
-		$sinceClause = $since !== null ? "AND results.changed > '$since'" : "";
+		// $since is an adjusted timestamp from the client; reverse the offset before comparing raw DB times
+		$sinceDb = ($since !== null && $this->m_TimeDiff != 0)
+			? date("Y-m-d H:i:s", strtotime($since) - $this->m_TimeDiff)
+			: $since;
+		$sinceClause = $sinceDb !== null ? "AND results.changed > '$sinceDb'" : "";
 		$orderDir = $since !== null ? "ASC" : "DESC";
 		$q = "SELECT 
 				runners.Name,
