@@ -1554,7 +1554,8 @@ var LiveResults;
       if (this.updateAutomatically && this.autoUpdateLastPassings && !this.Time4oServer) {
         $.ajax({
           url: this.apiURL,
-          data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language + "&since=" + encodeURIComponent(this.lastPassingsSince),
+          data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language
+            + (this.EmmaServer ? "&last_hash=" + this.lastPassingsUpdateHash : "&since=" + encodeURIComponent(this.lastPassingsSince)),
           dataType: "json",
           success: function (data) { _this.handleUpdateLastPassings(data); },
           error: function () {
