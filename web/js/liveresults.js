@@ -56,6 +56,7 @@ var LiveResults;
       this.lastClassListHash = "";
       this.lastRunnerListHash = "";
       this.lastPassingsSince = "";
+      this.lastPassingsUpdateHash = "";
       this.passingsQueue = [];
       this.isAnimatingPassings = false;
       this.lastRadioPassingsUpdateHash = "";
@@ -1570,24 +1571,41 @@ var LiveResults;
       if (data.rt > 0)
         this.updateInterval = data.rt * 1000;
       if (data != null && data.status == "OK" && data.passings != null) {
-        var isInitial = (_this.lastPassingsSince === "");
-        _this.lastPassingsSince = data.since;
-        if (isInitial) {
-          // Static display for initial load (passings arrive in DESC order)
+        if (data.since !== undefined) {
+          var isInitial = (_this.lastPassingsSince === "");
+          _this.lastPassingsSince = data.since;
+          if (isInitial) {
+            // Static display for initial load (passings arrive in DESC order)
+            var container = $("#" + _this.lastPassingsDiv);
+            container.html("<div class='passings-inner'></div>");
+            var inner = container.find(".passings-inner")[0];
+            $.each(data.passings, function (key, value) {
+              if (key < 3)
+                inner.insertAdjacentHTML("beforeend", _this._buildPassingLineHtml(value));
+            });
+          } else {
+            // Queue delta passings (arrive in ASC order = oldest first) for animation
+            $.each(data.passings, function (key, value) {
+              _this.passingsQueue.push(value);
+            });
+            // Drop oldest items when backlog exceeds limit so the UI stays current
+            if (_this.passingsQueue.length > 20)
+              _this.passingsQueue.splice(0, _this.passingsQueue.length - 20);
+            if (!_this.isAnimatingPassings)
+              _this._processPassingsQueue();
+          }
+        } else if (data.hash !== _this.lastPassingsUpdateHash) {
+          // Fallback for servers without 'since' support (e.g. EmmaServer): static refresh on hash change
+          _this.lastPassingsUpdateHash = data.hash;
           var container = $("#" + _this.lastPassingsDiv);
-          container.html("<div class='passings-inner'></div>");
+          if (!container.find(".passings-inner").length)
+            container.html("<div class='passings-inner'></div>");
           var inner = container.find(".passings-inner")[0];
+          inner.innerHTML = "";
           $.each(data.passings, function (key, value) {
             if (key < 3)
               inner.insertAdjacentHTML("beforeend", _this._buildPassingLineHtml(value));
           });
-        } else {
-          // Queue delta passings (arrive in ASC order = oldest first) for animation
-          $.each(data.passings, function (key, value) {
-            _this.passingsQueue.push(value);
-          });
-          if (!_this.isAnimatingPassings)
-            _this._processPassingsQueue();
         }
       }
       if (_this.isCompToday())
@@ -1624,6 +1642,10 @@ var LiveResults;
         return;
       }
       _this.isAnimatingPassings = true;
+      // Speed up animation to drain the backlog: normal <4 items, faster <10, fast >=10
+      var qLen = _this.passingsQueue.length;
+      var animMs = qLen >= 10 ? 80 : qLen >= 4 ? 150 : 400;
+      var totalMs = animMs + 100;
       var passing = _this.passingsQueue.shift();
       var inner = document.querySelector("#" + _this.lastPassingsDiv + " .passings-inner");
       if (!inner) {
@@ -1638,7 +1660,7 @@ var LiveResults;
       inner.insertAdjacentHTML("afterbegin", _this._buildPassingLineHtml(passing));
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
-          inner.style.transition = "transform 0.4s ease";
+          inner.style.transition = "transform " + (animMs / 1000).toFixed(2) + "s ease";
           inner.style.transform = "translateY(0)";
         });
       });
@@ -1650,7 +1672,7 @@ var LiveResults;
         inner.style.transition = "none";
         inner.style.transform = "";
         _this._processPassingsQueue();
-      }, 500);
+      }, totalMs);
     };
 
 
