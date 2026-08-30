@@ -56,6 +56,7 @@ var LiveResults;
       this.lastClassListHash = "";
       this.lastRunnerListHash = "";
       this.lastPassingsSince = "";
+      this.lastPassingsSinceDbid = 0;
       this.lastPassingsUpdateHash = "";
       this.passingsQueue = [];
       this.isAnimatingPassings = false;
@@ -1555,7 +1556,7 @@ var LiveResults;
         $.ajax({
           url: this.apiURL,
           data: "comp=" + this.competitionId + "&method=getlastpassings&lang=" + this.language
-            + (this.EmmaServer ? "&last_hash=" + this.lastPassingsUpdateHash : "&since=" + encodeURIComponent(this.lastPassingsSince)),
+            + (this.EmmaServer ? "&last_hash=" + this.lastPassingsUpdateHash : "&since=" + encodeURIComponent(this.lastPassingsSince) + "&since_dbid=" + this.lastPassingsSinceDbid),
           dataType: "json",
           success: function (data) { _this.handleUpdateLastPassings(data); },
           error: function () {
@@ -1575,6 +1576,7 @@ var LiveResults;
         if (data.since !== undefined) {
           var isInitial = (_this.lastPassingsSince === "");
           _this.lastPassingsSince = data.since;
+          _this.lastPassingsSinceDbid = data.since_dbid || 0;
           if (isInitial) {
             // Static display for initial load (passings arrive in DESC order)
             var container = $("#" + _this.lastPassingsDiv);

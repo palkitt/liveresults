@@ -125,14 +125,16 @@ if ($_GET['method'] == 'getcompetitions') {
 		$since = null;
 	if ($since !== null)
 		$since = mysqli_real_escape_string($currentComp->m_Conn, $since);
+	$sinceDbid = isset($_GET['since_dbid']) ? intval($_GET['since_dbid']) : 0;
 	$isDelta = ($since !== null);
-	$lastPassings = $currentComp->getLastPassings($isDelta ? 20 : 3, $isDelta ? $since : null);
+	$lastPassings = $currentComp->getLastPassings($isDelta ? 20 : 3, $isDelta ? $since : null, $sinceDbid);
 	if ($isDelta && count($lastPassings) === 0) {
 		echo ("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
 	} else {
 		$first = true;
 		$ret = "";
 		$newSince = $since ?? "";
+		$newSinceDbid = $sinceDbid;
 		foreach ((array)$lastPassings as $pass) {
 			if (!$first)
 				$ret .= ",$br";
@@ -145,11 +147,16 @@ if ($_GET['method'] == 'getcompetitions') {
 					\"status\" : " . $pass['Status'] . ", 
 					\"place\": " . $pass['place'] . ",
 					\"time\": \"" . formatTime($pass['Time'], $pass['Status'], $RunnerStatus) . "\" }";
-			if (strtotime($pass['Changed']) > strtotime($newSince))
-				$newSince = $pass['Changed'];
+			// Advance cursor to the lexicographically largest (changed, dbid) in the result set
+			$passTs = strtotime($pass['Changed']);
+			$curTs  = strtotime($newSince);
+			if ($passTs > $curTs || ($passTs === $curTs && intval($pass['dbid']) > $newSinceDbid)) {
+				$newSince    = $pass['Changed'];
+				$newSinceDbid = intval($pass['dbid']);
+			}
 			$first = false;
 		}
-		echo ("{ \"status\": \"OK\",$br \"passings\": [$br$ret$br],$br \"since\": \"" . $newSince . "\", \"rt\": $RT}");
+		echo ("{ \"status\": \"OK\",$br \"passings\": [$br$ret$br],$br \"since\": \"" . $newSince . "\", \"since_dbid\": $newSinceDbid, \"rt\": $RT}");
 	}
 } elseif ($_GET['method'] == 'getclasses') {
 	$currentComp = new Emma($_GET['comp']);
