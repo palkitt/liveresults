@@ -119,13 +119,26 @@ if ($_GET['method'] == 'getcompetitions') {
 } elseif ($_GET['method'] == 'getlastpassings') {
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
-	$lastPassings = $currentComp->getLastPassings(3);
-	$first = true;
-	$ret = "";
-	foreach ((array)$lastPassings as $pass) {
-		if (!$first)
-			$ret .= ",$br";
-		$ret .= "{\"passtime\": \"" . date("H:i:s", strtotime($pass['Changed'])) . "\",
+	$since = (isset($_GET['since']) && strlen($_GET['since']) > 0) ? $_GET['since'] : null;
+	// Validate $since to prevent SQL injection: accept only valid datetime strings
+	if ($since !== null && strtotime($since) === false)
+		$since = null;
+	if ($since !== null)
+		$since = mysqli_real_escape_string($currentComp->m_Conn, $since);
+	$sinceDbid = isset($_GET['since_dbid']) ? intval($_GET['since_dbid']) : 0;
+	$isDelta = ($since !== null);
+	$lastPassings = $currentComp->getLastPassings($isDelta ? 20 : 3, $isDelta ? $since : null, $sinceDbid);
+	if ($isDelta && count($lastPassings) === 0) {
+		echo ("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
+	} else {
+		$first = true;
+		$ret = "";
+		$newSince = $since ?? "";
+		$newSinceDbid = $sinceDbid;
+		foreach ((array)$lastPassings as $pass) {
+			if (!$first)
+				$ret .= ",$br";
+			$ret .= "{\"passtime\": \"" . date("H:i:s", strtotime($pass['Changed'])) . "\",
 					\"runnerName\": \"" . $pass['Name'] . "\",
 					\"bib\": \"" . $pass['bib'] . "\",
 					\"class\": \"" . $pass['class'] . "\",
@@ -134,14 +147,17 @@ if ($_GET['method'] == 'getcompetitions') {
 					\"status\" : " . $pass['Status'] . ", 
 					\"place\": " . $pass['place'] . ",
 					\"time\": \"" . formatTime($pass['Time'], $pass['Status'], $RunnerStatus) . "\" }";
-		$first = false;
+			// Advance cursor to the lexicographically largest (changed, dbid) in the result set
+			$passTs = strtotime($pass['Changed']);
+			$curTs  = strtotime($newSince);
+			if ($passTs > $curTs || ($passTs === $curTs && intval($pass['dbid']) > $newSinceDbid)) {
+				$newSince    = $pass['Changed'];
+				$newSinceDbid = intval($pass['dbid']);
+			}
+			$first = false;
+		}
+		echo ("{ \"status\": \"OK\",$br \"passings\": [$br$ret$br],$br \"since\": \"" . $newSince . "\", \"since_dbid\": $newSinceDbid, \"rt\": $RT}");
 	}
-
-	$hash = MD5($ret);
-	if (isset($_GET['last_hash']) && $_GET['last_hash'] == $hash)
-		echo ("{ \"status\": \"NOT MODIFIED\", \"rt\": $RT}");
-	else
-		echo ("{ \"status\": \"OK\",$br \"passings\": [$br$ret$br],$br \"hash\": \"" . $hash . "\", \"rt\": $RT}");
 } elseif ($_GET['method'] == 'getclasses') {
 	$currentComp = new Emma($_GET['comp']);
 	$RT = insertHeader($refreshTime);
