@@ -194,12 +194,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
   <link rel="stylesheet" href="<?= $DataTablesURL ?>datatables.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-  <link rel="stylesheet" href="css/style-liveres.css?v=20260730">
+  <link rel="stylesheet" href="css/style-liveres.css?v=20260830">
   <script src="<?= $DataTablesURL ?>datatables.min.js"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260817"></script>
-  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260730"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.js?v=20260830"></script>
+  <script language="javascript" type="text/javascript" src="js/liveresults.common.js?v=20260830"></script>
   <?php if ($isTime4oComp) { ?>
-    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260817"></script>
+    <script language="javascript" type="text/javascript" src="js/liveresults.time4o.js?v=20260830"></script>
   <?php } ?>
   <script language="javascript" type="text/javascript" src="js/FileSaver.js"></script>
   <script type="module" src="https://hstrekk.ru-stad.name/hstrekk.js"></script>
@@ -598,6 +598,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
       });
       topBar = false;
       res.autoUpdateLastPassings = false;
+      clearTimeout(res.passingsUpdateTimer);
     }
 
     function openInNewTab(type) {
