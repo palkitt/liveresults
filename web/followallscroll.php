@@ -5,16 +5,50 @@ $lang = "no";
 if (isset($_GET['lang']))
 	$lang = $_GET['lang'];
 
+$isTime4oComp = isset($_GET['time4o']);
+$compID = $_GET['comp'];
+
 include_once("templates/emmalang_en.php");
 include_once("templates/emmalang_$lang.php");
-include_once("templates/classEmma.class.php");
 include_once("templates/datatablesURL.php");
 
 $isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
 
-header('Content-Type: text/html; charset=' . $CHARSET);
+if ($isTime4oComp) {
+	$url = "https://center.time4o.com/api/v1/race/" . rawurlencode((string)$compID);
+	$json = file_get_contents($url);
+	$data = json_decode($json, true);
+	$currentComp = $data["data"];
+	$compName = $currentComp["title"];
+	$compDate = $currentComp["date"];
+	$timeZone = $currentComp["event"]["timezone"] ?? "Europe/Oslo";
+	$eventTimeZoneDiff = 0;
+	$massStartSorting = false;
+	$showTenths = false;
+	$highTime = 60;
+	$rankedStartlist = -1;
+	$qualLimits = "";
+	$qualClasses = "";
+	$classListUrl = "https://center.time4o.com/api/v1/race/" . rawurlencode((string)$compID) . "/raceClass";
+	$classListData = null;
+} else {
+	include_once("templates/classEmma.class.php");
+	$currentComp = new Emma($compID);
+	$compName = $currentComp->CompName();
+	$compDate = $currentComp->CompDate();
+	$eventTimeZoneDiff = $currentComp->TimeZoneDiff();
+	$timeZone = "Europe/Oslo";
+	$massStartSorting = $currentComp->MassStartSorting();
+	$showTenths = $currentComp->ShowTenthOfSeconds();
+	$highTime = $currentComp->HighTime();
+	$rankedStartlist = $currentComp->RankedStartlist();
+	$qualLimits = $currentComp->QualLimits();
+	$qualClasses = $currentComp->QualClasses();
+	$classListUrl = "api/api.php";
+	$classListData = "comp=" . $compID . "&method=getclasses";
+}
 
-$currentComp = new Emma($_GET['comp']);
+header('Content-Type: text/html; charset=' . $CHARSET);
 
 $showPath = true;
 
@@ -26,7 +60,7 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 <html>
 
 <head>
-	<title><?= $_TITLE ?> :: <?= $currentComp->CompName() ?> [<?= $currentComp->CompDate() ?>]</title>
+	<title><?= $_TITLE ?> :: <?= $compName ?> [<?= $compDate ?>]</title>
 
 	<META HTTP-EQUIV="expires" CONTENT="-1">
 	<meta http-equiv="Content-Type" content="text/html;charset=<?= $CHARSET ?>">
@@ -39,6 +73,9 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 	<script src="<?= $DataTablesURL ?>datatables.min.js"></script>
 	<script language="javascript" type="text/javascript" src="js/liveresults.js"></script>
 	<script language="javascript" type="text/javascript" src="js/liveresults.common.js"></script>
+	<?php if ($isTime4oComp) { ?>
+		<script language="javascript" type="text/javascript" src="js/liveresults.time4o.js"></script>
+	<?php } ?>
 	<script language="javascript" type="text/javascript">
 		var Resources = {
 			_TITLE: "<?= $_TITLE ?>",
@@ -103,6 +140,17 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 		runnerStatus[13] = "<?= $_STATUSFINISHED ?>";
 
 		function handleGetClasses(data, compID, first, last) {
+			<?php if ($isTime4oComp) { ?>
+				if (!data || !Array.isArray(data.data)) {
+					return;
+				}
+				var classNormalizer = Object.create(LiveResults.AjaxViewer.prototype);
+				var classes = classNormalizer.Time4oClassesToLiveres(data).classes;
+				data = {
+					status: "OK",
+					classes: classes
+				};
+			<?php } ?>
 			if (data != null && data.status == "OK") {
 				if (!data.classes || !$.isArray(data.classes) || data.classes.length == 0) {
 					return null;
@@ -156,33 +204,38 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 							divR.id = divResults;
 
 							res[j] = new LiveResults.AjaxViewer(<?= ($isLocal ? "true" : "false") ?>, compID, "no", "divClasses", "divLastPassings", resultsHeader, divResults,
-								"txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "", false, "", null, true);
+								"txtResetSorting", Resources, false, true, "setAutomaticUpdateText", "setCompactViewText", runnerStatus, false, "", false, <?= ($isTime4oComp ? "true" : "false") ?>, null, true);
 							res[j].highTime = 0;
 							res[j].noSplits = true;
-							res[j].compDate = "<?= $currentComp->CompDate(); ?>";
-							res[j].eventTimeZoneDiff = <?= $currentComp->TimeZoneDiff(); ?>;
+							res[j].compDate = "<?= $compDate ?>";
+							res[j].eventTimeZoneDiff = <?= $eventTimeZoneDiff ?>;
+							res[j].timeZone = "<?= $timeZone ?>";
 
-							<?php if ($currentComp->MassStartSorting()) { ?>
+							<?php if ($massStartSorting) { ?>
 								res[j].curClassIsMassStart = true;
 							<?php } ?>
 
-							<?php if ($currentComp->ShowTenthOfSeconds()) { ?>
+							<?php if ($showTenths) { ?>
 								res[j].setShowTenth(true);
 							<?php } ?>
 
-							<?php if ($currentComp->HighTime()) { ?>
-								res[j].highTime = <?= $currentComp->HighTime(); ?>
+							<?php if ($highTime) { ?>
+								res[j].highTime = <?= $highTime ?>
 							<?php } ?>
 
-							<?php if ($currentComp->RankedStartlist() > -1) { ?>
-								res[j].rankedStartlist = <?= $currentComp->RankedStartlist(); ?>
+							<?php if ($rankedStartlist > -1) { ?>
+								res[j].rankedStartlist = <?= $rankedStartlist ?>
+							<?php } ?>
+
+							<?php if ($isTime4oComp) { ?>
+								res[j].activeClasses = classes;
 							<?php } ?>
 
 							res[j].chooseClass(className);
 
 							// Qualification limits and classes (last limit is default)
-							res[j].qualLimits = [<?= $currentComp->QualLimits(); ?>];
-							res[j].qualClasses = [<?= $currentComp->QualClasses(); ?>];
+							res[j].qualLimits = [<?= $qualLimits ?>];
+							res[j].qualClasses = [<?= $qualClasses ?>];
 
 							j++;
 						}
@@ -197,10 +250,12 @@ echo ("<?xml version=\"1.0\" encoding=\"$CHARSET\" ?>\n");
 			first = <?= (isset($_GET['first']) ? $_GET['first'] : 1) ?>;
 			last = <?= (isset($_GET['last']) ? $_GET['last'] : 999) ?>;
 			$.ajax({
-				url: "api/api.php",
-				data: "comp=" + <?= $_GET['comp'] ?> + "&method=getclasses",
+				url: <?= json_encode($classListUrl) ?>,
+				<?php if ($classListData !== null) { ?>
+					data: <?= json_encode($classListData) ?>,
+				<?php } ?>
 				success: function(data) {
-					handleGetClasses(data, <?= $_GET['comp'] ?>, first, last);
+					handleGetClasses(data, <?= json_encode((string)$compID) ?>, first, last);
 				},
 				error: function() {},
 				dataType: "json"
