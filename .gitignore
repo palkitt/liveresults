@@ -188,4 +188,5 @@ web/.vscode/launch.json
 web/osticket/
 web/bootstrap/
 web/templates/config_server.php
+web/templates/config.local.php
 web/css/font-awesome/6.6.0/
