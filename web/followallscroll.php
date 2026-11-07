@@ -14,7 +14,19 @@ include_once("templates/datatablesURL.php");
 
 $isLocal = ($_SERVER['HTTP_HOST'] == 'localhost' || $_SERVER['SERVER_NAME'] == 'localhost');
 
+if (!$isTime4oComp) {
+	include_once("templates/classEmma.class.php");
+	$currentComp = new Emma($compID);
+	$Time4oID = $currentComp->Time4oID();
+	error_log("followallscroll.php: Time4oID for LiveRes competition " . $compID . ": " . $Time4oID);
+	if ($Time4oID != "") {
+		$isTime4oComp = true;
+		$compID = $Time4oID;
+	}
+}
+
 if ($isTime4oComp) {
+	$CHARSET = 'utf-8';
 	$url = "https://center.time4o.com/api/v1/race/" . rawurlencode((string)$compID);
 	$json = file_get_contents($url);
 	$data = json_decode($json, true);
@@ -32,8 +44,6 @@ if ($isTime4oComp) {
 	$classListUrl = "https://center.time4o.com/api/v1/race/" . rawurlencode((string)$compID) . "/raceClass";
 	$classListData = null;
 } else {
-	include_once("templates/classEmma.class.php");
-	$currentComp = new Emma($compID);
 	$compName = $currentComp->CompName();
 	$compDate = $currentComp->CompDate();
 	$eventTimeZoneDiff = $currentComp->TimeZoneDiff();
